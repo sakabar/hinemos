@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <title>レターペア</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="common.css">
+    <script type="text/javascript" src="./auth.bundle.js"></script>
+  </head>
+
+  <body>
+    <h1>レターペア</h1>
+    <div class="registerLetterPair">
+      <h2>登録</h2>
+      <form class="registerLetterPairForm">
+        <input class="registerLetterPairForm__lettersText" type="text" placeholder="ひらがな" /><br>
+        <input class="registerLetterPairForm__wordText" type="text" placeholder="単語" /><br>
+        <input class="registerLetterPairForm__btn" type="button" value="決定">
+      </form>
+    </div>
+
+    <div class="viewLetterPair">
+      <h2>確認</h2>
+      <form class="viewLetterPairForm">
+        <input class="viewLetterPairForm__lettersText" type="text" placeholder="分析した結果の文字列" />
+        <input class="viewLetterPairForm__btn" type="button" value="確認">
+        <br>
+        <input class="viewLetterPairForm__wordsText" type="text" placeholder="ここに結果が出ます" /><br>
+      </form>
+    </div>
+
+    <script type="text/javascript" src="./letterPair.bundle.js"></script>
+  </body>
+</html>
