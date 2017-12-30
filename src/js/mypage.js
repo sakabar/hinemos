@@ -1,5 +1,3 @@
-const rp = require('request-promise');
-
 const init = () => {
     const userName = localStorage.userName;
     const welcomeMsg = document.querySelector('.welcomeMsg');

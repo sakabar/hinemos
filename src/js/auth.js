@@ -12,7 +12,7 @@ const init = () => {
     };
 
     const options = {
-        url: API_ROOT + '/check',
+        url: API_ROOT + '/checkAuth',
         method: 'POST',
         headers: headers,
         json: true,
