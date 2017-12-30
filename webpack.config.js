@@ -5,6 +5,7 @@ module.exports = {
     context: path.join(__dirname, '/src/js'),
     entry: {
         auth: './auth.js',
+        index: './index.js',
         letterPair: './letterPair.js',
         mypage: './mypage.js',
         signup: './signup.js',
