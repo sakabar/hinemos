@@ -3,7 +3,7 @@ const rp = require('request-promise');
 const init = () => {
     const token = localStorage.token;
     if (!token) {
-        location.href = URL_ROOT + "/signin.html";
+        location.href = URL_ROOT + '/signin.html';
         return;
     }
 
@@ -23,10 +23,15 @@ const init = () => {
 
     rp(options)
         .then((ans) => {
+            const ks = Object.keys(ans.success.result);
+            for(let i = 0; i < ks.length; i++){
+                const key = ks[i];
+                localStorage[key] = ans.success.result[key];
+            }
             return;
         })
         .catch((err) => {
-            location.href = URL_ROOT + "/signin.html";
+            location.href = URL_ROOT + '/signin.html';
             return;
         });
 };

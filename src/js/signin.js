@@ -4,6 +4,12 @@ const submit = () => {
     const userName = document.querySelector('.signinForm__userNameText').value;
     const password = document.querySelector('.signinForm__passwordText').value;
 
+    const form = document.querySelector('.signinForm');
+    if (! form.checkValidity()) {
+        alert('入力に問題があります');
+        return;
+    }
+
     const headers = {
         'Content-Type': 'application/json',
     };
@@ -21,11 +27,13 @@ const submit = () => {
 
     rp(options)
         .then((ans) => {
-            localStorage.userName = ans.success.result.userName;
+            localStorage.clear();
             localStorage.token = ans.success.token;
-            location.href = URL_ROOT + "/mypage.html";
+            localStorage.userName = userName;
+            location.href = URL_ROOT + '/mypage.html';
         })
         .catch((err) => {
+            alert('ユーザ名かパスワードが違います');
             return err;
         });
 };
