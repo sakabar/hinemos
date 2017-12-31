@@ -9,23 +9,51 @@
 
   <body>
     <h1>レターペア</h1>
-    <div class="registerLetterPair">
-      <h2>登録</h2>
-      <form class="registerLetterPairForm">
-        <input class="registerLetterPairForm__lettersText" type="text" placeholder="ひらがな" /><br>
-        <input class="registerLetterPairForm__wordText" type="text" placeholder="単語" /><br>
-        <input class="registerLetterPairForm__btn" type="button" value="決定">
+    <!-- <div class="registerLetterPair"> -->
+    <!--   <h2>登録</h2> -->
+    <!--   <div "registerLetterPair__msg"> -->
+    <!--     <ul> -->
+    <!--       <li>レターペア表からも登録ができます</li> -->
+    <!--     </ul> -->
+    <!--   </div> -->
+
+    <!--   <form class="registerLetterPairForm"> -->
+    <!--     <input class="registerLetterPairForm__lettersText" type="text" placeholder="ひらがな" /><br> -->
+    <!--     <input class="registerLetterPairForm__wordText" type="text" placeholder="単語" /><br> -->
+    <!--     <input class="registerLetterPairForm__btn" type="button" value="決定"> -->
+    <!--   </form> -->
+    <!-- </div> -->
+
+    <div class="transformFromAnalysis">
+      <h2>文析文字列から変換</h2>
+      <div "transformFromAnalysis__msg">
+        <ul>
+          <li>文析文字列を、登録済の単語に変換します</li>
+        </ul>
+      </div>
+
+      <form class="transformFromAnalysisForm">
+        <input class="transformFromAnalysisForm__lettersText" type="text" placeholder="分析した結果の文字列" />
+        <input class="transformFromAnalysisForm__btn" type="button" value="確認">
+        <br>
+        <textarea class="transformFromAnalysisForm__wordsText" rows="10" cols="20"></textarea>
+        <br>
       </form>
     </div>
 
     <div class="viewLetterPair">
-      <h2>確認</h2>
+      <h2>レターペア表</h2>
+      <div "viewLetterPair__msg">
+        <ul>
+          <li>最初の読み込み、および保存に15秒ずつかかります</li>
+          <li>ひらがなは、ヨコ→タテの順に読んでください</li>
+        </ul>
+      </div>
+
       <form class="viewLetterPairForm">
-        <input class="viewLetterPairForm__lettersText" type="text" placeholder="分析した結果の文字列" />
-        <input class="viewLetterPairForm__btn" type="button" value="確認">
-        <br>
-        <input class="viewLetterPairForm__wordsText" type="text" placeholder="ここに結果が出ます" /><br>
-      </form>
+        <input class="viewLetterPairForm__saveBtn" type="button" value="保存">
+        <div class="viewLetterPairForm__table"></div>
+        <form>
     </div>
 
     <script type="text/javascript" src="./letterPair.bundle.js"></script>

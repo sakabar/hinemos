@@ -7,10 +7,10 @@
   </head>
 
   <body>
-    <h1>ログイン -Hello, Blindfolded World!-</h1>
+    <h1>ログイン</h1>
     <form class="signinForm">
-      <input class="signinForm__userNameText" type="text" placeholder="ユーザ名" /><br>
-      <input class="signinForm__passwordText" type="text" placeholder="パスワード" /><br>
+      <input class="signinForm__userNameText" type="text" placeholder="ユーザ名" pattern="[A-Za-z0-9]+" required/><br>
+      <input class="signinForm__passwordText" type="password" placeholder="パスワード" pattern="[A-Za-z0-9@#$%&]+" required/><br>
       <input class="signinForm__submitBtn" type="button" value="決定">
     </form>
 

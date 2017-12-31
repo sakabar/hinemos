@@ -7,10 +7,17 @@
   </head>
 
   <body>
-    <h1>新規登録 -Hello, Blindfolded World!-</h1>
+    <h1>新規登録</h1>
+    <div class="signupMsg">
+      <ul>
+        <li>ユーザ名には半角英数が使えます</li>
+        <li>パスワードは8文字以上である必要があります</li>
+        <li>パスワードには半角英数と記号(@,#,$,%,&)が使えます</li>
+      </ul>
+    </div>
     <form class="signupForm">
-      <input class="signupForm__userNameText" type="text" placeholder="ユーザ名" /><br>
-      <input class="signupForm__passwordText" type="text" placeholder="パスワード" /><br>
+      <input class="signupForm__userNameText" type="text" placeholder="ユーザ名" pattern="[A-Za-z0-9]+" required/><br>
+      <input class="signupForm__passwordText" type="password" placeholder="パスワード" pattern="[A-Za-z0-9@#$%&]+" required/><br>
       <input class="signupForm__submitBtn" type="button" value="決定">
     </form>
 

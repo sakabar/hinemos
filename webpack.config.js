@@ -21,7 +21,20 @@ module.exports = {
                 test: /\.js$/,
                 loader: "babel-loader",
                 exclude: /node_modules/
-            }]
+            },
+            {
+                test: /\.css$/,
+                loaders: ['style-loader',
+                          {loader: 'css-loader', options: {importLoaders: 1}}],
+            },
+        ],
+        noParse: [path.join(__dirname, 'node_modules/handsontable/dist/handsontable.full.js')]
+    },
+    resolve: {
+        alias: {
+            'handsontable': path.join(__dirname, 'node_modules/handsontable/dist/handsontable.full.js'),
+            'handsontable.css': path.join(__dirname, 'node_modules/handsontable/dist/handsontable.full.css')
+        }
     },
     plugins: [
         new ExtendedDefinePlugin({
