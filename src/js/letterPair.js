@@ -66,7 +66,7 @@ const transformFromAnalysis = () => {
 
     const wordsText = document.querySelector('.transformFromAnalysisForm__wordsText');
 
-    const lettersList = letters.split(/(.{2})/).filter(x => x);
+    const lettersList = letters.split(/([^ 　]{1,2})/).filter(x => ! x.includes(' ') && x !== '');
     const lettersListLen = lettersList.length;
     const userName = localStorage.userName;
 
