@@ -53,7 +53,7 @@ const transformOneLine = (userName, letters) => {
 
     return rp(options)
         .then((ans) => {
-            return ans.success.result.map((obj) => obj.word).join(' ') + '\n';
+            return ans.success.result.map((obj) => obj.word).join(', ') + '\n';
         })
         .catch((err) => {
             return 'ERROR\n';
@@ -103,7 +103,7 @@ const requestWords = (userName, letters) => {
 
     return rp(options)
         .then((ans) => {
-            return ans.success.result.map((obj) => obj.word).join(',');
+            return ans.success.result.map((obj) => obj.word).join(', ');
         })
         .catch((err) => {
             return '';
@@ -226,7 +226,7 @@ const saveLetterPairTable = (hot) => {
                 const words = [];
                 promises.push(requestSaveLetterPair(userName, letters, words, token));
             } else {
-                const words = cellStr.split(',');
+                const words = cellStr.replace(/[ 　]/, '').split(/[,、\/／]/);
                 promises.push(requestSaveLetterPair(userName, letters, words, token));
             }
         }
