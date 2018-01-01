@@ -213,6 +213,7 @@ const saveLetterPairTable = (hot) => {
     // ダブルクリックによる誤作動を防ぐ
     const saveBtn = document.querySelector('.viewLetterPairForm__saveBtn');
     saveBtn.disabled = true;
+    hot.readonly = true;
 
 
     const token = localStorage.token;
@@ -244,17 +245,22 @@ const saveLetterPairTable = (hot) => {
         .then((ans) => {
             alert('保存が完了しました');
             saveBtn.disabled = false;
+            hot.readonly = false;
         })
         .catch((err) => {
             alert('置き換え中にエラーが発生しました。複数のひらがなに割り当てられている単語が無いか確認してください。');
             // alert(err);
             saveBtn.disabled = false;
+            hot.readonly = false;
         });
 };
 
 const init = () => {
     // const registerLetterPairBtn = document.querySelector('.registerLetterPairForm__btn');
     // registerLetterPairBtn.addEventListener('click', registerLetterPair);
+
+    const saveBtn = document.querySelector('.viewLetterPairForm__saveBtn');
+    saveBtn.disabled = true;
 
     let hot;
     const container = document.querySelector('.viewLetterPairForm__table');
@@ -264,13 +270,20 @@ const init = () => {
                 data: tableData,
                 rowHeaders: true,
                 colHeaders: true,
+                cells: (row, col, prop) => {
+                    let cellProperties = {}
+                    if (row == 0 || col == 0) {
+                        // ひらがな行とひらがな列は変更不可
+                        cellProperties.readOnly = true;
+                    }
+                    return cellProperties;
+                },
             });
 
             const transformFromAnalysisBtn = document.querySelector('.transformFromAnalysisForm__btn');
             transformFromAnalysisBtn.addEventListener('click', transformFromAnalysis);
-
-            const saveBtn = document.querySelector('.viewLetterPairForm__saveBtn');
             saveBtn.addEventListener('click', () => saveLetterPairTable(hot));
+            saveBtn.disabled = false;
             return;
         });
 };
