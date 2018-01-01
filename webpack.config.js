@@ -10,6 +10,7 @@ module.exports = {
         mypage: './mypage.js',
         signup: './signup.js',
         signin: './signin.js',
+        // top: './top.js',
     },
     output: {
         path: path.join(__dirname, '/dist'),
