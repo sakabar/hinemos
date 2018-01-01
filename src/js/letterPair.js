@@ -53,7 +53,7 @@ const transformOneLine = (userName, letters) => {
 
     return rp(options)
         .then((ans) => {
-            return ans.success.result.map((obj) => obj.word).join(' ') + '\n';
+            return ans.success.result.map((obj) => obj.word).join(', ') + '\n';
         })
         .catch((err) => {
             return 'ERROR\n';
@@ -103,7 +103,7 @@ const requestWords = (userName, letters) => {
 
     return rp(options)
         .then((ans) => {
-            return ans.success.result.map((obj) => obj.word).join(',');
+            return ans.success.result.map((obj) => obj.word).join(', ');
         })
         .catch((err) => {
             return '';
@@ -153,6 +153,9 @@ const generateTableData = () => {
 };
 
 const requestSaveOneWord = (userName, word, letters, token) => {
+
+
+
     const options = {
         url: API_ROOT + '/letterPair/' + userName,
         method: 'POST',
@@ -207,6 +210,11 @@ const requestSaveLetterPair = (userName, letters, words, token) => {
 };
 
 const saveLetterPairTable = (hot) => {
+    // ダブルクリックによる誤作動を防ぐ
+    const saveBtn = document.querySelector('.viewLetterPairForm__saveBtn');
+    saveBtn.disabled = true;
+
+
     const token = localStorage.token;
     const userName = localStorage.userName;
 
@@ -226,7 +234,7 @@ const saveLetterPairTable = (hot) => {
                 const words = [];
                 promises.push(requestSaveLetterPair(userName, letters, words, token));
             } else {
-                const words = cellStr.split(',');
+                const words = cellStr.replace(/[ 　]/, '').split(/[,、\/／]/);
                 promises.push(requestSaveLetterPair(userName, letters, words, token));
             }
         }
@@ -235,16 +243,19 @@ const saveLetterPairTable = (hot) => {
     Promise.all(promises)
         .then((ans) => {
             alert('保存が完了しました');
+            saveBtn.disabled = false;
         })
         .catch((err) => {
-            alert('置き換え中にエラーが発生しました');
-            alert(err);
+            alert('置き換え中にエラーが発生しました。複数のひらがなに割り当てられている単語が無いか確認してください。');
+            // alert(err);
+            saveBtn.disabled = false;
         });
 };
 
 const init = () => {
     // const registerLetterPairBtn = document.querySelector('.registerLetterPairForm__btn');
     // registerLetterPairBtn.addEventListener('click', registerLetterPair);
+
     let hot;
     const container = document.querySelector('.viewLetterPairForm__table');
     generateTableData()
