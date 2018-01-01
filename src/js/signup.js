@@ -45,11 +45,11 @@ const submit = () => {
                     localStorage.clear();
                     localStorage.token = authAns.success.token;
                     localStorage.userName = userName;
-                    location.href = URL_ROOT + '/mypage.html';
+                    location.href = URL_ROOT + '/mypage.html?version=0.0.1';
                 });
         })
         .catch((err) => {
-            alert('ユーザ名かパスワードが違います');
+            alert('そのユーザ名は既に使われています');
             return err;
         });
 };
