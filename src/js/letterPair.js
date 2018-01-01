@@ -276,8 +276,11 @@ const init = () => {
                         // ひらがな行とひらがな列は変更不可
                         cellProperties.readOnly = true;
                     }
+
                     return cellProperties;
                 },
+                fixedColumnsLeft: 1,
+                fixedRowsTop: 1,
             });
 
             const transformFromAnalysisBtn = document.querySelector('.transformFromAnalysisForm__btn');
