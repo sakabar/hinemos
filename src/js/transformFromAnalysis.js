@@ -1,5 +1,36 @@
 const rp = require('request-promise');
 
+const suggestWord = () => {
+    const suggestWordBtn = document.querySelector('.registerLetterPairForm__suggestWordBtn');
+    const lettersText = document.querySelector('.registerLetterPairForm__lettersText');
+    const letters = lettersText.value;
+    const wordText = document.querySelector('.registerLetterPairForm__wordText');
+
+    const options = {
+        url: API_ROOT + '/letterPair?letters=' + letters,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {
+        },
+    };
+
+    rp(options)
+        .then((ans) => {
+            const results = ans.success.result;
+            if (wordText.value.length === 0){
+                wordText.value = Array.from(new Set(results.map(x => x.word))).join("、");
+            } else {
+                wordText.value += '、' + Array.from(new Set(results.map(x => x.word))).join("、");
+            }
+        })
+        .catch((err) => {
+            alert(err);
+        });
+};
+
 const registerLetterPair = () => {
     const userName = localStorage.userName;
     const token = localStorage.token;
@@ -40,7 +71,7 @@ const registerLetterPair = () => {
 
 const transformOneLine = (userName, letters) => {
     const options = {
-        url: API_ROOT + '/letterPair/' + userName + '?letters=' + letters,
+        url: API_ROOT + '/letterPair?userName=' + userName + '&letters=' + letters,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -92,6 +123,9 @@ const init = () => {
 
     const transformFromAnalysisBtn = document.querySelector('.transformFromAnalysisForm__btn');
     transformFromAnalysisBtn.addEventListener('click', transformFromAnalysis);
+
+    const suggestWordBtn = document.querySelector('.registerLetterPairForm__suggestWordBtn');
+    suggestWordBtn.addEventListener('click', suggestWord);
 };
 
 init();
