@@ -8,39 +8,46 @@
   </head>
 
   <body>
-    <h1>レターペア</h1>
-    <div class="registerLetterPair">
-      <h2>登録</h2>
-      <div "registerLetterPair__msg">
-        <ul>
-          <li><a href="letterPairTable.html?version=v0.0.2">レターペア表</a>からも登録ができます</li>
-        </ul>
-      </div>
-
-      <form class="registerLetterPairForm">
-        <input class="registerLetterPairForm__lettersText" type="text" placeholder="ひらがな" /><br>
-        <input class="registerLetterPairForm__wordText" type="text" placeholder="単語" /><br>
-        <input class="registerLetterPairForm__btn" type="button" value="決定">
-      </form>
+    <div class="header" align="right">
+      <!-- FIXME 後で右寄せをCSSにする -->
+      <a href="mypage.html?version=v0.0.2">マイページ</a>
+      <a href="signout.html?version=v0.0.2">サインアウト</a>
     </div>
 
-    <div class="transformFromAnalysis">
-      <h2>分析文字列から変換</h2>
-      <div "transformFromAnalysis__msg">
-        <ul>
-          <li>分析文字列を、登録済の単語に変換します</li>
-        </ul>
+    <main>
+      <h1>レターペア</h1>
+      <div class="registerLetterPair">
+        <h2>登録</h2>
+        <div "registerLetterPair__msg">
+          <ul>
+            <li><a href="letterPairTable.html?version=v0.0.2">レターペア表</a>からも登録ができます</li>
+          </ul>
+        </div>
+
+        <form class="registerLetterPairForm">
+          <input class="registerLetterPairForm__lettersText" type="text" placeholder="ひらがな" /><br>
+          <input class="registerLetterPairForm__wordText" type="text" placeholder="単語" /><br>
+          <input class="registerLetterPairForm__btn" type="button" value="決定">
+        </form>
       </div>
 
-      <form class="transformFromAnalysisForm">
-        <input class="transformFromAnalysisForm__lettersText" type="text" size="50" placeholder="分析した結果の文字列" />
-        <input class="transformFromAnalysisForm__btn" type="button" value="確認">
-        <br>
-        <textarea class="transformFromAnalysisForm__wordsText" rows="15" cols="55"></textarea>
-        <br>
-      </form>
-    </div>
+      <div class="transformFromAnalysis">
+        <h2>分析文字列から変換</h2>
+        <div "transformFromAnalysis__msg">
+          <ul>
+            <li>分析文字列を、登録済の単語に変換します</li>
+          </ul>
+        </div>
 
+        <form class="transformFromAnalysisForm">
+          <input class="transformFromAnalysisForm__lettersText" type="text" size="50" placeholder="分析した結果の文字列" />
+          <input class="transformFromAnalysisForm__btn" type="button" value="確認">
+          <br>
+          <textarea class="transformFromAnalysisForm__wordsText" rows="15" cols="55"></textarea>
+          <br>
+        </form>
+      </div>
+    </main>
     <script type="text/javascript" src="./transformFromAnalysis.bundle.js?version=v0.0.2"></script>
   </body>
 </html>

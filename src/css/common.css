@@ -1,3 +1,7 @@
-body {
-    margin: 0 0 0 10mm;
+main {
+    margin: 0 10mm 0 10mm;
+}
+
+.header {
+    border-bottom: solid 1px #000000;
 }

@@ -10,8 +10,8 @@ module.exports = {
         mypage: './mypage.js',
         signup: './signup.js',
         signin: './signin.js',
+        signout: './signout.js',
         transformFromAnalysis: './transformFromAnalysis.js',
-        // top: './top.js',
     },
     output: {
         path: path.join(__dirname, '/dist'),
