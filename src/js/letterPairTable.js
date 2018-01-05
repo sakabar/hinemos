@@ -7,7 +7,7 @@ const rp = require('request-promise');
 // FIXMEここ、モック使ってテスト書きたい
 const requestWords = (userName, letters) => {
     const options = {
-        url: API_ROOT + '/letterPair/' + userName + '?letters=' + letters,
+        url: API_ROOT + '/letterPair?userName=' + userName + '&letters=' + letters,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -150,7 +150,7 @@ const saveLetterPairTable = (hot) => {
                 const words = [];
                 promises.push(requestSaveLetterPair(userName, letters, words, token));
             } else {
-                const words = cellStr.replace(/[ 　]/, '').split(/[,、\/／]/);
+                const words = cellStr.replace(/\s/, '').split(/[,，、\/／]/).filter(x => x.length > 0);
                 promises.push(requestSaveLetterPair(userName, letters, words, token));
             }
         }
