@@ -6,10 +6,11 @@ module.exports = {
     entry: {
         auth: './auth.js',
         index: './index.js',
-        letterPair: './letterPair.js',
+        letterPairTable: './letterPairTable.js',
         mypage: './mypage.js',
         signup: './signup.js',
         signin: './signin.js',
+        transformFromAnalysis: './transformFromAnalysis.js',
         // top: './top.js',
     },
     output: {
