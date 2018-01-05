@@ -6,11 +6,12 @@ module.exports = {
     entry: {
         auth: './auth.js',
         index: './index.js',
-        letterPair: './letterPair.js',
+        letterPairTable: './letterPairTable.js',
         mypage: './mypage.js',
         signup: './signup.js',
         signin: './signin.js',
-        // top: './top.js',
+        signout: './signout.js',
+        transformFromAnalysis: './transformFromAnalysis.js',
     },
     output: {
         path: path.join(__dirname, '/dist'),
