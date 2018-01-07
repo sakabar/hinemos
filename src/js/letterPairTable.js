@@ -68,7 +68,7 @@ const saveLetterPairTable = (hot) => {
             if (cellStr === '') {
                 words = [];
             } else {
-                words = cellStr.replace(/\s/, '').split(/[,，、/／]/).filter(x => x.length > 0);
+                words = cellStr.replace(/\s/g, '').split(/[,，、/／]/).filter(x => x.length > 0);
             }
 
             if (words.length > 0) {

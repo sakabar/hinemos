@@ -8,6 +8,7 @@ module.exports = {
         index: './index.js',
         letterPairTable: './letterPairTable.js',
         mypage: './mypage.js',
+        letterPairQuiz: './letterPairQuiz.js',
         signup: './signup.js',
         signin: './signin.js',
         signout: './signout.js',
