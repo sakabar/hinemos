@@ -3,27 +3,34 @@
   <head>
     <title>新規登録</title>
     <meta charset="UTF-8">
-    <link rel="stylesheet" type="text/css" href="common.css?version=v0.0.5">
+    <link rel="stylesheet" type="text/css" href="common.css?version=v0.1.0">
   </head>
 
   <body>
-    <h1>新規登録</h1>
-    <div class="signupMsg">
-      <ul>
-        <li>ユーザ名には半角英数とアンダーバー(_)が使えます</li>
-        <li>パスワードは8文字以上である必要があります</li>
-        <li>パスワードには半角英数と記号(@,#,$,%,&,_)が使えます</li>
-        <li>他のサービスで利用しているパスワードを使用しないでください</li>
-      </ul>
+    <div class="header" align="left">
+      <!-- FIXME 後で左寄せをCSSにする -->
+      <a href="top.html?version=v0.1.0">トップ</a>
     </div>
-    <form class="signupForm">
-      <input class="signupForm__userNameText" type="text" placeholder="ユーザ名" pattern="[A-Za-z0-9_]+" required/><br>
-      <input class="signupForm__passwordText" type="password" placeholder="パスワード" pattern="[A-Za-z0-9@#$%&_]+" required/><br>
-      <input class="signupForm__submitBtn" type="button" value="決定">
-    </form>
 
-    登録がお済みの方は: <a href="signin.html?version=v0.0.5">ログイン</a>
+    <main>
+      <h1>新規登録</h1>
+      <div class="signupMsg">
+        <ul>
+          <li>ユーザ名には半角英数とアンダーバー(_)が使えます</li>
+          <li>パスワードは8文字以上である必要があります</li>
+          <li>パスワードには半角英数と記号(@,#,$,%,&,_)が使えます</li>
+          <li>他のサービスで利用しているパスワードを使用しないでください</li>
+        </ul>
+      </div>
+      <form class="signupForm">
+        <input class="signupForm__userNameText" type="text" placeholder="ユーザ名" pattern="[A-Za-z0-9_]+" required/><br>
+        <input class="signupForm__passwordText" type="password" placeholder="パスワード" pattern="[A-Za-z0-9@#$%&_]+" required/><br>
+        <input class="signupForm__submitBtn" type="button" value="決定">
+      </form>
 
-    <script type="text/javascript" src="./signup.bundle.js?version=v0.0.5"></script>
+      登録がお済みの方は: <a href="signin.html?version=v0.1.0">ログイン</a>
+    </main>
+
+    <script type="text/javascript" src="./signup.bundle.js?version=v0.1.0"></script>
   </body>
 </html>

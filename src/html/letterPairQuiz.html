@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <title>レターペアクイズ</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="common.css?version=v0.1.0">
+    <script type="text/javascript" src="./auth.bundle.js?version=v0.1.0"></script>
+  </head>
+
+  <body>
+    <div class="header" align="right">
+      <!-- FIXME 後で右寄せをCSSにする -->
+      <a href="mypage.html?version=v0.1.0">マイページ</a>
+      <a href="signout.html?version=v0.1.0">サインアウト</a>
+    </div>
+
+    <main>
+      <h1>レターペアクイズ</h1>
+      <div class="quizMsg">
+        <ul>
+          <li>レターペアを見て、「わかった」「わからん」のボタンを押してください</li>
+          <li>まだ出題されていないレターペアや、回答に時間がかかったレターペアを優先して出題します</li>
+        </ul>
+      </div>
+      <form class="quizForm">
+        <input class="quizForm__quizLettersIndHidden" type="text" value="このセッションで解いた問題数:0" size="36" readonly><br>
+        <input class="quizForm__prevAnsText" type="text" value="前問の答え" size="36" readonly><br>
+        <input class="quizForm__prevSecText" type="text" value="前問の秒数" size="36" readonly><br>
+        <input class="quizForm__lettersText" type="text" value="しばらくお待ちください" size="36" readonly><br>
+        <input class="quizForm__submitBtn--OK" type="button" value="わかった">
+        <input class="quizForm__submitBtn--NG" type="button" value="わからん"><br>
+
+        <input class="quizForm__startUnixTimeHidden" type="hidden" value=""><br>
+      </form>
+    </main>
+
+      <script type="text/javascript" src="./letterPairQuiz.bundle.js?version=v0.1.0"></script>
+  </body>
+</html>

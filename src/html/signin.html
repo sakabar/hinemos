@@ -3,19 +3,26 @@
   <head>
     <title>ログイン</title>
     <meta charset="UTF-8">
-    <link rel="stylesheet" type="text/css" href="common.css?version=v0.0.5">
+    <link rel="stylesheet" type="text/css" href="common.css?version=v0.1.0">
   </head>
 
   <body>
-    <h1>ログイン</h1>
-    <form class="signinForm">
-      <input class="signinForm__userNameText" type="text" placeholder="ユーザ名" pattern="[A-Za-z0-9]+" required/><br>
-      <input class="signinForm__passwordText" type="password" placeholder="パスワード" pattern="[A-Za-z0-9@#$%&]+" required/><br>
-      <input class="signinForm__submitBtn" type="button" value="決定">
-    </form>
+    <div class="header" align="left">
+      <!-- FIXME 後で左寄せをCSSにする -->
+      <a href="top.html?version=v0.1.0">トップ</a>
+    </div>
 
-    初めての方は: <a href="signup.html?version=v0.0.5">登録</a>
+    <main>
+      <h1>ログイン</h1>
+      <form class="signinForm">
+        <input class="signinForm__userNameText" type="text" placeholder="ユーザ名" pattern="[A-Za-z0-9]+" required/><br>
+        <input class="signinForm__passwordText" type="password" placeholder="パスワード" pattern="[A-Za-z0-9@#$%&]+" required/><br>
+        <input class="signinForm__submitBtn" type="button" value="決定">
+      </form>
 
-    <script type="text/javascript" src="./signin.bundle.js?version=v0.0.5"></script>
+      初めての方は: <a href="signup.html?version=v0.1.0">登録</a>
+    </main>
+
+    <script type="text/javascript" src="./signin.bundle.js?version=v0.1.0"></script>
   </body>
 </html>
