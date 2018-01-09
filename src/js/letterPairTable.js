@@ -101,8 +101,10 @@ const saveLetterPairTable = (hot) => {
             hot.readonly = false;
         })
         .catch((err) => {
-            alert(err);
-            alert('置き換え中にエラーが発生しました。複数のひらがなに割り当てられている単語が無いか確認してください。');
+            const params = err.params;
+            const msg = '[' + String(params.letters) + ', ' + String(params.word) + '] の保存中にエラーが発生しました。複数のひらがなに割り当てられている単語が無いか確認してください。';
+            alert(msg);
+
             saveBtn.disabled = false;
             hot.readonly = false;
         });
