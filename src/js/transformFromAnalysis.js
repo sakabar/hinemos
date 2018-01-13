@@ -20,9 +20,9 @@ const suggestWord = () => {
         .then((ans) => {
             const results = ans.success.result;
             if (wordText.value.length === 0) {
-                wordText.value = Array.from(new Set(results.map(x => x.word))).join('、');
+                wordText.value = Array.from(new Set(results.map(x => x.word))).join('\n');
             } else {
-                wordText.value += '、' + Array.from(new Set(results.map(x => x.word))).join('、');
+                wordText.value += '\n' + Array.from(new Set(results.map(x => x.word))).join('\n');
             }
         })
         .catch((err) => {
@@ -37,7 +37,7 @@ const registerLetterPair = () => {
     const lettersText = document.querySelector('.registerLetterPairForm__lettersText');
     const letters = lettersText.value;
     const wordText = document.querySelector('.registerLetterPairForm__wordText');
-    const word = wordText.value;
+    const word = wordText.value.replace(/\n/g, '、');
 
     const headers = {
         'Content-Type': 'application/json',
