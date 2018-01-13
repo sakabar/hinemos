@@ -101,6 +101,13 @@ const saveLetterPairTable = (hot) => {
         },
     };
 
+    if (letterPairTable.length === 0) {
+        alert('何か単語を登録してください。');
+        saveBtn.disabled = false;
+        hot.readonly = false;
+        return;
+    }
+
     rp(options)
         .then((result) => {
             alert('保存が完了しました');
