@@ -30,7 +30,7 @@ const submit = () => {
             localStorage.clear();
             localStorage.token = ans.success.token;
             localStorage.userName = userName;
-            location.href = URL_ROOT + '/mypage.html?version=v0.1.0';
+            location.href = URL_ROOT + '/mypage.html?version=v0.1.1';
         })
         .catch((err) => {
             alert('ユーザ名かパスワードが違います');
