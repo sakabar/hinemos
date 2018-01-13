@@ -101,8 +101,8 @@ const saveLetterPairTable = (hot) => {
             hot.readonly = false;
         })
         .catch((err) => {
-            const params = err.params;
-            const msg = '[' + String(params.letters) + ', ' + String(params.word) + '] の保存中にエラーが発生しました。複数のひらがなに割り当てられている単語が無いか確認してください。';
+            // FIXME なかなかひどい実装
+            const msg = err.message.match(/『[^』]*』/)[0];
             alert(msg);
 
             saveBtn.disabled = false;
