@@ -1,5 +1,12 @@
 module.exports = {
     "extends": "standard",
+    "env": {
+        "browser": true,
+    },
+    "globals": {
+        "API_ROOT": true,
+        "URL_ROOT": true,
+    },
     "rules": {
         "indent": [
             "error",

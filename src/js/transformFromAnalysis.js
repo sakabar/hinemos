@@ -1,7 +1,7 @@
 const rp = require('request-promise');
 
 const suggestWord = () => {
-    const suggestWordBtn = document.querySelector('.registerLetterPairForm__suggestWordBtn');
+    // const suggestWordBtn = document.querySelector('.registerLetterPairForm__suggestWordBtn');
     const lettersText = document.querySelector('.registerLetterPairForm__lettersText');
     const letters = lettersText.value;
     const wordText = document.querySelector('.registerLetterPairForm__wordText');
@@ -20,10 +20,10 @@ const suggestWord = () => {
     rp(options)
         .then((ans) => {
             const results = ans.success.result;
-            if (wordText.value.length === 0){
-                wordText.value = Array.from(new Set(results.map(x => x.word))).join("、");
+            if (wordText.value.length === 0) {
+                wordText.value = Array.from(new Set(results.map(x => x.word))).join('、');
             } else {
-                wordText.value += '、' + Array.from(new Set(results.map(x => x.word))).join("、");
+                wordText.value += '、' + Array.from(new Set(results.map(x => x.word))).join('、');
             }
         })
         .catch((err) => {
@@ -61,7 +61,7 @@ const registerLetterPair = () => {
             lettersText.value = '';
             wordText.value = '';
         })
-        .catch((err) => {
+        .catch(() => {
             alert('登録に失敗しました');
 
             lettersText.value = '';
@@ -84,7 +84,7 @@ const transformOneLine = (userName, letters) => {
         .then((ans) => {
             return ans.success.result.map((obj) => obj.word).join(', ') + '\n';
         })
-        .catch((err) => {
+        .catch(() => {
             return 'ERROR\n';
         });
 };
@@ -95,7 +95,7 @@ const transformFromAnalysis = () => {
 
     const wordsText = document.querySelector('.transformFromAnalysisForm__wordsText');
 
-    const lettersList = letters.split(/([^\s]{1,2})/).filter(x => ! x.includes(' ') && x !== '');
+    const lettersList = letters.split(/([^\s]{1,2})/).filter(x => !x.includes(' ') && x !== '');
     const lettersListLen = lettersList.length;
     const userName = localStorage.userName;
 
@@ -107,15 +107,14 @@ const transformFromAnalysis = () => {
     Promise.all(promises)
         .then((results) => {
             wordsText.value = '';
-            for(let i = 0; i < results.length; i++) {
+            for (let i = 0; i < results.length; i++) {
                 wordsText.value += lettersList[i] + ': ' + results[i];
             }
         })
-        .catch((err) => {
+        .catch(() => {
             //
         });
 };
-
 
 const init = () => {
     const registerLetterPairBtn = document.querySelector('.registerLetterPairForm__btn');

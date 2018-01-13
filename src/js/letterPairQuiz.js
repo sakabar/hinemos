@@ -1,13 +1,13 @@
 const rp = require('request-promise');
 
-const func = (letterPairs, letters) => {
+const letterPairsToWords = (letterPairs, letters) => {
     const ans = {
         letters,
         words: letterPairs.filter(x => x.letters === letters).map(x => x.word),
     };
 
     return ans;
-}
+};
 
 // クイズに使うlettersを決定
 // まだやっていない問題がある → それをやる
@@ -19,9 +19,9 @@ const selectLetterPairs = (letterPairs, quizLogRes) => {
     const unsolvedLetters = allLetters.filter(x => !solvedLetters.includes(x));
 
     if (unsolvedLetters.length > 0) {
-        return unsolvedLetters.map(letters => func(letterPairs, letters));
+        return unsolvedLetters.map(letters => letterPairsToWords(letterPairs, letters));
     } else {
-        return solvedLetters.map(letters => func(letterPairs, letters));
+        return solvedLetters.map(letters => letterPairsToWords(letterPairs, letters));
     }
 };
 
@@ -69,12 +69,12 @@ const submit = (selectedLetterPairs, isRecalled) => {
                 quizFormLettersIndHidden.value = 'このセッションで解いた問題数:' + String(nextInd);
                 quizFormLettersText.value = selectedLetterPairs[nextInd].letters;
                 quizFormPrevAnsText.value = prevAns;
-                quizFormPrevSecText.value = "前問の秒数:" + String(sec);
+                quizFormPrevSecText.value = '前問の秒数:' + String(sec);
             } else {
                 quizFormLettersIndHidden.value = 'このセッションで解いた問題数:' + String(nextInd);
-                quizFormLettersText.value = "お疲れ様です、ページを更新してください。"
+                quizFormLettersText.value = 'お疲れ様です、ページを更新してください。';
                 quizFormPrevAnsText.value = prevAns;
-                quizFormPrevSecText.value = "前問の秒数:" + String(sec);
+                quizFormPrevSecText.value = '前問の秒数:' + String(sec);
             }
         })
         .catch((err) => {

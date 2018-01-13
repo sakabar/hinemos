@@ -5,7 +5,7 @@ const submit = () => {
     const password = document.querySelector('.signupForm__passwordText').value;
 
     const form = document.querySelector('.signupForm');
-    if (! form.checkValidity() || password.length < 8) {
+    if (!form.checkValidity() || password.length < 8) {
         alert('入力に問題があります');
         return;
     }
