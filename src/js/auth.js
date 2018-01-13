@@ -24,15 +24,13 @@ const init = () => {
     rp(options)
         .then((ans) => {
             const ks = Object.keys(ans.success.result);
-            for(let i = 0; i < ks.length; i++){
+            for (let i = 0; i < ks.length; i++) {
                 const key = ks[i];
                 localStorage[key] = ans.success.result[key];
             }
-            return;
         })
-        .catch((err) => {
+        .catch(() => {
             location.href = URL_ROOT + '/signin.html?version=v0.1.0';
-            return;
         });
 };
 

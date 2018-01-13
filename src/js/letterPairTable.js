@@ -23,14 +23,21 @@ const generateTableData = () => {
 
     return rp(options)
         .then((ans) => {
-            let fstRow = ['', ...hiraganas, ];
-            let tableData = [fstRow, ];
+            let fstRow = [
+                '',
+                ...hiraganas,
+            ];
+            let tableData = [
+                fstRow,
+            ];
 
             for (let i = 0; i < hiraganas.length; i++) {
                 const rowHiragana = hiraganas[i];
-                let row = [rowHiragana];
+                let row = [
+                    rowHiragana,
+                ];
                 for (let k = 0; k < hiraganas.length; k++) {
-                    const colHiragana = hiraganas[k]
+                    const colHiragana = hiraganas[k];
                     const letters = rowHiragana + colHiragana;
                     const wordStr = ans.success.result.filter(x => x.letters === letters).map(x => x.word).join(', ');
                     row.push(wordStr);
@@ -39,10 +46,10 @@ const generateTableData = () => {
             }
             return tableData;
         })
-        .catch((err) => {
+        .catch(() => {
             return [];
         });
-}
+};
 
 const saveLetterPairTable = (hot) => {
     // ダブルクリックによる誤作動を防ぐ
