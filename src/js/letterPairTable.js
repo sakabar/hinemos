@@ -23,14 +23,21 @@ const generateTableData = () => {
 
     return rp(options)
         .then((ans) => {
-            let fstRow = ['', ...hiraganas, ];
-            let tableData = [fstRow, ];
+            let fstRow = [
+                '',
+                ...hiraganas,
+            ];
+            let tableData = [
+                fstRow,
+            ];
 
             for (let i = 0; i < hiraganas.length; i++) {
                 const rowHiragana = hiraganas[i];
-                let row = [rowHiragana];
+                let row = [
+                    rowHiragana,
+                ];
                 for (let k = 0; k < hiraganas.length; k++) {
-                    const colHiragana = hiraganas[k]
+                    const colHiragana = hiraganas[k];
                     const letters = rowHiragana + colHiragana;
                     const wordStr = ans.success.result.filter(x => x.letters === letters).map(x => x.word).join(', ');
                     row.push(wordStr);
@@ -39,10 +46,10 @@ const generateTableData = () => {
             }
             return tableData;
         })
-        .catch((err) => {
+        .catch(() => {
             return [];
         });
-}
+};
 
 const saveLetterPairTable = (hot) => {
     // ダブルクリックによる誤作動を防ぐ
@@ -94,6 +101,13 @@ const saveLetterPairTable = (hot) => {
         },
     };
 
+    if (letterPairTable.length === 0) {
+        alert('何か単語を登録してください。');
+        saveBtn.disabled = false;
+        hot.readonly = false;
+        return;
+    }
+
     rp(options)
         .then((result) => {
             alert('保存が完了しました');
@@ -101,8 +115,10 @@ const saveLetterPairTable = (hot) => {
             hot.readonly = false;
         })
         .catch((err) => {
-            alert(err);
-            alert('置き換え中にエラーが発生しました。複数のひらがなに割り当てられている単語が無いか確認してください。');
+            // FIXME なかなかひどい実装
+            const msg = err.message.match(/『[^』]*』/)[0];
+            alert(msg);
+
             saveBtn.disabled = false;
             hot.readonly = false;
         });

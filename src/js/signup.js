@@ -5,7 +5,7 @@ const submit = () => {
     const password = document.querySelector('.signupForm__passwordText').value;
 
     const form = document.querySelector('.signupForm');
-    if (! form.checkValidity() || password.length < 8) {
+    if (!form.checkValidity() || password.length < 8) {
         alert('入力に問題があります');
         return;
     }
@@ -45,7 +45,7 @@ const submit = () => {
                     localStorage.clear();
                     localStorage.token = authAns.success.token;
                     localStorage.userName = userName;
-                    location.href = URL_ROOT + '/mypage.html?version=v0.1.0';
+                    location.href = URL_ROOT + '/mypage.html?version=v0.1.1';
                 });
         })
         .catch((err) => {
