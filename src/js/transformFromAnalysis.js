@@ -1,9 +1,8 @@
 const rp = require('request-promise');
 
 const suggestWord = () => {
-    // const suggestWordBtn = document.querySelector('.registerLetterPairForm__suggestWordBtn');
     const lettersText = document.querySelector('.registerLetterPairForm__lettersText');
-    const letters = lettersText.value;
+    const letters = lettersText.value.replace(/\s/g, '');
     const wordText = document.querySelector('.registerLetterPairForm__wordText');
 
     const options = {
@@ -116,7 +115,16 @@ const transformFromAnalysis = () => {
         });
 };
 
+const resetWordText = () => {
+    const wordText = document.querySelector('.registerLetterPairForm__wordText');
+    wordText.value = '';
+};
+
 const init = () => {
+    // ひらがなのテキストボックスが変更されたら単語のテキストボックスを空にする
+    const lettersText = document.querySelector('.registerLetterPairForm__lettersText');
+    lettersText.addEventListener('change', resetWordText);
+
     const registerLetterPairBtn = document.querySelector('.registerLetterPairForm__btn');
     registerLetterPairBtn.addEventListener('click', registerLetterPair);
 
