@@ -1,6 +1,5 @@
 const init = () => {
-    localStorage.removeItem('userName');
-    localStorage.removeItem('token');
+    localStorage.clear();
     location.href = URL_ROOT + '/signin.html?version=v0.1.1';
 };
 
