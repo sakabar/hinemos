@@ -31,6 +31,8 @@ const suggestWord = () => {
 };
 
 const registerLetterPair = () => {
+    const hiraganas = 'あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん'.split(/(.{1})/).filter(x => x);
+
     const userName = localStorage.userName;
     const token = localStorage.token;
 
@@ -42,6 +44,11 @@ const registerLetterPair = () => {
     const headers = {
         'Content-Type': 'application/json',
     };
+
+    if (!letters.split(/(.)/).filter(x => x).every(ch => hiraganas.includes(ch))) {
+        alert('「あ」〜「ん」の、濁点が付かないひらがなのみを使ってください');
+        return;
+    }
 
     const options = {
         url: API_ROOT + '/letterPair/' + userName,
