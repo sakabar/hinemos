@@ -25,12 +25,18 @@ const submit = () => {
         },
     };
 
+    const checkBox = document.querySelector('.signinForm__checkBox');
+
     rp(options)
         .then((ans) => {
-            localStorage.clear();
             localStorage.token = ans.success.token;
             localStorage.userName = userName;
-            location.href = URL_ROOT + '/mypage.html?version=v0.1.1';
+
+            localStorage.rememberPassword = checkBox.checked;
+            if (checkBox.checked) {
+                localStorage.password = password;
+            }
+            location.href = URL_ROOT + '/mypage.html?version=v0.1.2';
         })
         .catch((err) => {
             alert('ユーザ名かパスワードが違います');
@@ -38,10 +44,26 @@ const submit = () => {
         });
 };
 
+const inputSavedInfo = () => {
+    const userNameText = document.querySelector('.signinForm__userNameText');
+    const passwordText = document.querySelector('.signinForm__passwordText');
+
+    if (localStorage.userName) {
+        userNameText.value = localStorage.userName;
+    }
+    if (localStorage.password) {
+        passwordText.value = localStorage.password;
+    }
+};
+
 const init = () => {
     const submitBtn = document.querySelector('.signinForm__submitBtn');
-
     submitBtn.addEventListener('click', submit);
+
+    // 「ユーザ名とパスワードを保存する」設定の場合、あらかじめフォームに入力
+    if (localStorage.rememberPassword) {
+        inputSavedInfo();
+    }
 };
 
 init();

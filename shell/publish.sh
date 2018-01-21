@@ -6,4 +6,5 @@ npm run webpack && {
     cp src/html/*.html public
     cp dist/*.js public
     cp src/css/*.css public
+    cp node_modules/normalize.css/normalize.css public
 }
