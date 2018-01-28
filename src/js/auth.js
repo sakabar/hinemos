@@ -3,7 +3,7 @@ const rp = require('request-promise');
 const init = () => {
     const token = localStorage.token;
     if (!token) {
-        location.href = URL_ROOT + '/signin.html?version=v0.1.2';
+        location.href = URL_ROOT + '/signin.html?version=v0.2.0';
         return;
     }
 
@@ -30,7 +30,7 @@ const init = () => {
             }
         })
         .catch(() => {
-            location.href = URL_ROOT + '/signin.html?version=v0.1.2';
+            location.href = URL_ROOT + '/signin.html?version=v0.2.0';
         });
 };
 
