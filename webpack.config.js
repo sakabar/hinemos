@@ -8,10 +8,13 @@ module.exports = {
         index: './index.js',
         letterPairTable: './letterPairTable.js',
         mypage: './mypage.js',
+        numbering3: './numbering3.js',
         letterPairQuiz: './letterPairQuiz.js',
         signup: './signup.js',
         signin: './signin.js',
         signout: './signout.js',
+        threeStyleCorner: './threeStyleCorner.js',
+        threeStyleQuizCorner: './threeStyleQuizCorner.js',
         transformFromAnalysis: './transformFromAnalysis.js',
     },
     output: {

@@ -2,7 +2,7 @@
   "presets": [
     ["@babel/preset-env", {
       "targets": {
-        "chrome": 59
+        "browsers": ["last 2 versions", "safari >= 7"]
       },
       "useBuiltIns": "entry"
     }]

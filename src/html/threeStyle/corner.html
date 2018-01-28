@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <title>3-style corner</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../common.css?version=v0.1.2">
+    <script type="text/javascript" src="./auth.bundle.js?version=v0.1.2"></script>
+  </head>
+
+  <body>
+    <div class="header" align="right">
+      <!-- FIXME 後で右寄せをCSSにする -->
+      <a href="../mypage.html?version=v0.1.1">マイページ</a>
+      <a href="../faq.html?version=v0.1.2">FAQ</a>
+      <a href="../signout.html?version=v0.1.1">サインアウト</a>
+    </div>
+
+    <main>
+      <h1>3-style corner</h1>
+      <ul>
+        <li>先に、<a href="../numbering3.html?version=v0.1.1">ナンバリング</a>を登録してください</li>
+      </ul>
+
+      <form class="registerThreeStyleCornerForm">
+        <input class="registerThreeStyleCornerForm__lettersText" type="text" placeholder="ひらがな (例:あひ)"/><br>
+        <input class="registerThreeStyleCornerForm__setupText" type="text" placeholder="セットアップ (例: U)"><br>
+        <input class="registerThreeStyleCornerForm__move1Text" type="text" placeholder="手順1 (例: R D R')"><br>
+        <input class="registerThreeStyleCornerForm__move2Text" type="text" placeholder="手順2 (例: U2)"><br>
+        <input class="registerThreeStyleCornerForm__saveBtn" type="button" value="決定">
+      </form>
+
+    </main>
+
+    <script type="text/javascript" src="../threeStyleCorner.bundle.js?version=v0.1.1"></script>
+  </body>
+</html>

@@ -1,5 +1,6 @@
 dist
-public
+img
 node_modules
+public
 
 *.bak
