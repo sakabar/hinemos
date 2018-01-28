@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <title>3-style corner Quiz</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../common.css?version=v0.2.0">
+    <script type="text/javascript" src="./auth.bundle.js?version=v0.2.0"></script>
+  </head>
+
+  <body>
+    <div class="header" align="right">
+      <!-- FIXME 後で右寄せをCSSにする -->
+      <a href="../mypage.html?version=v0.2.0">マイページ</a>
+      <a href="../faq.html?version=v0.2.0">FAQ</a>
+      <a href="../signout.html?version=v0.2.0">サインアウト</a>
+    </div>
+
+    <main>
+      <h1>3-style corner Quiz</h1>
+      <ul>
+        <li>同じ手順を3回繰り返して、元の形に復元できたら「わかった」ボタンを押してください</li>
+        <li>正答率の低い手順や、回すのに時間がかかっている手順を優先的に出題します</li>
+      </ul>
+      <form class="quizForm">
+
+        <input class="quizForm__lettersText" type="text" value="しばらくお待ちください" size="36" readonly><br>
+
+        <input class="quizForm__quizIndHidden" type="text" value="このセッションで解いた問題数:0" size="36" readonly><br>
+        <input class="quizForm__prevSecText" type="text" value="前問の秒数" size="36" readonly><br>
+        <textArea class="quizForm__prevAnsText" rows="5" cols="36" style="display:none;" readonly>前問の答え</textArea><br>
+
+        <input class="quizForm__submitBtn--OK" type="button" value="わかった">
+        <input class="quizForm__submitBtn--NG" type="button" value="わからん"><br>
+        <input class="quizForm__submitBtn--hint" type="button" value="ヒントくれ"><br>
+        <textArea class="quizForm__hintText" rows="5" cols="36" style="display:none;"></textArea><br>
+        <input class="quizForm__startUnixTimeHidden" type="hidden" value="" readonly><br>
+
+      </form>
+    </main>
+
+    <script type="text/javascript" src="../threeStyleQuizCorner.bundle.js?version=v0.2.0"></script>
+  </body>
+</html>
