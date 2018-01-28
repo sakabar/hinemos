@@ -1,0 +1,46 @@
+.extendElevation__Face {
+    width: 89px;
+    height: 84px;
+    display: inline-block;
+    _display: inline;
+    padding: 1px;
+}
+
+.extendElevation__Invisible {
+    /* border: solid 1px #ffffff; */
+}
+.extendElevation__White {
+    /* border: solid 1px #000000; */
+}
+
+
+.extendElevation__Orange {
+    border: solid 1px #ffbf00;
+}
+
+.extendElevation__Green {
+    border: solid 1px #00ff00;
+}
+
+.extendElevation__Red {
+    border: solid 1px #ff0000;
+}
+
+.extendElevation__Blue {
+    border: solid 1px #0000ff;
+}
+
+.extendElevation__Yellow {
+    border: solid 1px #ffff00;
+}
+
+.piece {
+    width: 20px;
+    height: 20px;
+    font-size: x-small;
+}
+
+.extendElevation {
+    /* border: solid 1px #000000; */
+    /* background-color: #8FBF3F; */
+}
