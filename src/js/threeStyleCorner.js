@@ -5,6 +5,34 @@ const isValidMoves = (moveStr) => {
     return /^(([BDFLRUEMS]w?)|[xyz])'?2?( (([BDFLRUEMS]w?)|[xyz])'?2?)*$/.test(moveStr);
 };
 
+const checkNew = () => {
+    const lettersText = document.querySelector('.registerThreeStyleCornerForm__lettersText');
+    const userName = localStorage.userName;
+    const letters = lettersText.value.replace(/\s*$/, '');
+
+    const options = {
+        url: API_ROOT + '/threeStyleFromLetters/corner?userName=' + userName + '&letters=' + letters,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {},
+    };
+
+    rp(options)
+        .then((ans) => {
+            if (ans.success.result.length === 0) {
+                lettersText.style.border = 'solid #00ff00';
+            } else {
+                lettersText.style.border = 'solid #ff0000';
+            }
+        })
+        .catch(() => {
+            lettersText.style.border = 'solid #ff0000';
+        });
+};
+
 const saveThreeStyleCorner = () => {
     const lettersText = document.querySelector('.registerThreeStyleCornerForm__lettersText');
     const setupText = document.querySelector('.registerThreeStyleCornerForm__setupText');
@@ -14,7 +42,7 @@ const saveThreeStyleCorner = () => {
     const userName = localStorage.userName;
     const token = localStorage.token;
 
-    const letters = '@' + lettersText.value; // バッファを意味する'@'を付けておく
+    const letters = '@' + lettersText.replace(/\s*$/, '').value; // バッファを意味する'@'を付けておく
     const setup = setupText.value.replace(/\s*$/, '').replace(/^\s*/, '');
     const move1 = move1Text.value.replace(/\s*$/, '').replace(/^\s*/, '');
     const move2 = move2Text.value.replace(/\s*$/, '').replace(/^\s*/, '');
@@ -105,7 +133,10 @@ const saveThreeStyleCorner = () => {
 
 const init = () => {
     const saveBtn = document.querySelector('.registerThreeStyleCornerForm__saveBtn');
+    const checkBtn = document.querySelector('.registerThreeStyleCornerForm__checkBtn');
+
     saveBtn.addEventListener('click', saveThreeStyleCorner);
+    checkBtn.addEventListener('click', checkNew);
 };
 
 init();
