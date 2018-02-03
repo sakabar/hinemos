@@ -24,7 +24,7 @@ const saveThreeStyleCorner = () => {
         return;
     }
 
-    if (!isValidMoves(setup) || !isValidMoves(move1) || !isValidMoves(move2)) {
+    if ((setup !== '' && !isValidMoves(setup)) || !isValidMoves(move1) || !isValidMoves(move2)) {
         alert('手順の記法に誤りがあります。各操作の間にはスペースを入れてください。\n例: y Lw\'2 E U');
         return;
     }
@@ -53,7 +53,7 @@ const saveThreeStyleCorner = () => {
     rp(numberingOptions)
         .then((ans) => {
             const result = ans.success.result;
-            if (result.length !== 1) {
+            if (result.length !== 3) {
                 alert('ナンバリングに含まれていない文字を登録しようとしています。\n先に、ナンバリングを登録してください');
                 return;
             }
