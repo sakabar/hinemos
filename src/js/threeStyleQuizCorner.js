@@ -111,7 +111,7 @@ const submit = (letterPairs, numberings, selectedThreeStyles, isRecalled) => {
                 quizIndHidden.value = 'このセッションで解いた問題数:' + String(nextInd);
                 const letters = selectedThreeStyles[nextInd].stickers.split(' ').map(sticker => numberings.filter(x => x.sticker === sticker)[0].letter).join('').replace(/@/g, '');
                 const words = letterPairs.filter(x => x.letters === letters).map(x => x.word).join(',');
-                quizFormLettersText.value = letters + ':' + words;
+                quizFormLettersText.value = letters + ': ' + words;
 
                 const setups = selectedThreeStyles[nextInd].setups.filter(setup => setup !== '');
                 hintText.style.display = 'none';
@@ -229,7 +229,7 @@ const init = () => {
                                     const letter2 = numberings.filter(x => x.sticker === sticker2)[0].letter;
                                     const letters = letter1 + letter2;
                                     const words = letterPairs.filter(x => x.letters === letters).map(x => x.word).join(',');
-                                    quizFormLettersText.value = letters + ':' + words;
+                                    quizFormLettersText.value = letters + ': ' + words;
 
                                     const setups = selectedThreeStyles[0].setups.filter(setup => setup !== '');
                                     hintText.style.display = 'none';

@@ -1,43 +1,29 @@
 <!doctype html>
 <html lang="ja">
   <head>
-    <title>レターペア</title>
+    <title>分析文字列から変換</title>
     <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css" href="normalize.css">
-    <link rel="stylesheet" type="text/css" href="common.css?version=v0.2.0">
-    <script type="text/javascript" src="./auth.bundle.js?version=v0.2.0"></script>
+    <link rel="stylesheet" type="text/css" href="common.css?version=v0.2.1">
+    <script type="text/javascript" src="./auth.bundle.js?version=v0.2.1"></script>
   </head>
 
   <body>
     <div class="header" align="right">
       <!-- FIXME 後で右寄せをCSSにする -->
-      <a href="mypage.html?version=v0.2.0">マイページ</a>
-      <a href="faq.html?version=v0.2.0">FAQ</a>
-      <a href="signout.html?version=v0.2.0">サインアウト</a>
+      <a href="mypage.html?version=v0.2.1">マイページ</a>
+      <a href="faq.html?version=v0.2.1">FAQ</a>
+      <a href="signout.html?version=v0.2.1">サインアウト</a>
     </div>
 
     <main>
-      <h1>レターペア登録</h1>
-      <div class="registerLetterPair">
-        <div "registerLetterPair__msg">
-          <ul>
-            <li><a href="letterPairTable.html?version=v0.2.0">レターペア表</a>からも登録ができます</li>
-            <li>suggestボタンを押すと、他の人が使っている単語を自動入力することができます</li>
-          </ul>
-        </div>
-
-        <form class="registerLetterPairForm">
-          <input class="registerLetterPairForm__lettersText" type="text" placeholder="ひらがな" size="47"/><input class="registerLetterPairForm__suggestWordBtn" type="button" value="suggest"><br>
-          <textarea class="registerLetterPairForm__wordText" rows="10" cols="55" placeholder="単語 (改行か「、」で区切って、複数単語を登録できます)"></textarea><br>
-          <input class="registerLetterPairForm__btn" type="button" value="決定">
-        </form>
-      </div>
-
       <div class="transformFromAnalysis">
         <h1>分析文字列から変換</h1>
         <div "transformFromAnalysis__msg">
           <ul>
-            <li>分析文字列を、登録済の単語に変換します</li>
+            <li>分析文字列を、登録済の単語と3-style手順に変換します</li>
+            <li><a href="registerLetterPair.html?version=v0.2.1">レターペア登録</a></li>
+            <li><a href="./threeStyle/corner.html?version=v0.2.1">3-style(コーナー)登録</a></li>
           </ul>
         </div>
 
@@ -50,6 +36,6 @@
         </form>
       </div>
     </main>
-    <script type="text/javascript" src="./transformFromAnalysis.bundle.js?version=v0.2.0"></script>
+    <script type="text/javascript" src="./transformFromAnalysis.bundle.js?version=v0.2.1"></script>
   </body>
 </html>
