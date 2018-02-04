@@ -43,6 +43,10 @@ const submit = (selectedLetterPairs, isRecalled) => {
     const startTime = parseFloat(quizFormStartUnixTimeHidden.value);
     const now = new Date().getTime();
     const sec = (now - startTime) / 1000.0;
+    let sendSec = 60.0;
+    if (isRecalled === 1) {
+        sendSec = sec;
+    }
 
     const options = {
         url: API_ROOT + '/letterPairQuizLog',
@@ -55,7 +59,7 @@ const submit = (selectedLetterPairs, isRecalled) => {
             letters,
             isRecalled,
             token,
-            sec,
+            sec: sendSec,
         },
     };
 
