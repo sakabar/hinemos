@@ -5,6 +5,7 @@ module.exports = {
     context: path.join(__dirname, '/src/js'),
     entry: {
         auth: './auth.js',
+        errorPage: './errorPage.js',
         index: './index.js',
         letterPairTable: './letterPairTable.js',
         letterPairQuiz: './letterPairQuiz.js',
