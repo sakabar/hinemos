@@ -35,10 +35,12 @@
     "webpack": "3.8.1"
   },
   "dependencies": {
+    "chunk": "0.0.2",
     "handsontable": "0.35.0",
     "net": "1.0.2",
     "request": "2.83.0",
     "request-promise": "4.2.2",
+    "shuffle-array": "1.0.1",
     "tls": "0.0.1"
   }
 }
