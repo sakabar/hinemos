@@ -1,4 +1,6 @@
+const chunk = require('chunk');
 const rp = require('request-promise');
+const shuffle = require('shuffle-array');
 
 const letterPairsToWords = (letterPairs, letters) => {
     const ans = {
@@ -18,11 +20,17 @@ const selectLetterPairs = (letterPairs, quizLogRes) => {
     const allLetters = Array.from(new Set(letterPairs.map(x => x.letters)));
     const unsolvedLetters = allLetters.filter(x => !solvedLetters.includes(x));
 
+    let ans;
     if (unsolvedLetters.length > 0) {
-        return unsolvedLetters.map(letters => letterPairsToWords(letterPairs, letters));
+        ans = unsolvedLetters.map(letters => letterPairsToWords(letterPairs, letters));
     } else {
-        return solvedLetters.map(letters => letterPairsToWords(letterPairs, letters));
+        ans = solvedLetters.map(letters => letterPairsToWords(letterPairs, letters));
     }
+
+    // 10個グループにして、そのグループ内で順番を入れ替える
+    const grouped = chunk(ans, 10).map(arr => shuffle(arr, { copy: true, }));
+    ans = Array.prototype.concat.apply([], grouped);
+    return ans;
 };
 
 const submit = (selectedLetterPairs, isRecalled) => {
@@ -43,6 +51,10 @@ const submit = (selectedLetterPairs, isRecalled) => {
     const startTime = parseFloat(quizFormStartUnixTimeHidden.value);
     const now = new Date().getTime();
     const sec = (now - startTime) / 1000.0;
+    let sendSec = 60.0;
+    if (isRecalled === 1) {
+        sendSec = sec;
+    }
 
     const options = {
         url: API_ROOT + '/letterPairQuizLog',
@@ -55,7 +67,7 @@ const submit = (selectedLetterPairs, isRecalled) => {
             letters,
             isRecalled,
             token,
-            sec,
+            sec: sendSec,
         },
     };
 

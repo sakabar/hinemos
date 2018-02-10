@@ -1,4 +1,6 @@
+const chunk = require('chunk');
 const rp = require('request-promise');
+const shuffle = require('shuffle-array');
 
 const showMove = (setup, move1, move2) => {
     if (setup === '') {
@@ -32,12 +34,17 @@ const selectThreeStyles = (threeStyles, quizLogRes) => {
     const solvedThreeStyles = quizLogRes.map(x => x.stickers).filter(stickers => allThreeStyles.includes(stickers));
     const unsolvedThreeStyles = allThreeStyles.filter(x => !solvedThreeStyles.includes(x));
 
-    const sliceNum = 10000;
+    let ans;
     if (unsolvedThreeStyles.length > 0) {
-        return unsolvedThreeStyles.map(stickers => stickersToThreeStyles(smallThreeStyles, stickers)).slice(0, sliceNum);
+        ans = unsolvedThreeStyles.map(stickers => stickersToThreeStyles(smallThreeStyles, stickers));
     } else {
-        return solvedThreeStyles.map(stickers => stickersToThreeStyles(smallThreeStyles, stickers)).slice(0, sliceNum);
+        ans = solvedThreeStyles.map(stickers => stickersToThreeStyles(smallThreeStyles, stickers));
     }
+
+    // 10個グループにして、そのグループ内で順番を入れ替える
+    const grouped = chunk(ans, 10).map(arr => shuffle(arr, { copy: true, }));
+    ans = Array.prototype.concat.apply([], grouped);
+    return ans;
 };
 
 const showHint = () => {
