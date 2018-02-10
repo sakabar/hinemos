@@ -11,6 +11,7 @@ npm run eslint && npm run webpack && {
 
     mkdir -p public/threeStyle
     cp src/html/threeStyle/*.html public/threeStyle
+    cp dist/errorPage.bundle.js public/threeStyle
 
     cp node_modules/normalize.css/normalize.css public
 }

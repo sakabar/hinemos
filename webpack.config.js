@@ -46,8 +46,8 @@ module.exports = {
     },
     plugins: [
         new ExtendedDefinePlugin({
-            URL_ROOT: 'http://saxcy.info/hinemos',
-            API_ROOT: 'http://saxcy.info:8192/hinemos',
+            URL_ROOT: 'http://saxcy.info/hinemos_stg_3588',
+            API_ROOT: 'http://saxcy.info:8000/hinemos_stg_19285',
         })
     ],
     node: {

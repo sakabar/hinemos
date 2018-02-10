@@ -1,46 +1,88 @@
-.extendElevation__Face {
-    width: 89px;
-    height: 84px;
-    display: inline-block;
-    _display: inline;
-    padding: 1px;
+.extendElevation__face {
+    width: 16vw;
+    height: 16vw;
+    padding: 0;
+    margin: 0.4vw;
+
+    display: -webkit-flex; /* Safari */
+    display: flex;
+    -webkit-flex-direction: row; /* Safari */
+    flex-direction:         row;
+    -webkit-flex-wrap: wrap; /* Safari */
+    flex-wrap:         wrap;
+    -webkit-justify-content: space-around; /* Safari */
+    justify-content:         space-around;
+
 }
 
-.extendElevation__Invisible {
-    /* border: solid 1px #ffffff; */
+.extendElevation__invisible {
+    /* 見えない線を付けないとズレる */
+    border: solid 0.4vw #ffffff;
 }
-.extendElevation__White {
-    /* border: solid 1px #000000; */
+.extendElevation__white {
+    /* 見えない線を付けないとズレる */
+    border: solid 0.4vw #ffffff;
+}
+
+
+.extendElevation__orange {
+    border: solid 0.4vw #ffbf00;
+}
+
+.extendElevation__orange .center {
+    background-color: #ffbf00;
 }
 
 
-.extendElevation__Orange {
-    border: solid 1px #ffbf00;
+.extendElevation__green {
+    border: solid 0.4vw #00ff00;
 }
 
-.extendElevation__Green {
-    border: solid 1px #00ff00;
+.extendElevation__green .center {
+    background-color: #00ff00;
 }
 
-.extendElevation__Red {
-    border: solid 1px #ff0000;
+.extendElevation__red {
+    border: solid 0.4vw #ff0000;
 }
 
-.extendElevation__Blue {
-    border: solid 1px #0000ff;
+.extendElevation__red .center {
+    background-color: #ff0000;
 }
 
-.extendElevation__Yellow {
-    border: solid 1px #ffff00;
+.extendElevation__blue {
+    border: solid 0.4vw #0000ff;
 }
+
+.extendElevation__blue .center {
+    background-color: #0000ff;
+}
+
+.extendElevation__yellow {
+    border: solid 0.4vw #ffff00;
+}
+
+.extendElevation__yellow .center {
+    background-color: #ffff00;
+}
+
 
 .piece {
-    width: 20px;
-    height: 20px;
-    font-size: x-small;
+    width: 25%;
+    height: 25%;
+    margin: 0.1vw;
+    padding: 0;
+    border: solid 0.1vw #bfbfbf;
+    font-size: 2vw;
+    text-align: center;
 }
 
-.extendElevation {
-    /* border: solid 1px #000000; */
-    /* background-color: #8FBF3F; */
+.extendElevation__group {
+    display: -webkit-flex; /* Safari */
+    display: flex;
+    -webkit-flex-direction: row; /* Safari */
+    flex-direction:         row;
+    -webkit-justify-content: flex-start; /* Safari */
+    justify-content:         flex-start;
 }
+
