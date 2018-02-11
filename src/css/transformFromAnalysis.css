@@ -1,0 +1,11 @@
+.transformFromAnalysisForm input[type="text"] {
+    width: 85%;
+}
+
+.transformFromAnalysisForm__btn {
+    margin: 4px 0 8px 0;
+}
+
+.transformFromAnalysisForm textArea {
+    width: 85%;
+}

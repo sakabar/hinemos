@@ -1,7 +1,11 @@
 h2 {
-    margin: 10mm 0mm 0 0mm;
+    margin: 10vh 0 0 0;
 }
 
 p {
-    line-height: 2.0;
+    line-height: 1.5;
+}
+
+img {
+    width: 90%;
 }
