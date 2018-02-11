@@ -8,7 +8,7 @@ const isValidMoves = (moveStr) => {
 const checkNew = () => {
     const lettersText = document.querySelector('.registerThreeStyleCornerForm__lettersText');
     const userName = localStorage.userName;
-    const letters = lettersText.value.replace(/\s*/, '');
+    const letters = lettersText.value.replace(/\s*/g, '');
 
     const options = {
         url: API_ROOT + '/threeStyleFromLetters/corner?userName=' + userName + '&letters=' + letters,
@@ -42,10 +42,10 @@ const saveThreeStyleCorner = () => {
     const userName = localStorage.userName;
     const token = localStorage.token;
 
-    const letters = '@' + lettersText.value.replace(/\s*/, ''); // バッファを意味する'@'を付けておく
-    const setup = setupText.value.replace(/\s*$/, '').replace(/^\s*/, '');
-    const move1 = move1Text.value.replace(/\s*$/, '').replace(/^\s*/, '');
-    const move2 = move2Text.value.replace(/\s*$/, '').replace(/^\s*/, '');
+    const letters = '@' + lettersText.value.replace(/\s*/g, ''); // バッファを意味する'@'を付けておく
+    const setup = setupText.value.replace(/\s*$/, '').replace(/^\s*/, '').replace(/[‘’´｀`]/g, '\'');
+    const move1 = move1Text.value.replace(/\s*$/, '').replace(/^\s*/, '').replace(/[‘’´｀`]/g, '\'');
+    const move2 = move2Text.value.replace(/\s*$/, '').replace(/^\s*/, '').replace(/[‘’´｀`]/g, '\'');
 
     if (move1 === '' || move2 === '') {
         alert('手順1と手順2を入力してください');
