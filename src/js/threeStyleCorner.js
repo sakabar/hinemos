@@ -20,16 +20,19 @@ const checkNew = () => {
         form: {},
     };
 
-    rp(options)
+    return rp(options)
         .then((ans) => {
             if (ans.success.result.length === 0) {
                 lettersText.style.borderColor = '#00ff00';
+                return true;
             } else {
                 lettersText.style.borderColor = '#ff0000';
+                return false;
             }
         })
         .catch(() => {
             lettersText.style.borderColor = 'solid #ff0000';
+            return false;
         });
 };
 
@@ -117,11 +120,32 @@ const saveThreeStyleCorner = () => {
 
             return rp(threeStyleOptions)
                 .then(() => {
-                    lettersText.value = '';
-                    setupText.value = '';
-                    move1Text.value = '';
-                    move2Text.value = '';
-                    lettersText.style.borderColor = '#eeeeee';
+                    // 反転した手順を入力
+                    const reversed = lettersText.value.split('').reverse().join('');
+                    lettersText.value = reversed;
+                    const tmpSwap = move1Text.value;
+                    move1Text.value = move2Text.value;
+                    move2Text.value = tmpSwap;
+
+                    // 登録済かどうか確認
+                    checkNew()
+                        .then((isNew) => {
+                            // 登録済でない場合、空にする
+                            if (!isNew) {
+                                lettersText.value = '';
+                                setupText.value = '';
+                                move1Text.value = '';
+                                move2Text.value = '';
+                                lettersText.style.borderColor = '#eeeeee';
+                            }
+                        })
+                        .catch(() => {
+                            lettersText.value = '';
+                            setupText.value = '';
+                            move1Text.value = '';
+                            move2Text.value = '';
+                            lettersText.style.borderColor = '#eeeeee';
+                        });
                 })
                 .catch(() => {
                     alert('登録に失敗しました');
