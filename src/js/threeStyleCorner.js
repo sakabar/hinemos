@@ -23,13 +23,13 @@ const checkNew = () => {
     rp(options)
         .then((ans) => {
             if (ans.success.result.length === 0) {
-                lettersText.style.border = 'solid #00ff00';
+                lettersText.style.borderColor = '#00ff00';
             } else {
-                lettersText.style.border = 'solid #ff0000';
+                lettersText.style.borderColor = '#ff0000';
             }
         })
         .catch(() => {
-            lettersText.style.border = 'solid #ff0000';
+            lettersText.style.borderColor = 'solid #ff0000';
         });
 };
 
@@ -121,6 +121,7 @@ const saveThreeStyleCorner = () => {
                     setupText.value = '';
                     move1Text.value = '';
                     move2Text.value = '';
+                    lettersText.style.borderColor = '#eeeeee';
                 })
                 .catch(() => {
                     alert('登録に失敗しました');
