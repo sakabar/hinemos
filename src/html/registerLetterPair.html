@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="normalize.css">
     <link rel="stylesheet" type="text/css" href="common.css?version=v0.2.2">
+    <link rel="stylesheet" type="text/css" href="registerLetterPair.css?version=v0.2.2">
     <script type="text/javascript" src="./auth.bundle.js?version=v0.2.2"></script>
   </head>
 
@@ -25,13 +26,17 @@
         <div "registerLetterPair__msg">
           <ul>
             <li><a href="letterPairTable.html?version=v0.2.2">レターペア表</a>からも登録ができます</li>
-            <li>suggestボタンを押すと、他の人が使っている単語を自動入力することができます</li>
+            <li>suggestボタンを押すと、他の人が<br>
+              使っている単語を自動入力できます</li>
+            <li>単語は、改行か「、」で区切って<br>
+              複数登録できます</li>
           </ul>
         </div>
 
         <form class="registerLetterPairForm">
-          <input class="registerLetterPairForm__lettersText" type="text" placeholder="ひらがな" size="47"/><input class="registerLetterPairForm__suggestWordBtn" type="button" value="suggest"><br>
-          <textarea class="registerLetterPairForm__wordText" rows="10" cols="55" placeholder="単語 (改行か「、」で区切って、複数単語を登録できます)"></textarea><br>
+          <input class="registerLetterPairForm__lettersText" type="text" placeholder="きし"><br>
+          <input class="registerLetterPairForm__suggestWordBtn" type="button" value="suggest"><br>
+          <textarea class="registerLetterPairForm__wordText" rows="5" placeholder="岸、既視感、奇襲"></textarea><br>
           <input class="registerLetterPairForm__btn" type="button" value="決定">
         </form>
       </div>
