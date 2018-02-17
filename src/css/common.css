@@ -1,7 +1,56 @@
 main {
-    margin: 0 10mm 0 10mm;
+    margin: 0 5vw;
 }
 
-.header {
+/* iPhoneで見た時に、ズームされるのを防ぐ */
+main input[type="text"] {
+    font-size: 17px;
+}
+
+/* iPhoneで見た時に、ズームされるのを防ぐ */
+main textArea {
+    font-size: 17px;
+}
+
+header {
     border-bottom: solid 1px #000000;
+}
+
+header ul {
+    list-style-type: none;
+    display: -webkit-flex; /* Safari */
+    display: flex;
+    -webkit-flex-direction: row; /* Safari */
+    flex-direction:         row;
+    -webkit-justify-content: flex-end; /* Safari */
+    justify-content:         flex-end;
+}
+
+header ul li {
+    margin-right: 1.5vw;
+}
+
+/* header ul li:last-child { */
+/*     margin-right: 0; */
+/* } */
+
+
+@media screen and (max-width:600px) {
+    /* 画面サイズが600px以下の場合に適用 */
+    body {
+        font-size: 5.0vw;
+    }
+
+    h1 {
+        font-size: 8.0vw
+    }
+
+    h2 {
+        font-size: 6.0vw
+    }
+
+    /* ulのインデント */
+    main ul {
+        padding-left: 6.0vw;
+    }
 }

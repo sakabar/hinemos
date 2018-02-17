@@ -3,15 +3,20 @@
   <head>
     <title>サインイン</title>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="normalize.css">
-    <link rel="stylesheet" type="text/css" href="common.css?version=v0.2.2">
+    <link rel="stylesheet" type="text/css" href="common.css?version=v0.2.3">
   </head>
 
   <body>
-    <div class="header" align="left">
-      <!-- FIXME 後で左寄せをCSSにする -->
-      <a href="top.html?version=v0.2.2">トップ</a>
-    </div>
+    <!-- ロゴ的なものでトップに飛べるようにする FIXME -->
+    <header>
+      <ul>
+        <li><a href="mypage.html?version=v0.2.3">マイページ</a></li>
+        <li><a href="faq.html?version=v0.2.3">FAQ</a></li>
+        <li><a href="signout.html?version=v0.2.3">サインアウト</a></li>
+      </ul>
+    </header>
 
     <main>
       <h1>サインイン</h1>
@@ -22,9 +27,9 @@
         <input class="signinForm__checkBox" type="checkbox" checked="checked">ユーザ名とパスワードを記憶する
       </form>
 
-      <p>初めての方は: <a href="signup.html?version=v0.2.2">登録</a></p>
+      <p>初めての方は: <a href="signup.html?version=v0.2.3">登録</a></p>
     </main>
 
-    <script type="text/javascript" src="./signin.bundle.js?version=v0.2.2"></script>
+    <script type="text/javascript" src="./signin.bundle.js?version=v0.2.3"></script>
   </body>
 </html>

@@ -1,0 +1,11 @@
+.registerLetterPairForm input[type="text"] {
+    width: 85%;
+}
+
+.registerLetterPairForm__suggestWordBtn {
+    margin: 2px 0 4px 0;
+}
+
+.registerLetterPairForm textArea {
+    width: 85%;
+}

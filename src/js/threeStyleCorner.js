@@ -8,7 +8,7 @@ const isValidMoves = (moveStr) => {
 const checkNew = () => {
     const lettersText = document.querySelector('.registerThreeStyleCornerForm__lettersText');
     const userName = localStorage.userName;
-    const letters = lettersText.value.replace(/\s*/, '');
+    const letters = lettersText.value.replace(/\s*/g, '');
 
     const options = {
         url: API_ROOT + '/threeStyleFromLetters/corner?userName=' + userName + '&letters=' + letters,
@@ -20,16 +20,19 @@ const checkNew = () => {
         form: {},
     };
 
-    rp(options)
+    return rp(options)
         .then((ans) => {
             if (ans.success.result.length === 0) {
-                lettersText.style.border = 'solid #00ff00';
+                lettersText.style.borderColor = '#00ff00';
+                return true;
             } else {
-                lettersText.style.border = 'solid #ff0000';
+                lettersText.style.borderColor = '#ff0000';
+                return false;
             }
         })
         .catch(() => {
-            lettersText.style.border = 'solid #ff0000';
+            lettersText.style.borderColor = 'solid #ff0000';
+            return false;
         });
 };
 
@@ -42,10 +45,10 @@ const saveThreeStyleCorner = () => {
     const userName = localStorage.userName;
     const token = localStorage.token;
 
-    const letters = '@' + lettersText.value.replace(/\s*/, ''); // バッファを意味する'@'を付けておく
-    const setup = setupText.value.replace(/\s*$/, '').replace(/^\s*/, '');
-    const move1 = move1Text.value.replace(/\s*$/, '').replace(/^\s*/, '');
-    const move2 = move2Text.value.replace(/\s*$/, '').replace(/^\s*/, '');
+    const letters = '@' + lettersText.value.replace(/\s*/g, ''); // バッファを意味する'@'を付けておく
+    const setup = setupText.value.replace(/\s*$/, '').replace(/^\s*/, '').replace(/[‘’´｀`]/g, '\'');
+    const move1 = move1Text.value.replace(/\s*$/, '').replace(/^\s*/, '').replace(/[‘’´｀`]/g, '\'');
+    const move2 = move2Text.value.replace(/\s*$/, '').replace(/^\s*/, '').replace(/[‘’´｀`]/g, '\'');
 
     if (move1 === '' || move2 === '') {
         alert('手順1と手順2を入力してください');
@@ -117,10 +120,32 @@ const saveThreeStyleCorner = () => {
 
             return rp(threeStyleOptions)
                 .then(() => {
-                    lettersText.value = '';
-                    setupText.value = '';
-                    move1Text.value = '';
-                    move2Text.value = '';
+                    // 反転した手順を入力
+                    const reversed = lettersText.value.split('').reverse().join('');
+                    lettersText.value = reversed;
+                    const tmpSwap = move1Text.value;
+                    move1Text.value = move2Text.value;
+                    move2Text.value = tmpSwap;
+
+                    // 登録済かどうか確認
+                    checkNew()
+                        .then((isNew) => {
+                            // 登録済でない場合、空にする
+                            if (!isNew) {
+                                lettersText.value = '';
+                                setupText.value = '';
+                                move1Text.value = '';
+                                move2Text.value = '';
+                                lettersText.style.borderColor = '#eeeeee';
+                            }
+                        })
+                        .catch(() => {
+                            lettersText.value = '';
+                            setupText.value = '';
+                            move1Text.value = '';
+                            move2Text.value = '';
+                            lettersText.style.borderColor = '#eeeeee';
+                        });
                 })
                 .catch(() => {
                     alert('登録に失敗しました');

@@ -3,24 +3,28 @@
   <head>
     <title>新規登録</title>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="normalize.css">
-    <link rel="stylesheet" type="text/css" href="common.css?version=v0.2.2">
+    <link rel="stylesheet" type="text/css" href="common.css?version=v0.2.3">
   </head>
 
   <body>
-    <div class="header" align="left">
-      <!-- FIXME 後で左寄せをCSSにする -->
-      <a href="top.html?version=v0.2.2">トップ</a>
-    </div>
+    <header>
+      <ul>
+        <li><a href="mypage.html?version=v0.2.3">マイページ</a></li>
+        <li><a href="faq.html?version=v0.2.3">FAQ</a></li>
+        <li><a href="signout.html?version=v0.2.3">サインアウト</a></li>
+      </ul>
+    </header>
 
     <main>
       <h1>新規登録</h1>
       <div class="signupMsg">
         <ul>
           <li>ユーザ名には半角英数とアンダーバー(_)が使えます</li>
-          <li>パスワードは8文字以上である必要があります</li>
+          <li>パスワードは8文字以上が必要です</li>
           <li>パスワードには半角英数と記号(@,#,$,%,&,_)が使えます</li>
-          <li>他のサービスで利用しているパスワードを使用しないでください</li>
+          <li>他のサービスのパスワードを使用しないでください</li>
         </ul>
       </div>
       <form class="signupForm">
@@ -29,9 +33,9 @@
         <input class="signupForm__submitBtn" type="button" value="決定">
       </form>
 
-      登録がお済みの方は: <a href="signin.html?version=v0.2.2">サインイン</a>
+      登録がお済みの方は: <a href="signin.html?version=v0.2.3">サインイン</a>
     </main>
 
-    <script type="text/javascript" src="./signup.bundle.js?version=v0.2.2"></script>
+    <script type="text/javascript" src="./signup.bundle.js?version=v0.2.3"></script>
   </body>
 </html>

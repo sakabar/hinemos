@@ -10,10 +10,24 @@ const showMove = (setup, move1, move2) => {
     }
 };
 
+const getHint = (setup, move1, move2) => {
+    if (setup === '') {
+        return '(セットアップなし)';
+    }
+
+    const move1List = move1.split(' ');
+
+    if (move1List.length === 0) {
+        return '[' + setup + ' [     ]]';
+    }
+
+    return '[' + setup + ' [' + move1List[0] + '    ]]';
+};
+
 const stickersToThreeStyles = (threeStyles, stickers) => {
     return {
         stickers,
-        setups: threeStyles.filter(x => x.stickers === stickers).map(x => x.setup),
+        hints: threeStyles.filter(x => x.stickers === stickers).map(x => getHint(x.setup, x.move1, x.move2)),
         moves: threeStyles.filter(x => x.stickers === stickers).map(x => showMove(x.setup, x.move1, x.move2)),
     };
 };
@@ -120,13 +134,9 @@ const submit = (letterPairs, numberings, selectedThreeStyles, isRecalled) => {
                 const words = letterPairs.filter(x => x.letters === letters).map(x => x.word).join(',');
                 quizFormLettersText.value = letters + ': ' + words;
 
-                const setups = selectedThreeStyles[nextInd].setups.filter(setup => setup !== '');
+                const hints = selectedThreeStyles[nextInd].hints;
                 hintText.style.display = 'none';
-                if (setups.length === 0) {
-                    hintText.value = '(セットアップなし)';
-                } else {
-                    hintText.value = setups.join('\n');
-                }
+                hintText.value = hints.join('\nまたは\n');
 
                 quizFormPrevAnsText.value = prevAns;
                 quizFormPrevSecText.value = '前問の秒数:' + String(sec);
@@ -238,13 +248,9 @@ const init = () => {
                                     const words = letterPairs.filter(x => x.letters === letters).map(x => x.word).join(',');
                                     quizFormLettersText.value = letters + ': ' + words;
 
-                                    const setups = selectedThreeStyles[0].setups.filter(setup => setup !== '');
+                                    const hints = selectedThreeStyles[0].hints;
                                     hintText.style.display = 'none';
-                                    if (setups.length === 0) {
-                                        hintText.value = '(セットアップなし)';
-                                    } else {
-                                        hintText.value = setups.join('\n');
-                                    }
+                                    hintText.value = hints.join('\nまたは\n');
 
                                     quizFormStartUnixTimeHidden.value = String(new Date().getTime());
                                     okBtn.addEventListener('click', () => submit(letterPairs, numberings, selectedThreeStyles, 1));
