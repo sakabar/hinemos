@@ -50,6 +50,11 @@ const transformOneLine = (userName, letters) => {
         });
 };
 
+const clearTextArea = () => {
+    const lettersText = document.querySelector('.transformFromAnalysisForm__lettersText');
+    lettersText.value = '';
+};
+
 const transformFromAnalysis = () => {
     const lettersText = document.querySelector('.transformFromAnalysisForm__lettersText');
     const letters = lettersText.value;
@@ -80,6 +85,9 @@ const transformFromAnalysis = () => {
 const init = () => {
     const transformFromAnalysisBtn = document.querySelector('.transformFromAnalysisForm__btn');
     transformFromAnalysisBtn.addEventListener('click', transformFromAnalysis);
+
+    const clearBtn = document.querySelector('.transformFromAnalysisForm__clearBtn');
+    clearBtn.addEventListener('click', clearTextArea);
 };
 
 init();

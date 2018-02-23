@@ -96,6 +96,11 @@ const submit = (letterPairs, numberings, selectedThreeStyles, isRecalled) => {
     const now = new Date().getTime();
     const sec = (now - startTime) / 1000.0;
 
+    // secが短すぎる場合、誤操作の可能性が高いので無視
+    if (sec < 0.5) {
+        return;
+    }
+
     let sendSec = 20; // 間違えた場合は一律20秒
     if (isRecalled === 1) {
         sendSec = sec / 3.0; // 1回ぶん回すタイムに換算
