@@ -27,8 +27,8 @@ const selectLetterPairs = (letterPairs, quizLogRes) => {
         ans = solvedLetters.map(letters => letterPairsToWords(letterPairs, letters));
     }
 
-    // 10個グループにして、そのグループ内で順番を入れ替える
-    const grouped = chunk(ans, 10).map(arr => shuffle(arr, { copy: true, }));
+    // 50個グループにして、そのグループ内で順番を入れ替える
+    const grouped = chunk(ans, 50).map(arr => shuffle(arr, { copy: true, }));
     ans = Array.prototype.concat.apply([], grouped);
     return ans;
 };
