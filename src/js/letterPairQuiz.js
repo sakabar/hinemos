@@ -51,6 +51,11 @@ const submit = (selectedLetterPairs, isRecalled) => {
     const startTime = parseFloat(quizFormStartUnixTimeHidden.value);
     const now = new Date().getTime();
     const sec = (now - startTime) / 1000.0;
+
+    // secが短すぎる場合、誤操作の可能性が高いので無視
+    if (sec < 0.25) {
+        return;
+    }
     let sendSec = 60.0;
     if (isRecalled === 1) {
         sendSec = sec;
