@@ -1,6 +1,6 @@
 {
   "name": "hinemos",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Website for Rubik's cube blindfolded players",
   "main": "index.js",
   "scripts": {
