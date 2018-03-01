@@ -28,12 +28,12 @@ const init = () => {
             const sumOver5 = math.sum(over5Secs);
 
             const p1 = document.createElement('p');
-            p1.appendChild(document.createTextNode('所要時間合計: ' + sum.toFixed(1) + '秒'));
+            p1.appendChild(document.createTextNode('所要時間合計: ' + sum.toFixed(1) + '秒 (' + (sum / 60.0).toFixed(0) + '分' + (sum % 60).toFixed(0) + '秒)'));
 
             msgArea.appendChild(p1);
 
             const p3 = document.createElement('p');
-            p3.appendChild(document.createTextNode('手順総数: ' + avgSecs.length));
+            p3.appendChild(document.createTextNode('手順総数: ' + avgSecs.length + '手順'));
             msgArea.appendChild(p3);
 
             const p2 = document.createElement('p');
@@ -41,15 +41,15 @@ const init = () => {
             msgArea.appendChild(p2);
 
             const p4 = document.createElement('p');
-            p4.appendChild(document.createTextNode(String(threshold) + '秒以上かかっている手順の数: ' + over5Secs.length));
+            p4.appendChild(document.createTextNode(String(threshold) + '秒以上かかっている手順の数: ' + over5Secs.length + '手順'));
             msgArea.appendChild(p4);
 
             const p5 = document.createElement('p');
-            p5.appendChild(document.createTextNode(String(threshold) + '秒以上かかっている手順の合計時間: ' + sumOver5.toFixed(1) + '秒'));
+            p5.appendChild(document.createTextNode(String(threshold) + '秒以上かかっている手順の合計時間: ' + sumOver5.toFixed(1) + '秒 (' + (sumOver5 / 60.0).toFixed(0) + '分' + (sumOver5 % 60).toFixed(0) + '秒)'));
             msgArea.appendChild(p5);
 
             const p6 = document.createElement('p');
-            p6.appendChild(document.createTextNode(String(threshold) + '秒以上かかっている手順を3回ずつ回す練習にかかる時間: ' + (sumOver5 * 3).toFixed(1) + '秒'));
+            p6.appendChild(document.createTextNode(String(threshold) + '秒以上かかっている手順を3回ずつ回す練習にかかる時間: ' + (sumOver5 * 3).toFixed(1) + '秒 (' + (sumOver5 * 3 / 60.0).toFixed(0) + '分' + (sumOver5 * 3 % 60).toFixed(0) + '秒)'));
             msgArea.appendChild(p6);
         })
         .catch(() => {
