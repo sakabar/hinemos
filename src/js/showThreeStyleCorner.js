@@ -189,8 +189,14 @@ const submit = () => {
                                 const liNode = document.createElement('li');
                                 liNode.className = `showThreeStyleCornerForm__oList__list--id${id}`;
 
+                                // 同じ文字に対して、複数の手順を登録してある場合には強調
+                                let dupMsg = '';
+                                if (lst.length > 1) {
+                                    dupMsg = '【重複】 ';
+                                }
+
                                 const letters = perm.letters;
-                                const textNode = document.createTextNode(`${letters} ${buffer} ${sticker1} ${sticker2} ${moveStr} `);
+                                const textNode = document.createTextNode(`${dupMsg}${letters} ${buffer} ${sticker1} ${sticker2} ${moveStr} `);
                                 const btnNode = document.createElement('input');
                                 btnNode.type = 'button';
                                 btnNode.className = 'showThreeStyleCornerForm__deleteBtn';
