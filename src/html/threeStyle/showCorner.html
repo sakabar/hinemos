@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <title>3-style corner 確認</title>
+    <meta charset="UTF-8">
+    <meta name="robots" content="noindex,nofollow,noarchive">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../common.css?version=v0.2.4">
+    <link rel="stylesheet" type="text/css" href="./showCorner.css?version=v0.2.4">
+    <script type="text/javascript" src="../auth.bundle.js?version=v0.2.4"></script>
+  </head>
+
+  <body>
+    <header>
+      <ul>
+        <li><a href="../mypage.html?version=v0.2.4">マイページ</a></li>
+        <li><a href="../faq.html?version=v0.2.4">FAQ</a></li>
+        <li><a href="../signout.html?version=v0.2.4">サインアウト</a></li>
+      </ul>
+    </header>
+
+    <main>
+      <h1>3-style corner 確認</h1>
+      <ul>
+        <li>3-style(コーナー)手順が登録済かどうか確認できます</li>
+        <ul>
+          <li>登録済の手順は削除できます</li>
+          <li>未登録の手順は登録できます</li>
+        </ul>
+      </ul>
+
+      <form class="showThreeStyleCornerForm">
+        <input class="showThreeStyleCornerForm__lettersText" type="text" minlength="1" maxlength="2" size="10" placeholder="ひらがな">
+        <div class="showThreeStyleCornerForm__radioBtns">
+          <label><input type="radio" name="showThreeStyleCornerForm__radio" value="前方一致" checked>前方一致</label>
+          <label><input type="radio" name="showThreeStyleCornerForm__radio" value="後方一致">後方一致</label>
+</div>
+          <input type="button" class="showThreeStyleCornerForm__submitBtn" value="検索">
+        <input type="text" class="showThreeStyleCornerForm__invisibleText" style="display:none" value="">
+        <br>
+
+        <ol class="showThreeStyleCornerForm__oList">
+          <!-- JSでノードを作る -->
+        </ol>
+      </form>
+    </main>
+
+    <script type="text/javascript" src="../showThreeStyleCorner.bundle.js?version=v0.2.4"></script>
+  </body>
+</html>

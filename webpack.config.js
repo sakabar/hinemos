@@ -12,6 +12,7 @@ module.exports = {
         mypage: './mypage.js',
         numbering3: './numbering3.js',
         registerLetterPair: './registerLetterPair.js',
+        showThreeStyleCorner: './showThreeStyleCorner.js',
         signup: './signup.js',
         signin: './signin.js',
         signout: './signout.js',
