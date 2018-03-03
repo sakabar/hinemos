@@ -17,8 +17,11 @@ const openRegisterPage = (letters) => {
 // threeStyleを削除する
 const deleteThreeStyle = (id) => {
     const token = localStorage.token;
-
     const olNode = document.querySelector('.showThreeStyleCornerForm__oList');
+
+    if (!window.confirm('本当に削除しますか?')) {
+        return;
+    }
 
     const deleteOption = {
         url: API_ROOT + '/deleteThreeStyle/corner',
