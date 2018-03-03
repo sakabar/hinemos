@@ -1,4 +1,5 @@
 const rp = require('request-promise');
+const url = require('url');
 
 // FIXME テスト書く
 const isValidMoves = (moveStr) => {
@@ -162,6 +163,14 @@ const init = () => {
 
     saveBtn.addEventListener('click', saveThreeStyleCorner);
     checkBtn.addEventListener('click', checkNew);
+
+    // URLのオプションでletters=hoge形式で渡された場合、自動的にlettersTextの値として入力
+    const lettersText = document.querySelector('.registerThreeStyleCornerForm__lettersText');
+    const urlObj = url.parse(location.href, true);
+    const lettersQuery = urlObj.query.letters;
+    if (lettersQuery) {
+        lettersText.value = lettersQuery;
+    }
 };
 
 init();

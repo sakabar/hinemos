@@ -36,7 +36,7 @@ const submit = () => {
             if (checkBox.checked) {
                 localStorage.password = password;
             }
-            location.href = URL_ROOT + '/mypage.html?version=v0.2.4';
+            location.href = URL_ROOT + '/mypage.html?version=v0.3.0';
         })
         .catch((err) => {
             alert('ユーザ名かパスワードが違います');
