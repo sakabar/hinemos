@@ -31,17 +31,15 @@
       </ul>
 
       <form class="showThreeStyleCornerForm">
-        <input class="showThreeStyleCornerForm__lettersText" type="text" minlength="1" maxlength="2" size="10" placeholder="ひらがな">
-        <div class="showThreeStyleCornerForm__radioBtns">
-          <label><input type="radio" name="showThreeStyleCornerForm__radio" value="前方一致" checked>前方一致</label>
-          <label><input type="radio" name="showThreeStyleCornerForm__radio" value="後方一致">後方一致</label>
-</div>
-          <input type="button" class="showThreeStyleCornerForm__submitBtn" value="検索">
+        <input class="showThreeStyleCornerForm__lettersText" type="text" maxlength="2" size="10" placeholder="ひらがな">
+        <label><input type="radio" name="showThreeStyleCornerForm__radio" value="前方一致" checked>前方一致</label>
+        <label><input type="radio" name="showThreeStyleCornerForm__radio" value="後方一致">後方一致</label>
+        <input type="button" class="showThreeStyleCornerForm__submitBtn" value="検索">
         <input type="text" class="showThreeStyleCornerForm__invisibleText" style="display:none" value="">
         <br>
 
         <ol class="showThreeStyleCornerForm__oList">
-          <!-- JSでノードを作る -->
+          <!-- JavaScriptで子ノードを作る -->
         </ol>
       </form>
     </main>

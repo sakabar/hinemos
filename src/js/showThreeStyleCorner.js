@@ -55,7 +55,7 @@ const submit = () => {
     };
 
     const lettersText = document.querySelector('.showThreeStyleCornerForm__lettersText');
-    const letters = lettersText.value;
+    const inputLetters = lettersText.value;
 
     const elms = document.getElementsByName('showThreeStyleCornerForm__radio');
     const checkedBtn = [ ...elms, ].find(elm => elm.checked);
@@ -65,83 +65,164 @@ const submit = () => {
         alert('前方/後方一致のどちらかを選んでください');
         return;
     }
-    // FIXME 後で使う
-    // const searchCond = checkedBtn.value;
 
-    // 2文字だったらその2文字に対応する3-style手順を表示
-    // 1文字だったら前方/後方一致の条件によって複数引いて表示
-    if (letters.length === 1) {
-        // alert(`FIXME ボタンが押されました。これはまだ実装されていません。${letters}, ${searchCond}`);
-        // FIXME
-        alert('エラー: 2文字入力してください');
-    } else if (letters.length === 2) {
-        // lettersから3-styleを引く
-        const threeStyleCornerOptions = {
-            url: API_ROOT + '/threeStyleFromLetters/corner?userName=' + userName + '&letters=' + letters,
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            json: true,
-            form: {},
-        };
+    const searchCond = checkedBtn.value;
 
-        rp(threeStyleCornerOptions)
-            .then((ans) => {
-                const results = ans.success.result;
+    // ナンバリング
+    const numberingOptions = {
+        url: API_ROOT + '/numbering/corner/' + userName,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {},
+    };
 
-                if (results.length === 0) {
-                    // 結果が無い場合は、登録するための表示
-                    const liNode = document.createElement('li');
-                    const textNode = document.createTextNode(`${letters} 3-style未登録 `);
-                    const btnNode = document.createElement('input');
-                    btnNode.type = 'button';
-                    btnNode.className = 'showThreeStyleCornerForm__registerBtn';
-                    btnNode.value = '登録';
-                    btnNode.style.borderColor = '#00ff00';
-                    btnNode.addEventListener('click', () => openRegisterPage(letters));
+    return rp(numberingOptions)
+        .then((numberingResult) => {
+            const numberings = numberingResult.success.result.sort((a, b) => { if (a.letter < b.letter) return -1; if (a.letter === b.letter) return 0; if (a.letter > b.letter) return 1; });
 
-                    liNode.appendChild(textNode);
-                    liNode.appendChild(btnNode);
-                    olNode.appendChild(liNode);
+            if (numberings.length === 0) {
+                alert('先にナンバリングを登録してください');
+                return;
+            }
+
+            const buffer = numberings.filter(numbering => numbering.letter === '@').map(numbering => numbering.sticker)[0];
+
+            // ありうる3-styleの文字 [{letters: 'あか', stickers: 'UBL UFR DFR'}]
+            const allLetterPerms = [];
+
+            for (let i = 0; i < numberings.length; i++) {
+                const numbering1 = numberings[i];
+
+                // バッファはスキップ
+                if (numbering1.letter === '@') {
+                    continue;
+                }
+
+                for (let k = 0; k < numberings.length; k++) {
+                    const numbering2 = numberings[k];
+
+                    // バッファはスキップ
+                    if (numbering2.letter === '@') {
+                        continue;
+                    }
+
+                    const sticker1 = numbering1.sticker;
+                    const sticker2 = numbering2.sticker;
+
+                    // 同じパーツの場合はスキップ
+                    if (JSON.stringify(Array.from(sticker1).sort()) === JSON.stringify(Array.from(sticker2).sort())) {
+                        continue;
+                    }
+
+                    const v = {
+                        letters: `${numbering1.letter}${numbering2.letter}`,
+                        stickers: `${buffer} ${sticker1} ${sticker2}`,
+                    };
+
+                    allLetterPerms.push(v);
+                }
+            }
+
+            // 列挙した文字から、条件にマッチするもののみを抽出
+            let selectedPerms = [];
+            if (inputLetters === '') {
+                selectedPerms = allLetterPerms;
+            } else {
+                if (searchCond === '後方一致') {
+                    selectedPerms = allLetterPerms.filter(perm => perm.letters.endsWith(inputLetters));
                 } else {
-                    // 結果がある場合は、それを表示
+                    // 想定していない入力が入った場合は、前方一致として扱う
+                    selectedPerms = allLetterPerms.filter(perm => perm.letters.startsWith(inputLetters));
+                }
+            }
+
+            const threeStyleCornerOptions = {
+                url: API_ROOT + '/threeStyle/corner?userName=' + userName,
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                json: true,
+                form: {},
+            };
+
+            return rp(threeStyleCornerOptions)
+                .then((ans) => {
+                    const results = ans.success.result;
+
+                    // 何回も引くことになるのでハッシュ化
+                    let threeStyleHash = {};
                     for (let i = 0; i < results.length; i++) {
                         const result = results[i];
-                        const id = result.id;
-                        const buffer = result.buffer;
-                        const sticker1 = result.sticker1;
-                        const sticker2 = result.sticker2;
-                        const setup = result.setup;
-                        const move1 = result.move1;
-                        const move2 = result.move2;
-                        const moveStr = showMove(setup, move1, move2);
 
-                        const liNode = document.createElement('li');
-                        liNode.className = `showThreeStyleCornerForm__oList__list--id${id}`;
-
-                        const textNode = document.createTextNode(`${letters} ${buffer} ${sticker1} ${sticker2} ${moveStr} `);
-                        const btnNode = document.createElement('input');
-                        btnNode.type = 'button';
-                        btnNode.className = 'showThreeStyleCornerForm__deleteBtn';
-                        btnNode.value = '削除';
-                        btnNode.style.borderColor = '#ff0000';
-                        btnNode.addEventListener('click', () => deleteThreeStyle(id));
-
-                        liNode.appendChild(textNode);
-                        liNode.appendChild(btnNode);
-                        olNode.appendChild(liNode);
+                        const stickers = result.stickers;
+                        if (stickers in threeStyleHash) {
+                            threeStyleHash[stickers].push(result);
+                        } else {
+                            threeStyleHash[stickers] = [ result, ];
+                        }
                     }
-                }
-            })
-            .catch(() => {
-                alert('エラーが発生しました');
-            });
-    } else {
-        // alert('エラー: 1文字か2文字を入力してください');
-        // FIXME
-        alert('エラー: 2文字入力してください');
-    }
+
+                    for (let i = 0; i < selectedPerms.length; i++) {
+                        const perm = selectedPerms[i];
+
+                        if (perm.stickers in threeStyleHash) {
+                            // 結果がある場合は、それを表示
+                            const lst = threeStyleHash[perm.stickers];
+                            for (let k = 0; k < lst.length; k++) {
+                                const result = lst[k];
+                                const id = result.id;
+                                const buffer = result.buffer;
+                                const sticker1 = result.sticker1;
+                                const sticker2 = result.sticker2;
+                                const setup = result.setup;
+                                const move1 = result.move1;
+                                const move2 = result.move2;
+                                const moveStr = showMove(setup, move1, move2);
+
+                                const liNode = document.createElement('li');
+                                liNode.className = `showThreeStyleCornerForm__oList__list--id${id}`;
+
+                                const letters = perm.letters;
+                                const textNode = document.createTextNode(`${letters} ${buffer} ${sticker1} ${sticker2} ${moveStr} `);
+                                const btnNode = document.createElement('input');
+                                btnNode.type = 'button';
+                                btnNode.className = 'showThreeStyleCornerForm__deleteBtn';
+                                btnNode.value = '削除';
+                                btnNode.style.borderColor = '#ff0000';
+                                btnNode.addEventListener('click', () => deleteThreeStyle(id));
+
+                                liNode.appendChild(textNode);
+                                liNode.appendChild(btnNode);
+                                olNode.appendChild(liNode);
+                            }
+                        } else {
+                            // 結果が無い場合は、登録するための表示
+                            const liNode = document.createElement('li');
+                            const textNode = document.createTextNode(`${perm.letters} ${perm.stickers} 3-style未登録 `);
+                            const btnNode = document.createElement('input');
+                            btnNode.type = 'button';
+                            btnNode.className = 'showThreeStyleCornerForm__registerBtn';
+                            btnNode.value = '登録';
+                            btnNode.style.borderColor = '#00ff00';
+                            btnNode.addEventListener('click', () => openRegisterPage(perm.letters));
+
+                            liNode.appendChild(textNode);
+                            liNode.appendChild(btnNode);
+                            olNode.appendChild(liNode);
+                        }
+                    }
+                })
+                .catch((err) => {
+                    alert(`3-style読み込み中にエラーが発生しました: ${err}`);
+                });
+        })
+        .catch(() => {
+            alert('ナンバリング読み込み中にエラーが発生しました');
+        });
 };
 
 const init = () => {
