@@ -11,7 +11,7 @@ const showMove = (setup, move1, move2) => {
 
 // 3-style登録ページを開く
 const openRegisterPage = (letters) => {
-    window.open(URL_ROOT + '/threeStyle/registerCorner.html?version=v0.2.4&letters=' + letters);
+    window.open(URL_ROOT + '/threeStyle/registerCorner.html?version=v0.3.0&letters=' + letters);
 };
 
 // threeStyleを削除する
