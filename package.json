@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "chunk": "0.0.2",
-    "handsontable": "0.35.0",
+    "handsontable": "~0.37",
     "mathjs": "3.20.2",
     "net": "1.0.2",
     "request": "2.83.0",
