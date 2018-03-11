@@ -1,17 +1,9 @@
 const rp = require('request-promise');
-
-// FIXME threeStyleQuizCornerと重複しているので統合する
-const showMove = (setup, move1, move2) => {
-    if (setup === '') {
-        return '[' + move1 + ',' + move2 + ']';
-    } else {
-        return '[' + setup + ' [' + move1 + ',' + move2 + ']]';
-    }
-};
+const utils = require('./utils');
 
 // 3-style登録ページを開く
 const openRegisterPage = (letters) => {
-    window.open(URL_ROOT + '/threeStyle/registerCorner.html?version=v0.3.0&letters=' + letters);
+    window.open(URL_ROOT + `/threeStyle/registerCorner.html?letters=${letters}`);
 };
 
 // threeStyleを削除する
@@ -73,7 +65,7 @@ const submit = () => {
 
     // ナンバリング
     const numberingOptions = {
-        url: API_ROOT + '/numbering/corner/' + userName,
+        url: API_ROOT + `/numbering/corner/${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -143,7 +135,7 @@ const submit = () => {
             }
 
             const threeStyleCornerOptions = {
-                url: API_ROOT + '/threeStyle/corner?userName=' + userName,
+                url: API_ROOT + `/threeStyle/corner?userName=${userName}`,
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -184,7 +176,7 @@ const submit = () => {
                                 const setup = result.setup;
                                 const move1 = result.move1;
                                 const move2 = result.move2;
-                                const moveStr = showMove(setup, move1, move2);
+                                const moveStr = utils.showMove(setup, move1, move2);
 
                                 const liNode = document.createElement('li');
                                 liNode.className = `showThreeStyleCornerForm__oList__list--id${id}`;

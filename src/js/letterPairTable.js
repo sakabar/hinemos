@@ -10,7 +10,7 @@ const generateTableData = () => {
     const userName = localStorage.userName;
 
     const options = {
-        url: API_ROOT + '/letterPair?userName=' + userName,
+        url: API_ROOT + `/letterPair?userName=${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

@@ -34,8 +34,8 @@ const getBlankStickers = (bufferSticker) => {
     const s1 = bufferSticker[1];
     const s2 = bufferSticker[2];
 
-    const ans1 = s1 + strMin(s0, s2) + strMax(s0, s2);
-    const ans2 = s2 + strMin(s0, s1) + strMax(s0, s1);
+    const ans1 = `${s1}${strMin(s0, s2)}${strMax(s0, s2)}`;
+    const ans2 = `${s2}${strMin(s0, s1)}${strMax(s0, s1)}`;
 
     return [ strMin(ans1, ans2), strMax(ans1, ans2), ];
 };
@@ -56,7 +56,7 @@ const checkBlankStickersAreOK = (blankStickers, numberings) => {
 const loadNumbering = () => {
     const userName = localStorage.userName;
     const options = {
-        url: API_ROOT + '/numbering/corner/' + userName,
+        url: API_ROOT + `/numbering/corner/${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -71,7 +71,7 @@ const loadNumbering = () => {
             for (let i = 0; i < numberings.length; i++) {
                 const sticker = numberings[i].sticker;
                 const letter = numberings[i].letter;
-                const pieceText = document.querySelector('.corner__' + sticker);
+                const pieceText = document.querySelector(`.corner__${sticker}`);
 
                 if (pieceText) {
                     pieceText.value = letter;
@@ -93,19 +93,19 @@ const saveNumbering = () => {
     let numberings = [];
     for (let i = 0; i < cornerLn; i++) {
         const sticker = corners[i];
-        const pieceText = document.querySelector('.corner__' + sticker);
+        const pieceText = document.querySelector(`.corner__${sticker}`);
 
         // 空欄はスキップ
         if (pieceText && pieceText.value.replace(/\s/g, '') !== '') {
             const letter = pieceText.value.replace(/\s/g, '');
 
             if (letter.length > 1) {
-                alert('エラー:' + sticker + ':「' + pieceText.value + '」:ナンバリングは1文字にしてください');
+                alert(`エラー:${sticker}:「${pieceText.value}」:ナンバリングは1文字にしてください`);
                 return;
             }
 
             if (!hiraganas.includes(letter)) {
-                alert('エラー:' + sticker + ':「' + pieceText.value + '」:使用してはいけない文字です');
+                alert(`エラー:${sticker}:「${pieceText.value}」:使用してはいけない文字です`);
                 return;
             }
 

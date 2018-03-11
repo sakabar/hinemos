@@ -12,7 +12,7 @@ const checkNew = () => {
     const letters = lettersText.value.replace(/\s*/g, '');
 
     const options = {
-        url: API_ROOT + '/threeStyleFromLetters/corner?userName=' + userName + '&letters=' + letters,
+        url: API_ROOT + `/threeStyleFromLetters/corner?userName=${userName}&letters=${letters}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -51,13 +51,34 @@ const saveThreeStyleCorner = () => {
     const move1 = move1Text.value.replace(/\s*$/, '').replace(/^\s*/, '').replace(/[‘’´｀`]/g, '\'');
     const move2 = move2Text.value.replace(/\s*$/, '').replace(/^\s*/, '').replace(/[‘’´｀`]/g, '\'');
 
-    if (move1 === '' || move2 === '') {
-        alert('手順1と手順2を入力してください');
+    const okCond1 = (move1 !== '' && move2 !== '');
+    const okCond2 = (move1 === '' && move2 === '' && setup !== '');
+    if (!(okCond1 || okCond2)) {
+        alert('入力されていない欄があります。\n通常の手順の場合、手順1と手順2を両方埋めて下さい。\nCyclic Shiftなどの特殊な手順の場合は、手順1と手順2を空欄にして、セットアップだけ入力してください。');
         return;
     }
 
-    if ((setup !== '' && !isValidMoves(setup)) || !isValidMoves(move1) || !isValidMoves(move2)) {
-        alert('手順の記法に誤りがあります。各操作の間にはスペースを入れてください。\n例: y Lw\'2 E U');
+    // move1とmove2が両方埋まっている場合
+    if (okCond1) {
+        if (setup !== '' && !isValidMoves(setup)) {
+            alert('セットアップの手順の記法に誤りがあります。各操作の間にはスペースを入れてください。\n例: y Lw\'2 E U');
+            return;
+        }
+
+        if (!isValidMoves(move1)) {
+            alert('手順1の記法に誤りがあります。各操作の間にはスペースを入れてください。\n例: y Lw\'2 E U');
+            return;
+        }
+
+        if (!isValidMoves(move2)) {
+            alert('手順2の記法に誤りがあります。各操作の間にはスペースを入れてください。\n例: y Lw\'2 E U');
+            return;
+        }
+    }
+
+    // move1とmove2が両方空の場合 → setupのみチェック
+    if (okCond2 && !isValidMoves(setup)) {
+        alert('セットアップの手順の記法に誤りがあります。各操作の間にはスペースを入れてください。\n例: y Lw\'2 E U');
         return;
     }
 
@@ -73,7 +94,7 @@ const saveThreeStyleCorner = () => {
 
     // ひらがなをステッカーに変換する
     const numberingOptions = {
-        url: API_ROOT + '/numbering/corner/' + userName + '?letters=' + letters,
+        url: API_ROOT + `/numbering/corner/${userName}?letters=${letters}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -148,12 +169,12 @@ const saveThreeStyleCorner = () => {
                             lettersText.style.borderColor = '#eeeeee';
                         });
                 })
-                .catch(() => {
-                    alert('登録に失敗しました');
+                .catch((err) => {
+                    alert(`登録に失敗しました: ${err}`);
                 });
         })
-        .catch(() => {
-            alert('エラーが発生しました');
+        .catch((err) => {
+            alert(`エラーが発生しました: ${err}`);
         });
 };
 
