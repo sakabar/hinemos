@@ -3,7 +3,7 @@ const utils = require('./utils');
 
 // 3-style登録ページを開く
 const openRegisterPage = (letters) => {
-    window.open(URL_ROOT + '/threeStyle/registerCorner.html?version=v0.3.0&letters=' + letters);
+    window.open(URL_ROOT + '/threeStyle/registerCorner.html?letters=' + letters);
 };
 
 // threeStyleを削除する

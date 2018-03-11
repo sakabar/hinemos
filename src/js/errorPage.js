@@ -1,6 +1,6 @@
 const init = () => {
     setTimeout(() => {
-        location.href = URL_ROOT + '/top.html?version=v0.3.0';
+        location.href = URL_ROOT + '/top.html';
     }, 5000);
 };
 
