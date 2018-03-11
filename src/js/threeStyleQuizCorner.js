@@ -1,14 +1,7 @@
 const chunk = require('chunk');
 const rp = require('request-promise');
 const shuffle = require('shuffle-array');
-
-const showMove = (setup, move1, move2) => {
-    if (setup === '') {
-        return `[${move1},${move2}]`;
-    } else {
-        return `${setup} [${move1},${move2}]`;
-    }
-};
+const utils = require('./utils');
 
 const getHint = (setup, move1, move2) => {
     if (setup === '') {
@@ -28,7 +21,7 @@ const stickersToThreeStyles = (threeStyles, stickers) => {
     return {
         stickers,
         hints: threeStyles.filter(x => x.stickers === stickers).map(x => getHint(x.setup, x.move1, x.move2)),
-        moves: threeStyles.filter(x => x.stickers === stickers).map(x => showMove(x.setup, x.move1, x.move2)),
+        moves: threeStyles.filter(x => x.stickers === stickers).map(x => utils.showMove(x.setup, x.move1, x.move2)),
     };
 };
 

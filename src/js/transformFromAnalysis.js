@@ -1,13 +1,5 @@
 const rp = require('request-promise');
-
-// FIXME threeStyleQuizCornerと重複しているので統合する
-const showMove = (setup, move1, move2) => {
-    if (setup === '') {
-        return `[${move1},${move2}]`;
-    } else {
-        return `${setup} [${move1},${move2}]`;
-    }
-};
+const utils = require('./utils');
 
 const transformOneLine = (userName, letters) => {
     const letterPairOptions = {
@@ -37,7 +29,7 @@ const transformOneLine = (userName, letters) => {
 
             return rp(threeStyleCornerOptions)
                 .then((ans) => {
-                    const threeStylesStr = ans.success.result.map((x) => showMove(x.setup, x.move1, x.move2)).join(',');
+                    const threeStylesStr = ans.success.result.map((x) => utils.showMove(x.setup, x.move1, x.move2)).join(',');
 
                     return `${words} ${threeStylesStr}\n`;
                 })
