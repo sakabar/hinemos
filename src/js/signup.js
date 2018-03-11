@@ -45,7 +45,7 @@ const submit = () => {
                     localStorage.clear();
                     localStorage.token = authAns.success.token;
                     localStorage.userName = userName;
-                    location.href = URL_ROOT + '/mypage.html?version=v0.3.0';
+                    location.href = URL_ROOT + '/mypage.html';
                 });
         })
         .catch((err) => {
