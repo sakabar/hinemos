@@ -1,6 +1,6 @@
 #!/bin/bash
 
-npm run eslint && npm run webpack && {
+npm run eslint && npm run test && npm run webpack && {
     rm -rf public
     mkdir -p public
 

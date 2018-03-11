@@ -1,13 +1,5 @@
 const rp = require('request-promise');
-
-// FIXME threeStyleQuizCornerと重複しているので統合する
-const showMove = (setup, move1, move2) => {
-    if (setup === '') {
-        return `[${move1},${move2}]`;
-    } else {
-        return `${setup} [${move1},${move2}]`;
-    }
-};
+const utils = require('./utils');
 
 // 3-style登録ページを開く
 const openRegisterPage = (letters) => {
@@ -184,7 +176,7 @@ const submit = () => {
                                 const setup = result.setup;
                                 const move1 = result.move1;
                                 const move2 = result.move2;
-                                const moveStr = showMove(setup, move1, move2);
+                                const moveStr = utils.showMove(setup, move1, move2);
 
                                 const liNode = document.createElement('li');
                                 liNode.className = `showThreeStyleCornerForm__oList__list--id${id}`;
