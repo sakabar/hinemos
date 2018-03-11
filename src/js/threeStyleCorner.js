@@ -12,7 +12,7 @@ const checkNew = () => {
     const letters = lettersText.value.replace(/\s*/g, '');
 
     const options = {
-        url: API_ROOT + '/threeStyleFromLetters/corner?userName=' + userName + '&letters=' + letters,
+        url: API_ROOT + `/threeStyleFromLetters/corner?userName=${userName}&letters=${letters}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -73,7 +73,7 @@ const saveThreeStyleCorner = () => {
 
     // ひらがなをステッカーに変換する
     const numberingOptions = {
-        url: API_ROOT + '/numbering/corner/' + userName + '?letters=' + letters,
+        url: API_ROOT + `/numbering/corner/${userName}?letters=${letters}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

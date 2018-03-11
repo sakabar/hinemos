@@ -3,15 +3,15 @@ const rp = require('request-promise');
 // FIXME threeStyleQuizCornerと重複しているので統合する
 const showMove = (setup, move1, move2) => {
     if (setup === '') {
-        return '[' + move1 + ',' + move2 + ']';
+        return `[${move1},${move2}]`;
     } else {
-        return '[' + setup + ' [' + move1 + ',' + move2 + ']]';
+        return `${setup} [${move1},${move2}]`;
     }
 };
 
 const transformOneLine = (userName, letters) => {
     const letterPairOptions = {
-        url: API_ROOT + '/letterPair?userName=' + userName + '&letters=' + letters,
+        url: API_ROOT + `/letterPair?userName=${userName}&letters=${letters}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -22,7 +22,7 @@ const transformOneLine = (userName, letters) => {
 
     // lettersから3-styleを引く
     const threeStyleCornerOptions = {
-        url: API_ROOT + '/threeStyleFromLetters/corner?userName=' + userName + '&letters=' + letters,
+        url: API_ROOT + `/threeStyleFromLetters/corner?userName=${userName}&letters=${letters}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -39,10 +39,10 @@ const transformOneLine = (userName, letters) => {
                 .then((ans) => {
                     const threeStylesStr = ans.success.result.map((x) => showMove(x.setup, x.move1, x.move2)).join(',');
 
-                    return words + ' ' + threeStylesStr + '\n';
+                    return `${words} ${threeStylesStr}\n`;
                 })
                 .catch(() => {
-                    return words + '\n';
+                    return `${words}\n`;
                 });
         })
         .catch(() => {
@@ -74,7 +74,7 @@ const transformFromAnalysis = () => {
         .then((results) => {
             wordsText.value = '';
             for (let i = 0; i < results.length; i++) {
-                wordsText.value += lettersList[i] + ': ' + results[i];
+                wordsText.value += `${lettersList[i]}: ${results[i]}`;
             }
         })
         .catch(() => {
