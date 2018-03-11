@@ -6,7 +6,7 @@ const suggestWord = () => {
     const wordText = document.querySelector('.registerLetterPairForm__wordText');
 
     const options = {
-        url: API_ROOT + '/letterPair?letters=' + letters,
+        url: API_ROOT + `/letterPair?letters=${letters}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -51,7 +51,7 @@ const registerLetterPair = () => {
     }
 
     const options = {
-        url: API_ROOT + '/letterPair/' + userName,
+        url: API_ROOT + `/letterPair/${userName}`,
         method: 'POST',
         headers: headers,
         json: true,

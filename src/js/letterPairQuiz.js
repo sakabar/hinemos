@@ -81,17 +81,14 @@ const submit = (selectedLetterPairs, isRecalled) => {
             const prevAns = '前問の答え:' + selectedLetterPairs.filter(x => x.letters === letters).map(x => x.words).join(',');
             const nextInd = ind + 1;
 
+            quizFormLettersIndHidden.value = `このセッションで解いた問題数:${nextInd}`;
+            quizFormPrevAnsText.value = prevAns;
+            quizFormPrevSecText.value = `前問の秒数:${sec.toFixed(2)}`;
             if (nextInd <= selectedLetterPairs.length - 1) {
                 quizFormStartUnixTimeHidden.value = String(new Date().getTime());
-                quizFormLettersIndHidden.value = 'このセッションで解いた問題数:' + String(nextInd);
                 quizFormLettersText.value = selectedLetterPairs[nextInd].letters;
-                quizFormPrevAnsText.value = prevAns;
-                quizFormPrevSecText.value = '前問の秒数:' + String(sec);
             } else {
-                quizFormLettersIndHidden.value = 'このセッションで解いた問題数:' + String(nextInd);
                 quizFormLettersText.value = 'お疲れ様です、ページを更新してください。';
-                quizFormPrevAnsText.value = prevAns;
-                quizFormPrevSecText.value = '前問の秒数:' + String(sec);
             }
         })
         .catch((err) => {
@@ -108,7 +105,7 @@ const init = () => {
 
     // 登録済のレターペアを持っておく
     const letterPairOptions = {
-        url: API_ROOT + '/letterPair?userName=' + userName,
+        url: API_ROOT + `/letterPair?userName=${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -119,7 +116,7 @@ const init = () => {
 
     // クイズ履歴
     const quizLettersOptions = {
-        url: API_ROOT + '/letterPairQuizLog/' + userName,
+        url: API_ROOT + `/letterPairQuizLog/${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

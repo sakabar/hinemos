@@ -4,9 +4,9 @@ const shuffle = require('shuffle-array');
 
 const showMove = (setup, move1, move2) => {
     if (setup === '') {
-        return '[' + move1 + ',' + move2 + ']';
+        return `[${move1},${move2}]`;
     } else {
-        return setup + ' [' + move1 + ',' + move2 + ']';
+        return `${setup} [${move1},${move2}]`;
     }
 };
 
@@ -18,10 +18,10 @@ const getHint = (setup, move1, move2) => {
     const move1List = move1.split(' ');
 
     if (move1List.length === 0) {
-        return '[' + setup + ' [     ]]';
+        return `[${setup} [     ]]`;
     }
 
-    return '[' + setup + ' [' + move1List[0] + '    ]]';
+    return `[${setup} [${move1List[0]}    ]]`;
 };
 
 const stickersToThreeStyles = (threeStyles, stickers) => {
@@ -134,22 +134,22 @@ const submit = (letterPairs, numberings, selectedThreeStyles, isRecalled) => {
 
             if (nextInd <= selectedThreeStyles.length - 1) {
                 quizFormStartUnixTimeHidden.value = String(new Date().getTime());
-                quizIndHidden.value = 'このセッションで解いた問題数:' + String(nextInd);
+                quizIndHidden.value = `このセッションで解いた問題数:${nextInd}`;
                 const letters = selectedThreeStyles[nextInd].stickers.split(' ').map(sticker => numberings.filter(x => x.sticker === sticker)[0].letter).join('').replace(/@/g, '');
                 const words = letterPairs.filter(x => x.letters === letters).map(x => x.word).join(',');
-                quizFormLettersText.value = letters + ': ' + words;
+                quizFormLettersText.value = `${letters}: ${words}`;
 
                 const hints = selectedThreeStyles[nextInd].hints;
                 hintText.style.display = 'none';
                 hintText.value = hints.join('\nまたは\n');
 
                 quizFormPrevAnsText.value = prevAns;
-                quizFormPrevSecText.value = '前問の秒数:' + String(sec);
+                quizFormPrevSecText.value = `前問の秒数:${sec.toFixed(2)}`;
             } else {
-                quizIndHidden.value = 'このセッションで解いた問題数:' + String(nextInd);
+                quizIndHidden.value = `このセッションで解いた問題数:${nextInd}`;
                 quizFormLettersText.value = 'お疲れ様です、ページを更新してください。';
                 quizFormPrevAnsText.value = prevAns;
-                quizFormPrevSecText.value = '前問の秒数:' + String(sec);
+                quizFormPrevSecText.value = `前問の秒数:${sec.toFixed(2)}`;
             }
         })
         .catch((err) => {
@@ -168,7 +168,7 @@ const init = () => {
 
     // 登録済の3-styleを持っておく
     const threeStyleOptions = {
-        url: API_ROOT + '/threeStyle/corner?userName=' + userName,
+        url: API_ROOT + `/threeStyle/corner?userName=${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -179,7 +179,7 @@ const init = () => {
 
     // クイズ履歴
     const quizOptions = {
-        url: API_ROOT + '/threeStyleQuizLog/corner/' + userName,
+        url: API_ROOT + `/threeStyleQuizLog/corner/${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -190,7 +190,7 @@ const init = () => {
 
     // ナンバリング
     const numberingOptions = {
-        url: API_ROOT + '/numbering/corner/' + userName,
+        url: API_ROOT + `/numbering/corner/${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -201,7 +201,7 @@ const init = () => {
 
     // レターペア
     const letterPairOptions = {
-        url: API_ROOT + '/letterPair?userName=' + userName,
+        url: API_ROOT + `/letterPair?userName=${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -251,7 +251,7 @@ const init = () => {
                                     const letter2 = numberings.filter(x => x.sticker === sticker2)[0].letter;
                                     const letters = letter1 + letter2;
                                     const words = letterPairs.filter(x => x.letters === letters).map(x => x.word).join(',');
-                                    quizFormLettersText.value = letters + ': ' + words;
+                                    quizFormLettersText.value = `${letters}: ${words}`;
 
                                     const hints = selectedThreeStyles[0].hints;
                                     hintText.style.display = 'none';
