@@ -1,9 +1,10 @@
 const rp = require('request-promise');
+const config = require('./config');
 const utils = require('./utils');
 
 const transformOneLine = (userName, letters) => {
     const letterPairOptions = {
-        url: API_ROOT + `/letterPair?userName=${userName}&letters=${letters}`,
+        url: `${config.apiRoot}/letterPair?userName=${userName}&letters=${letters}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -14,7 +15,7 @@ const transformOneLine = (userName, letters) => {
 
     // lettersから3-styleを引く
     const threeStyleCornerOptions = {
-        url: API_ROOT + `/threeStyleFromLetters/corner?userName=${userName}&letters=${letters}`,
+        url: `${config.apiRoot}/threeStyleFromLetters/corner?userName=${userName}&letters=${letters}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

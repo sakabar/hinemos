@@ -1,9 +1,10 @@
 const rp = require('request-promise');
+const config = require('./config');
 const utils = require('./utils');
 
 // 3-style登録ページを開く
 const openRegisterPage = (letters) => {
-    window.open(URL_ROOT + `/threeStyle/registerCorner.html?letters=${letters}`);
+    window.open(`${config.urlRoot}/threeStyle/registerCorner.html?letters=${letters}`);
 };
 
 // threeStyleを削除する
@@ -16,7 +17,7 @@ const deleteThreeStyle = (id) => {
     }
 
     const deleteOption = {
-        url: API_ROOT + '/deleteThreeStyle/corner',
+        url: `${config.apiRoot}/deleteThreeStyle/corner`,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -65,7 +66,7 @@ const submit = () => {
 
     // ナンバリング
     const numberingOptions = {
-        url: API_ROOT + `/numbering/corner/${userName}`,
+        url: `${config.apiRoot}/numbering/corner/${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -135,7 +136,7 @@ const submit = () => {
             }
 
             const threeStyleCornerOptions = {
-                url: API_ROOT + `/threeStyle/corner?userName=${userName}`,
+                url: `${config.apiRoot}/threeStyle/corner?userName=${userName}`,
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

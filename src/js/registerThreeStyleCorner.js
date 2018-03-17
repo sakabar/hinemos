@@ -1,5 +1,6 @@
 const rp = require('request-promise');
 const url = require('url');
+const config = require('./config');
 
 // FIXME テスト書く
 const isValidMoves = (moveStr) => {
@@ -12,7 +13,7 @@ const checkNew = () => {
     const letters = lettersText.value.replace(/\s*/g, '');
 
     const options = {
-        url: API_ROOT + `/threeStyleFromLetters/corner?userName=${userName}&letters=${letters}`,
+        url: `${config.apiRoot}/threeStyleFromLetters/corner?userName=${userName}&letters=${letters}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -94,7 +95,7 @@ const saveThreeStyleCorner = () => {
 
     // ひらがなをステッカーに変換する
     const numberingOptions = {
-        url: API_ROOT + `/numbering/corner/${userName}?letters=${letters}`,
+        url: `${config.apiRoot}/numbering/corner/${userName}?letters=${letters}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -123,7 +124,7 @@ const saveThreeStyleCorner = () => {
             const sticker2 = stickers[2];
 
             const threeStyleOptions = {
-                url: API_ROOT + '/threeStyle/corner/',
+                url: `${config.apiRoot}/threeStyle/corner`,
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
