@@ -1,5 +1,6 @@
 const rp = require('request-promise');
 const math = require('mathjs');
+const config = require('./config');
 
 const init = () => {
     const userName = localStorage.userName;
@@ -7,7 +8,7 @@ const init = () => {
 
     // クイズ履歴
     const quizOptions = {
-        url: API_ROOT + '/threeStyleQuizLog/corner/' + userName,
+        url: `${config.apiRoot}/threeStyleQuizLog/corner/${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

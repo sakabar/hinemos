@@ -1,4 +1,5 @@
 const rp = require('request-promise');
+const config = require('./config');
 
 const submit = () => {
     const userName = document.querySelector('.signupForm__userNameText').value;
@@ -15,7 +16,7 @@ const submit = () => {
     };
 
     const options = {
-        url: API_ROOT + '/users',
+        url: `${config.apiRoot}/users`,
         method: 'POST',
         headers: headers,
         json: true,
@@ -30,7 +31,7 @@ const submit = () => {
             alert('新規登録が完了しました');
 
             const authOptions = {
-                url: API_ROOT + '/auth',
+                url: `${config.apiRoot}/auth`,
                 method: 'POST',
                 headers: headers,
                 json: true,
@@ -45,7 +46,7 @@ const submit = () => {
                     localStorage.clear();
                     localStorage.token = authAns.success.token;
                     localStorage.userName = userName;
-                    location.href = URL_ROOT + '/mypage.html';
+                    location.href = `${config.urlRoot}/mypage.html`;
                 });
         })
         .catch((err) => {

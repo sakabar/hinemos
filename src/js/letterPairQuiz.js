@@ -1,6 +1,7 @@
 const chunk = require('chunk');
 const rp = require('request-promise');
 const shuffle = require('shuffle-array');
+const config = require('./config');
 
 const letterPairsToWords = (letterPairs, letters) => {
     const ans = {
@@ -62,7 +63,7 @@ const submit = (selectedLetterPairs, isRecalled) => {
     }
 
     const options = {
-        url: API_ROOT + '/letterPairQuizLog',
+        url: `${config.apiRoot}/letterPairQuizLog`,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -105,7 +106,7 @@ const init = () => {
 
     // 登録済のレターペアを持っておく
     const letterPairOptions = {
-        url: API_ROOT + `/letterPair?userName=${userName}`,
+        url: `${config.apiRoot}/letterPair?userName=${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -116,7 +117,7 @@ const init = () => {
 
     // クイズ履歴
     const quizLettersOptions = {
-        url: API_ROOT + `/letterPairQuizLog/${userName}`,
+        url: `${config.apiRoot}/letterPairQuizLog/${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

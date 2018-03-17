@@ -1,6 +1,7 @@
 const chunk = require('chunk');
 const rp = require('request-promise');
 const shuffle = require('shuffle-array');
+const config = require('./config');
 const utils = require('./utils');
 
 const getHint = (setup, move1, move2) => {
@@ -100,7 +101,7 @@ const submit = (letterPairs, numberings, selectedThreeStyles, isRecalled) => {
     }
 
     const options = {
-        url: API_ROOT + '/threeStyleQuizLog/corner',
+        url: `${config.apiRoot}/threeStyleQuizLog/corner`,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -161,7 +162,7 @@ const init = () => {
 
     // 登録済の3-styleを持っておく
     const threeStyleOptions = {
-        url: API_ROOT + `/threeStyle/corner?userName=${userName}`,
+        url: `${config.apiRoot}/threeStyle/corner?userName=${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -172,7 +173,7 @@ const init = () => {
 
     // クイズ履歴
     const quizOptions = {
-        url: API_ROOT + `/threeStyleQuizLog/corner/${userName}`,
+        url: `${config.apiRoot}/threeStyleQuizLog/corner/${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -183,7 +184,7 @@ const init = () => {
 
     // ナンバリング
     const numberingOptions = {
-        url: API_ROOT + `/numbering/corner/${userName}`,
+        url: `${config.apiRoot}/numbering/corner/${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -194,7 +195,7 @@ const init = () => {
 
     // レターペア
     const letterPairOptions = {
-        url: API_ROOT + `/letterPair?userName=${userName}`,
+        url: `${config.apiRoot}/letterPair?userName=${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

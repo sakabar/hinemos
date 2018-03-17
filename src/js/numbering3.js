@@ -1,4 +1,6 @@
 const rp = require('request-promise');
+const config = require('./config');
+
 const corners = [
     'UBL', 'UBR', 'UFR', 'UFL',
     'RFU', 'RBU', 'RDF', 'RBD',
@@ -56,7 +58,7 @@ const checkBlankStickersAreOK = (blankStickers, numberings) => {
 const loadNumbering = () => {
     const userName = localStorage.userName;
     const options = {
-        url: API_ROOT + `/numbering/corner/${userName}`,
+        url: `${config.apiRoot}/numbering/corner/${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -135,7 +137,7 @@ const saveNumbering = () => {
     }
 
     const options = {
-        url: API_ROOT + '/numbering/corner',
+        url: `${config.apiRoot}/numbering/corner`,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

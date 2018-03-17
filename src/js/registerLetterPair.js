@@ -1,4 +1,5 @@
 const rp = require('request-promise');
+const config = require('./config');
 
 const suggestWord = () => {
     const lettersText = document.querySelector('.registerLetterPairForm__lettersText');
@@ -6,7 +7,7 @@ const suggestWord = () => {
     const wordText = document.querySelector('.registerLetterPairForm__wordText');
 
     const options = {
-        url: API_ROOT + `/letterPair?letters=${letters}`,
+        url: `${config.apiRoot}/letterPair?letters=${letters}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -51,7 +52,7 @@ const registerLetterPair = () => {
     }
 
     const options = {
-        url: API_ROOT + `/letterPair/${userName}`,
+        url: `${config.apiRoot}/letterPair/${userName}`,
         method: 'POST',
         headers: headers,
         json: true,

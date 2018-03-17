@@ -1,6 +1,7 @@
 import Handsontable from 'handsontable';
 import 'handsontable.css';
 const rp = require('request-promise');
+const config = require('./config');
 
 const getHiraganas = () => {
     return 'あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん'.split(/(.{1})/).filter(x => x);
@@ -10,7 +11,7 @@ const generateTableData = () => {
     const userName = localStorage.userName;
 
     const options = {
-        url: API_ROOT + `/letterPair?userName=${userName}`,
+        url: `${config.apiRoot}/letterPair?userName=${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -89,7 +90,7 @@ const saveLetterPairTable = (hot) => {
     }
 
     const options = {
-        url: API_ROOT + '/letterPairTable',
+        url: `${config.apiRoot}/letterPairTable`,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
