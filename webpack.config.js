@@ -9,6 +9,7 @@ module.exports = {
         index: './index.js',
         letterPairTable: './letterPairTable.js',
         letterPairQuiz: './letterPairQuiz.js',
+        m2Method: './m2Method.js',
         mypage: './mypage.js',
         numbering3: './numbering3.js',
         registerLetterPair: './registerLetterPair.js',
