@@ -48,8 +48,7 @@ module.exports = {
     },
     plugins: [
         new ExtendedDefinePlugin({
-            URL_ROOT: 'http://saxcy.info/hinemos',
-            API_ROOT: 'http://saxcy.info:8192/hinemos',
+            DEPLOY_ENV: process.env.DEPLOY_ENV ? JSON.stringify(process.env.DEPLOY_ENV) : 'stg',
         })
     ],
     node: {
