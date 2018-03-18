@@ -1,9 +1,10 @@
 const rp = require('request-promise');
+const config = require('./config');
 
 const init = () => {
     const token = localStorage.token;
     if (!token) {
-        location.href = URL_ROOT + '/signin.html';
+        location.href = `${config.urlRoot}/signin.html`;
         return;
     }
 
@@ -12,7 +13,7 @@ const init = () => {
     };
 
     const options = {
-        url: API_ROOT + '/checkAuth',
+        url: `${config.apiRoot}/checkAuth`,
         method: 'POST',
         headers: headers,
         json: true,
@@ -30,7 +31,7 @@ const init = () => {
             }
         })
         .catch(() => {
-            location.href = URL_ROOT + '/signin.html';
+            location.href = `${config.urlRoot}/signin.html`;
         });
 };
 

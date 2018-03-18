@@ -4,8 +4,9 @@ module.exports = {
         "browser": true,
     },
     "globals": {
-        "API_ROOT": true,
-        "URL_ROOT": true,
+        "DEPLOY_ENV": true,
+        "describe": true,
+        "it": true,
     },
     "rules": {
         "indent": [

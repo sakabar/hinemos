@@ -9,6 +9,7 @@ module.exports = {
         index: './index.js',
         letterPairTable: './letterPairTable.js',
         letterPairQuiz: './letterPairQuiz.js',
+        m2Method: './m2Method.js',
         mypage: './mypage.js',
         numbering3: './numbering3.js',
         registerLetterPair: './registerLetterPair.js',
@@ -48,8 +49,7 @@ module.exports = {
     },
     plugins: [
         new ExtendedDefinePlugin({
-            URL_ROOT: 'http://saxcy.info/hinemos',
-            API_ROOT: 'http://saxcy.info:8192/hinemos',
+            DEPLOY_ENV: process.env.DEPLOY_ENV ? JSON.stringify(process.env.DEPLOY_ENV) : 'stg',
         })
     ],
     node: {

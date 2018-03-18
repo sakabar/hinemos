@@ -1,5 +1,7 @@
+const config = require('./config');
+
 const init = () => {
-    location.href = URL_ROOT + '/top.html';
+    location.href = `${config.urlRoot}/top.html`;
 };
 
 init();

@@ -1,4 +1,5 @@
 const rp = require('request-promise');
+const config = require('./config');
 
 const submit = () => {
     const userName = document.querySelector('.signinForm__userNameText').value;
@@ -15,7 +16,7 @@ const submit = () => {
     };
 
     const options = {
-        url: API_ROOT + '/auth',
+        url: `${config.apiRoot}/auth`,
         method: 'POST',
         headers: headers,
         json: true,
@@ -36,7 +37,7 @@ const submit = () => {
             if (checkBox.checked) {
                 localStorage.password = password;
             }
-            location.href = URL_ROOT + '/mypage.html';
+            location.href = `${config.urlRoot}/mypage.html`;
         })
         .catch((err) => {
             alert('ユーザ名かパスワードが違います');
