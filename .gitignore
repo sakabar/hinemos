@@ -8,3 +8,4 @@ public
 # stg用のURLは秘密
 # 下記コマンドを実行済
 # git update-index --assume-unchanged src/js/config_stg.js
+config_stg.js
