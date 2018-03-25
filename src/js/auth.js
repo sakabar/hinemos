@@ -6,7 +6,7 @@ const init = () => {
 
     // 別サイトのURLを埋め込まれて悪意あるリダイレクトをされないように、
     // ドメイン部は外す
-    const regexp = new RegExp(config.urlRoot, 'g');
+    const regexp = new RegExp(`${config.urlRoot}/`, 'g');
     const redirectUrl = location.href.replace(regexp, '');
 
     if (!token) {
