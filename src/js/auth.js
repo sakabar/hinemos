@@ -3,8 +3,14 @@ const config = require('./config');
 
 const init = () => {
     const token = localStorage.token;
+
+    // 別サイトのURLを埋め込まれて悪意あるリダイレクトをされないように、
+    // ドメイン部は外す
+    const regexp = new RegExp(config.urlRoot, 'g');
+    const redirectUrl = location.href.replace(regexp, '');
+
     if (!token) {
-        location.href = `${config.urlRoot}/signin.html`;
+        location.href = `${config.urlRoot}/signin.html?redirect=${redirectUrl}`;
         return;
     }
 
@@ -31,7 +37,7 @@ const init = () => {
             }
         })
         .catch(() => {
-            location.href = `${config.urlRoot}/signin.html`;
+            location.href = `${config.urlRoot}/signin.html?redirect=${redirectUrl}`;
         });
 };
 
