@@ -1,5 +1,6 @@
 const rp = require('request-promise');
 const config = require('./config');
+const url = require('url');
 
 const submit = () => {
     const userName = document.querySelector('.signinForm__userNameText').value;
@@ -37,7 +38,16 @@ const submit = () => {
             if (checkBox.checked) {
                 localStorage.password = password;
             }
-            location.href = `${config.urlRoot}/mypage.html`;
+
+            const urlObj = url.parse(location.href, true);
+            const redirectUrl = urlObj.query.redirect;
+
+            // FIXME 変換/逆変換の処理はutilsに切り出してテストしたほうがいいのか悩む
+            if (redirectUrl && redirectUrl !== '') {
+                location.href = `${config.urlRoot}/${redirectUrl}`;
+            } else {
+                location.href = `${config.urlRoot}/mypage.html`;
+            }
         })
         .catch((err) => {
             alert('ユーザ名かパスワードが違います');
