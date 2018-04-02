@@ -24,6 +24,12 @@ module.exports = {
         "comma-dangle": [
             "error",
             "always"
-        ]
+        ],
+
+        "yoda": [
+            "error",
+            "never",
+            { "onlyEquality": true },
+        ],
     }
 };

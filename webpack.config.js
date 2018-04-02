@@ -18,6 +18,7 @@ module.exports = {
         signup: './signup.js',
         signin: './signin.js',
         signout: './signout.js',
+        threeStyleTableCorner: './threeStyleTableCorner.js',
         threeStyleQuizCorner: './threeStyleQuizCorner.js',
         threeStyleQuizCornerStats: './threeStyleQuizCornerStats.js',
         transformFromAnalysis: './transformFromAnalysis.js',
