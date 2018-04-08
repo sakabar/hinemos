@@ -26,44 +26,58 @@
 
 
 .extendElevation__orange {
-    border: solid 0.4vw #ffbf00;
+    /* 基準面に関する誤解を招かないようにするため、色は付けない */
+    /* border: solid 0.4vw #ffbf00; */
+    border: solid 0.4vw #ffffff;
 }
 
 .extendElevation__orange .center {
-    background-color: #ffbf00;
+    /* 基準面に関する誤解を招かないようにするため、色は付けない */
+    /* background-color: #ffbf00; */
 }
 
 
 .extendElevation__green {
-    border: solid 0.4vw #00ff00;
+    /* 基準面に関する誤解を招かないようにするため、色は付けない */
+    /* border: solid 0.4vw #00ff00; */
 }
 
 .extendElevation__green .center {
-    background-color: #00ff00;
+    /* 基準面に関する誤解を招かないようにするため、色は付けない */
+    /* background-color: #00ff00; */
 }
 
 .extendElevation__red {
-    border: solid 0.4vw #ff0000;
+    /* 基準面に関する誤解を招かないようにするため、色は付けない */
+    /* border: solid 0.4vw #ff0000; */
+    border: solid 0.4vw #ffffff;
 }
 
 .extendElevation__red .center {
-    background-color: #ff0000;
+    /* 基準面に関する誤解を招かないようにするため、色は付けない */
+    /* background-color: #ff0000; */
 }
 
 .extendElevation__blue {
-    border: solid 0.4vw #0000ff;
+    /* 基準面に関する誤解を招かないようにするため、色は付けない */
+    /* border: solid 0.4vw #0000ff; */
+    border: solid 0.4vw #ffffff;
 }
 
 .extendElevation__blue .center {
-    background-color: #0000ff;
+    /* 基準面に関する誤解を招かないようにするため、色は付けない */
+    /* background-color: #0000ff; */
 }
 
 .extendElevation__yellow {
-    border: solid 0.4vw #ffff00;
+    /* 基準面に関する誤解を招かないようにするため、色は付けない */
+    /* border: solid 0.4vw #ffff00; */
+    border: solid 0.4vw #ffffff;
 }
 
 .extendElevation__yellow .center {
-    background-color: #ffff00;
+    /* 基準面に関する誤解を招かないようにするため、色は付けない */
+    /* background-color: #ffff00; */
 }
 
 
@@ -86,3 +100,11 @@
     justify-content:         flex-start;
 }
 
+img {
+    width: 90%;
+    border: solid 1px #000000;
+}
+
+main input[type="button"] {
+    font-size: 25px;
+}
