@@ -50,6 +50,12 @@ const loadCornerNumbering = () => {
     rp(numberingCornerOptions)
         .then((ans) => {
             const cornerNumberings = ans.success.result;
+
+            // 未登録の場合はわざとエラー扱いとし、UBLのみ'@'で埋める
+            if (cornerNumberings.length === 0) {
+                throw new Error('No numberings');
+            }
+
             for (let i = 0; i < cornerNumberings.length; i++) {
                 const sticker = cornerNumberings[i].sticker;
                 const letter = cornerNumberings[i].letter;
@@ -61,7 +67,11 @@ const loadCornerNumbering = () => {
             }
         })
         .catch(() => {
-            //
+            // エラーが発生した場合は、デフォルトでUBLのみ埋める
+            const textUBL = document.querySelector('.corner__UBL');
+            if (textUBL) {
+                textUBL.value = '@';
+            }
         });
 };
 
@@ -80,6 +90,12 @@ const loadEdgeNumbering = () => {
     rp(numberingEdgeOptions)
         .then((ans) => {
             const edgeNumberings = ans.success.result;
+
+            // 未登録の場合はわざとエラー扱いとし、DFのみ'@'で埋める
+            if (edgeNumberings.length === 0) {
+                throw new Error('No numberings');
+            }
+
             for (let i = 0; i < edgeNumberings.length; i++) {
                 const sticker = edgeNumberings[i].sticker;
                 const letter = edgeNumberings[i].letter;
@@ -91,7 +107,11 @@ const loadEdgeNumbering = () => {
             }
         })
         .catch(() => {
-            //
+            // エラーが発生した場合は、デフォルトでDFのみ埋める
+            const textDF = document.querySelector('.edgeMiddle__DF');
+            if (textDF) {
+                textDF.value = '@';
+            }
         });
 };
 
