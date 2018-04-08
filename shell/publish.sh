@@ -1,10 +1,9 @@
 #!/bin/bash
 
-# PRODではないデプロイの場合、stgの設定をコピーしてくる
+# git pullするたびにconfig_stg.jsの中身がダミーになってしまうので、
+# デプロイ時には自動的にstgの設定をコピーしておく
 readonly STG_SETTING_JS=$HOME/work/hinemos_conf/js/config_stg.js
-if [[ "${DEPLOY_ENV}" != "PROD" ]]; then
-    cp -f $STG_SETTING_JS src/js/
-fi
+cp -f $STG_SETTING_JS src/js/
 
 npm run eslint && npm run test && npm run webpack && {
     rm -rf public
