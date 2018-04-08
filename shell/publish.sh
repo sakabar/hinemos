@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# PRODではないデプロイの場合、stgの設定をコピーしてくる
+readonly STG_SETTING_JS=$HOME/work/hinemos_conf/js/config_stg.js
+if [[ "${DEPLOY_ENV}" != "PROD" ]]; then
+    cp -f $STG_SETTING_JS src/js/
+fi
+
 npm run eslint && npm run test && npm run webpack && {
     rm -rf public
     mkdir -p public
