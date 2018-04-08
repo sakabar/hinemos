@@ -156,13 +156,13 @@ const init = () => {
                                         } else if (1.0 <= avgSec && avgSec < 1.5) {
                                             td.style.backgroundColor = '#e0ffff'; // 水色
                                         } else if (1.5 <= avgSec && avgSec < 2.0) {
-                                            td.style.backgroundColor = '#e0ffff'; // 水色
+                                            td.style.backgroundColor = '#e0e0f8'; // 薄い青
                                         } else if (2.0 <= avgSec && avgSec < 2.5) {
-                                            td.style.backgroundColor = '#f3f781'; // 薄い黄色
+                                            td.style.backgroundColor = '#a9d0f5'; // ちょっと濃い青
                                         } else if (2.5 <= avgSec && avgSec < 3.0) {
-                                            td.style.backgroundColor = '#f3f781'; // 薄い黄色
-                                        } else if (3.0 <= avgSec && avgSec < 4.0) {
                                             td.style.backgroundColor = '#ffff00'; // 黄色
+                                        } else if (3.0 <= avgSec && avgSec < 4.0) {
+                                            td.style.backgroundColor = '#f7d358'; // 薄いオレンジ
                                         } else if (4.0 <= avgSec && avgSec < 6.0) {
                                             td.style.backgroundColor = '#ffa500'; // オレンジ
                                         } else if (6.0 <= avgSec) {
