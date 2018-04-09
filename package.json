@@ -1,6 +1,6 @@
 {
   "name": "hinemos",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Website for Rubik's cube blindfolded players",
   "main": "index.js",
   "scripts": {
@@ -37,12 +37,12 @@
     "mock-local-storage": "~1.0",
     "normalize.css": "7.0.0",
     "style-loader": "^0.20.3",
-    "webpack": "~3.8.1"
+    "webpack": "~3.9.0"
   },
   "dependencies": {
     "chunk": "0.0.2",
     "handsontable": "~0.37",
-    "mathjs": "^4.0.1",
+    "mathjs": "^4.1.0",
     "net": "1.0.2",
     "request": "^2.85.0",
     "request-promise": "~4.2.2",

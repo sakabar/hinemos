@@ -9,9 +9,9 @@
     <meta name="expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="normalize.css">
-    <link rel="stylesheet" type="text/css" href="common.css?version=v0.5.0">
-    <link rel="stylesheet" type="text/css" href="numbering3.css?version=v0.5.0">
-    <script type="text/javascript" src="./auth.bundle.js?version=v0.5.0"></script>
+    <link rel="stylesheet" type="text/css" href="common.css?version=v0.5.1">
+    <link rel="stylesheet" type="text/css" href="numbering3.css?version=v0.5.1">
+    <script type="text/javascript" src="./auth.bundle.js?version=v0.5.1"></script>
   </head>
 
   <body>
@@ -26,6 +26,8 @@
     <main>
       <h1>ナンバリング</h1>
       <ul>
+        <li><a href="#numberingExample">例</a>を参考にしてください</li>
+        <li>色は関係ないので、自分の基準面を上・手前にして入力してください</li>
         <li>バッファの位置には、半角の'@'1文字を入力してください</li>
         <ul>
           <li>バッファがあるパーツの、バッファ以外のステッカーは空欄にしてください</li>
@@ -42,7 +44,7 @@
             <input class="piece corner__UBR" type="text">
 
             <input class="piece edgeMiddle__UL" type="text">
-            <input class="piece center" type="text" disabled="disabled">
+            <input class="piece center" type="text" disabled="disabled" value="U">
             <input class="piece edgeMiddle__UR" type="text">
 
             <input class="piece corner__UFL" type="text">
@@ -60,7 +62,7 @@
             <input class="piece corner__LFU" type="text">
 
             <input class="piece edgeMiddle__LB" type="text">
-            <input class="piece center" type="text" disabled="disabled">
+            <input class="piece center" type="text" disabled="disabled" value="L">
             <input class="piece edgeMiddle__LF" type="text">
 
             <input class="piece corner__LBD" type="text">
@@ -74,7 +76,7 @@
             <input class="piece corner__FRU" type="text">
 
             <input class="piece edgeMiddle__FL" type="text">
-            <input class="piece center" type="text" disabled="disabled">
+            <input class="piece center" type="text" disabled="disabled" value="F">
             <input class="piece edgeMiddle__FR" type="text">
 
             <input class="piece corner__FDL" type="text">
@@ -87,7 +89,7 @@
             <input class="piece corner__RBU" type="text">
 
             <input class="piece edgeMiddle__RF" type="text">
-            <input class="piece center" type="text" disabled="disabled">
+            <input class="piece center" type="text" disabled="disabled" value="R">
             <input class="piece edgeMiddle__RB" type="text">
 
             <input class="piece corner__RDF" type="text">
@@ -100,7 +102,7 @@
             <input class="piece corner__BLU" type="text">
 
             <input class="piece edgeMiddle__BR" type="text">
-            <input class="piece center" type="text" disabled="disabled">
+            <input class="piece center" type="text" disabled="disabled" value="B">
             <input class="piece edgeMiddle__BL" type="text">
 
             <input class="piece corner__BDR" type="text">
@@ -117,7 +119,7 @@
             <input class="piece corner__DFR" type="text">
 
             <input class="piece edgeMiddle__DL" type="text">
-            <input class="piece center" type="text" disabled="disabled">
+            <input class="piece center" type="text" disabled="disabled" value="D">
             <input class="piece edgeMiddle__DR" type="text">
 
             <input class="piece corner__DBL" type="text">
@@ -132,8 +134,11 @@
     <form class="saveNumberingForm">
       <input class="saveNumberingForm__btn" type="button" value="保存">
     </form>
+
+    <h2 id="numberingExample">ナンバリング例</h2>
+    <img src="./numberingExample.png?version=v0.5.1" alt="ナンバリング例" title="ナンバリング例">
     </main>
 
-    <script type="text/javascript" src="./numbering3.bundle.js?version=v0.5.0"></script>
+    <script type="text/javascript" src="./numbering3.bundle.js?version=v0.5.1"></script>
   </body>
 </html>

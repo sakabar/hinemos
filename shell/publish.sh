@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# git pullするたびにconfig_stg.jsの中身がダミーになってしまうので、
+# デプロイ時には自動的にstgの設定をコピーしておく
+readonly STG_SETTING_JS=$HOME/work/hinemos_conf/js/config_stg.js
+cp -f $STG_SETTING_JS src/js/
+
 npm run eslint && npm run test && npm run webpack && {
     rm -rf public
     mkdir -p public
