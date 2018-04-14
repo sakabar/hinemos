@@ -67,7 +67,6 @@ const importNumbering = () => {
                     //         "updatedAt": "2018-03-18T11:05:13.000Z"
                     //     }
                     // ]
-
                 })
                 .catch(err => {
                     // 失敗した場合
