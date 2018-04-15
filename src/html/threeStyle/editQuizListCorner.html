@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <title>3-style corner Quiz 問題リスト編集</title>
+    <meta charset="UTF-8">
+    <meta name="robots" content="noindex,nofollow,noarchive">
+    <meta http-equiv="pragma" content="no-store">
+    <meta http-equiv="cache-control" content="no-store">
+    <meta name="expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../common.css?version=v0.5.1">
+    <link rel="stylesheet" type="text/css" href="../editQuizList.css?version=v0.5.1">
+    <script type="text/javascript" src="../auth.bundle.js?version=v0.5.1"></script>
+  </head>
+
+  <body>
+    <header>
+      <ul>
+        <li><a href="../mypage.html">マイページ</a></li>
+        <li><a href="../faq.html">FAQ</a></li>
+        <li><a href="../signout.html">サインアウト</a></li>
+      </ul>
+    </header>
+
+    <main>
+      <h1>問題リスト編集</h1>
+      <form class="editQuizListForm">
+        <input type="button" class="editQuizListForm__submitBtn" value="追加と削除を保存">
+        <!-- <input type="button" class="editQuizListForm__submitBtn" value="保存"> -->
+
+        <h2>追加</h2>
+        <div class="editQuizListForm__box">
+          <div class="editQuizListForm__inputArea">
+            <h3>未追加</h3>
+            <input type="text" class="editQuizListForm__inputArea__text" placeholder="例: あか"><br>
+            <!-- <input type="button" class="editQuizListForm__inputArea__button" value="検索"><br> -->
+            <ul class="editQuizListForm__uList">
+            </ul>
+          </div>
+
+          <div class="editQuizListForm__addCandArea">
+            <h3>追加候補</h3>
+            <ul class="editQuizListForm__uList--cand">
+            </ul>
+          </div>
+        </div>
+
+        <h2>削除</h2>
+        <div class="editQuizListForm__box">
+          <div class="editQuizListForm__registeredArea">
+            <h3>登録済</h3>
+            <!-- <input type="text" class="editQuizListForm__registeredArea__text" placeholder="例: あか"><br> -->
+            <!-- <input type="text" class="editQuizListForm__registeredArea__text" placeholder="<あか|あ?|?か>"><br> -->
+            <!-- <input type="button" class="editQuizListForm__registeredArea__button" value="検索"><br> -->
+            <ul class="editQuizListForm__uList">
+            </ul>
+          </div>
+
+          <div class="editQuizListForm__deleteCandArea">
+            <h3>削除候補</h3>
+            <ul class="editQuizListForm__uList--cand">
+            </ul>
+          </div>
+        </div>
+        <input type="button" class="editQuizListForm__submitBtn" value="追加と削除を保存">
+      </form>
+
+    </main>
+
+    <script type="text/javascript" src="../editThreeStyleQuizListCorner.bundle.js?version=v0.5.1"></script>
+  </body>
+</html>
