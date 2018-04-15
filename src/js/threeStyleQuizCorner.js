@@ -1,6 +1,7 @@
 const chunk = require('chunk');
 const rp = require('request-promise');
 const shuffle = require('shuffle-array');
+const url = require('url');
 const config = require('./config');
 const utils = require('./utils');
 
@@ -49,10 +50,29 @@ const selectThreeStyles = (threeStyles, quizLogRes) => {
         ans = solvedThreeStyles.map(stickers => stickersToThreeStyles(smallThreeStyles, stickers));
     }
 
-    // 10個グループにして、そのグループ内で順番を入れ替える
-    const grouped = chunk(ans, 10).map(arr => shuffle(arr, { copy: true, }));
-    ans = Array.prototype.concat.apply([], grouped);
     return ans;
+};
+
+// threeStyleのうち、problemListに含まれるもののみを抽出
+const selectFromManualList = (threeStyles, problemList) => {
+    if (threeStyles.length === 0 || problemList.length === 0) {
+        return [];
+    }
+
+    // stickers -> bool のハッシュ
+    const problemHash = {};
+    for (let i = 0; i < problemList.length; i++) {
+        const stickers = problemList[i].stickers;
+        problemHash[stickers] = true;
+    }
+
+    return threeStyles.filter(x => problemHash[x.stickers]);
+};
+
+// n個グループにして、そのグループ内で順番を入れ替える
+const chunkAndShuffle = (arr, n) => {
+    const grouped = chunk(arr, n).map(arr => shuffle(arr, { copy: true, }));
+    return Array.prototype.concat.apply([], grouped);
 };
 
 const showHint = () => {
@@ -151,6 +171,12 @@ const submit = (letterPairs, numberings, selectedThreeStyles, isRecalled) => {
         });
 };
 
+// 問題リストは、全問か、それとも自分で設定した問題のみか
+const ProblemListType = {
+    all: { value: 0, name: 'all', },
+    manual: { value: 1, name: 'manual', },
+};
+
 const init = () => {
     const userName = localStorage.userName;
     const hintBtn = document.querySelector('.quizForm__submitBtn--hint');
@@ -159,6 +185,13 @@ const init = () => {
     const quizFormLettersText = document.querySelector('.quizForm__lettersText');
     const hintText = document.querySelector('.quizForm__hintText');
     const quizFormStartUnixTimeHidden = document.querySelector('.quizForm__startUnixTimeHidden');
+
+    const urlObj = url.parse(location.href, true);
+    let problemListType = ProblemListType.all;
+    // URLでproblemListType=manualが指定された場合、自分が設定した問題でやる
+    if (urlObj.query.problemListType === ProblemListType.manual.name) {
+        problemListType = ProblemListType.manual;
+    }
 
     // 登録済の3-styleを持っておく
     const threeStyleOptions = {
@@ -204,10 +237,22 @@ const init = () => {
         form: {},
     };
 
+    // 登録した問題
+    const problemListOptions = {
+        url: `${config.apiRoot}/threeStyleQuizList/corner/${userName}`,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {},
+    };
+
     let threeStyles = [];
     let quizLogRes = [];
     let numberings = [];
     let letterPairs = [];
+    let problemList = [];
 
     return rp(letterPairOptions)
         .then((ans) => {
@@ -228,53 +273,76 @@ const init = () => {
                             return rp(threeStyleOptions)
                                 .then((ans) => {
                                     threeStyles = ans.success.result;
-                                    const selectedThreeStyles = selectThreeStyles(threeStyles, quizLogRes);
 
-                                    if (selectedThreeStyles.length === 0) {
-                                        alert('出題できる3-styleがありません。先に登録してください。');
-                                        return;
-                                    }
+                                    return rp(problemListOptions)
+                                        .then((ans) => {
+                                            problemList = ans.success.result;
 
-                                    const stickers = selectedThreeStyles[0].stickers;
-                                    const lst = stickers.split(' ');
-                                    // const buffer = lst[0];
-                                    const sticker1 = lst[1];
-                                    const sticker2 = lst[2];
+                                            let selectedThreeStyles = [];
 
-                                    const letter1 = numberings.filter(x => x.sticker === sticker1)[0].letter;
-                                    const letter2 = numberings.filter(x => x.sticker === sticker2)[0].letter;
-                                    const letters = letter1 + letter2;
-                                    const words = letterPairs.filter(x => x.letters === letters).map(x => x.word).join(',');
-                                    quizFormLettersText.value = `${letters}: ${words}`;
+                                            if (problemListType === ProblemListType.all) {
+                                                selectedThreeStyles = chunkAndShuffle(selectThreeStyles(threeStyles, quizLogRes));
+                                            } else if (problemListType === ProblemListType.manual) {
+                                                // 取得したproblemListとthreeStyleCornerを組み合わせて、
+                                                // 問題リストを作る
+                                                const manualThreeStyles = selectFromManualList(threeStyles, problemList);
 
-                                    const hints = selectedThreeStyles[0].hints;
-                                    hintText.style.display = 'none';
-                                    hintText.value = hints.join('\nまたは\n');
+                                                // FIXME 変な実装になっていて、selectThreeStyles()とは結果の形式が異なる
+                                                selectedThreeStyles = chunkAndShuffle(problemList.map(p => stickersToThreeStyles(manualThreeStyles, p.stickers)));
+                                            }
 
-                                    quizFormStartUnixTimeHidden.value = String(new Date().getTime());
-                                    okBtn.addEventListener('click', () => submit(letterPairs, numberings, selectedThreeStyles, 1));
-                                    ngBtn.addEventListener('click', () => submit(letterPairs, numberings, selectedThreeStyles, 0));
-                                    hintBtn.addEventListener('click', showHint);
+                                            if (selectedThreeStyles.length === 0) {
+                                                alert('出題できる3-styleがありません。先に登録してください。');
+                                                return;
+                                            }
+
+                                            const stickers = selectedThreeStyles[0].stickers;
+                                            const lst = stickers.split(' ');
+                                            // const buffer = lst[0];
+                                            const sticker1 = lst[1];
+                                            const sticker2 = lst[2];
+
+                                            const letter1 = numberings.filter(x => x.sticker === sticker1)[0].letter;
+                                            const letter2 = numberings.filter(x => x.sticker === sticker2)[0].letter;
+                                            const letters = letter1 + letter2;
+                                            const words = letterPairs.filter(x => x.letters === letters).map(x => x.word).join(',');
+                                            quizFormLettersText.value = `${letters}: ${words}`;
+
+                                            const hints = selectedThreeStyles[0].hints;
+                                            hintText.style.display = 'none';
+                                            hintText.value = hints.join('\nまたは\n');
+
+                                            quizFormStartUnixTimeHidden.value = String(new Date().getTime());
+                                            okBtn.addEventListener('click', () => submit(letterPairs, numberings, selectedThreeStyles, 1));
+                                            ngBtn.addEventListener('click', () => submit(letterPairs, numberings, selectedThreeStyles, 0));
+                                            hintBtn.addEventListener('click', showHint);
+                                        })
+                                        .catch((err) => {
+                                            alert('1' + err);
+                                            // alert('エラー');
+                                        });
                                 })
-                                .catch(() => {
-                                    // alert('1' + err);
-                                    alert('エラー');
+                                .catch((err) => {
+                                    alert('2' + err);
+                                    // alert('エラー');
                                 });
                         })
-                        .catch(() => {
-                            // alert('2' + err);
-                            alert('エラー');
+                        .catch((err) => {
+                            alert('3' + err);
+                            // alert('エラー');
                         });
                 })
-                .catch(() => {
-                    // alert('3' + err);
-                    alert('エラー');
+                .catch((err) => {
+                    alert('4' + err);
+                    // alert('エラー');
                 });
         })
-        .catch(() => {
-            // alert('4' + err);
-            alert('エラー');
+        .catch((err) => {
+            alert('5' + err);
+            // alert('エラー');
         });
 };
 
 init();
+
+exports.selectFromManualList = selectFromManualList;
