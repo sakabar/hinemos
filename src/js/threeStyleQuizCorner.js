@@ -285,7 +285,10 @@ const init = () => {
                                             } else if (problemListType === ProblemListType.manual) {
                                                 // 取得したproblemListとthreeStyleCornerを組み合わせて、
                                                 // 問題リストを作る
-                                                selectedThreeStyles = chunkAndShuffle(selectFromManualList(threeStyles, problemList));
+                                                const manualThreeStyles = selectFromManualList(threeStyles, problemList);
+
+                                                // FIXME 変な実装になっていて、selectThreeStyles()とは結果の形式が異なる
+                                                selectedThreeStyles = chunkAndShuffle(problemList.map(p => stickersToThreeStyles(manualThreeStyles, p.stickers)));
                                             }
 
                                             if (selectedThreeStyles.length === 0) {
@@ -314,29 +317,29 @@ const init = () => {
                                             ngBtn.addEventListener('click', () => submit(letterPairs, numberings, selectedThreeStyles, 0));
                                             hintBtn.addEventListener('click', showHint);
                                         })
-                                        .catch(() => {
-                                            // alert('1' + err);
-                                            alert('エラー');
+                                        .catch((err) => {
+                                            alert('1' + err);
+                                            // alert('エラー');
                                         });
                                 })
-                                .catch(() => {
-                                    // alert('2' + err);
-                                    alert('エラー');
+                                .catch((err) => {
+                                    alert('2' + err);
+                                    // alert('エラー');
                                 });
                         })
-                        .catch(() => {
-                            // alert('3' + err);
-                            alert('エラー');
+                        .catch((err) => {
+                            alert('3' + err);
+                            // alert('エラー');
                         });
                 })
-                .catch(() => {
-                    // alert('4' + err);
-                    alert('エラー');
+                .catch((err) => {
+                    alert('4' + err);
+                    // alert('エラー');
                 });
         })
-        .catch(() => {
-            // alert('5' + err);
-            alert('エラー');
+        .catch((err) => {
+            alert('5' + err);
+            // alert('エラー');
         });
 };
 
