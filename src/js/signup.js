@@ -6,8 +6,14 @@ const submit = () => {
     const password = document.querySelector('.signupForm__passwordText').value;
 
     const form = document.querySelector('.signupForm');
-    if (!form.checkValidity() || password.length < 8) {
-        alert('入力に問題があります');
+
+    if (!form.checkValidity()) {
+        alert('使ってはいけない文字を使っています');
+        return;
+    }
+
+    if (password.length < 8) {
+        alert('パスワードは8文字以上にしてください');
         return;
     }
 
