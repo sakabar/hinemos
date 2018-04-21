@@ -4,7 +4,7 @@ const config = require('./config');
 const submit = () => {
     const userName = document.querySelector('.signupForm__userNameText').value;
     const password = document.querySelector('.signupForm__passwordText').value;
-
+    const passwordConfirm = document.querySelector('.signupForm__passwordText--confirm').value;
     const form = document.querySelector('.signupForm');
 
     if (!form.checkValidity()) {
@@ -14,6 +14,11 @@ const submit = () => {
 
     if (password.length < 8) {
         alert('パスワードは8文字以上にしてください');
+        return;
+    }
+
+    if (password !== passwordConfirm) {
+        alert('パスワードが一致しません');
         return;
     }
 
