@@ -143,7 +143,17 @@ const saveThreeStyleCorner = () => {
 
             return rp(threeStyleOptions)
                 .then(() => {
-                    // 反転した手順を入力
+                    // 登録したのがCyclic Shiftの場合、何もしない
+                    if (move1 === '' && move2 === '') {
+                        lettersText.value = '';
+                        setupText.value = '';
+                        move1Text.value = '';
+                        move2Text.value = '';
+                        lettersText.style.borderColor = '#eeeeee';
+                        return;
+                    }
+
+                    // 登録したのがCyclic Shiftではない場合、反転した手順を入力
                     const reversed = lettersText.value.split('').reverse().join('');
                     lettersText.value = reversed;
                     const tmpSwap = move1Text.value;
