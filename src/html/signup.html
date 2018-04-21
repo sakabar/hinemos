@@ -27,13 +27,14 @@
         <ul>
           <li>ユーザ名には半角英数とアンダーバー(_)が使えます</li>
           <li>パスワードは8文字以上が必要です</li>
-          <li>パスワードには半角英数と記号(@,#,$,%,&,_)が使えます</li>
+          <li>パスワードには半角英数と記号(@#$%&_:;)が使えます</li>
           <li>他のサービスのパスワードを使用しないでください</li>
         </ul>
       </div>
       <form class="signupForm">
         <input class="signupForm__userNameText" type="text" placeholder="ユーザ名" pattern="[A-Za-z0-9_]+" required/><br>
         <input class="signupForm__passwordText" type="password" placeholder="パスワード" pattern="[A-Za-z0-9@#$%&_:;]+" required/><br>
+        <input class="signupForm__passwordText--confirm" type="password" placeholder="パスワード(確認)" pattern="[A-Za-z0-9@#$%&_:;]+" required/><br>
         <input class="signupForm__submitBtn" type="button" value="決定">
       </form>
 
