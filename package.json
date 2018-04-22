@@ -41,6 +41,7 @@
   },
   "dependencies": {
     "chunk": "0.0.2",
+    "count-array-values": "^1.2.1",
     "handsontable": "^2.0.0",
     "mathjs": "^4.1.1",
     "net": "1.0.2",
