@@ -1,7 +1,7 @@
-const chunk = require('chunk');
 const rp = require('request-promise');
-const shuffle = require('shuffle-array');
+const url = require('url');
 const config = require('./config');
+const utils = require('./utils');
 
 const letterPairsToWords = (letterPairs, letters) => {
     const ans = {
@@ -15,8 +15,8 @@ const letterPairsToWords = (letterPairs, letters) => {
 // クイズに使うlettersを決定
 // まだやっていない問題がある → それをやる
 // やっていない問題がない → 正解数が少ないもの順
-// [{letters: "あい", word: "合いの手"}, {letters: "あい", word: "愛"}]
-const selectLetterPairs = (letterPairs, quizLogRes) => {
+// 引数: letterPairs = [{letters: "あい", word: "合いの手"}, {letters: "あい", word: "愛"}]
+const selectUnsolvedLetterPairs = (letterPairs, quizLogRes) => {
     const solvedLetters = quizLogRes.map(x => x.letters);
     const allLetters = Array.from(new Set(letterPairs.map(x => x.letters)));
     const unsolvedLetters = allLetters.filter(x => !solvedLetters.includes(x));
@@ -28,10 +28,22 @@ const selectLetterPairs = (letterPairs, quizLogRes) => {
         ans = solvedLetters.map(letters => letterPairsToWords(letterPairs, letters));
     }
 
-    // 50個グループにして、そのグループ内で順番を入れ替える
-    const grouped = chunk(ans, 50).map(arr => shuffle(arr, { copy: true, }));
-    ans = Array.prototype.concat.apply([], grouped);
     return ans;
+};
+
+// 登録済のレターペアと、「解いた」問題ログ(agg済)を受け取り、解いた問題から出題
+const selectSolvedLetterPairs = (letterPairs, quizLogRes) => {
+    if (!letterPairs || letterPairs.length === 0 || !quizLogRes || quizLogRes.length === 0) {
+        return [];
+    }
+
+    // 両方に共通するlettersを確定
+    const quizLogResLetters = Array.from(new Set(quizLogRes.map(x => x.letters)));
+    const registeredLetters = Array.from(new Set(letterPairs.map(x => x.letters)));
+    const commonLetters = registeredLetters.filter(letters => quizLogResLetters.includes(letters));
+
+    // 変換処理
+    return commonLetters.map(letters => letterPairsToWords(letterPairs, letters));
 };
 
 const submit = (selectedLetterPairs, isRecalled) => {
@@ -98,6 +110,10 @@ const submit = (selectedLetterPairs, isRecalled) => {
 };
 
 const init = () => {
+    const urlObj = url.parse(location.href, true);
+    const days = urlObj.query.days ? parseInt(urlObj.query.days) : null; // 「n日間に」
+    const solved = urlObj.query.solved === 'true'; // 解いた or 解いていない問題
+
     const userName = localStorage.userName;
     const okBtn = document.querySelector('.quizForm__submitBtn--OK');
     const ngBtn = document.querySelector('.quizForm__submitBtn--NG');
@@ -115,9 +131,14 @@ const init = () => {
         form: {},
     };
 
+    let urlStr = `${config.apiRoot}/letterPairQuizLog/${userName}?`;
+    if (days) {
+        urlStr += `&days=${days}`;
+    }
+
     // クイズ履歴
     const quizLettersOptions = {
-        url: `${config.apiRoot}/letterPairQuizLog/${userName}`,
+        url: urlStr,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -125,6 +146,11 @@ const init = () => {
         json: true,
         form: {},
     };
+
+    // 【注意】
+    // レターペアクイズで「n日間に解いてい『ない』」問題を表示するためには、
+    // APIで「n日間に解い『た』」問題を引っぱってきて、
+    // FEのロジックとして補集合を取る
 
     let letterPairs = [];
     let quizLogRes = [];
@@ -135,7 +161,8 @@ const init = () => {
             return rp(letterPairOptions)
                 .then((ans) => {
                     letterPairs = ans.success.result;
-                    const selectedLetterPairs = selectLetterPairs(letterPairs, quizLogRes);
+
+                    const selectedLetterPairs = utils.chunkAndShuffle(solved ? selectSolvedLetterPairs(letterPairs, quizLogRes) : selectUnsolvedLetterPairs(letterPairs, quizLogRes));
 
                     if (selectedLetterPairs.length > 0) {
                         quizFormLettersText.value = selectedLetterPairs[0].letters;
@@ -152,3 +179,5 @@ const init = () => {
 };
 
 init();
+
+exports.selectSolvedLetterPairs = selectSolvedLetterPairs;
