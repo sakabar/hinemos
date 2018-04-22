@@ -1,3 +1,6 @@
+const chunk = require('chunk');
+const shuffle = require('shuffle-array');
+
 const corners = [
     'BDL', 'BDR', 'BLU', 'BRU',
     'DBL', 'DBR', 'DFL', 'DFR',
@@ -40,8 +43,15 @@ const strMin = (s1, s2) => {
     return s2;
 };
 
+// n個グループにして、そのグループ内で順番を入れ替える
+const chunkAndShuffle = (arr, n) => {
+    const grouped = chunk(arr, n).map(arr => shuffle(arr, { copy: true, }));
+    return Array.prototype.concat.apply([], grouped);
+};
+
 exports.corners = corners;
 exports.edges = edges;
 exports.showMove = showMove;
 exports.strMax = strMax;
 exports.strMin = strMin;
+exports.chunkAndShuffle = chunkAndShuffle;
