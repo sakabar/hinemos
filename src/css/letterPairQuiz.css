@@ -1,7 +1,11 @@
-input[type="text"] {
+.quizForm input[type="text"] {
     width: 95%;
 }
 
 textArea {
     width: 95%;
+}
+
+.settingForm__daysText {
+    width: 30px;
 }

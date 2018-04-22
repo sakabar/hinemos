@@ -27,12 +27,18 @@
       <h1>レターペアクイズ</h1>
       <div class="quizMsg">
         <ul>
-          <!-- <li>レターペアを見て、「わかった」「わからん」のボタンを押してください</li> -->
           <li>未回答のレターペアや、苦手なレターペアを優先して出題します</li>
-
           <li><a href="registerLetterPair.html">レターペア登録</a>もどうぞ</li>
         </ul>
-      </div>
+
+        <form class="settingForm">
+          優先: <input class="settingForm__daysText" type="text" value="">日以内に
+          <input type="radio" id="settingForm__radio--solved" name="settingForm__solvedRadio" value="solved">解いた問題
+          <input type="radio" id="settingForm__radio--unsolved" name="settingForm__solvedRadio" value="unsolved" checked>解いていない問題
+          <input class="settingForm__reloadBtn" type="button" value="リロード">
+        </form>
+      </div><br>
+
       <form class="quizForm">
         <input class="quizForm__quizLettersIndHidden" type="text" value="このセッションで解いた問題数:0" size="36" readonly><br>
         <input class="quizForm__prevSecText" type="text" value="前問の秒数" size="36" readonly><br>

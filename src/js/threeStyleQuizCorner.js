@@ -1,6 +1,4 @@
-const chunk = require('chunk');
 const rp = require('request-promise');
-const shuffle = require('shuffle-array');
 const url = require('url');
 const config = require('./config');
 const utils = require('./utils');
@@ -67,12 +65,6 @@ const selectFromManualList = (threeStyles, problemList) => {
     }
 
     return threeStyles.filter(x => problemHash[x.stickers]);
-};
-
-// n個グループにして、そのグループ内で順番を入れ替える
-const chunkAndShuffle = (arr, n) => {
-    const grouped = chunk(arr, n).map(arr => shuffle(arr, { copy: true, }));
-    return Array.prototype.concat.apply([], grouped);
 };
 
 const showHint = () => {
@@ -281,14 +273,14 @@ const init = () => {
                                             let selectedThreeStyles = [];
 
                                             if (problemListType === ProblemListType.all) {
-                                                selectedThreeStyles = chunkAndShuffle(selectThreeStyles(threeStyles, quizLogRes));
+                                                selectedThreeStyles = utils.chunkAndShuffle(selectThreeStyles(threeStyles, quizLogRes), 10);
                                             } else if (problemListType === ProblemListType.manual) {
                                                 // 取得したproblemListとthreeStyleCornerを組み合わせて、
                                                 // 問題リストを作る
                                                 const manualThreeStyles = selectFromManualList(threeStyles, problemList);
 
                                                 // FIXME 変な実装になっていて、selectThreeStyles()とは結果の形式が異なる
-                                                selectedThreeStyles = chunkAndShuffle(problemList.map(p => stickersToThreeStyles(manualThreeStyles, p.stickers)));
+                                                selectedThreeStyles = utils.chunkAndShuffle(problemList.map(p => stickersToThreeStyles(manualThreeStyles, p.stickers)), 10);
                                             }
 
                                             if (selectedThreeStyles.length === 0) {
