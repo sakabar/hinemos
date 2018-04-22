@@ -109,16 +109,50 @@ const submit = (selectedLetterPairs, isRecalled) => {
         });
 };
 
+// 入力された設定を反映
+const reloadWithOptions = () => {
+    const daysText = document.querySelector('.settingForm__daysText');
+
+    const days = parseInt(daysText.value);
+    const solved = document.querySelector('#settingForm__radio--solved').checked;
+
+    location.href = `${config.urlRoot}/letterPairQuiz.html?&solved=${solved}&days=${days}`;
+};
+
+// ページのロード時に、daysとsolvedの設定に応じてinput属性の値を変える
+const renderSettings = (days, solved) => {
+    const daysText = document.querySelector('.settingForm__daysText');
+    const solvedRadio = document.querySelector('#settingForm__radio--solved');
+
+    if (days && daysText) {
+        daysText.value = days;
+    }
+
+    if (solved) {
+        solvedRadio.checked = true;
+    }
+};
+
+// FIXME 日数のデフォルト値がAPIとFrontで二重になっているのが気になる
 const init = () => {
     const urlObj = url.parse(location.href, true);
-    const days = urlObj.query.days ? parseInt(urlObj.query.days) : null; // 「n日間に」
+    const days = urlObj.query.days ? parseInt(urlObj.query.days) : 28; // 「n日間に」
     const solved = urlObj.query.solved === 'true'; // 解いた or 解いていない問題
+
+    // ロード時に埋める
+    renderSettings(days, solved);
 
     const userName = localStorage.userName;
     const okBtn = document.querySelector('.quizForm__submitBtn--OK');
     const ngBtn = document.querySelector('.quizForm__submitBtn--NG');
     const quizFormLettersText = document.querySelector('.quizForm__lettersText');
     const quizFormStartUnixTimeHidden = document.querySelector('.quizForm__startUnixTimeHidden');
+
+    // 設定読み込みボタン
+    const reloadBtn = document.querySelector('.settingForm__reloadBtn');
+    if (reloadBtn) {
+        reloadBtn.addEventListener('click', reloadWithOptions);
+    }
 
     // 登録済のレターペアを持っておく
     const letterPairOptions = {
@@ -162,7 +196,7 @@ const init = () => {
                 .then((ans) => {
                     letterPairs = ans.success.result;
 
-                    const selectedLetterPairs = utils.chunkAndShuffle(solved ? selectSolvedLetterPairs(letterPairs, quizLogRes) : selectUnsolvedLetterPairs(letterPairs, quizLogRes));
+                    const selectedLetterPairs = utils.chunkAndShuffle(solved ? selectSolvedLetterPairs(letterPairs, quizLogRes) : selectUnsolvedLetterPairs(letterPairs, quizLogRes), 50);
 
                     if (selectedLetterPairs.length > 0) {
                         quizFormLettersText.value = selectedLetterPairs[0].letters;
