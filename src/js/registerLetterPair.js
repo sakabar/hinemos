@@ -1,3 +1,4 @@
+const count = require('count-array-values');
 const rp = require('request-promise');
 const config = require('./config');
 
@@ -19,11 +20,20 @@ const suggestWord = () => {
 
     rp(options)
         .then((ans) => {
-            const results = ans.success.result;
+            const results = ans.success.result.map(x => x.word);
+            // 登録されている数の多い順にソート
+            const suggestedWordsCount = count(results, 'word').sort((a, b) => {
+                if (a.count < b.count) return 1;
+                if (a.count === b.count) return 0;
+                if (a.count > b.count) return -1;
+            });
+
+            const suggestedWordsStr = suggestedWordsCount.map(x => x.word).join('\n');
+
             if (wordText.value.length === 0) {
-                wordText.value = Array.from(new Set(results.map(x => x.word))).join('\n');
+                wordText.value = suggestedWordsStr;
             } else {
-                wordText.value += '\n' + Array.from(new Set(results.map(x => x.word))).join('\n');
+                wordText.value += '\n' + suggestedWordsStr;
             }
         })
         .catch((err) => {

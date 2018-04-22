@@ -9,9 +9,9 @@
     <meta name="expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="normalize.css">
-    <link rel="stylesheet" type="text/css" href="common.css?version=v0.6.0">
-    <link rel="stylesheet" type="text/css" href="letterPairQuiz.css?version=v0.6.0">
-    <script type="text/javascript" src="./auth.bundle.js?version=v0.6.0"></script>
+    <link rel="stylesheet" type="text/css" href="common.css?version=v0.6.1">
+    <link rel="stylesheet" type="text/css" href="letterPairQuiz.css?version=v0.6.1">
+    <script type="text/javascript" src="./auth.bundle.js?version=v0.6.1"></script>
   </head>
 
   <body>
@@ -27,12 +27,18 @@
       <h1>レターペアクイズ</h1>
       <div class="quizMsg">
         <ul>
-          <!-- <li>レターペアを見て、「わかった」「わからん」のボタンを押してください</li> -->
           <li>未回答のレターペアや、苦手なレターペアを優先して出題します</li>
-
           <li><a href="registerLetterPair.html">レターペア登録</a>もどうぞ</li>
         </ul>
-      </div>
+
+        <form class="settingForm">
+          優先: <input class="settingForm__daysText" type="text" value="">日以内に
+          <input type="radio" id="settingForm__radio--solved" name="settingForm__solvedRadio" value="solved">解いた問題
+          <input type="radio" id="settingForm__radio--unsolved" name="settingForm__solvedRadio" value="unsolved" checked>解いていない問題
+          <input class="settingForm__reloadBtn" type="button" value="リロード">
+        </form>
+      </div><br>
+
       <form class="quizForm">
         <input class="quizForm__quizLettersIndHidden" type="text" value="このセッションで解いた問題数:0" size="36" readonly><br>
         <input class="quizForm__prevSecText" type="text" value="前問の秒数" size="36" readonly><br>
@@ -45,6 +51,6 @@
       </form>
     </main>
 
-      <script type="text/javascript" src="./letterPairQuiz.bundle.js?version=v0.6.0"></script>
+      <script type="text/javascript" src="./letterPairQuiz.bundle.js?version=v0.6.1"></script>
   </body>
 </html>
