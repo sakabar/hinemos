@@ -7,6 +7,7 @@ module.exports = {
         auth: './auth.js',
         errorPage: './errorPage.js',
         editThreeStyleQuizList: './editThreeStyleQuizList.js',
+        forBeginner: './forBeginner.js',
         index: './index.js',
         letterPairTable: './letterPairTable.js',
         letterPairQuiz: './letterPairQuiz.js',
