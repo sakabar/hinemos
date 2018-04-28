@@ -50,6 +50,11 @@ const isInSameParts = (sticker1, sticker2) => {
     return s1 === s2;
 };
 
+// FIXME テスト書く
+const isValidMoves = (moveStr) => {
+    return /^(([BDFLRUEMS]w?)|[xyz])'?2?( (([BDFLRUEMS]w?)|[xyz])'?2?)*$/.test(moveStr);
+};
+
 // n個グループにして、そのグループ内で順番を入れ替える
 const chunkAndShuffle = (arr, n) => {
     const grouped = chunk(arr, n).map(arr => shuffle(arr, { copy: true, }));
@@ -164,6 +169,7 @@ exports.showMove = showMove;
 exports.strMax = strMax;
 exports.strMin = strMin;
 exports.isInSameParts = isInSameParts;
+exports.isValidMoves = isValidMoves;
 exports.chunkAndShuffle = chunkAndShuffle;
 exports.ThreeStyleType = ThreeStyleType;
 exports.getThreeStyleType = getThreeStyleType;

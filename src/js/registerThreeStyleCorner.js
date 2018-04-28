@@ -3,11 +3,6 @@ const url = require('url');
 const config = require('./config');
 const utils = require('./utils');
 
-// FIXME テスト書く
-const isValidMoves = (moveStr) => {
-    return /^(([BDFLRUEMS]w?)|[xyz])'?2?( (([BDFLRUEMS]w?)|[xyz])'?2?)*$/.test(moveStr);
-};
-
 const checkNew = () => {
     const lettersText = document.querySelector('.registerThreeStyleCornerForm__lettersText');
     const userName = localStorage.userName;
@@ -62,24 +57,24 @@ const saveThreeStyleCorner = () => {
 
     // move1とmove2が両方埋まっている場合
     if (okCond1) {
-        if (setup !== '' && !isValidMoves(setup)) {
+        if (setup !== '' && !utils.isValidMoves(setup)) {
             alert('セットアップの手順の記法に誤りがあります。各操作の間にはスペースを入れてください。\n例: y Lw\'2 E U');
             return;
         }
 
-        if (!isValidMoves(move1)) {
+        if (!utils.isValidMoves(move1)) {
             alert('手順1の記法に誤りがあります。各操作の間にはスペースを入れてください。\n例: y Lw\'2 E U');
             return;
         }
 
-        if (!isValidMoves(move2)) {
+        if (!utils.isValidMoves(move2)) {
             alert('手順2の記法に誤りがあります。各操作の間にはスペースを入れてください。\n例: y Lw\'2 E U');
             return;
         }
     }
 
     // move1とmove2が両方空の場合 → setupのみチェック
-    if (okCond2 && !isValidMoves(setup)) {
+    if (okCond2 && !utils.isValidMoves(setup)) {
         alert('セットアップの手順の記法に誤りがあります。各操作の間にはスペースを入れてください。\n例: y Lw\'2 E U');
         return;
     }
