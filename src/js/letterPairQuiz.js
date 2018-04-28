@@ -17,7 +17,7 @@ const letterPairsToWords = (letterPairs, letters) => {
 // やっていない問題がない → 正解数が少ないもの順
 // 引数: letterPairs = [{letters: "あい", word: "合いの手"}, {letters: "あい", word: "愛"}]
 const selectUnsolvedLetterPairs = (letterPairs, quizLogRes) => {
-    const solvedLetters = quizLogRes.map(x => x.letters);
+    const solvedLetters = quizLogRes.map(x => x.letters); // APIの返す値であるquizLogResのキーは一意になっている前提
     const allLetters = Array.from(new Set(letterPairs.map(x => x.letters)));
     const unsolvedLetters = allLetters.filter(x => !solvedLetters.includes(x));
 
@@ -32,15 +32,16 @@ const selectUnsolvedLetterPairs = (letterPairs, quizLogRes) => {
 };
 
 // 登録済のレターペアと、「解いた」問題ログ(agg済)を受け取り、解いた問題から出題
+// quizLogResの順番を維持する (解くのにかかった平均時間の降順のはず)
 const selectSolvedLetterPairs = (letterPairs, quizLogRes) => {
     if (!letterPairs || letterPairs.length === 0 || !quizLogRes || quizLogRes.length === 0) {
         return [];
     }
 
     // 両方に共通するlettersを確定
-    const quizLogResLetters = Array.from(new Set(quizLogRes.map(x => x.letters)));
+    const quizLogResLetters = quizLogRes.map(x => x.letters); // APIの返す値であるquizLogResのキーは一意になっている前提
     const registeredLetters = Array.from(new Set(letterPairs.map(x => x.letters)));
-    const commonLetters = registeredLetters.filter(letters => quizLogResLetters.includes(letters));
+    const commonLetters = quizLogResLetters.filter(letters => registeredLetters.includes(letters));
 
     // 変換処理
     return commonLetters.map(letters => letterPairsToWords(letterPairs, letters));
@@ -206,7 +207,8 @@ const init = () => {
                 .then((ans) => {
                     letterPairs = ans.success.result;
 
-                    const selectedLetterPairs = utils.chunkAndShuffle(solved ? selectSolvedLetterPairs(letterPairs, quizLogRes) : selectUnsolvedLetterPairs(letterPairs, quizLogRes), 50);
+                    const tmpSelected = solved ? selectSolvedLetterPairs(letterPairs, quizLogRes) : selectUnsolvedLetterPairs(letterPairs, quizLogRes);
+                    const selectedLetterPairs = utils.chunkAndShuffle(tmpSelected, 50);
 
                     if (selectedLetterPairs.length > 0) {
                         quizFormLettersText.value = selectedLetterPairs[0].letters;
