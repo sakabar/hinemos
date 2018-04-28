@@ -8,11 +8,11 @@ describe('utils.js', () => {
         });
 
         it('正常系: setupが空ではない場合', () => {
-            assert.deepEqual(utils.showMove('D', 'U', 'R D R\''), 'D, [U, R D R\']');
+            assert.deepEqual(utils.showMove('D', 'U', 'R D R\''), '[D, [U, R D R\']]');
         });
 
         it('正常系: setupのみの場合 (cyclic shift)', () => {
-            assert.deepEqual(utils.showMove('D Rw2 U R U\' Rw2 D R\' D2', '', ''), 'D Rw2 U R U\' Rw2 D R\' D2');
+            assert.deepEqual(utils.showMove('D Rw2 U R U\' Rw2 D R\' D2', '', ''), '[D Rw2 U R U\' Rw2 D R\' D2]');
         });
     });
 
