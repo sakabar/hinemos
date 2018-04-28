@@ -55,6 +55,69 @@ const isValidMoves = (moveStr) => {
     return moveStr.split(' ').every(s => reg.test(s));
 };
 
+// validationしつつ、3-styleのオブジェクトを生成
+// validationにエラーがあった場合は、値を返さずエラー
+const makeThreeStyle = (buffer, sticker1, sticker2, setup, move1, move2) => {
+    const replacedSetup = setup.trim().replace(/[‘’´｀`]/g, '\'');
+    const replacedMove1 = move1.trim().replace(/[‘’´｀`]/g, '\'');
+    const replacedMove2 = move2.trim().replace(/[‘’´｀`]/g, '\'');
+
+    const okCond1 = (replacedMove1 !== '' && replacedMove2 !== '');
+    const okCond2 = (replacedMove1 === '' && replacedMove2 === '' && replacedSetup !== '');
+    if (!(okCond1 || okCond2)) {
+        throw new Error('入力されていない欄があります。\n通常の手順の場合、手順1と手順2を両方埋めて下さい。\nCyclic Shiftなどの特殊な手順の場合は、手順1と手順2を空欄にして、セットアップだけ入力してください。');
+    };
+
+    // replacedMove1とreplacedMove2が両方埋まっている場合
+    if (okCond1) {
+        if (replacedSetup !== '' && !isValidMoves(replacedSetup)) {
+            throw new Error('セットアップの手順の記法に誤りがあります。各操作の間にはスペースを入れてください。\n例: y Lw\'2 E U');
+        }
+
+        if (!isValidMoves(replacedMove1)) {
+            throw new Error('手順1の記法に誤りがあります。各操作の間にはスペースを入れてください。\n例: y Lw\'2 E U');
+        }
+
+        if (!isValidMoves(replacedMove2)) {
+            throw new Error('手順2の記法に誤りがあります。各操作の間にはスペースを入れてください。\n例: y Lw\'2 E U');
+        }
+    }
+
+    // replacedMove1とreplacedMove2が両方空の場合 → replacedSetupのみチェック
+    if (okCond2 && !isValidMoves(replacedSetup)) {
+        throw new Error('セットアップの手順の記法に誤りがあります。各操作の間にはスペースを入れてください。\n例: y Lw\'2 E U');
+    }
+
+    // ステッカーは同じパーツに無い
+    if (isInSameParts(buffer, sticker1) || isInSameParts(sticker1, sticker2) || isInSameParts(sticker2, buffer)) {
+        throw new Error('同じパーツのステッカーが入力されています');
+    }
+
+    // ステッカーをソート
+    const sortedBuffer = sortSticker(buffer);
+    const sortedSticker1 = sortSticker(sticker1);
+    const sortedSticker2 = sortSticker(sticker2);
+
+    return {
+        buffer: sortedBuffer,
+        sticker1: sortedSticker1,
+        sticker2: sortedSticker2,
+        setup: replacedSetup,
+        move1: replacedMove1,
+        move2: replacedMove2,
+    };
+};
+
+// ステッカーの0文字目を固定して、それ以降をソート
+const sortSticker = (sticker) => {
+    if (sticker.length !== 2 && sticker.length !== 3) {
+        throw new Error('Error: sticker length must be 2 or 3');
+    }
+
+    const sorted = Array.from(sticker.slice(1)).sort().join('');
+    return `${sticker[0]}${sorted}`;
+};
+
 // n個グループにして、そのグループ内で順番を入れ替える
 const chunkAndShuffle = (arr, n) => {
     const grouped = chunk(arr, n).map(arr => shuffle(arr, { copy: true, }));
@@ -170,6 +233,8 @@ exports.strMax = strMax;
 exports.strMin = strMin;
 exports.isInSameParts = isInSameParts;
 exports.isValidMoves = isValidMoves;
+exports.makeThreeStyle = makeThreeStyle;
+exports.sortSticker = sortSticker;
 exports.chunkAndShuffle = chunkAndShuffle;
 exports.ThreeStyleType = ThreeStyleType;
 exports.getThreeStyleType = getThreeStyleType;

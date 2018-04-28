@@ -116,6 +116,69 @@ describe('utils.js', () => {
         it('正常系: False:  R (先頭にスペース)', () => {
             assert.deepEqual(utils.isValidMoves(' R'), false);
         });
+
+        it('正常系: False: R  U (スペース2つ)', () => {
+            assert.deepEqual(utils.isValidMoves('R  U'), false);
+        });
+    });
+
+    describe('makeThreeStyle()', () => {
+        it('正常系: ', () => {
+            const actual = utils.makeThreeStyle('UBL', 'URF', 'RDF', '', 'U2', 'R\' D\' R');
+            const expected = {
+                buffer: 'UBL',
+                sticker1: 'UFR',
+                sticker2: 'RDF',
+                setup: '',
+                move1: 'U2',
+                move2: 'R\' D\' R',
+            };
+
+            assert.deepEqual(actual, expected);
+        });
+
+        it('正常系: プライムらしき文字は変換する', () => {
+            const actual = utils.makeThreeStyle('UBL', 'URF', 'RDF', '', 'U2', 'R’ D\' R');
+            const expected = {
+                buffer: 'UBL',
+                sticker1: 'UFR',
+                sticker2: 'RDF',
+                setup: '',
+                move1: 'U2',
+                move2: 'R\' D\' R',
+            };
+
+            assert.deepEqual(actual, expected);
+        });
+
+        it('異常系: move1のみが空', () => {
+            const actual = () => utils.makeThreeStyle('UBL', 'URF', 'RDF', 'Mw', '', 'R\' D\' R');
+            assert.throws(actual, Error);
+        });
+
+        it('異常系: セットアップが正しい記法ではない', () => {
+            const actual = () => utils.makeThreeStyle('UBL', 'URF', 'RDF', 'Mw', 'U2', 'R\' D\' R');
+            assert.throws(actual, Error);
+        });
+    });
+
+    describe('sortSticker()', () => {
+        it('正常系: コーナー UFR => UFR', () => {
+            assert.deepEqual(utils.sortSticker('UFR'), 'UFR');
+        });
+
+        it('正常系: コーナー URF => UFR', () => {
+            assert.deepEqual(utils.sortSticker('URF'), 'UFR');
+        });
+
+        it('正常系: エッジ   UR => UR', () => {
+            assert.deepEqual(utils.sortSticker('UR'), 'UR');
+        });
+
+        it('異常系: ステッカーが2文字でも3文字でもない', () => {
+            const actual = () => utils.sortSticker('URFD');
+            assert.throws(actual, Error);
+        });
     });
 
     describe('getThreeStyleType()', () => {
