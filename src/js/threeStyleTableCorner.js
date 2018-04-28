@@ -130,13 +130,10 @@ const init = () => {
                         fixedRowsTop: 1,
                         cells: (row, col, prop) => {
                             const cellProperties = {};
-                            cellProperties.readOnly = true;
-
-                            // let cellProperties = {};
-                            // if (row === 0 || col === 0) {
-                            //     // ひらがな行とひらがな列は変更不可
-                            //     cellProperties.readOnly = true;
-                            // }
+                            if (row === 0 || col === 0) {
+                                // ひらがな行とひらがな列は変更不可
+                                cellProperties.readOnly = true;
+                            }
 
                             return cellProperties;
                         },
