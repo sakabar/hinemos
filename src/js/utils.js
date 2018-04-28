@@ -43,6 +43,13 @@ const strMin = (s1, s2) => {
     return s2;
 };
 
+// 2つのステッカーが、同じパーツに属するかを判定
+const isInSameParts = (sticker1, sticker2) => {
+    const s1 = Array.from(sticker1).sort().join('');
+    const s2 = Array.from(sticker2).sort().join('');
+    return s1 === s2;
+};
+
 // n個グループにして、そのグループ内で順番を入れ替える
 const chunkAndShuffle = (arr, n) => {
     const grouped = chunk(arr, n).map(arr => shuffle(arr, { copy: true, }));
@@ -54,4 +61,5 @@ exports.edges = edges;
 exports.showMove = showMove;
 exports.strMax = strMax;
 exports.strMin = strMin;
+exports.isInSameParts = isInSameParts;
 exports.chunkAndShuffle = chunkAndShuffle;
