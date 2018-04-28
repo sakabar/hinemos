@@ -25,11 +25,11 @@ module.exports = {
             "error",
             "always"
         ],
-
         "yoda": [
             "error",
             "never",
             { "onlyEquality": true },
         ],
+        "no-useless-escape": 0, // 正規表現で'\['に反応するのを防ぐ (Bug? PR to eslint)
     }
 };
