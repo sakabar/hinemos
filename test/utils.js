@@ -68,6 +68,56 @@ describe('utils.js', () => {
         });
     });
 
+    describe('isValidMoves()', () => {
+        it('正常系: True : U (90度回転)', () => {
+            assert.deepEqual(utils.isValidMoves('U'), true);
+        });
+
+        it('正常系: True : U2 (180度回転)', () => {
+            assert.deepEqual(utils.isValidMoves('U2'), true);
+        });
+
+        it('正常系: True : U\'2 (180度回転は反時計回りでもOK)', () => {
+            assert.deepEqual(utils.isValidMoves('U\'2'), true);
+        });
+
+        it('正常系: True : Uw (2層回し)', () => {
+            assert.deepEqual(utils.isValidMoves('Uw'), true);
+        });
+
+        it('正常系: True : R\' U R (一連の手順)', () => {
+            assert.deepEqual(utils.isValidMoves('R\' U R'), true);
+        });
+
+        it('正常系: False: \'\' 入力文字列が空', () => {
+            assert.deepEqual(utils.isValidMoves(''), false);
+        });
+
+        it('正常系: False: r (右中列)', () => {
+            assert.deepEqual(utils.isValidMoves('r'), false);
+        });
+
+        it('正常系: False: Ew (スライス2層)', () => {
+            assert.deepEqual(utils.isValidMoves('Ew'), false);
+        });
+
+        it('正常系: False: Mw (スライス2層)', () => {
+            assert.deepEqual(utils.isValidMoves('Mw'), false);
+        });
+
+        it('正常系: False: Sw (スライス2層)', () => {
+            assert.deepEqual(utils.isValidMoves('Sw'), false);
+        });
+
+        it('正常系: False: R\', U, R (コンマは入らない)', () => {
+            assert.deepEqual(utils.isValidMoves('R\', U, R'), false);
+        });
+
+        it('正常系: False:  R (先頭にスペース)', () => {
+            assert.deepEqual(utils.isValidMoves(' R'), false);
+        });
+    });
+
     describe('getThreeStyleType()', () => {
         it('正常系: pure', () => {
             assert.deepEqual(utils.getThreeStyleType('[U, R D R\']'), utils.ThreeStyleType.pure);

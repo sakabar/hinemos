@@ -50,9 +50,9 @@ const isInSameParts = (sticker1, sticker2) => {
     return s1 === s2;
 };
 
-// FIXME テスト書く
 const isValidMoves = (moveStr) => {
-    return /^(([BDFLRUEMS]w?)|[xyz])'?2?( (([BDFLRUEMS]w?)|[xyz])'?2?)*$/.test(moveStr);
+    const reg = new RegExp('^([BDFLRU]w?|[EMS]|[xyz])\'?2?$');
+    return moveStr.split(' ').every(s => reg.test(s));
 };
 
 // n個グループにして、そのグループ内で順番を入れ替える
