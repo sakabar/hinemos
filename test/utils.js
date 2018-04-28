@@ -55,4 +55,16 @@ describe('utils.js', () => {
             assert.deepEqual(actual, expected);
         });
     });
+
+    describe('isInSameParts()', () => {
+        it('正常系: True', () => {
+            const actual = utils.isInSameParts('UBL', 'BLU');
+            assert.deepEqual(actual, true);
+        });
+
+        it('正常系: False', () => {
+            const actual = utils.isInSameParts('UBL', 'FDR');
+            assert.deepEqual(actual, false);
+        });
+    });
 });

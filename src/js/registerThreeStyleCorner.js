@@ -1,6 +1,7 @@
 const rp = require('request-promise');
 const url = require('url');
 const config = require('./config');
+const utils = require('./utils');
 
 // FIXME テスト書く
 const isValidMoves = (moveStr) => {
@@ -122,6 +123,11 @@ const saveThreeStyleCorner = () => {
             const buffer = stickers[0];
             const sticker1 = stickers[1];
             const sticker2 = stickers[2];
+
+            if (utils.isInSameParts(buffer, sticker1) || utils.isInSameParts(sticker1, sticker2) || utils.isInSameParts(sticker2, buffer)) {
+                alert('同じパーツのステッカーが入力されています');
+                return;
+            }
 
             const threeStyleOptions = {
                 url: `${config.apiRoot}/threeStyle/corner`,
