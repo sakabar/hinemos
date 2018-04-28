@@ -93,15 +93,8 @@ const generateTableData = (userName, numberingCornerIn, threeStyleCorner) => {
 
             const threeStyle = threeStyleCorner.filter(a => a.sticker1 === sticker1 && a.sticker2 === sticker2);
 
-            let threeStyleStr = '';
-            if (threeStyle && threeStyle.length !== 0) {
-                const setup = threeStyle[0].setup;
-                const move1 = threeStyle[0].move1;
-                const move2 = threeStyle[0].move2;
-
-                threeStyleStr = utils.showMove(setup, move1, move2);
-            }
-
+            // 同じステッカーに対して複数の手順が登録されていた場合は、', '区切りで出力(半角スペースが入っているので注意)
+            const threeStyleStr = threeStyle.map(st => utils.showMove(st.setup, st.move1, st.move2)).join(', ');
             row.push(threeStyleStr);
         }
 
