@@ -124,11 +124,22 @@ const init = () => {
 
                     const hot = new Handsontable(container, {
                         data: tableData,
-                        rowHeaders: false,
-                        colHeaders: false,
+                        rowHeaders: true,
+                        colHeaders: true,
                         fixedColumnsLeft: 1,
                         fixedRowsTop: 1,
-                        readonly: true,
+                        cells: (row, col, prop) => {
+                            const cellProperties = {};
+                            cellProperties.readOnly = true;
+
+                            // let cellProperties = {};
+                            // if (row === 0 || col === 0) {
+                            //     // ひらがな行とひらがな列は変更不可
+                            //     cellProperties.readOnly = true;
+                            // }
+
+                            return cellProperties;
+                        },
                     });
 
                     // クイズのタイムに応じて色を付ける
