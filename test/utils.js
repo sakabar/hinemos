@@ -67,4 +67,38 @@ describe('utils.js', () => {
             assert.deepEqual(actual, false);
         });
     });
+
+    describe('getThreeStyleType()', () => {
+        it('正常系: pure', () => {
+            assert.deepEqual(utils.getThreeStyleType('[U, R D R\']'), utils.threeStyleType.pure);
+        });
+
+        it('正常系: setup', () => {
+            assert.deepEqual(utils.getThreeStyleType('[U D, [U D, R D R\']]'), utils.threeStyleType.setup);
+        });
+
+        it('正常系: seq', () => {
+            assert.deepEqual(utils.getThreeStyleType('[Rw\' L]'), utils.threeStyleType.seq);
+        });
+
+        it('異常系: パースに失敗した場合はエラー', () => {
+            const actual = () => utils.getThreeStyleType('[');
+            assert.throws(actual, Error);
+        });
+    });
+
+    describe('readThreeStyleCorners()', () => {
+        it('正常系: 入力文字列が空', () => {
+            assert.deepEqual(utils.readThreeStyleCorners(''), []);
+        });
+
+        // it('正常系: pure [R, L]', () => {
+        //     assert.deepEqual(utils.readThreeStyleCorners('[R, L]'), []);
+        // });
+
+        it('異常系: パースに失敗した場合はエラー', () => {
+            const actual = () => utils.readThreeStyleCorners('[');
+            assert.throws(actual, Error);
+        });
+    });
 });

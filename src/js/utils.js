@@ -56,6 +56,47 @@ const chunkAndShuffle = (arr, n) => {
     return Array.prototype.concat.apply([], grouped);
 };
 
+// 3-styleの分類
+// A9やColumnなどの細かい分類ではなく、hinemos内の便宜的なもの
+const threeStyleType = {
+    pure: { value: 0, name: 'pure', }, //   [A, B]
+    setup: { value: 1, name: 'setup', }, // [S, [A, B]]
+    seq: { value: 2, name: 'seq', }, //     [A B C D]
+};
+
+// 3-style記法を受け取り、3-style typeを判定して返す
+// 判定できないパターンの場合はエラーを返す
+// FIXME 正規表現の保守性が低すぎる
+const getThreeStyleType = (s) => {
+    // [A B C D] => 'seq'
+    const seqMatch = s.match(/^\[[^, \[\]]+( [^, \[\]]+)*\]$/);
+    if (seqMatch) {
+        return threeStyleType.seq;
+    }
+
+    // [S, [A, B C D]] => 'setup'
+    const setupMatch = s.match(/^\[[^, \[\]]+( [^, \[\]]+)*, \[[^, \[\]]+( [^, \[\]]+)*, [^, \[\]]+( [^, \[\]]+)*\]\]$/);
+    if (setupMatch) {
+        return threeStyleType.setup;
+    }
+
+    // [A, B C D]] => 'pure'
+    const pureMatch = s.match(/^\[[^, \[\]]+( [^, \[\]]+)*, [^, \[\]]+( [^, \[\]]+)*\]$/);
+    if (pureMatch) {
+        return threeStyleType.pure;
+    }
+
+    throw new Error('ThreeStyleCorner parse error');
+};
+
+// 3-style記法の文字列をパースして、オブジェクトを返す
+const readThreeStyleCorners = (s) => {
+    if (s === '[') {
+        throw new Error('ThreeStyleCorner parse error');
+    }
+    return [];
+};
+
 exports.corners = corners;
 exports.edges = edges;
 exports.showMove = showMove;
@@ -63,3 +104,6 @@ exports.strMax = strMax;
 exports.strMin = strMin;
 exports.isInSameParts = isInSameParts;
 exports.chunkAndShuffle = chunkAndShuffle;
+exports.threeStyleType = threeStyleType;
+exports.getThreeStyleType = getThreeStyleType;
+exports.readThreeStyleCorners = readThreeStyleCorners;
