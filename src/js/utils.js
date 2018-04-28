@@ -58,7 +58,7 @@ const chunkAndShuffle = (arr, n) => {
 
 // 3-styleの分類
 // A9やColumnなどの細かい分類ではなく、hinemos内の便宜的なもの
-const threeStyleType = {
+const ThreeStyleType = {
     pure: { value: 0, name: 'pure', }, //   [A, B]
     setup: { value: 1, name: 'setup', }, // [S, [A, B]]
     seq: { value: 2, name: 'seq', }, //     [A B C D]
@@ -71,30 +71,91 @@ const getThreeStyleType = (s) => {
     // [A B C D] => 'seq'
     const seqMatch = s.match(/^\[[^, \[\]]+( [^, \[\]]+)*\]$/);
     if (seqMatch) {
-        return threeStyleType.seq;
+        return ThreeStyleType.seq;
     }
 
     // [S, [A, B C D]] => 'setup'
     const setupMatch = s.match(/^\[[^, \[\]]+( [^, \[\]]+)*, \[[^, \[\]]+( [^, \[\]]+)*, [^, \[\]]+( [^, \[\]]+)*\]\]$/);
     if (setupMatch) {
-        return threeStyleType.setup;
+        return ThreeStyleType.setup;
     }
 
     // [A, B C D]] => 'pure'
     const pureMatch = s.match(/^\[[^, \[\]]+( [^, \[\]]+)*, [^, \[\]]+( [^, \[\]]+)*\]$/);
     if (pureMatch) {
-        return threeStyleType.pure;
+        return ThreeStyleType.pure;
     }
 
     throw new Error('ThreeStyleCorner parse error');
 };
 
 // 3-style記法の文字列をパースして、オブジェクトを返す
-const readThreeStyleCorners = (s) => {
-    if (s === '[') {
-        throw new Error('ThreeStyleCorner parse error');
+// 正規表現が複雑になるのを避けるため、まずgetThreeStyleTypeで判定してから更にふるいにかける
+const readThreeStyles = (s) => {
+    if (s === '') {
+        return [];
     }
-    return [];
+
+    // 複数の場合
+    // 効率が悪そうなので納得できていないが、とりあえず再帰で実装できた FIXME
+    const pluralMatch = s.match(/^(\[.+?\],) (.+)$/);
+    if (pluralMatch) {
+        const hd = pluralMatch[1];
+        const tl = pluralMatch[2];
+
+        const hdArr = readThreeStyles(hd.replace(/,$/, ''));
+        const tlArr = readThreeStyles(tl.replace(/^, /, ''));
+        return [ ...hdArr, ...tlArr, ];
+    }
+
+    // ここから下、単数の場合
+    const t = getThreeStyleType(s);
+    if (t === ThreeStyleType.pure) {
+        const pureMatch = s.match(/^\[([^,]+), ([^,]+)\]$/);
+        if (!pureMatch) {
+            throw new Error('Unexpected pureMatch pattern');
+        }
+
+        const ts = {
+            setup: '',
+            move1: pureMatch[1],
+            move2: pureMatch[2],
+        };
+
+        return [ ts, ];
+    }
+
+    if (t === ThreeStyleType.setup) {
+        const setupMatch = s.match(/^\[([^,]+), \[([^,]+), ([^,]+)\]\]$/);
+        if (!setupMatch) {
+            throw new Error('Unexpected setupMatch pattern');
+        }
+
+        const ts = {
+            setup: setupMatch[1],
+            move1: setupMatch[2],
+            move2: setupMatch[3],
+        };
+
+        return [ ts, ];
+    }
+
+    if (t === ThreeStyleType.seq) {
+        const seqMatch = s.match(/^\[([^,]+)\]$/);
+        if (!seqMatch) {
+            throw new Error('Unexpected seqMatch pattern');
+        }
+
+        const ts = {
+            setup: seqMatch[1],
+            move1: '',
+            move2: '',
+        };
+
+        return [ ts, ];
+    }
+
+    throw new Error('ThreeStyleCorner parse error');
 };
 
 exports.corners = corners;
@@ -104,6 +165,6 @@ exports.strMax = strMax;
 exports.strMin = strMin;
 exports.isInSameParts = isInSameParts;
 exports.chunkAndShuffle = chunkAndShuffle;
-exports.threeStyleType = threeStyleType;
+exports.ThreeStyleType = ThreeStyleType;
 exports.getThreeStyleType = getThreeStyleType;
-exports.readThreeStyleCorners = readThreeStyleCorners;
+exports.readThreeStyles = readThreeStyles;

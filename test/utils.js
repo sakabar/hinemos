@@ -70,15 +70,15 @@ describe('utils.js', () => {
 
     describe('getThreeStyleType()', () => {
         it('正常系: pure', () => {
-            assert.deepEqual(utils.getThreeStyleType('[U, R D R\']'), utils.threeStyleType.pure);
+            assert.deepEqual(utils.getThreeStyleType('[U, R D R\']'), utils.ThreeStyleType.pure);
         });
 
         it('正常系: setup', () => {
-            assert.deepEqual(utils.getThreeStyleType('[U D, [U D, R D R\']]'), utils.threeStyleType.setup);
+            assert.deepEqual(utils.getThreeStyleType('[U D, [U D, R D R\']]'), utils.ThreeStyleType.setup);
         });
 
         it('正常系: seq', () => {
-            assert.deepEqual(utils.getThreeStyleType('[Rw\' L]'), utils.threeStyleType.seq);
+            assert.deepEqual(utils.getThreeStyleType('[Rw\' L]'), utils.ThreeStyleType.seq);
         });
 
         it('異常系: パースに失敗した場合はエラー', () => {
@@ -87,17 +87,57 @@ describe('utils.js', () => {
         });
     });
 
-    describe('readThreeStyleCorners()', () => {
+    describe('readThreeStyles()', () => {
         it('正常系: 入力文字列が空', () => {
-            assert.deepEqual(utils.readThreeStyleCorners(''), []);
+            assert.deepEqual(utils.readThreeStyles(''), []);
         });
 
-        // it('正常系: pure [R, L]', () => {
-        //     assert.deepEqual(utils.readThreeStyleCorners('[R, L]'), []);
-        // });
+        it('正常系: pure [U, R D R\']', () => {
+            const expected = {
+                setup: '',
+                move1: 'U',
+                move2: 'R D R\'',
+            };
+            assert.deepEqual(utils.readThreeStyles('[U, R D R\']'), [ expected, ]);
+        });
+
+        it('正常系: setup [D, [U, R D R\']]', () => {
+            const expected = {
+                setup: 'D',
+                move1: 'U',
+                move2: 'R D R\'',
+            };
+            assert.deepEqual(utils.readThreeStyles('[D, [U, R D R\']]'), [ expected, ]);
+        });
+
+        it('正常系: seq [D U R]', () => {
+            const expected = {
+                setup: 'D U R',
+                move1: '',
+                move2: '',
+            };
+            assert.deepEqual(utils.readThreeStyles('[D U R]'), [ expected, ]);
+        });
+
+        it('正常系: 複数', () => {
+            const ts1 = {
+                setup: 'R L',
+                move1: '',
+                move2: '',
+            };
+
+            const ts2 = {
+                setup: 'R U',
+                move1: '',
+                move2: '',
+            };
+
+            const expected = [ ts1, ts2, ];
+            assert.deepEqual(utils.readThreeStyles('[R L], [R U]'), expected);
+        });
 
         it('異常系: パースに失敗した場合はエラー', () => {
-            const actual = () => utils.readThreeStyleCorners('[');
+            const actual = () => utils.readThreeStyles('[');
             assert.throws(actual, Error);
         });
     });
