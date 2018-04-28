@@ -240,6 +240,11 @@ const init = () => {
         form: {},
     };
 
+    // テスト時などは以降の処理をスキップ
+    if (!quizFormLettersText) {
+        return;
+    }
+
     let threeStyles = [];
     let quizLogRes = [];
     let numberings = [];
