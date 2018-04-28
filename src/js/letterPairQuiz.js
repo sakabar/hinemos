@@ -113,7 +113,12 @@ const submit = (selectedLetterPairs, isRecalled) => {
 const reloadWithOptions = () => {
     const daysText = document.querySelector('.settingForm__daysText');
 
-    const days = parseInt(daysText.value);
+    // daysは1以上の値であることを想定
+    let days = parseInt(daysText.value);
+    if (days < 1) {
+        days = 1;
+    }
+
     const solved = document.querySelector('#settingForm__radio--solved').checked;
 
     location.href = `${config.urlRoot}/letterPairQuiz.html?&solved=${solved}&days=${days}`;
