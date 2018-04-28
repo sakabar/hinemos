@@ -191,6 +191,11 @@ const init = () => {
     // APIで「n日間に解い『た』」問題を引っぱってきて、
     // FEのロジックとして補集合を取る
 
+    // テスト時などは以降の処理をスキップ
+    if (!quizFormLettersText) {
+        return;
+    }
+
     let letterPairs = [];
     let quizLogRes = [];
     rp(quizLettersOptions)
