@@ -2,10 +2,7 @@ import Handsontable from 'handsontable';
 import 'handsontable.css';
 const rp = require('request-promise');
 const config = require('./config');
-
-const getHiraganas = () => {
-    return 'あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん'.split(/(.{1})/).filter(x => x);
-};
+const utils = require('./utils');
 
 const generateTableData = () => {
     const userName = localStorage.userName;
@@ -20,7 +17,7 @@ const generateTableData = () => {
         form: {},
     };
 
-    const hiraganas = getHiraganas();
+    const hiraganas = utils.getHiraganas();
 
     return rp(options)
         .then((ans) => {

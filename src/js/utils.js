@@ -19,6 +19,10 @@ const edges = [
     'UB', 'UF', 'UL', 'UR',
 ];
 
+const getHiraganas = () => {
+    return 'あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん'.split(/(.{1})/).filter(x => x);
+};
+
 const showMove = (setup, move1, move2) => {
     if (setup === '') {
         return `[${move1}, ${move2}]`;
@@ -228,6 +232,7 @@ const readThreeStyles = (s) => {
 
 exports.corners = corners;
 exports.edges = edges;
+exports.getHiraganas = getHiraganas;
 exports.showMove = showMove;
 exports.strMax = strMax;
 exports.strMin = strMin;

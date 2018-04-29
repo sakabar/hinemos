@@ -1,6 +1,7 @@
 const count = require('count-array-values');
 const rp = require('request-promise');
 const config = require('./config');
+const utils = require('./utils');
 
 const suggestWord = () => {
     const lettersText = document.querySelector('.registerLetterPairForm__lettersText');
@@ -42,10 +43,10 @@ const suggestWord = () => {
 };
 
 const registerLetterPair = () => {
-    const hiraganas = 'あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん'.split(/(.{1})/).filter(x => x);
-
     const userName = localStorage.userName;
     const token = localStorage.token;
+
+    const hiraganas = utils.getHiraganas();
 
     const lettersText = document.querySelector('.registerLetterPairForm__lettersText');
     const letters = lettersText.value;
