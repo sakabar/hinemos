@@ -194,6 +194,10 @@ describe('utils.js', () => {
             assert.deepEqual(utils.getThreeStyleType('[Rw\' L]'), utils.ThreeStyleType.seq);
         });
 
+        it('正常系: プライムが全角でも正しく判定できる', () => {
+            assert.deepEqual(utils.getThreeStyleType('[U, R D R’]'), utils.ThreeStyleType.pure);
+        });
+
         it('異常系: パースに失敗した場合はエラー', () => {
             const actual = () => utils.getThreeStyleType('[');
             assert.throws(actual, Error);
@@ -203,6 +207,14 @@ describe('utils.js', () => {
     describe('readThreeStyles()', () => {
         it('正常系: 入力文字列が空', () => {
             assert.deepEqual(utils.readThreeStyles(''), []);
+        });
+
+        it('正常系: 入力文字列が空白のみ', () => {
+            assert.deepEqual(utils.readThreeStyles('     '), []);
+        });
+
+        it('正常系: 入力文字列が全角空白', () => {
+            assert.deepEqual(utils.readThreeStyles('　'), []);
         });
 
         it('正常系: pure [U, R D R\']', () => {
@@ -230,6 +242,15 @@ describe('utils.js', () => {
                 move2: '',
             };
             assert.deepEqual(utils.readThreeStyles('[D U R]'), [ expected, ]);
+        });
+
+        it('正常系: setup [D, [U, R D R’]] (全角プライム)', () => {
+            const expected = {
+                setup: 'D',
+                move1: 'U',
+                move2: 'R D R\'',
+            };
+            assert.deepEqual(utils.readThreeStyles('[D, [U, R D R\']]'), [ expected, ]);
         });
 
         it('正常系: 複数', () => {

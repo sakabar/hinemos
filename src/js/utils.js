@@ -164,7 +164,7 @@ const getThreeStyleType = (s) => {
 // 3-style記法の文字列をパースして、オブジェクトを返す
 // 正規表現が複雑になるのを避けるため、まずgetThreeStyleTypeで判定してから更にふるいにかける
 const readThreeStyles = (s) => {
-    if (s === '') {
+    if (s.match(/^\s*$/)) {
         return [];
     }
 
