@@ -158,7 +158,7 @@ const getThreeStyleType = (s) => {
         return ThreeStyleType.pure;
     }
 
-    throw new Error('ThreeStyleCorner parse error');
+    throw new Error(`3-styleのパーズに失敗しました:「${s}」`);
 };
 
 // 3-style記法の文字列をパースして、オブジェクトを返す
