@@ -332,16 +332,26 @@ const init = () => {
 
     // ひらがなのテキストボックスが変更されたら単語のテキストボックスを空にする
     const lettersText = document.querySelector('.registerLetterPairForm__lettersText');
-    lettersText.addEventListener('change', resetWordText);
+    if (lettersText) {
+        lettersText.addEventListener('change', resetWordText);
+    }
 
     const registerLetterPairBtn = document.querySelector('.registerLetterPairForm__btn');
-    registerLetterPairBtn.addEventListener('click', registerLetterPair);
+    if (registerLetterPairBtn) {
+        registerLetterPairBtn.addEventListener('click', registerLetterPair);
+    }
 
     const suggestWordBtn = document.querySelector('.registerLetterPairForm__suggestWordBtn');
-    suggestWordBtn.addEventListener('click', suggestWord);
+    if (suggestWordBtn) {
+        suggestWordBtn.addEventListener('click', suggestWord);
+    }
 
     const registerAllLetterPairsBtn = document.querySelector('.registerAllLetterPairsForm__btn');
-    registerAllLetterPairsBtn.addEventListener('click', () => registerAllLetterPairs(userName));
+    if (registerAllLetterPairsBtn) {
+        registerAllLetterPairsBtn.addEventListener('click', () => registerAllLetterPairs(userName));
+    }
 };
 
 init();
+
+exports.getAllLetterPairs = getAllLetterPairs;
