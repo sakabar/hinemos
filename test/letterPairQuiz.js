@@ -45,5 +45,25 @@ describe('letterPairQuiz.js', () => {
             const expected = [ { letters: 'あい', words: [ '合いの手', '愛', ], }, ];
             assert.deepEqual(actual, expected);
         });
+
+        it('正常系: quizLogの順番を維持する', () => {
+            const letterPairs = [
+                { letters: 'あい', word: '合いの手', },
+                { letters: 'あい', word: '愛', },
+                { letters: 'あか', word: '赤', },
+            ];
+
+            const solvedQuizRes = [
+                { userName: 'user1', letters: 'あか', avgSec: '4.0', },
+                { userName: 'user1', letters: 'あい', avgSec: '3.0', },
+            ];
+
+            const actual = letterPairQuiz.selectSolvedLetterPairs(letterPairs, solvedQuizRes);
+            const expected = [
+                { letters: 'あか', words: [ '赤', ], },
+                { letters: 'あい', words: [ '合いの手', '愛', ], },
+            ];
+            assert.deepEqual(actual, expected);
+        });
     });
 });
