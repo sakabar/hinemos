@@ -116,10 +116,10 @@ const loadEdgeNumbering = () => {
 };
 
 const saveCornerNumbering = () => {
-    const hiraganas = '@あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん'.split(/(.{1})/).filter(x => x);
-
     const userName = localStorage.userName;
     const token = localStorage.token;
+
+    const hiraganas = [ '@', ...utils.getHiraganas(), ];
 
     const cornerLn = utils.corners.length;
     let cornerNumberings = [];
@@ -185,10 +185,10 @@ const saveCornerNumbering = () => {
 
 // FIXME コーナーと共通化
 const saveEdgeNumbering = () => {
-    const hiraganas = '@あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん'.split(/(.{1})/).filter(x => x);
-
     const userName = localStorage.userName;
     const token = localStorage.token;
+
+    const hiraganas = [ '@', ...utils.getHiraganas(), ];
 
     const edgeLn = utils.edges.length;
     let edgeNumberings = [];

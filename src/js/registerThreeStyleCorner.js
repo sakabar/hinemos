@@ -3,11 +3,6 @@ const url = require('url');
 const config = require('./config');
 const utils = require('./utils');
 
-// FIXME テスト書く
-const isValidMoves = (moveStr) => {
-    return /^(([BDFLRUEMS]w?)|[xyz])'?2?( (([BDFLRUEMS]w?)|[xyz])'?2?)*$/.test(moveStr);
-};
-
 const checkNew = () => {
     const lettersText = document.querySelector('.registerThreeStyleCornerForm__lettersText');
     const userName = localStorage.userName;
@@ -49,40 +44,9 @@ const saveThreeStyleCorner = () => {
     const token = localStorage.token;
 
     const letters = '@' + lettersText.value.replace(/\s*/g, ''); // バッファを意味する'@'を付けておく
-    const setup = setupText.value.replace(/\s*$/, '').replace(/^\s*/, '').replace(/[‘’´｀`]/g, '\'');
-    const move1 = move1Text.value.replace(/\s*$/, '').replace(/^\s*/, '').replace(/[‘’´｀`]/g, '\'');
-    const move2 = move2Text.value.replace(/\s*$/, '').replace(/^\s*/, '').replace(/[‘’´｀`]/g, '\'');
-
-    const okCond1 = (move1 !== '' && move2 !== '');
-    const okCond2 = (move1 === '' && move2 === '' && setup !== '');
-    if (!(okCond1 || okCond2)) {
-        alert('入力されていない欄があります。\n通常の手順の場合、手順1と手順2を両方埋めて下さい。\nCyclic Shiftなどの特殊な手順の場合は、手順1と手順2を空欄にして、セットアップだけ入力してください。');
-        return;
-    }
-
-    // move1とmove2が両方埋まっている場合
-    if (okCond1) {
-        if (setup !== '' && !isValidMoves(setup)) {
-            alert('セットアップの手順の記法に誤りがあります。各操作の間にはスペースを入れてください。\n例: y Lw\'2 E U');
-            return;
-        }
-
-        if (!isValidMoves(move1)) {
-            alert('手順1の記法に誤りがあります。各操作の間にはスペースを入れてください。\n例: y Lw\'2 E U');
-            return;
-        }
-
-        if (!isValidMoves(move2)) {
-            alert('手順2の記法に誤りがあります。各操作の間にはスペースを入れてください。\n例: y Lw\'2 E U');
-            return;
-        }
-    }
-
-    // move1とmove2が両方空の場合 → setupのみチェック
-    if (okCond2 && !isValidMoves(setup)) {
-        alert('セットアップの手順の記法に誤りがあります。各操作の間にはスペースを入れてください。\n例: y Lw\'2 E U');
-        return;
-    }
+    const setup = setupText.value;
+    const move1 = move1Text.value;
+    const move2 = move2Text.value;
 
     if (lettersText.value.length !== 2) {
         alert('ひらがなは2文字入力してください');
@@ -90,7 +54,7 @@ const saveThreeStyleCorner = () => {
     }
 
     if (lettersText.value[0] === lettersText.value[1]) {
-        alert('ひらがなの1文字目と2文字目は異なります');
+        alert('ひらがなの1文字目と2文字目は異なっている必要があります');
         return;
     }
 
@@ -124,8 +88,12 @@ const saveThreeStyleCorner = () => {
             const sticker1 = stickers[1];
             const sticker2 = stickers[2];
 
-            if (utils.isInSameParts(buffer, sticker1) || utils.isInSameParts(sticker1, sticker2) || utils.isInSameParts(sticker2, buffer)) {
-                alert('同じパーツのステッカーが入力されています');
+            // バリデーションを行いつつ3-styleのオブジェクトを生成
+            let newThreeStyle;
+            try {
+                newThreeStyle = utils.makeThreeStyle(buffer, sticker1, sticker2, setup, move1, move2);
+            } catch (e) {
+                alert(e);
                 return;
             }
 
@@ -137,12 +105,12 @@ const saveThreeStyleCorner = () => {
                 },
                 json: true,
                 form: {
-                    buffer,
-                    sticker1,
-                    sticker2,
-                    setup,
-                    move1,
-                    move2,
+                    buffer: newThreeStyle.buffer,
+                    sticker1: newThreeStyle.sticker1,
+                    sticker2: newThreeStyle.sticker2,
+                    setup: newThreeStyle.setup,
+                    move1: newThreeStyle.move1,
+                    move2: newThreeStyle.move2,
                     token,
                 },
             };

@@ -93,15 +93,8 @@ const generateTableData = (userName, numberingCornerIn, threeStyleCorner) => {
 
             const threeStyle = threeStyleCorner.filter(a => a.sticker1 === sticker1 && a.sticker2 === sticker2);
 
-            let threeStyleStr = '';
-            if (threeStyle && threeStyle.length !== 0) {
-                const setup = threeStyle[0].setup;
-                const move1 = threeStyle[0].move1;
-                const move2 = threeStyle[0].move2;
-
-                threeStyleStr = utils.showMove(setup, move1, move2);
-            }
-
+            // 同じステッカーに対して複数の手順が登録されていた場合は、', '区切りで出力(半角スペースが入っているので注意)
+            const threeStyleStr = threeStyle.map(st => utils.showMove(st.setup, st.move1, st.move2)).join(', ');
             row.push(threeStyleStr);
         }
 
@@ -111,8 +104,109 @@ const generateTableData = (userName, numberingCornerIn, threeStyleCorner) => {
     return ans;
 };
 
+const saveThreeStyleTable = (hot, numberingCorner) => {
+    // ダブルクリックによる誤作動を防ぐ
+    const saveBtn = document.querySelector('.threeStyleTableForm__saveBtn');
+    saveBtn.disabled = true;
+
+    const token = localStorage.token;
+
+    const row0 = hot.getDataAtRow(0);
+    const col0 = hot.getDataAtCol(0);
+
+    const buffer = numberingCorner.filter(x => x.letter === '@')[0];
+    const bufferSticker = buffer.sticker;
+
+    const rowLn = row0.length;
+    const colLn = col0.length;
+
+    // ヘッダ行のフォーマットは"あ (UFR)"のような文字列になっている前提
+    const headerRegExp = new RegExp(/^(.) \(([A-Z]+)\)$/);
+
+    const threeStyleTable = [];
+    for (let c = 1; c < colLn; c++) {
+        const sticker1Match = row0[c].match(headerRegExp);
+        if (!sticker1Match) {
+            alert(`想定していない文字列がヘッダ行に入っています: ${row0[c]}`);
+            return;
+        }
+
+        const letter1 = sticker1Match[1]; // 'あ' など
+        const sticker1 = sticker1Match[2]; // 'UFR' など
+
+        for (let r = 1; r < rowLn; r++) {
+            const sticker2Match = col0[r].match(headerRegExp);
+            if (!sticker2Match) {
+                alert(`想定していない文字列がカラム行に入っています: ${col0[r]}`);
+                return;
+            }
+
+            const letter2 = sticker2Match[1]; // 'き' など
+            const sticker2 = sticker2Match[2]; // 'RDF' など
+
+            const cellStr = hot.getDataAtCell(r, c);
+            let threeStyles = [];
+            try {
+                threeStyles = utils.readThreeStyles(cellStr);
+            } catch (e) {
+                alert(`${e}\nステッカー: ${letter1}${letter2}\n例\n[U, R D R\']\nまたは\n[D, [U, R D R\']]\nまたは\n[D Rw2 U R U\' Rw2 D R\' D2]`);
+                saveBtn.disabled = false;
+                return;
+            }
+
+            // 空のセルに関してはpushしない
+            for (let i = 0; i < threeStyles.length; i++) {
+                const ts = threeStyles[i];
+                const instance = {
+                    buffer: bufferSticker,
+                    sticker1,
+                    sticker2,
+                    setup: ts.setup,
+                    move1: ts.move1,
+                    move2: ts.move2,
+                };
+                threeStyleTable.push(instance);
+            }
+        }
+    }
+
+    const options = {
+        url: `${config.apiRoot}/threeStyleCornerTable`,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {
+            threeStyleTable,
+            token,
+        },
+    };
+
+    if (threeStyleTable.length === 0) {
+        alert('何か手順を登録してください。');
+        saveBtn.disabled = false;
+        return;
+    }
+
+    rp(options)
+        .then((result) => {
+            alert('保存が完了しました');
+            saveBtn.disabled = false;
+        })
+        .catch((err) => {
+            // FIXME なかなかひどい実装
+            const msg = err.message.match(/『[^』]*』/)[0];
+            alert(msg);
+            saveBtn.disabled = false;
+        });
+};
+
 const init = () => {
     const userName = localStorage.userName;
+
+    const saveBtn = document.querySelector('.threeStyleTableForm__saveBtn');
+    saveBtn.disabled = true; // ロードが完了する前は押せないようにする
 
     getCornerNumbering(userName)
         .then((numberingCorner) => {
@@ -130,17 +224,17 @@ const init = () => {
                         fixedRowsTop: 1,
                         cells: (row, col, prop) => {
                             const cellProperties = {};
-                            cellProperties.readOnly = true;
-
-                            // let cellProperties = {};
-                            // if (row === 0 || col === 0) {
-                            //     // ひらがな行とひらがな列は変更不可
-                            //     cellProperties.readOnly = true;
-                            // }
+                            if (row === 0 || col === 0) {
+                                // ひらがな行とひらがな列は変更不可
+                                cellProperties.readOnly = true;
+                            }
 
                             return cellProperties;
                         },
                     });
+
+                    saveBtn.addEventListener('click', () => saveThreeStyleTable(hot, numberingCorner));
+                    saveBtn.disabled = false; // もし後続の色付けに失敗したとしても、保存はできるようにする
 
                     // クイズのタイムに応じて色を付ける
                     getThreeStyleCornerLogs(userName)

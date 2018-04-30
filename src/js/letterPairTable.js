@@ -2,10 +2,7 @@ import Handsontable from 'handsontable';
 import 'handsontable.css';
 const rp = require('request-promise');
 const config = require('./config');
-
-const getHiraganas = () => {
-    return 'あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん'.split(/(.{1})/).filter(x => x);
-};
+const utils = require('./utils');
 
 const generateTableData = () => {
     const userName = localStorage.userName;
@@ -20,12 +17,12 @@ const generateTableData = () => {
         form: {},
     };
 
-    const hiraganas = getHiraganas();
+    const hiraganas = utils.getHiraganas();
 
     return rp(options)
         .then((ans) => {
             let fstRow = [
-                '',
+                ' 2rd \\ 3rd ',
                 ...hiraganas,
             ];
             let tableData = [
@@ -56,7 +53,6 @@ const saveLetterPairTable = (hot) => {
     // ダブルクリックによる誤作動を防ぐ
     const saveBtn = document.querySelector('.viewLetterPairForm__saveBtn');
     saveBtn.disabled = true;
-    hot.readonly = true;
 
     const token = localStorage.token;
 
@@ -69,7 +65,7 @@ const saveLetterPairTable = (hot) => {
     let letterPairTable = [];
     for (let r = 1; r < rowLn; r++) {
         for (let c = 1; c < colLn; c++) {
-            const letters = row0[r] + col0[c];
+            const letters = col0[r] + row0[c];
             const cellStr = hot.getDataAtCell(r, c);
 
             let words;
@@ -105,7 +101,6 @@ const saveLetterPairTable = (hot) => {
     if (letterPairTable.length === 0) {
         alert('何か単語を登録してください。');
         saveBtn.disabled = false;
-        hot.readonly = false;
         return;
     }
 
@@ -113,7 +108,6 @@ const saveLetterPairTable = (hot) => {
         .then((result) => {
             alert('保存が完了しました');
             saveBtn.disabled = false;
-            hot.readonly = false;
         })
         .catch((err) => {
             // FIXME なかなかひどい実装
@@ -121,7 +115,6 @@ const saveLetterPairTable = (hot) => {
             alert(msg);
 
             saveBtn.disabled = false;
-            hot.readonly = false;
         });
 };
 
