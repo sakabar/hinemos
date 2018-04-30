@@ -53,7 +53,6 @@ const saveLetterPairTable = (hot) => {
     // ダブルクリックによる誤作動を防ぐ
     const saveBtn = document.querySelector('.viewLetterPairForm__saveBtn');
     saveBtn.disabled = true;
-    hot.readonly = true;
 
     const token = localStorage.token;
 
@@ -102,7 +101,6 @@ const saveLetterPairTable = (hot) => {
     if (letterPairTable.length === 0) {
         alert('何か単語を登録してください。');
         saveBtn.disabled = false;
-        hot.readonly = false;
         return;
     }
 
@@ -110,7 +108,6 @@ const saveLetterPairTable = (hot) => {
         .then((result) => {
             alert('保存が完了しました');
             saveBtn.disabled = false;
-            hot.readonly = false;
         })
         .catch((err) => {
             // FIXME なかなかひどい実装
@@ -118,7 +115,6 @@ const saveLetterPairTable = (hot) => {
             alert(msg);
 
             saveBtn.disabled = false;
-            hot.readonly = false;
         });
 };
 
