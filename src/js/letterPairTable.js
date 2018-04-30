@@ -22,7 +22,7 @@ const generateTableData = () => {
     return rp(options)
         .then((ans) => {
             let fstRow = [
-                '',
+                ' 2rd \\ 3rd ',
                 ...hiraganas,
             ];
             let tableData = [
@@ -65,7 +65,7 @@ const saveLetterPairTable = (hot) => {
     let letterPairTable = [];
     for (let r = 1; r < rowLn; r++) {
         for (let c = 1; c < colLn; c++) {
-            const letters = row0[r] + col0[c];
+            const letters = col0[r] + row0[c];
             const cellStr = hot.getDataAtCell(r, c);
 
             let words;
