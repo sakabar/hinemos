@@ -250,7 +250,25 @@ describe('utils.js', () => {
                 move1: 'U',
                 move2: 'R D R\'',
             };
-            assert.deepEqual(utils.readThreeStyles('[D, [U, R D R\']]'), [ expected, ]);
+            assert.deepEqual(utils.readThreeStyles('[D, [U, R D R’]]'), [ expected, ]);
+        });
+
+        it('正常系: setup [D、 [U， R D R’]] (読点と全角コンマ)', () => {
+            const expected = {
+                setup: 'D',
+                move1: 'U',
+                move2: 'R D R\'',
+            };
+            assert.deepEqual(utils.readThreeStyles('[D、 [U， R D R\']]'), [ expected, ]);
+        });
+
+        it('正常系: setup [D, [U,     R D R’]] (スペースが複数)', () => {
+            const expected = {
+                setup: 'D',
+                move1: 'U',
+                move2: 'R D R\'',
+            };
+            assert.deepEqual(utils.readThreeStyles('[D, [U,     R D R\']]'), [ expected, ]);
         });
 
         it('正常系: 複数', () => {
