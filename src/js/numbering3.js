@@ -1,4 +1,5 @@
 const rp = require('request-promise');
+const url = require('url');
 const config = require('./config');
 const utils = require('./utils');
 
@@ -252,9 +253,69 @@ const saveEdgeNumbering = () => {
     return rp(numberingEdgeOptions);
 };
 
+const loadWithParam = (query) => {
+    const ks = Object.keys(query);
+    for (let i = 0; i < ks.length; i++) {
+        const sticker = ks[i];
+        const letter = query[sticker];
+
+        if (utils.corners.includes(sticker)) {
+            const pieceText = document.querySelector(`.corner__${sticker}`);
+            if (pieceText) {
+                // スペースはインポート後に視認できないので除外
+                if (!letter.match(/^\s*$/)) {
+                    pieceText.value = letter;
+                }
+            }
+        } else if (utils.edges.includes(sticker)) {
+            const pieceText = document.querySelector(`.edgeMiddle__${sticker}`);
+            if (pieceText) {
+                // スペースはインポート後に視認できないので除外
+                if (!letter.match(/^\s*$/)) {
+                    pieceText.value = letter;
+                }
+            }
+        }
+    }
+};
+
 const load = () => {
     loadCornerNumbering();
     loadEdgeNumbering();
+};
+
+// 現在入力されているナンバリングを、URLとしてエクスポートする
+const exportNumbering = () => {
+    // できるかどうか分からないが、urlライブラリを使って
+    // URLのパラメータ部分だけ置き換えて作ったほうが
+    // 変化に頑健だと思う FIXME
+    let ansUrl = `${config.urlRoot}/numbering3.html?useParam=true`;
+
+    for (let i = 0; i < utils.corners.length; i++) {
+        const sticker = utils.corners[i];
+        const pieceText = document.querySelector(`.corner__${sticker}`);
+        if (pieceText) {
+            const letter = pieceText.value;
+            // スペースはインポート後に視認できないので除外
+            if (!letter.match(/^\s*$/)) {
+                ansUrl = `${ansUrl}&${sticker}=${letter}`;
+            }
+        }
+    }
+
+    for (let i = 0; i < utils.edges.length; i++) {
+        const sticker = utils.edges[i];
+        const pieceText = document.querySelector(`.edgeMiddle__${sticker}`);
+        if (pieceText) {
+            const letter = pieceText.value;
+            // スペースはインポート後に視認できないので除外
+            if (!letter.match(/^\s*$/)) {
+                ansUrl = `${ansUrl}&${sticker}=${letter}`;
+            }
+        }
+    }
+
+    return ansUrl;
 };
 
 const save = () => {
@@ -274,11 +335,27 @@ const save = () => {
 };
 
 const init = () => {
-    load();
+    // URLにパラメータがセットされている時はそのパラメータに従ってナンバリングを埋める
+    // そうでない時は、登録済のナンバリングをロードする
+    // 例: numbering3.html?useParam=true&UBL=@
+    const urlObj = url.parse(location.href, true);
+    if (urlObj.query.useParam === 'true') {
+        loadWithParam(urlObj.query);
+    } else {
+        load();
+    }
 
     const saveBtn = document.querySelector('.saveNumberingForm__btn');
     if (saveBtn) {
         saveBtn.addEventListener('click', save);
+    }
+
+    const exportBtn = document.querySelector('.exportNumberingForm__btn');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', () => {
+            const newUrl = exportNumbering();
+            alert(`現在入力されているナンバリングを意味するURL:\n${newUrl}`);
+        });
     }
 };
 
