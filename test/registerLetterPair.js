@@ -5,7 +5,8 @@ describe('registerLetterPair.js', () => {
     describe('getAllLetterPairs()', () => {
         it('正常系: setが空の場合', () => {
             const actual = registerLetterPairJS.getAllLetterPairs([], [], new Set());
-            assert.deepEqual(actual, []);
+            assert.deepEqual(actual.letterPairs, []);
+            assert.deepEqual(actual.notFoundLetters, []);
         });
 
         it('正常系: 自分が登録していた単語は、他の人の単語で置き換わらない', () => {
@@ -23,7 +24,8 @@ describe('registerLetterPair.js', () => {
                 { letters: 'ぬつ', words: [ '陸奥', ], },
             ];
             const actual = registerLetterPairJS.getAllLetterPairs(allLetterPairs, myLetterPairs, lettersSet);
-            assert.deepEqual(actual, expected);
+            assert.deepEqual(actual.letterPairs, expected);
+            assert.deepEqual(actual.notFoundLetters, []);
         });
     });
 });
