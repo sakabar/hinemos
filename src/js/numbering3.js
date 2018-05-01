@@ -36,8 +36,7 @@ const checkBlankStickersAreOK = (blankStickers, cornerNumberings) => {
     return true;
 };
 
-const loadCornerNumbering = () => {
-    const userName = localStorage.userName;
+const getCornerNumbering = (userName) => {
     const numberingCornerOptions = {
         url: `${config.apiRoot}/numbering/corner/${userName}`,
         method: 'GET',
@@ -48,13 +47,28 @@ const loadCornerNumbering = () => {
         form: {},
     };
 
-    rp(numberingCornerOptions)
+    // FIXME 本当はPromiseを外して返したい
+    return rp(numberingCornerOptions)
         .then((ans) => {
-            const cornerNumberings = ans.success.result;
+            return ans.success.result;
+        })
+        .catch(() => {
+            return [];
+        });
+};
 
-            // 未登録の場合はわざとエラー扱いとし、UBLのみ'@'で埋める
+const loadCornerNumbering = () => {
+    const userName = localStorage.userName;
+
+    getCornerNumbering(userName)
+        .then((cornerNumberings) => {
+            // 未登録の場合かエラーが発生した場合は、UBLのみ'@'で埋める
             if (cornerNumberings.length === 0) {
-                throw new Error('No numberings');
+                const textUBL = document.querySelector('.corner__UBL');
+                if (textUBL) {
+                    textUBL.value = '@';
+                }
+                return;
             }
 
             for (let i = 0; i < cornerNumberings.length; i++) {
@@ -66,18 +80,10 @@ const loadCornerNumbering = () => {
                     pieceText.value = letter;
                 }
             }
-        })
-        .catch(() => {
-            // エラーが発生した場合は、デフォルトでUBLのみ埋める
-            const textUBL = document.querySelector('.corner__UBL');
-            if (textUBL) {
-                textUBL.value = '@';
-            }
         });
 };
 
-const loadEdgeNumbering = () => {
-    const userName = localStorage.userName;
+const getEdgeNumbering = (userName) => {
     const numberingEdgeOptions = {
         url: `${config.apiRoot}/numbering/edgeMiddle/${userName}`,
         method: 'GET',
@@ -88,13 +94,28 @@ const loadEdgeNumbering = () => {
         form: {},
     };
 
-    rp(numberingEdgeOptions)
+    // FIXME 本当はPromiseを外して返したい
+    return rp(numberingEdgeOptions)
         .then((ans) => {
-            const edgeNumberings = ans.success.result;
+            return ans.success.result;
+        })
+        .catch(() => {
+            return [];
+        });
+};
 
-            // 未登録の場合はわざとエラー扱いとし、DFのみ'@'で埋める
+const loadEdgeNumbering = () => {
+    const userName = localStorage.userName;
+
+    getEdgeNumbering(userName)
+        .then((edgeNumberings) => {
+            // 未登録(もしくはエラー)の場合は、DFのみ'@'で埋める
             if (edgeNumberings.length === 0) {
-                throw new Error('No numberings');
+                const textDF = document.querySelector('.edgeMiddle__DF');
+                if (textDF) {
+                    textDF.value = '@';
+                }
+                return;
             }
 
             for (let i = 0; i < edgeNumberings.length; i++) {
@@ -105,13 +126,6 @@ const loadEdgeNumbering = () => {
                 if (pieceText) {
                     pieceText.value = letter;
                 }
-            }
-        })
-        .catch(() => {
-            // エラーが発生した場合は、デフォルトでDFのみ埋める
-            const textDF = document.querySelector('.edgeMiddle__DF');
-            if (textDF) {
-                textDF.value = '@';
             }
         });
 };
@@ -341,7 +355,8 @@ const init = () => {
     const urlObj = url.parse(location.href, true);
     if (urlObj.query.useParam === 'true') {
         loadWithParam(urlObj.query);
-    } else {
+    } else if (urlObj.path) {
+        // テスト時は実行しない
         load();
     }
 
@@ -362,3 +377,5 @@ const init = () => {
 init();
 
 module.exports.getBlankStickers = getBlankStickers;
+module.exports.getEdgeNumbering = getEdgeNumbering;
+module.exports.getCornerNumbering = getCornerNumbering;
