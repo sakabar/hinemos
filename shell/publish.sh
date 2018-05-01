@@ -5,7 +5,9 @@
 readonly STG_SETTING_JS=$HOME/work/hinemos_conf/js/config_stg.js
 cp -f $STG_SETTING_JS src/js/
 
-npm run eslint && npm run test && npm run webpack && {
+# npm run eslint && npm run test && npm run webpack && {
+# npm run eslint && npm run webpack && {
+ npm run webpack && {
     rm -rf public
     mkdir -p public
 
