@@ -137,18 +137,7 @@ const getLettersSet = (cornerNumberings, edgeNumberings) => {
     return lettersSet;
 };
 
-// POSTするためのデータを作って返す
-const getAllLetterPairs = (letterPairs, lettersSet) => {
-    // 自分が登録したレターペアは必ず残すようにする
-    // POST /letterPairTable を使うため、自分が登録したレターペアを入れておかないと、
-    // 上書きされて消えてしまう
-
-    // 暫定的に、全ユーザのレターペアを使うことにする
-    // ユーザ数が増えると、単語が登録されすぎてしまうので、
-    // いずれは人気トップ3などを登録するようにしたい
-
-    // 何度もアクセスするのでハッシュ化
-    // word => [letters]
+const getWordToLettersListHash = (letterPairs) => {
     const wordToLettersListHash = {};
 
     for (let i = 0; i < letterPairs.length; i++) {
@@ -162,6 +151,24 @@ const getAllLetterPairs = (letterPairs, lettersSet) => {
             wordToLettersListHash[word] = [ letters, ];
         }
     }
+
+    return wordToLettersListHash;
+};
+
+// POSTするためのデータを作って返す
+const getAllLetterPairs = (letterPairs, myLetterPairs, lettersSet) => {
+    // 自分が登録したレターペアは必ず残すようにする
+    // POST /letterPairTable を使うため、自分が登録したレターペアを入れておかないと、
+    // 上書きされて消えてしまう
+
+    // 暫定的に、全ユーザのレターペアを使うことにする
+    // ユーザ数が増えると、単語が登録されすぎてしまうので、
+    // いずれは人気トップ3などを登録するようにしたい
+
+    // 何度もアクセスするのでハッシュ化
+    // word => [letters]
+    const wordToLettersListHash = getWordToLettersListHash(letterPairs);
+    const myWordToLettersListHash = getWordToLettersListHash(myLetterPairs);
 
     // 1つの単語が複数のひらがなに割り当てられていた場合は、採用数が多いほうを採用
     // letters => [Words]
@@ -178,7 +185,18 @@ const getAllLetterPairs = (letterPairs, lettersSet) => {
         });
 
         // 降順にソートしたので、先頭のレターペアが一番人気である
-        const letters = suggestedLettersCount[0].letters;
+        // 自分が登録した単語であれば自分が登録した単語を使用
+        // そうでなければ、先頭のレターペアを使用
+        let letters = [];
+        if (suggestedLettersCount.length > 1) {
+            if (word in myWordToLettersListHash) {
+                letters = myWordToLettersListHash[word][0];
+            } else {
+                letters = suggestedLettersCount[0].letters;
+            }
+        } else {
+            letters = suggestedLettersCount[0].letters;
+        }
 
         if (letters in letterPairHash) {
             if (!letterPairHash[letters].includes(word)) {
@@ -215,8 +233,19 @@ const registerAllLetterPairs = (userName) => {
     const registerAllLetterPairsBtn = document.querySelector('.registerAllLetterPairsForm__btn');
     registerAllLetterPairsBtn.disabled = true; // 連打を防ぐ
 
-    const letterPairOptions = {
+    const allLetterPairOptions = {
         url: `${config.apiRoot}/letterPair`,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {
+        },
+    };
+
+    const myLetterPairOptions = {
+        url: `${config.apiRoot}/letterPair?userName=${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -246,7 +275,7 @@ const registerAllLetterPairs = (userName) => {
         form: {},
     };
 
-    return rp(letterPairOptions)
+    return rp(allLetterPairOptions)
         .then((result) => {
             const letterPairs = result.success.result;
 
@@ -260,21 +289,29 @@ const registerAllLetterPairs = (userName) => {
                             // バッファの情報は使わない
                             const edgeNumberings = result.success.result.filter(x => x.letter !== '@');
 
-                            const lettersSet = getLettersSet(cornerNumberings, edgeNumberings);
-                            const letterPairTable = getAllLetterPairs(letterPairs, lettersSet);
-
-                            // 置き換えて登録することに注意
-                            return letterPairTableUtils.saveLetterPairTable(letterPairTable)
+                            return rp(myLetterPairOptions)
                                 .then((result) => {
-                                    alert('保存が完了しました');
-                                    registerAllLetterPairsBtn.disabled = false; // 元に戻す
+                                    const myLetterPairs = result.success.result;
+
+                                    const lettersSet = getLettersSet(cornerNumberings, edgeNumberings);
+                                    const letterPairTable = getAllLetterPairs(letterPairs, myLetterPairs, lettersSet);
+
+                                    // 置き換えて登録することに注意
+                                    return letterPairTableUtils.saveLetterPairTable(letterPairTable)
+                                        .then((result) => {
+                                            alert('保存が完了しました');
+                                            registerAllLetterPairsBtn.disabled = false; // 元に戻す
+                                        })
+                                        .catch((err) => {
+                                            // FIXME なかなかひどい実装
+                                            alert(err);
+                                            const msg = err.message.match(/『[^』]*』/)[0];
+                                            alert(msg);
+                                            registerAllLetterPairsBtn.disabled = false; // 元に戻す
+                                        });
                                 })
                                 .catch((err) => {
-                                    // FIXME なかなかひどい実装
-                                    alert(err);
-                                    const msg = err.message.match(/『[^』]*』/)[0];
-                                    alert(msg);
-                                    registerAllLetterPairsBtn.disabled = false; // 元に戻す
+                                    alert(`4: ${err}`);
                                 });
                         })
                         .catch((err) => {
@@ -295,16 +332,26 @@ const init = () => {
 
     // ひらがなのテキストボックスが変更されたら単語のテキストボックスを空にする
     const lettersText = document.querySelector('.registerLetterPairForm__lettersText');
-    lettersText.addEventListener('change', resetWordText);
+    if (lettersText) {
+        lettersText.addEventListener('change', resetWordText);
+    }
 
     const registerLetterPairBtn = document.querySelector('.registerLetterPairForm__btn');
-    registerLetterPairBtn.addEventListener('click', registerLetterPair);
+    if (registerLetterPairBtn) {
+        registerLetterPairBtn.addEventListener('click', registerLetterPair);
+    }
 
     const suggestWordBtn = document.querySelector('.registerLetterPairForm__suggestWordBtn');
-    suggestWordBtn.addEventListener('click', suggestWord);
+    if (suggestWordBtn) {
+        suggestWordBtn.addEventListener('click', suggestWord);
+    }
 
     const registerAllLetterPairsBtn = document.querySelector('.registerAllLetterPairsForm__btn');
-    registerAllLetterPairsBtn.addEventListener('click', () => registerAllLetterPairs(userName));
+    if (registerAllLetterPairsBtn) {
+        registerAllLetterPairsBtn.addEventListener('click', () => registerAllLetterPairs(userName));
+    }
 };
 
 init();
+
+exports.getAllLetterPairs = getAllLetterPairs;
