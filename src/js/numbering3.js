@@ -1,4 +1,5 @@
 const rp = require('request-promise');
+const url = require('url');
 const config = require('./config');
 const utils = require('./utils');
 
@@ -252,6 +253,26 @@ const saveEdgeNumbering = () => {
     return rp(numberingEdgeOptions);
 };
 
+const loadWithParam = (query) => {
+    const ks = Object.keys(query);
+    for (let i = 0; i < ks.length; i++) {
+        const sticker = ks[i];
+        const letters = query[sticker];
+
+        if (utils.corners.includes(sticker)) {
+            const pieceText = document.querySelector(`.corner__${sticker}`);
+            if (pieceText) {
+                pieceText.value = letters;
+            }
+        } else if (utils.edges.includes(sticker)) {
+            const pieceText = document.querySelector(`.edgeMiddle__${sticker}`);
+            if (pieceText) {
+                pieceText.value = letters;
+            }
+        }
+    }
+};
+
 const load = () => {
     loadCornerNumbering();
     loadEdgeNumbering();
@@ -274,7 +295,15 @@ const save = () => {
 };
 
 const init = () => {
-    load();
+    // URLにパラメータがセットされている時はそのパラメータに従ってナンバリングを埋める
+    // そうでない時は、登録済のナンバリングをロードする
+    // 例: numbering3.html?useParam=true&UBL=@
+    const urlObj = url.parse(location.href, true);
+    if (urlObj.query.useParam === 'true') {
+        loadWithParam(urlObj.query);
+    } else {
+        load();
+    }
 
     const saveBtn = document.querySelector('.saveNumberingForm__btn');
     if (saveBtn) {
