@@ -169,6 +169,25 @@ const ProblemListType = {
     manual: { value: 1, name: 'manual', },
 };
 
+// 右/左のボタンの挙動を設定
+// 画面での配置を変えた時にはこれも変えないといけない
+const keyUpAction = (letterPairs, numberings, selectedThreeStyles) => {
+    return (evt) => {
+        if (evt.which === 37) {
+            // 左キー
+            submit(letterPairs, numberings, selectedThreeStyles, 1);
+        } else if (evt.which === 38) {
+            // 上キー
+        } else if (evt.which === 39) {
+            // 右キー
+            submit(letterPairs, numberings, selectedThreeStyles, 0);
+        } else if (evt.which === 40) {
+            // 下キー
+            showHint();
+        }
+    };
+};
+
 const init = () => {
     const userName = localStorage.userName;
     const hintBtn = document.querySelector('.quizForm__submitBtn--hint');
@@ -313,6 +332,9 @@ const init = () => {
                                             okBtn.addEventListener('click', () => submit(letterPairs, numberings, selectedThreeStyles, 1));
                                             ngBtn.addEventListener('click', () => submit(letterPairs, numberings, selectedThreeStyles, 0));
                                             hintBtn.addEventListener('click', showHint);
+
+                                            // 左右のキーのショートカット
+                                            document.onkeyup = keyUpAction(letterPairs, numberings, selectedThreeStyles);
                                         })
                                         .catch((err) => {
                                             alert('1' + err);
