@@ -17,11 +17,15 @@ const letterPairsToWords = (letterPairs, letters) => {
 // やっていない問題がない → 正解数が少ないもの順
 // 引数: letterPairs = [{letters: "あい", word: "合いの手"}, {letters: "あい", word: "愛"}]
 const selectUnsolvedLetterPairs = (letterPairs, quizLogRes) => {
+    if (letterPairs.length === 0) {
+        return [];
+    }
+
     const solvedLetters = quizLogRes.map(x => x.letters); // APIの返す値であるquizLogResのキーは一意になっている前提
     const allLetters = Array.from(new Set(letterPairs.map(x => x.letters)));
     const unsolvedLetters = allLetters.filter(x => !solvedLetters.includes(x));
 
-    return unsolvedLetters.length > 0 ? unsolvedLetters.map(letters => letterPairsToWords(letterPairs, letters)) : solvedLetters.map(letters => letterPairsToWords(letterPairs, letters));
+    return unsolvedLetters.length > 0 ? unsolvedLetters.map(letters => letterPairsToWords(letterPairs, letters)) : solvedLetters.filter(letters => allLetters.includes(letters)).map(letters => letterPairsToWords(letterPairs, letters)); // 配列のincludeを何回も回すのは遅い レイテンシが遅いならFIXME
 };
 
 // 登録済のレターペアと、「解いた」問題ログ(agg済)を受け取り、解いた問題から出題
@@ -233,3 +237,4 @@ const init = () => {
 init();
 
 exports.selectSolvedLetterPairs = selectSolvedLetterPairs;
+exports.selectUnsolvedLetterPairs = selectUnsolvedLetterPairs;

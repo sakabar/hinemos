@@ -81,4 +81,88 @@ describe('letterPairQuiz.js', () => {
             assert.deepEqual(actual, expected);
         });
     });
+
+    describe('selectUnsolvedLetterPairs()', () => {
+        it('正常系: 両方とも空のときは空', () => {
+            assert.deepEqual(letterPairQuiz.selectUnsolvedLetterPairs([], []), []);
+        });
+
+        it('正常系: 登録済のレターペアが空のときは空', () => {
+            assert.deepEqual(letterPairQuiz.selectUnsolvedLetterPairs([], [ undefined, ]), []);
+        });
+
+        it('正常系: 解いていない問題があったら、それだけを返す', () => {
+            const letterPairs = [
+                { letters: 'あい', word: '合いの手', },
+                { letters: 'あい', word: '愛', },
+                { letters: 'あか', word: '赤', },
+            ];
+
+            const solvedQuizRes = [
+                { userName: 'user1', letters: 'あい', avgSec: '3.0', },
+            ];
+
+            const actual = letterPairQuiz.selectUnsolvedLetterPairs(letterPairs, solvedQuizRes);
+            const expected = [
+                { letters: 'あか', words: [ '赤', ], },
+            ];
+            assert.deepEqual(actual, expected);
+        });
+
+        it('正常系: 両方とも値があり、全ての問題を既に解いていた場合は、遅い順に返す', () => {
+            const letterPairs = [
+                { letters: 'あい', word: '合いの手', },
+                { letters: 'あい', word: '愛', },
+                { letters: 'あか', word: '赤', },
+            ];
+
+            const solvedQuizRes = [
+                { userName: 'user1', letters: 'あか', avgSec: '4.0', },
+                { userName: 'user1', letters: 'あい', avgSec: '3.0', },
+            ];
+
+            const actual = letterPairQuiz.selectUnsolvedLetterPairs(letterPairs, solvedQuizRes);
+            const expected = [
+                { letters: 'あか', words: [ '赤', ], },
+                { letters: 'あい', words: [ '合いの手', '愛', ], },
+            ];
+            assert.deepEqual(actual, expected);
+        });
+
+        it('正常系: 削除済のレターペアは出題しない: 全部の問題を解いていた場合', () => {
+            const letterPairs = [
+                { letters: 'あか', word: '赤', },
+                { letters: 'あし', word: '足', },
+            ];
+
+            const solvedQuizRes = [
+                { userName: 'user1', letters: 'あし', avgSec: '4.0', },
+                { userName: 'user1', letters: 'あい', avgSec: '3.0', }, // 削除済
+                { userName: 'user1', letters: 'あか', avgSec: '2.0', },
+            ];
+
+            const actual = letterPairQuiz.selectUnsolvedLetterPairs(letterPairs, solvedQuizRes);
+            const expected = [
+                { letters: 'あし', words: [ '足', ], },
+                { letters: 'あか', words: [ '赤', ], },
+            ];
+            assert.deepEqual(actual, expected);
+        });
+
+        it('正常系: 削除済のレターペアは出題しない: 解いていない問題があった場合', () => {
+            const letterPairs = [
+                { letters: 'あい', word: '愛', },
+                { letters: 'あか', word: '赤', },
+            ];
+
+            const solvedQuizRes = [
+                { userName: 'user1', letters: 'あい', avgSec: '2.0', },
+                { userName: 'user1', letters: 'あし', avgSec: '1.0', }, // 削除済
+            ];
+
+            const actual = letterPairQuiz.selectUnsolvedLetterPairs(letterPairs, solvedQuizRes);
+            const expected = [ { letters: 'あか', words: [ '赤', ], }, ];
+            assert.deepEqual(actual, expected);
+        });
+    });
 });
