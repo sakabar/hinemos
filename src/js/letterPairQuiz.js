@@ -139,6 +139,24 @@ const renderSettings = (days, solved) => {
     }
 };
 
+// 右/左のボタンの挙動を設定
+// 画面での配置を変えた時にはこれも変えないといけない
+const keyUpAction = (selectedLetterPairs) => {
+    return (evt) => {
+        if (evt.which === 37) {
+            // 左キー
+            submit(selectedLetterPairs, 1);
+        } else if (evt.which === 38) {
+            // 上キー
+        } else if (evt.which === 39) {
+            // 右キー
+            submit(selectedLetterPairs, 0);
+        } else if (evt.which === 40) {
+            // 下キー
+        }
+    };
+};
+
 // FIXME 日数のデフォルト値がAPIとFrontで二重になっているのが気になる
 const init = () => {
     const urlObj = url.parse(location.href, true);
@@ -215,6 +233,9 @@ const init = () => {
                         quizFormStartUnixTimeHidden.value = String(new Date().getTime());
                         okBtn.addEventListener('click', () => submit(selectedLetterPairs, 1));
                         ngBtn.addEventListener('click', () => submit(selectedLetterPairs, 0));
+
+                        // 左右のキーのショートカット
+                        document.onkeyup = keyUpAction(selectedLetterPairs);
                     }
                 });
         })
