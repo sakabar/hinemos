@@ -9,7 +9,7 @@ const getBlankStickers = (bufferSticker) => {
         throw new Error('ERROR: arg length must be corner or edge sticker');
     }
 
-    let ans = [];
+    const ans = [];
     for (let i = 0; i < bufferSticker.length; i++) {
         const fst = bufferSticker[i];
         const others = bufferSticker.slice(0, i) + bufferSticker.slice(i + 1, bufferSticker.length);
@@ -123,7 +123,7 @@ const saveCornerNumbering = () => {
     const hiraganas = [ '@', ...utils.getHiraganas(), ];
 
     const cornerLn = utils.corners.length;
-    let cornerNumberings = [];
+    const cornerNumberings = [];
     for (let i = 0; i < cornerLn; i++) {
         const sticker = utils.corners[i];
         const pieceText = document.querySelector(`.corner__${sticker}`);
@@ -192,7 +192,7 @@ const saveEdgeNumbering = () => {
     const hiraganas = [ '@', ...utils.getHiraganas(), ];
 
     const edgeLn = utils.edges.length;
-    let edgeNumberings = [];
+    const edgeNumberings = [];
     for (let i = 0; i < edgeLn; i++) {
         const sticker = utils.edges[i];
         const pieceText = document.querySelector(`.edgeMiddle__${sticker}`);

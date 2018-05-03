@@ -79,7 +79,7 @@ const generateTableData = (userName, numberingCornerIn, threeStyleCorner) => {
     const numberingCorner = numberingCornerIn.filter(numbering => numbering.letter !== '@'); // この関数内では、バッファの情報は使わない
     const letters = numberingCorner.map(a => a.letter);
     const fstRow = [ ' 3rd \\ 2nd ', ...numberingCorner.map(a => `${a.letter} (${a.sticker})`), ];
-    let ans = [ fstRow, ];
+    const ans = [ fstRow, ];
 
     for (let i = 0; i < letters.length; i++) {
         const letter3rd = letters[i];
