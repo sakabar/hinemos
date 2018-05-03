@@ -58,7 +58,7 @@ const transformFromAnalysis = () => {
     const lettersListLen = lettersList.length;
     const userName = localStorage.userName;
 
-    let promises = [];
+    const promises = [];
     for (let i = 0; i < lettersListLen; i++) {
         promises.push(transformOneLine(userName, lettersList[i]));
     }

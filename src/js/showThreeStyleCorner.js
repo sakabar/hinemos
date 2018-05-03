@@ -150,7 +150,7 @@ const submit = () => {
                     const results = ans.success.result;
 
                     // 何回も引くことになるのでハッシュ化
-                    let threeStyleHash = {};
+                    const threeStyleHash = {};
                     for (let i = 0; i < results.length; i++) {
                         const result = results[i];
 
@@ -183,10 +183,7 @@ const submit = () => {
                                 liNode.className = `showThreeStyleCornerForm__oList__list--id${id}`;
 
                                 // 同じ文字に対して、複数の手順を登録してある場合には強調
-                                let dupMsg = '';
-                                if (lst.length > 1) {
-                                    dupMsg = '【重複】 ';
-                                }
+                                const dupMsg = lst.length > 1 ? '【重複】 ' : '';
 
                                 const letters = perm.letters;
                                 const textNode = document.createTextNode(`${dupMsg}${letters} ${buffer} ${sticker1} ${sticker2} ${moveStr} `);

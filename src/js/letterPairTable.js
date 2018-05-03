@@ -22,17 +22,17 @@ const generateTableData = () => {
 
     return rp(options)
         .then((ans) => {
-            let fstRow = [
+            const fstRow = [
                 ' 2rd \\ 3rd ',
                 ...hiraganas,
             ];
-            let tableData = [
+            const tableData = [
                 fstRow,
             ];
 
             for (let i = 0; i < hiraganas.length; i++) {
                 const rowHiragana = hiraganas[i];
-                let row = [
+                const row = [
                     rowHiragana,
                 ];
                 for (let k = 0; k < hiraganas.length; k++) {
@@ -62,18 +62,13 @@ const saveLetterPairTableFromHot = (hot) => {
     const rowLn = row0.length;
     const colLn = col0.length;
 
-    let letterPairTable = [];
+    const letterPairTable = [];
     for (let r = 1; r < rowLn; r++) {
         for (let c = 1; c < colLn; c++) {
             const letters = col0[r] + row0[c];
             const cellStr = hot.getDataAtCell(r, c);
 
-            let words;
-            if (cellStr === '') {
-                words = [];
-            } else {
-                words = cellStr.replace(/\s/g, '').split(/[,，、/／]/).filter(x => x.length > 0);
-            }
+            const words = cellStr === '' ? [] : cellStr.replace(/\s/g, '').split(/[,，、/／]/).filter(x => x.length > 0);
 
             if (words.length > 0) {
                 const letterPair = {
@@ -102,11 +97,10 @@ const init = () => {
     const saveBtn = document.querySelector('.viewLetterPairForm__saveBtn');
     saveBtn.disabled = true;
 
-    let hot;
     const container = document.querySelector('.viewLetterPairForm__table');
     generateTableData()
         .then((tableData) => {
-            hot = new Handsontable(container, {
+            const hot = new Handsontable(container, {
                 data: tableData,
                 rowHeaders: true,
                 colHeaders: true,

@@ -225,8 +225,10 @@ const getAllLetterPairs = (letterPairs, myLetterPairs, lettersSet) => {
         }
     }
 
-    alert(`次のひらがなは、単語をサジェストできませんでした。\n${JSON.stringify(notFoundLetters)}`);
-    return ans;
+    return {
+        letterPairs: ans,
+        notFoundLetters,
+    };
 };
 
 const registerAllLetterPairs = (userName) => {
@@ -294,7 +296,14 @@ const registerAllLetterPairs = (userName) => {
                                     const myLetterPairs = result.success.result;
 
                                     const lettersSet = getLettersSet(cornerNumberings, edgeNumberings);
-                                    const letterPairTable = getAllLetterPairs(letterPairs, myLetterPairs, lettersSet);
+
+                                    const suggested = getAllLetterPairs(letterPairs, myLetterPairs, lettersSet);
+                                    const letterPairTable = suggested.letterPairTable;
+                                    const notFoundLetters = suggested.notFoundLetters;
+
+                                    if (notFoundLetters.length > 1) {
+                                        alert(`次のひらがなは、単語をサジェストできませんでした。\n${JSON.stringify(notFoundLetters)}`);
+                                    }
 
                                     // 置き換えて登録することに注意
                                     return letterPairTableUtils.saveLetterPairTable(letterPairTable)

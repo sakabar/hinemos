@@ -17,18 +17,15 @@ const letterPairsToWords = (letterPairs, letters) => {
 // やっていない問題がない → 正解数が少ないもの順
 // 引数: letterPairs = [{letters: "あい", word: "合いの手"}, {letters: "あい", word: "愛"}]
 const selectUnsolvedLetterPairs = (letterPairs, quizLogRes) => {
+    if (letterPairs.length === 0) {
+        return [];
+    }
+
     const solvedLetters = quizLogRes.map(x => x.letters); // APIの返す値であるquizLogResのキーは一意になっている前提
     const allLetters = Array.from(new Set(letterPairs.map(x => x.letters)));
     const unsolvedLetters = allLetters.filter(x => !solvedLetters.includes(x));
 
-    let ans;
-    if (unsolvedLetters.length > 0) {
-        ans = unsolvedLetters.map(letters => letterPairsToWords(letterPairs, letters));
-    } else {
-        ans = solvedLetters.map(letters => letterPairsToWords(letterPairs, letters));
-    }
-
-    return ans;
+    return unsolvedLetters.length > 0 ? unsolvedLetters.map(letters => letterPairsToWords(letterPairs, letters)) : solvedLetters.filter(letters => allLetters.includes(letters)).map(letters => letterPairsToWords(letterPairs, letters)); // 配列のincludeを何回も回すのは遅い レイテンシが遅いならFIXME
 };
 
 // 登録済のレターペアと、「解いた」問題ログ(agg済)を受け取り、解いた問題から出題
@@ -70,10 +67,6 @@ const submit = (selectedLetterPairs, isRecalled) => {
     if (sec < 0.25) {
         return;
     }
-    let sendSec = 60.0;
-    if (isRecalled === 1) {
-        sendSec = sec;
-    }
 
     const options = {
         url: `${config.apiRoot}/letterPairQuizLog`,
@@ -86,7 +79,7 @@ const submit = (selectedLetterPairs, isRecalled) => {
             letters,
             isRecalled,
             token,
-            sec: sendSec,
+            sec,
         },
     };
 
@@ -115,10 +108,7 @@ const reloadWithOptions = () => {
     const daysText = document.querySelector('.settingForm__daysText');
 
     // daysは1以上の値であることを想定
-    let days = parseInt(daysText.value);
-    if (days < 1) {
-        days = 1;
-    }
+    const days = Math.max(parseInt(daysText.value), 1);
 
     const solved = document.querySelector('#settingForm__radio--solved').checked;
 
@@ -137,6 +127,24 @@ const renderSettings = (days, solved) => {
     if (solved) {
         solvedRadio.checked = true;
     }
+};
+
+// 右/左のボタンの挙動を設定
+// 画面での配置を変えた時にはこれも変えないといけない
+const keyUpAction = (selectedLetterPairs) => {
+    return (evt) => {
+        if (evt.which === 37) {
+            // 左キー
+            submit(selectedLetterPairs, 1);
+        } else if (evt.which === 38) {
+            // 上キー
+        } else if (evt.which === 39) {
+            // 右キー
+            submit(selectedLetterPairs, 0);
+        } else if (evt.which === 40) {
+            // 下キー
+        }
+    };
 };
 
 // FIXME 日数のデフォルト値がAPIとFrontで二重になっているのが気になる
@@ -171,10 +179,7 @@ const init = () => {
         form: {},
     };
 
-    let urlStr = `${config.apiRoot}/letterPairQuizLog/${userName}?`;
-    if (days) {
-        urlStr += `&days=${days}`;
-    }
+    const urlStr = days ? `${config.apiRoot}/letterPairQuizLog/${userName}?days=${days}` : `${config.apiRoot}/letterPairQuizLog/${userName}?`;
 
     // クイズ履歴
     const quizLettersOptions = {
@@ -197,15 +202,13 @@ const init = () => {
         return;
     }
 
-    let letterPairs = [];
-    let quizLogRes = [];
     rp(quizLettersOptions)
         .then((ans) => {
-            quizLogRes = ans.success.result;
+            const quizLogRes = ans.success.result;
 
             return rp(letterPairOptions)
                 .then((ans) => {
-                    letterPairs = ans.success.result;
+                    const letterPairs = ans.success.result;
 
                     const tmpSelected = solved ? selectSolvedLetterPairs(letterPairs, quizLogRes) : selectUnsolvedLetterPairs(letterPairs, quizLogRes);
                     const selectedLetterPairs = utils.chunkAndShuffle(tmpSelected, 50);
@@ -215,6 +218,9 @@ const init = () => {
                         quizFormStartUnixTimeHidden.value = String(new Date().getTime());
                         okBtn.addEventListener('click', () => submit(selectedLetterPairs, 1));
                         ngBtn.addEventListener('click', () => submit(selectedLetterPairs, 0));
+
+                        // 左右のキーのショートカット
+                        document.onkeyup = keyUpAction(selectedLetterPairs);
                     }
                 });
         })
@@ -227,3 +233,4 @@ const init = () => {
 init();
 
 exports.selectSolvedLetterPairs = selectSolvedLetterPairs;
+exports.selectUnsolvedLetterPairs = selectUnsolvedLetterPairs;

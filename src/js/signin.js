@@ -42,12 +42,28 @@ const submit = () => {
             const urlObj = url.parse(location.href, true);
             const redirectUrl = urlObj.query.redirect;
 
-            // FIXME 変換/逆変換の処理はutilsに切り出してテストしたほうがいいのか悩む
+            let newUrl = '';
+            // redirectUrlの前にurlRootを付与することで、
+            // hinemos内のページにのみリダイレクトを許す
             if (redirectUrl && redirectUrl !== '') {
-                location.href = `${config.urlRoot}/${redirectUrl}`;
+                newUrl = `${config.urlRoot}/${redirectUrl}?`;
             } else {
-                location.href = `${config.urlRoot}/mypage.html`;
+                newUrl = `${config.urlRoot}/mypage.html?`;
             }
+
+            const keys = Object.keys(urlObj.query);
+            for (let i = 0; i < keys.length; i++) {
+                const paramKey = keys[i];
+                if (paramKey === 'redirect') {
+                    // redirectパラメータは処理済
+                    continue;
+                }
+
+                const paramVal = urlObj.query[paramKey];
+                newUrl = `${newUrl}&${paramKey}=${paramVal}`;
+            }
+
+            location.href = newUrl;
         })
         .catch((err) => {
             alert('ユーザ名かパスワードが違います');

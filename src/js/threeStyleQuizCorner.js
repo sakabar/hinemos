@@ -41,14 +41,7 @@ const selectThreeStyles = (threeStyles, quizLogRes) => {
     const solvedThreeStyles = quizLogRes.map(x => x.stickers).filter(stickers => allThreeStyles.includes(stickers));
     const unsolvedThreeStyles = allThreeStyles.filter(x => !solvedThreeStyles.includes(x));
 
-    let ans;
-    if (unsolvedThreeStyles.length > 0) {
-        ans = unsolvedThreeStyles.map(stickers => stickersToThreeStyles(smallThreeStyles, stickers));
-    } else {
-        ans = solvedThreeStyles.map(stickers => stickersToThreeStyles(smallThreeStyles, stickers));
-    }
-
-    return ans;
+    return unsolvedThreeStyles.length > 0 ? unsolvedThreeStyles.map(stickers => stickersToThreeStyles(smallThreeStyles, stickers)) : solvedThreeStyles.map(stickers => stickersToThreeStyles(smallThreeStyles, stickers));
 };
 
 // threeStyleのうち、problemListに含まれるもののみを抽出
@@ -81,10 +74,7 @@ const submit = (letterPairs, numberings, selectedThreeStyles, isRecalled) => {
     const quizFormPrevSecText = document.querySelector('.quizForm__prevSecText');
     const quizFormPrevAnsText = document.querySelector('.quizForm__prevAnsText');
 
-    let usedHint = 0;
-    if (hintText.style.display !== 'none') {
-        usedHint = 1;
-    }
+    const usedHint = hintText.style.display === 'none' ? 0 : 1;
 
     const ind = parseInt(quizIndHidden.value.split(':')[1]);
     if (ind > selectedThreeStyles.length - 1) {
@@ -107,10 +97,7 @@ const submit = (letterPairs, numberings, selectedThreeStyles, isRecalled) => {
         return;
     }
 
-    let sendSec = 20; // 間違えた場合は一律20秒
-    if (isRecalled === 1) {
-        sendSec = sec / 3.0; // 1回ぶん回すタイムに換算
-    }
+    const sendSec = sec / 3.0; // 1回ぶん回すタイムに換算
 
     const options = {
         url: `${config.apiRoot}/threeStyleQuizLog/corner`,
@@ -169,6 +156,25 @@ const ProblemListType = {
     manual: { value: 1, name: 'manual', },
 };
 
+// 右/左のボタンの挙動を設定
+// 画面での配置を変えた時にはこれも変えないといけない
+const keyUpAction = (letterPairs, numberings, selectedThreeStyles) => {
+    return (evt) => {
+        if (evt.which === 37) {
+            // 左キー
+            submit(letterPairs, numberings, selectedThreeStyles, 1);
+        } else if (evt.which === 38) {
+            // 上キー
+        } else if (evt.which === 39) {
+            // 右キー
+            submit(letterPairs, numberings, selectedThreeStyles, 0);
+        } else if (evt.which === 40) {
+            // 下キー
+            showHint();
+        }
+    };
+};
+
 const init = () => {
     const userName = localStorage.userName;
     const hintBtn = document.querySelector('.quizForm__submitBtn--hint');
@@ -179,11 +185,9 @@ const init = () => {
     const quizFormStartUnixTimeHidden = document.querySelector('.quizForm__startUnixTimeHidden');
 
     const urlObj = url.parse(location.href, true);
-    let problemListType = ProblemListType.all;
+
     // URLでproblemListType=manualが指定された場合、自分が設定した問題でやる
-    if (urlObj.query.problemListType === ProblemListType.manual.name) {
-        problemListType = ProblemListType.manual;
-    }
+    const problemListType = urlObj.query.problemListType === ProblemListType.manual.name ? ProblemListType.manual : ProblemListType.all;
 
     // 登録済の3-styleを持っておく
     const threeStyleOptions = {
@@ -245,19 +249,13 @@ const init = () => {
         return;
     }
 
-    let threeStyles = [];
-    let quizLogRes = [];
-    let numberings = [];
-    let letterPairs = [];
-    let problemList = [];
-
     return rp(letterPairOptions)
         .then((ans) => {
-            letterPairs = ans.success.result;
+            const letterPairs = ans.success.result;
 
             return rp(numberingOptions)
                 .then((ans) => {
-                    numberings = ans.success.result;
+                    const numberings = ans.success.result;
 
                     if (numberings.length === 0) {
                         return;
@@ -265,15 +263,15 @@ const init = () => {
 
                     return rp(quizOptions)
                         .then((ans) => {
-                            quizLogRes = ans.success.result;
+                            const quizLogRes = ans.success.result;
 
                             return rp(threeStyleOptions)
                                 .then((ans) => {
-                                    threeStyles = ans.success.result;
+                                    const threeStyles = ans.success.result;
 
                                     return rp(problemListOptions)
                                         .then((ans) => {
-                                            problemList = ans.success.result;
+                                            const problemList = ans.success.result;
 
                                             let selectedThreeStyles = [];
 
@@ -313,6 +311,9 @@ const init = () => {
                                             okBtn.addEventListener('click', () => submit(letterPairs, numberings, selectedThreeStyles, 1));
                                             ngBtn.addEventListener('click', () => submit(letterPairs, numberings, selectedThreeStyles, 0));
                                             hintBtn.addEventListener('click', showHint);
+
+                                            // 左右のキーのショートカット
+                                            document.onkeyup = keyUpAction(letterPairs, numberings, selectedThreeStyles);
                                         })
                                         .catch((err) => {
                                             alert('1' + err);

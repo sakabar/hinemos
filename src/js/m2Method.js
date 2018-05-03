@@ -89,8 +89,8 @@ const loadEdgeNumbering = () => {
 
     return rp(numberingEdgeOptions)
         .then((result) => {
-            let s2l = {};
-            let l2s = {};
+            const s2l = {};
+            const l2s = {};
 
             const edgeNumberings = result.success.result;
             for (let i = 0; i < edgeNumberings.length; i++) {
