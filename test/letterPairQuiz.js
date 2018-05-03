@@ -65,5 +65,20 @@ describe('letterPairQuiz.js', () => {
             ];
             assert.deepEqual(actual, expected);
         });
+
+        it('正常系: 削除済のレターペアは出題しない', () => {
+            const letterPairs = [
+                { letters: 'あか', word: '赤', },
+            ];
+
+            const solvedQuizRes = [
+                { userName: 'user1', letters: 'あい', avgSec: '3.0', },
+                { userName: 'user1', letters: 'あか', avgSec: '3.0', },
+            ];
+
+            const actual = letterPairQuiz.selectSolvedLetterPairs(letterPairs, solvedQuizRes);
+            const expected = [ { letters: 'あか', words: [ '赤', ], }, ];
+            assert.deepEqual(actual, expected);
+        });
     });
 });
