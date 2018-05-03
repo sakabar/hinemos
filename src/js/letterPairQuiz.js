@@ -21,14 +21,7 @@ const selectUnsolvedLetterPairs = (letterPairs, quizLogRes) => {
     const allLetters = Array.from(new Set(letterPairs.map(x => x.letters)));
     const unsolvedLetters = allLetters.filter(x => !solvedLetters.includes(x));
 
-    let ans;
-    if (unsolvedLetters.length > 0) {
-        ans = unsolvedLetters.map(letters => letterPairsToWords(letterPairs, letters));
-    } else {
-        ans = solvedLetters.map(letters => letterPairsToWords(letterPairs, letters));
-    }
-
-    return ans;
+    return unsolvedLetters.length > 0 ? unsolvedLetters.map(letters => letterPairsToWords(letterPairs, letters)) : solvedLetters.map(letters => letterPairsToWords(letterPairs, letters));
 };
 
 // 登録済のレターペアと、「解いた」問題ログ(agg済)を受け取り、解いた問題から出題
@@ -115,10 +108,7 @@ const reloadWithOptions = () => {
     const daysText = document.querySelector('.settingForm__daysText');
 
     // daysは1以上の値であることを想定
-    let days = parseInt(daysText.value);
-    if (days < 1) {
-        days = 1;
-    }
+    const days = Math.max(parseInt(daysText.value), 1);
 
     const solved = document.querySelector('#settingForm__radio--solved').checked;
 
@@ -189,10 +179,7 @@ const init = () => {
         form: {},
     };
 
-    let urlStr = `${config.apiRoot}/letterPairQuizLog/${userName}?`;
-    if (days) {
-        urlStr += `&days=${days}`;
-    }
+    const urlStr = days ? `${config.apiRoot}/letterPairQuizLog/${userName}?days=${days}` : `${config.apiRoot}/letterPairQuizLog/${userName}?`;
 
     // クイズ履歴
     const quizLettersOptions = {
@@ -215,15 +202,13 @@ const init = () => {
         return;
     }
 
-    let letterPairs = [];
-    let quizLogRes = [];
     rp(quizLettersOptions)
         .then((ans) => {
-            quizLogRes = ans.success.result;
+            const quizLogRes = ans.success.result;
 
             return rp(letterPairOptions)
                 .then((ans) => {
-                    letterPairs = ans.success.result;
+                    const letterPairs = ans.success.result;
 
                     const tmpSelected = solved ? selectSolvedLetterPairs(letterPairs, quizLogRes) : selectUnsolvedLetterPairs(letterPairs, quizLogRes);
                     const selectedLetterPairs = utils.chunkAndShuffle(tmpSelected, 50);
