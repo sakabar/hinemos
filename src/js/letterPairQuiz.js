@@ -67,10 +67,6 @@ const submit = (selectedLetterPairs, isRecalled) => {
     if (sec < 0.25) {
         return;
     }
-    let sendSec = 60.0;
-    if (isRecalled === 1) {
-        sendSec = sec;
-    }
 
     const options = {
         url: `${config.apiRoot}/letterPairQuizLog`,
@@ -83,7 +79,7 @@ const submit = (selectedLetterPairs, isRecalled) => {
             letters,
             isRecalled,
             token,
-            sec: sendSec,
+            sec,
         },
     };
 

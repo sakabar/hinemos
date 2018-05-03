@@ -97,10 +97,7 @@ const submit = (letterPairs, numberings, selectedThreeStyles, isRecalled) => {
         return;
     }
 
-    let sendSec = 20; // 間違えた場合は一律20秒
-    if (isRecalled === 1) {
-        sendSec = sec / 3.0; // 1回ぶん回すタイムに換算
-    }
+    const sendSec = sec / 3.0; // 1回ぶん回すタイムに換算
 
     const options = {
         url: `${config.apiRoot}/threeStyleQuizLog/corner`,
