@@ -17,9 +17,8 @@ const saveLetterPairTable = (letterPairTable) => {
         },
     };
 
-    if (letterPairTable.length === 0) {
-        alert('何か単語を登録してください。');
-        return;
+    if (!letterPairTable || letterPairTable.length === 0) {
+        return Promise.reject(new Error('何か単語を登録してください。'));
     }
 
     return rp(options);
