@@ -298,7 +298,7 @@ const registerAllLetterPairs = (userName) => {
                                     const lettersSet = getLettersSet(cornerNumberings, edgeNumberings);
 
                                     const suggested = getAllLetterPairs(letterPairs, myLetterPairs, lettersSet);
-                                    const letterPairTable = suggested.letterPairTable;
+                                    const letterPairTable = suggested.letterPairs;
                                     const notFoundLetters = suggested.notFoundLetters;
 
                                     if (notFoundLetters.length > 1) {
