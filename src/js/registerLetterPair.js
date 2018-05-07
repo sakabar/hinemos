@@ -187,7 +187,7 @@ const getAllLetterPairs = (letterPairs, myLetterPairs, lettersSet) => {
         // 降順にソートしたので、先頭のレターペアが一番人気である
         // 自分が登録した単語であれば自分が登録した単語を使用
         // そうでなければ、先頭のレターペアを使用
-        let letters = [];
+        let letters = '';
         if (suggestedLettersCount.length > 1) {
             if (word in myWordToLettersListHash) {
                 letters = myWordToLettersListHash[word][0];
