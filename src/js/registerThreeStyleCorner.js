@@ -176,6 +176,7 @@ const init = () => {
     const lettersQuery = urlObj.query.letters;
     if (lettersQuery) {
         lettersText.value = lettersQuery;
+        checkNew();
     }
 };
 
