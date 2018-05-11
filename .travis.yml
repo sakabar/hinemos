@@ -11,3 +11,6 @@ install:
 script:
     - npm run eslint
     - npm run test
+
+after_success:
+    - codecov
