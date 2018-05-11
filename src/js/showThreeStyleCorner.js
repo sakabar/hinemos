@@ -4,7 +4,7 @@ const utils = require('./utils');
 
 // 3-style登録ページを開く
 const openRegisterPage = (letters) => {
-    window.open(`${config.urlRoot}/threeStyle/registerCorner.html?letters=${letters}`);
+    window.open(`${config.urlRoot}/threeStyle/register.html?letters=${letters}`);
 };
 
 // threeStyleを削除する
