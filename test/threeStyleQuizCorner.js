@@ -2,6 +2,26 @@ const assert = require('assert');
 const threeStyleQuizCorner = require('../src/js/threeStyleQuizCorner');
 
 describe('threeStyleQuizCorner.js', () => {
+    describe('getHint()', () => {
+        it('正常系: セットアップなし', () => {
+            const actual = threeStyleQuizCorner.getHint('', 'U', 'R D\' R\'');
+            const expected = '(セットアップなし)';
+            assert.deepEqual(actual, expected);
+        });
+
+        it('正常系: セットアップあり: セットアップとmove1の1手目を表示', () => {
+            const actual = threeStyleQuizCorner.getHint('D', 'U', 'R D\' R\'');
+            const expected = '[D [U    ]]';
+            assert.deepEqual(actual, expected);
+        });
+
+        it('正常系: cyclic_shift: 4手目まで表示', () => {
+            const actual = threeStyleQuizCorner.getHint('D Rw2 U R U\' Rw2 D R\' D2', '', '');
+            const expected = '[D Rw2 U R    ]';
+            assert.deepEqual(actual, expected);
+        });
+    });
+
     describe('selectFromManualList()', () => {
         it('正常系: problemListが空', () => {
             assert.deepEqual(threeStyleQuizCorner.selectFromManualList([ null, ], []), []);
