@@ -271,6 +271,15 @@ describe('utils.js', () => {
             assert.deepEqual(utils.readThreeStyles('[D, [U,     R D R\']]'), [ expected, ]);
         });
 
+        it('正常系: setup [U\' , [R\' F\' R , S]] (コンマの前にスペース)', () => {
+            const expected = {
+                setup: 'U\'',
+                move1: 'R\' F\' R',
+                move2: 'S',
+            };
+            assert.deepEqual(utils.readThreeStyles('[U\' , [R\' F\' R , S]]'), [ expected, ]);
+        });
+
         it('正常系: 複数', () => {
             const ts1 = {
                 setup: 'R L',
