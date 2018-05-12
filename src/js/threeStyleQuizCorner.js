@@ -8,12 +8,14 @@ const getHint = (setup, move1, move2) => {
         return '(セットアップなし)';
     }
 
-    const move1List = move1.split(' ');
-
-    if (move1List.length === 0) {
-        return `[${setup} [     ]]`;
+    // Cyclic Shiftの場合: 4手目まで返す
+    if (move1.length === 0) {
+        const setupList = setup.split(' ');
+        return `[${setupList.slice(0, 4).join(' ')}    ]`;
     }
 
+    // セットアップとmove1の1手目を返す
+    const move1List = move1.split(' ');
     return `[${setup} [${move1List[0]}    ]]`;
 };
 
@@ -343,4 +345,5 @@ const init = () => {
 
 init();
 
+exports.getHint = getHint;
 exports.selectFromManualList = selectFromManualList;
