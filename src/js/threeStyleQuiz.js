@@ -1,5 +1,6 @@
 const rp = require('request-promise');
 const url = require('url');
+const constant = require('./constant');
 const config = require('./config');
 const utils = require('./utils');
 
@@ -67,7 +68,7 @@ const showHint = () => {
     hintText.style.display = 'block';
 };
 
-const submit = (letterPairs, numberings, selectedThreeStyles, isRecalled) => {
+const submit = (part, letterPairs, numberings, selectedThreeStyles, isRecalled) => {
     const token = localStorage.token;
     const hintText = document.querySelector('.quizForm__hintText');
     const quizIndHidden = document.querySelector('.quizForm__quizIndHidden');
@@ -102,7 +103,7 @@ const submit = (letterPairs, numberings, selectedThreeStyles, isRecalled) => {
     const sendSec = sec / 3.0; // 1回ぶん回すタイムに換算
 
     const options = {
-        url: `${config.apiRoot}/threeStyleQuizLog/corner`,
+        url: `${config.apiRoot}/threeStyleQuizLog/${part.name}`,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -160,16 +161,16 @@ const ProblemListType = {
 
 // 右/左のボタンの挙動を設定
 // 画面での配置を変えた時にはこれも変えないといけない
-const keyUpAction = (letterPairs, numberings, selectedThreeStyles) => {
+const keyUpAction = (part, letterPairs, numberings, selectedThreeStyles) => {
     return (evt) => {
         if (evt.which === 37) {
             // 左キー
-            submit(letterPairs, numberings, selectedThreeStyles, 1);
+            submit(part, letterPairs, numberings, selectedThreeStyles, 1);
         } else if (evt.which === 38) {
             // 上キー
         } else if (evt.which === 39) {
             // 右キー
-            submit(letterPairs, numberings, selectedThreeStyles, 0);
+            submit(part, letterPairs, numberings, selectedThreeStyles, 0);
         } else if (evt.which === 40) {
             // 下キー
             showHint();
@@ -185,15 +186,31 @@ const init = () => {
     const quizFormLettersText = document.querySelector('.quizForm__lettersText');
     const hintText = document.querySelector('.quizForm__hintText');
     const quizFormStartUnixTimeHidden = document.querySelector('.quizForm__startUnixTimeHidden');
+    const h2Part = document.querySelector('.h2__part');
 
     const urlObj = url.parse(location.href, true);
+
+    // URLのオプションでpart=(corner|edgeMiddle)という形式で、パートが渡される
+    // それ以外の場合はエラー
+    const partQuery = urlObj.query.part;
+    let part;
+    if (partQuery === 'corner') {
+        part = constant.partType.corner;
+        h2Part.appendChild(document.createTextNode('コーナー'));
+    } else if (partQuery === 'edgeMiddle') {
+        part = constant.partType.edgeMiddle;
+        h2Part.appendChild(document.createTextNode('エッジ'));
+    } else {
+        alert('URLが不正です: part=corner か part=edgeMiddle のどちらかを指定してください');
+        return;
+    }
 
     // URLでproblemListType=manualが指定された場合、自分が設定した問題でやる
     const problemListType = urlObj.query.problemListType === ProblemListType.manual.name ? ProblemListType.manual : ProblemListType.all;
 
     // 登録済の3-styleを持っておく
     const threeStyleOptions = {
-        url: `${config.apiRoot}/threeStyle/corner?userName=${userName}`,
+        url: `${config.apiRoot}/threeStyle/${part.name}?userName=${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -204,7 +221,7 @@ const init = () => {
 
     // クイズ履歴
     const quizOptions = {
-        url: `${config.apiRoot}/threeStyleQuizLog/corner/${userName}`,
+        url: `${config.apiRoot}/threeStyleQuizLog/${part.name}/${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -215,7 +232,7 @@ const init = () => {
 
     // ナンバリング
     const numberingOptions = {
-        url: `${config.apiRoot}/numbering/corner/${userName}`,
+        url: `${config.apiRoot}/numbering/${part.name}/${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -237,7 +254,7 @@ const init = () => {
 
     // 登録した問題
     const problemListOptions = {
-        url: `${config.apiRoot}/threeStyleQuizList/corner/${userName}`,
+        url: `${config.apiRoot}/threeStyleQuizList/${part.name}/${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -310,12 +327,12 @@ const init = () => {
                                             hintText.value = hints.join('\nまたは\n');
 
                                             quizFormStartUnixTimeHidden.value = String(new Date().getTime());
-                                            okBtn.addEventListener('click', () => submit(letterPairs, numberings, selectedThreeStyles, 1));
-                                            ngBtn.addEventListener('click', () => submit(letterPairs, numberings, selectedThreeStyles, 0));
+                                            okBtn.addEventListener('click', () => submit(part, letterPairs, numberings, selectedThreeStyles, 1));
+                                            ngBtn.addEventListener('click', () => submit(part, letterPairs, numberings, selectedThreeStyles, 0));
                                             hintBtn.addEventListener('click', showHint);
 
                                             // 左右のキーのショートカット
-                                            document.onkeyup = keyUpAction(letterPairs, numberings, selectedThreeStyles);
+                                            document.onkeyup = keyUpAction(part, letterPairs, numberings, selectedThreeStyles);
                                         })
                                         .catch((err) => {
                                             alert('1' + err);
