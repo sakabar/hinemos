@@ -1,4 +1,5 @@
 const rp = require('request-promise');
+const url = require('url');
 const constant = require('./constant');
 const config = require('./config');
 
@@ -31,7 +32,7 @@ const searchThreeStyles = (part) => {
         form: {},
     };
 
-    rp(threeStyleOptions)
+    return rp(threeStyleOptions)
         .then((ans) => {
             const results = ans.success.result;
             // const stickersHash = {};
@@ -85,14 +86,12 @@ const deleteCandStickers = (text) => {
     deleteCandAreaUlistNode.appendChild(liNode);
 };
 
-const submit = () => {
+const submit = (part) => {
     // 追加候補になっているものをまとめて、POST
     const token = localStorage.token;
     const registeredLiNodes = document.querySelectorAll('.editQuizListForm__registeredArea .editQuizListForm__uList li');
     const addCandLiNodes = document.querySelectorAll('.editQuizListForm__addCandArea .editQuizListForm__uList--cand li');
     const deleteCandLiNodes = document.querySelectorAll('.editQuizListForm__deleteCandArea .editQuizListForm__uList--cand li');
-
-    const part = constant.partType.corner; // FIXME
 
     // "UBL UFR DFR" -> true
     const stickersHash = {};
@@ -100,7 +99,7 @@ const submit = () => {
     // 最初から登録済のものをONに
     for (let i = 0; i < registeredLiNodes.length; i++) {
         const text = registeredLiNodes[i].textContent;
-        const m = text.match(/\((\S{3} \S{3} \S{3})\)/);
+        const m = text.match(/\((\S{2,3} \S{2,3} \S{2,3})\)/);
         if (!m) {
             continue;
         }
@@ -112,7 +111,7 @@ const submit = () => {
     // 追加候補のものをONに
     for (let i = 0; i < addCandLiNodes.length; i++) {
         const text = addCandLiNodes[i].textContent;
-        const m = text.match(/\((\S{3} \S{3} \S{3})\)/);
+        const m = text.match(/\((\S{2,3} \S{2,3} \S{2,3})\)/);
         if (!m) {
             continue;
         }
@@ -124,7 +123,7 @@ const submit = () => {
     // 削除候補のものをOFFに
     for (let i = 0; i < deleteCandLiNodes.length; i++) {
         const text = deleteCandLiNodes[i].textContent;
-        const m = text.match(/\((\S{3} \S{3} \S{3})\)/);
+        const m = text.match(/\((\S{2,3} \S{2,3} \S{2,3})\)/);
         if (!m) {
             continue;
         }
@@ -142,7 +141,7 @@ const submit = () => {
             continue;
         }
 
-        const m = stickers.match(/(\S{3}) (\S{3}) (\S{3})/);
+        const m = stickers.match(/(\S{2,3}) (\S{2,3}) (\S{2,3})/);
         if (!m) {
             continue;
         }
@@ -172,7 +171,7 @@ const submit = () => {
         },
     };
 
-    rp(options)
+    return rp(options)
         .then(() => {
             alert('登録しました');
         })
@@ -208,11 +207,11 @@ const loadList = (part) => {
 
     const registeredAreaUlistNode = document.querySelector('.editQuizListForm__registeredArea .editQuizListForm__uList');
 
-    rp(numberingOptions)
+    return rp(numberingOptions)
         .then((ans) => {
             const numberings = ans.success.result;
 
-            rp(problemListOptions)
+            return rp(problemListOptions)
                 .then((ans) => {
                     const results = ans.success.result;
 
@@ -245,17 +244,35 @@ const init = () => {
     // 内部表現
     // const addCandHash = {};
     // const deleteCandHash = {};
+    const h2Part = document.querySelector('.h2__part');
+
+    const urlObj = url.parse(location.href, true);
+
+    // URLのオプションでpart=(corner|edgeMiddle)という形式で、パートが渡される
+    // それ以外の場合はエラー
+    const partQuery = urlObj.query.part;
+    let part;
+    if (partQuery === 'corner') {
+        part = constant.partType.corner;
+        h2Part.appendChild(document.createTextNode('コーナー'));
+    } else if (partQuery === 'edgeMiddle') {
+        part = constant.partType.edgeMiddle;
+        h2Part.appendChild(document.createTextNode('エッジ'));
+    } else {
+        alert('URLが不正です: part=corner か part=edgeMiddle のどちらかを指定してください');
+        return;
+    }
 
     const inputText = document.querySelector('.editQuizListForm__inputArea__text');
-    inputText.addEventListener('keyup', searchThreeStyles);
+    inputText.addEventListener('keyup', () => searchThreeStyles(part));
 
     const buttons = document.querySelectorAll('.editQuizListForm__submitBtn');
     for (let i = 0; i < buttons.length; i++) {
         const button = buttons[i];
-        button.addEventListener('click', submit);
+        button.addEventListener('click', () => submit(part));
     }
 
-    loadList();
+    loadList(part);
 };
 
 init();
