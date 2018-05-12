@@ -13,6 +13,7 @@ module.exports = {
         m2Method: './m2Method.js',
         mypage: './mypage.js',
         numbering3: './numbering3.js',
+        registerFaceColor: './registerFaceColor.js',
         registerLetterPair: './registerLetterPair.js',
         registerThreeStyle: './registerThreeStyle.js',
         showThreeStyleCorner: './showThreeStyleCorner.js',
