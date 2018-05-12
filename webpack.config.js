@@ -24,6 +24,7 @@ module.exports = {
         threeStyleQuiz: './threeStyleQuiz.js',
         threeStyleQuizCornerStats: './threeStyleQuizCornerStats.js',
         transformFromAnalysis: './transformFromAnalysis.js',
+        tutorialAnalysisForBeginner: './tutorialAnalysisForBeginner.js',
     },
     output: {
         path: path.join(__dirname, '/dist'),
