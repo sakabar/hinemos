@@ -7,7 +7,6 @@ module.exports = {
         auth: './auth.js',
         errorPage: './errorPage.js',
         editThreeStyleQuizList: './editThreeStyleQuizList.js',
-        forBeginner: './forBeginner.js',
         index: './index.js',
         letterPairTable: './letterPairTable.js',
         letterPairQuiz: './letterPairQuiz.js',
@@ -25,6 +24,7 @@ module.exports = {
         threeStyleQuiz: './threeStyleQuiz.js',
         threeStyleQuizCornerStats: './threeStyleQuizCornerStats.js',
         transformFromAnalysis: './transformFromAnalysis.js',
+        tutorialAnalysisForBeginner: './tutorialAnalysisForBeginner.js',
     },
     output: {
         path: path.join(__dirname, '/dist'),
