@@ -1,15 +1,16 @@
 const rp = require('request-promise');
 const url = require('url');
 const config = require('./config');
+const constant = require('./constant');
 const utils = require('./utils');
 
-const checkNew = () => {
-    const lettersText = document.querySelector('.registerThreeStyleCornerForm__lettersText');
+const checkNew = (part) => {
+    const lettersText = document.querySelector('.registerThreeStyleForm__lettersText');
     const userName = localStorage.userName;
     const letters = lettersText.value.replace(/\s*/g, '');
 
     const options = {
-        url: `${config.apiRoot}/threeStyleFromLetters/corner?userName=${userName}&letters=${letters}`,
+        url: `${config.apiRoot}/threeStyleFromLetters/${part.name}?userName=${userName}&letters=${letters}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -34,11 +35,11 @@ const checkNew = () => {
         });
 };
 
-const saveThreeStyleCorner = () => {
-    const lettersText = document.querySelector('.registerThreeStyleCornerForm__lettersText');
-    const setupText = document.querySelector('.registerThreeStyleCornerForm__setupText');
-    const move1Text = document.querySelector('.registerThreeStyleCornerForm__move1Text');
-    const move2Text = document.querySelector('.registerThreeStyleCornerForm__move2Text');
+const saveThreeStyle = (part) => {
+    const lettersText = document.querySelector('.registerThreeStyleForm__lettersText');
+    const setupText = document.querySelector('.registerThreeStyleForm__setupText');
+    const move1Text = document.querySelector('.registerThreeStyleForm__move1Text');
+    const move2Text = document.querySelector('.registerThreeStyleForm__move2Text');
 
     const userName = localStorage.userName;
     const token = localStorage.token;
@@ -60,7 +61,7 @@ const saveThreeStyleCorner = () => {
 
     // ひらがなをステッカーに変換する
     const numberingOptions = {
-        url: `${config.apiRoot}/numbering/corner/${userName}?letters=${letters}`,
+        url: `${config.apiRoot}/numbering/${part.name}/${userName}?letters=${letters}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -98,7 +99,7 @@ const saveThreeStyleCorner = () => {
             }
 
             const threeStyleOptions = {
-                url: `${config.apiRoot}/threeStyle/corner`,
+                url: `${config.apiRoot}/threeStyle/${part.name}`,
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -135,7 +136,7 @@ const saveThreeStyleCorner = () => {
                     move2Text.value = tmpSwap;
 
                     // 登録済かどうか確認
-                    checkNew()
+                    return checkNew()
                         .then((isNew) => {
                             // 登録済でない場合、空にする
                             if (!isNew) {
@@ -164,20 +165,37 @@ const saveThreeStyleCorner = () => {
 };
 
 const init = () => {
-    const saveBtn = document.querySelector('.registerThreeStyleCornerForm__saveBtn');
-    const checkBtn = document.querySelector('.registerThreeStyleCornerForm__checkBtn');
+    const saveBtn = document.querySelector('.registerThreeStyleForm__saveBtn');
+    const checkBtn = document.querySelector('.registerThreeStyleForm__checkBtn');
+    const lettersText = document.querySelector('.registerThreeStyleForm__lettersText');
+    const h2Part = document.querySelector('.h2__part');
 
-    saveBtn.addEventListener('click', saveThreeStyleCorner);
-    checkBtn.addEventListener('click', checkNew);
+    const urlObj = url.parse(location.href, true);
+
+    // URLのオプションでpart=(corner|edgeMiddle)という形式で、パートが渡される
+    // それ以外の場合はエラー
+    const partQuery = urlObj.query.part;
+    let part;
+    if (partQuery === 'corner') {
+        part = constant.partType.corner;
+        h2Part.appendChild(document.createTextNode('コーナー'));
+    } else if (partQuery === 'edgeMiddle') {
+        part = constant.partType.edgeMiddle;
+        h2Part.appendChild(document.createTextNode('エッジ'));
+    } else {
+        alert('URLが不正です: part=corner か part=edgeMiddle のどちらかを指定してください');
+        return;
+    }
 
     // URLのオプションでletters=hoge形式で渡された場合、自動的にlettersTextの値として入力
-    const lettersText = document.querySelector('.registerThreeStyleCornerForm__lettersText');
-    const urlObj = url.parse(location.href, true);
     const lettersQuery = urlObj.query.letters;
     if (lettersQuery) {
         lettersText.value = lettersQuery;
-        checkNew();
+        checkNew(part);
     }
+
+    saveBtn.addEventListener('click', () => saveThreeStyle(part));
+    checkBtn.addEventListener('click', () => checkNew(part));
 };
 
 init();

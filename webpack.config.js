@@ -14,7 +14,7 @@ module.exports = {
         mypage: './mypage.js',
         numbering3: './numbering3.js',
         registerLetterPair: './registerLetterPair.js',
-        registerThreeStyleCorner: './registerThreeStyleCorner.js',
+        registerThreeStyle: './registerThreeStyle.js',
         showThreeStyleCorner: './showThreeStyleCorner.js',
         signup: './signup.js',
         signin: './signin.js',
