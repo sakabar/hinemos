@@ -1,7 +1,17 @@
 <!doctype html>
 <html lang="ja">
   <head>
-    <title>3-style corner Quiz 問題リスト編集</title>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-119101911-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-119101911-1');
+    </script>
+
+    <title>3-style Quiz 問題リスト編集</title>
     <meta charset="UTF-8">
     <meta name="robots" content="noindex,nofollow,noarchive">
     <meta http-equiv="pragma" content="no-store">
@@ -9,9 +19,9 @@
     <meta name="expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../common.css?version=v0.7.3">
-    <link rel="stylesheet" type="text/css" href="../editQuizList.css?version=v0.7.3">
-    <script type="text/javascript" src="../auth.bundle.js?version=v0.7.3"></script>
+    <link rel="stylesheet" type="text/css" href="../common.css?version=v0.8.0">
+    <link rel="stylesheet" type="text/css" href="../editQuizList.css?version=v0.8.0">
+    <script type="text/javascript" src="../auth.bundle.js?version=v0.8.0"></script>
   </head>
 
   <body>
@@ -25,9 +35,10 @@
 
     <main>
       <h1>問題リスト編集</h1>
+      <h2 class="h2__part"></h2>
+
       <form class="editQuizListForm">
         <input type="button" class="editQuizListForm__submitBtn" value="追加と削除を保存">
-        <!-- <input type="button" class="editQuizListForm__submitBtn" value="保存"> -->
 
         <h2>追加</h2>
         <div class="editQuizListForm__box">
@@ -65,9 +76,8 @@
         </div>
         <input type="button" class="editQuizListForm__submitBtn" value="追加と削除を保存">
       </form>
-
     </main>
 
-    <script type="text/javascript" src="../editThreeStyleQuizListCorner.bundle.js?version=v0.7.3"></script>
+    <script type="text/javascript" src="../editThreeStyleQuizList.bundle.js?version=v0.8.0"></script>
   </body>
 </html>

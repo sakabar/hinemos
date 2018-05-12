@@ -1,14 +1,34 @@
 const assert = require('assert');
-const threeStyleQuizCorner = require('../src/js/threeStyleQuizCorner');
+const threeStyleQuiz = require('../src/js/threeStyleQuiz');
 
-describe('threeStyleQuizCorner.js', () => {
+describe('threeStyleQuiz.js', () => {
+    describe('getHint()', () => {
+        it('正常系: セットアップなし', () => {
+            const actual = threeStyleQuiz.getHint('', 'U', 'R D\' R\'');
+            const expected = '(セットアップなし)';
+            assert.deepEqual(actual, expected);
+        });
+
+        it('正常系: セットアップあり: セットアップとmove1の1手目を表示', () => {
+            const actual = threeStyleQuiz.getHint('D', 'U', 'R D\' R\'');
+            const expected = '[D [U    ]]';
+            assert.deepEqual(actual, expected);
+        });
+
+        it('正常系: cyclic_shift: 4手目まで表示', () => {
+            const actual = threeStyleQuiz.getHint('D Rw2 U R U\' Rw2 D R\' D2', '', '');
+            const expected = '[D Rw2 U R    ]';
+            assert.deepEqual(actual, expected);
+        });
+    });
+
     describe('selectFromManualList()', () => {
         it('正常系: problemListが空', () => {
-            assert.deepEqual(threeStyleQuizCorner.selectFromManualList([ null, ], []), []);
+            assert.deepEqual(threeStyleQuiz.selectFromManualList([ null, ], []), []);
         });
 
         it('正常系: threeStylesが空', () => {
-            assert.deepEqual(threeStyleQuizCorner.selectFromManualList([], [ null, ]), []);
+            assert.deepEqual(threeStyleQuiz.selectFromManualList([], [ null, ]), []);
         });
 
         it('正常系: どちらも空ではない', () => {
@@ -23,7 +43,7 @@ describe('threeStyleQuizCorner.js', () => {
                 { id: 101, userName: 'user1', buffer: 'UBL', sticker1: 'UFR', sticker2: 'RDF', stickers: 'UBL UFR RDF', },
                 { id: 102, userName: 'user1', buffer: 'UBL', sticker1: 'UFR', sticker2: 'LDF', stickers: 'UBL UFR LDF', },
             ];
-            const actual = threeStyleQuizCorner.selectFromManualList(threeStyles, problemList).map(x => x.id);
+            const actual = threeStyleQuiz.selectFromManualList(threeStyles, problemList).map(x => x.id);
             const expected = [ 1, 2, ];
 
             assert.deepEqual(actual, expected);
@@ -42,7 +62,7 @@ describe('threeStyleQuizCorner.js', () => {
                 { id: 102, userName: 'user1', buffer: 'UBL', sticker1: 'UFR', sticker2: 'LDF', stickers: 'UBL UFR LDF', },
                 { id: 103, userName: 'user1', buffer: 'UBL', sticker1: 'UFR', sticker2: 'FDR', stickers: 'UBL UFR FDR', },
             ];
-            const actual = threeStyleQuizCorner.selectFromManualList(threeStyles, problemList).map(x => x.id);
+            const actual = threeStyleQuiz.selectFromManualList(threeStyles, problemList).map(x => x.id);
             const expected = [ 1, 2, ];
 
             assert.deepEqual(actual, expected);
