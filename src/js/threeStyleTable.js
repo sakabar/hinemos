@@ -1,12 +1,14 @@
 import Handsontable from 'handsontable';
 import 'handsontable.css';
 const rp = require('request-promise');
+const url = require('url');
 const config = require('./config');
+const constant = require('./constant');
 const utils = require('./utils');
 
-const getCornerNumbering = (userName) => {
+const getNumbering = (userName, part) => {
     const options = {
-        url: `${config.apiRoot}/numbering/corner/${userName}`,
+        url: `${config.apiRoot}/numbering/${part.name}/${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -30,9 +32,9 @@ const getCornerNumbering = (userName) => {
         });
 };
 
-const getThreeStyleCorners = (userName) => {
+const getThreeStyles = (userName, part) => {
     const options = {
-        url: `${config.apiRoot}/threeStyle/corner?userName=${userName}`,
+        url: `${config.apiRoot}/threeStyle/${part.name}?userName=${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -51,9 +53,9 @@ const getThreeStyleCorners = (userName) => {
         });
 };
 
-const getThreeStyleCornerLogs = (userName) => {
+const getThreeStyleLogs = (userName, part) => {
     const options = {
-        url: `${config.apiRoot}/threeStyleQuizLog/corner/${userName}`,
+        url: `${config.apiRoot}/threeStyleQuizLog/${part.name}/${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -72,13 +74,13 @@ const getThreeStyleCornerLogs = (userName) => {
         });
 };
 
-// userName, numberingCorner(のsuccess.result部分), threeStyleCorner(のsuccess.result部分)を
+// userName, numbering(のsuccess.result部分), threeStyle(のsuccess.result部分)を
 // 受け取り、セルに表示するデータを返す
 // 余裕があったらテストを書こう FIXME
-const generateTableData = (userName, numberingCornerIn, threeStyleCorner) => {
-    const numberingCorner = numberingCornerIn.filter(numbering => numbering.letter !== '@'); // この関数内では、バッファの情報は使わない
-    const letters = numberingCorner.map(a => a.letter);
-    const fstRow = [ ' 3rd \\ 2nd ', ...numberingCorner.map(a => `${a.letter} (${a.sticker})`), ];
+const generateTableData = (userName, numberingIn, threeStyles) => {
+    const numbering = numberingIn.filter(numbering => numbering.letter !== '@'); // この関数内では、バッファの情報は使わない
+    const letters = numbering.map(a => a.letter);
+    const fstRow = [ ' 3rd \\ 2nd ', ...numbering.map(a => `${a.letter} (${a.sticker})`), ];
     const ans = [ fstRow, ];
 
     for (let i = 0; i < letters.length; i++) {
@@ -88,10 +90,10 @@ const generateTableData = (userName, numberingCornerIn, threeStyleCorner) => {
         for (let k = 0; k < letters.length; k++) {
             const letter2nd = letters[k];
 
-            const sticker1 = numberingCorner.filter(a => a.letter === letter2nd)[0].sticker;
-            const sticker2 = numberingCorner.filter(a => a.letter === letter3rd)[0].sticker;
+            const sticker1 = numbering.filter(a => a.letter === letter2nd)[0].sticker;
+            const sticker2 = numbering.filter(a => a.letter === letter3rd)[0].sticker;
 
-            const threeStyle = threeStyleCorner.filter(a => a.sticker1 === sticker1 && a.sticker2 === sticker2);
+            const threeStyle = threeStyles.filter(a => a.sticker1 === sticker1 && a.sticker2 === sticker2);
 
             // 同じステッカーに対して複数の手順が登録されていた場合は、', '区切りで出力(半角スペースが入っているので注意)
             const threeStyleStr = threeStyle.map(st => utils.showMove(st.setup, st.move1, st.move2)).join(', ');
@@ -104,7 +106,7 @@ const generateTableData = (userName, numberingCornerIn, threeStyleCorner) => {
     return ans;
 };
 
-const saveThreeStyleTable = (hot, numberingCorner) => {
+const saveThreeStyleTable = (hot, part, numbering) => {
     // ダブルクリックによる誤作動を防ぐ
     const saveBtn = document.querySelector('.threeStyleTableForm__saveBtn');
     saveBtn.disabled = true;
@@ -114,7 +116,7 @@ const saveThreeStyleTable = (hot, numberingCorner) => {
     const row0 = hot.getDataAtRow(0);
     const col0 = hot.getDataAtCol(0);
 
-    const buffer = numberingCorner.filter(x => x.letter === '@')[0];
+    const buffer = numbering.filter(x => x.letter === '@')[0];
     const bufferSticker = buffer.sticker;
 
     const rowLn = row0.length;
@@ -171,7 +173,7 @@ const saveThreeStyleTable = (hot, numberingCorner) => {
     }
 
     const options = {
-        url: `${config.apiRoot}/threeStyleCornerTable`,
+        url: `${config.apiRoot}/threeStyleTable/${part.name}`,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -189,7 +191,7 @@ const saveThreeStyleTable = (hot, numberingCorner) => {
         return;
     }
 
-    rp(options)
+    return rp(options)
         .then((result) => {
             alert('保存が完了しました');
             saveBtn.disabled = false;
@@ -204,15 +206,33 @@ const saveThreeStyleTable = (hot, numberingCorner) => {
 
 const init = () => {
     const userName = localStorage.userName;
+    const h2Part = document.querySelector('.h2__part');
 
     const saveBtn = document.querySelector('.threeStyleTableForm__saveBtn');
     saveBtn.disabled = true; // ロードが完了する前は押せないようにする
 
-    getCornerNumbering(userName)
-        .then((numberingCorner) => {
-            getThreeStyleCorners(userName)
-                .then((threeStyleCorner) => {
-                    const tableData = generateTableData(userName, numberingCorner, threeStyleCorner);
+    const urlObj = url.parse(location.href, true);
+
+    // URLのオプションでpart=(corner|edgeMiddle)という形式で、パートが渡される
+    // それ以外の場合はエラー
+    const partQuery = urlObj.query.part;
+    let part;
+    if (partQuery === 'corner') {
+        part = constant.partType.corner;
+        h2Part.appendChild(document.createTextNode('コーナー'));
+    } else if (partQuery === 'edgeMiddle') {
+        part = constant.partType.edgeMiddle;
+        h2Part.appendChild(document.createTextNode('エッジ'));
+    } else {
+        alert('URLが不正です: part=corner か part=edgeMiddle のどちらかを指定してください');
+        return;
+    }
+
+    return getNumbering(userName, part)
+        .then((numbering) => {
+            return getThreeStyles(userName, part)
+                .then((threeStyle) => {
+                    const tableData = generateTableData(userName, numbering, threeStyle);
 
                     const container = document.querySelector('.viewThreeStyleTable__table');
 
@@ -233,14 +253,14 @@ const init = () => {
                         },
                     });
 
-                    saveBtn.addEventListener('click', () => saveThreeStyleTable(hot, numberingCorner));
+                    saveBtn.addEventListener('click', () => saveThreeStyleTable(hot, part, numbering));
                     saveBtn.disabled = false; // もし後続の色付けに失敗したとしても、保存はできるようにする
 
                     // クイズのタイムに応じて色を付ける
-                    getThreeStyleCornerLogs(userName)
-                        .then((threeStyleCornerLog) => {
-                            const buffer = numberingCorner.filter(a => a.letter === '@')[0].sticker;
-                            const stickers = numberingCorner.filter(numbering => numbering.letter !== '@').map(a => a.sticker);
+                    return getThreeStyleLogs(userName, part)
+                        .then((threeStyleLogs) => {
+                            const buffer = numbering.filter(a => a.letter === '@')[0].sticker;
+                            const stickers = numbering.filter(numbering => numbering.letter !== '@').map(a => a.sticker);
 
                             // 0行目、0列目はヘッダ行/カラムなので、1から始まる
                             for (let rowInd = 1; rowInd <= stickers.length; rowInd++) {
@@ -250,7 +270,7 @@ const init = () => {
                                     const sticker1 = stickers[colInd - 1];
                                     const td = hot.getCell(rowInd, colInd);
 
-                                    const threeStyleLog = threeStyleCornerLog.filter(a => a.buffer === buffer && a.sticker1 === sticker1 && a.sticker2 === sticker2);
+                                    const threeStyleLog = threeStyleLogs.filter(a => a.buffer === buffer && a.sticker1 === sticker1 && a.sticker2 === sticker2);
 
                                     if (threeStyleLog && threeStyleLog.length !== 0) {
                                         // 秒数の記録があったら、その記録に応じて色を付ける
