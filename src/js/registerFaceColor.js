@@ -12,7 +12,7 @@ const defaultColor = {
     D: '黄',
 };
 
-const load = (userName) => {
+const getFaceColors = (userName) => {
     const options = {
         url: `${config.apiRoot}/faceColor/${userName}`,
         method: 'GET',
@@ -23,10 +23,19 @@ const load = (userName) => {
         form: {},
     };
 
+    // FIXME 本当はPromiseを外して返したい
     return rp(options)
-        .then((result) => {
-            const faceColors = result.success.result;
+        .then((ans) => {
+            return ans.success.result;
+        })
+        .catch(() => {
+            return [];
+        });
+};
 
+const load = (userName) => {
+    getFaceColors(userName)
+        .then((faceColors) => {
             for (let i = 0; i < faceColors.length; i++) {
                 const faceColor = faceColors[i];
                 const text = document.querySelector(`.registerFaceColorForm__text--${faceColor.face}`);
@@ -87,3 +96,5 @@ const init = () => {
 };
 
 init();
+
+exports.getFaceColors = getFaceColors;
