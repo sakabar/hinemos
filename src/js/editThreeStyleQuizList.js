@@ -1,9 +1,10 @@
 const rp = require('request-promise');
+const constant = require('./constant');
 const config = require('./config');
 
 // テキストボックスに入ってる文字で検索
 // <あか|あ?|?か>
-const searchThreeStyles = () => {
+const searchThreeStyles = (part) => {
     const userName = localStorage.userName;
     const inputText = document.querySelector('.editQuizListForm__inputArea__text');
     const letters = inputText.value;
@@ -21,7 +22,7 @@ const searchThreeStyles = () => {
     };
 
     const threeStyleOptions = {
-        url: `${config.apiRoot}/threeStyleFromLetters/corner?userName=${userName}&letters=${letters}`,
+        url: `${config.apiRoot}/threeStyleFromLetters/${part.name}?userName=${userName}&letters=${letters}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -91,6 +92,8 @@ const submit = () => {
     const addCandLiNodes = document.querySelectorAll('.editQuizListForm__addCandArea .editQuizListForm__uList--cand li');
     const deleteCandLiNodes = document.querySelectorAll('.editQuizListForm__deleteCandArea .editQuizListForm__uList--cand li');
 
+    const part = constant.partType.corner; // FIXME
+
     // "UBL UFR DFR" -> true
     const stickersHash = {};
 
@@ -157,7 +160,7 @@ const submit = () => {
     }
 
     const options = {
-        url: `${config.apiRoot}/threeStyleQuizList/corner`,
+        url: `${config.apiRoot}/threeStyleQuizList/${part.name}`,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -179,11 +182,11 @@ const submit = () => {
 };
 
 // 登録済の問題リストを読み込んで表示
-const loadList = () => {
+const loadList = (part) => {
     const userName = localStorage.userName;
 
     const problemListOptions = {
-        url: `${config.apiRoot}/threeStyleQuizList/corner/${userName}`,
+        url: `${config.apiRoot}/threeStyleQuizList/${part.name}/${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -194,7 +197,7 @@ const loadList = () => {
 
     // ナンバリング
     const numberingOptions = {
-        url: `${config.apiRoot}/numbering/corner/${userName}`,
+        url: `${config.apiRoot}/numbering/${part.name}/${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
