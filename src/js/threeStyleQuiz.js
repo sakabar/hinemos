@@ -188,6 +188,11 @@ const init = () => {
     const quizFormStartUnixTimeHidden = document.querySelector('.quizForm__startUnixTimeHidden');
     const h2Part = document.querySelector('.h2__part');
 
+    // テスト時などは以降の処理をスキップ
+    if (!quizFormLettersText) {
+        return;
+    }
+
     const urlObj = url.parse(location.href, true);
 
     // URLのオプションでpart=(corner|edgeMiddle)という形式で、パートが渡される
@@ -262,11 +267,6 @@ const init = () => {
         json: true,
         form: {},
     };
-
-    // テスト時などは以降の処理をスキップ
-    if (!quizFormLettersText) {
-        return;
-    }
 
     return rp(letterPairOptions)
         .then((ans) => {
