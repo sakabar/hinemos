@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-119101911-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-119101911-1');
+    </script>
+
+    <title>分析時の面の色登録</title>
+    <meta charset="UTF-8">
+    <meta name="robots" content="noindex,nofollow,noarchive">
+    <meta http-equiv="pragma" content="no-store">
+    <meta http-equiv="cache-control" content="no-store">
+    <meta name="expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="normalize.css">
+    <link rel="stylesheet" type="text/css" href="common.css?version=v0.7.3">
+    <script type="text/javascript" src="./auth.bundle.js?version=v0.7.3"></script>
+  </head>
+
+  <body>
+    <header>
+      <ul>
+        <li><a href="mypage.html">マイページ</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+        <li><a href="signout.html">サインアウト</a></li>
+      </ul>
+    </header>
+
+    <main>
+      <h1>分析時の面の色登録</h1>
+      <ul>
+        <li>ルービックキューブをどのような向きで持って分析するのかを登録してください</li>
+        <li>空欄の場合、デフォルトの色が入力されます</li>
+      </ul>
+
+      <form class="registerFaceColorForm">
+        <table>
+          <tr>
+            <td align="left">U面: </td>
+            <td align="left"><input class="registerFaceColorForm__text--U" type="text" placeholder="白"></td>
+          </tr>
+
+          <tr>
+            <td align="left">L面: </td>
+            <td align="left"><input class="registerFaceColorForm__text--L" type="text" placeholder="橙"></td>
+          </tr>
+
+          <tr>
+            <td align="left">F面: </td>
+            <td align="left"><input class="registerFaceColorForm__text--F" type="text" placeholder="緑"></td>
+          </tr>
+
+          <tr>
+            <td align="left">R面: </td>
+            <td align="left"><input class="registerFaceColorForm__text--R" type="text" placeholder="赤"></td>
+          </tr>
+
+          <tr>
+            <td align="left">B面: </td>
+            <td align="left"><input class="registerFaceColorForm__text--B" type="text" placeholder="青"></td>
+          </tr>
+
+          <tr>
+            <td align="left">D面: </td>
+            <td align="left"><input class="registerFaceColorForm__text--D" type="text" placeholder="黄"></td>
+          </tr>
+        </table>
+
+        <input class="registerFaceColorForm__btn" type="button" value="保存"><br>
+      </form>
+    </main>
+
+    <script type="text/javascript" src="./registerFaceColor.bundle.js?version=v0.7.3"></script>
+  </body>
+</html>

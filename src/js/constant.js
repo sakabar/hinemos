@@ -3,4 +3,7 @@ const partType = {
     edgeMiddle: { value: 1, name: 'edgeMiddle', },
 };
 
+const faces = [ 'B', 'D', 'F', 'L', 'R', 'U', ];
+
 exports.partType = partType;
+exports.faces = faces;
