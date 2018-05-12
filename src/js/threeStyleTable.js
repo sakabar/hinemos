@@ -1,6 +1,7 @@
 import Handsontable from 'handsontable';
 import 'handsontable.css';
 const rp = require('request-promise');
+const url = require('url');
 const config = require('./config');
 const constant = require('./constant');
 const utils = require('./utils');
@@ -190,7 +191,7 @@ const saveThreeStyleTable = (hot, part, numbering) => {
         return;
     }
 
-    rp(options)
+    return rp(options)
         .then((result) => {
             alert('保存が完了しました');
             saveBtn.disabled = false;
@@ -205,15 +206,31 @@ const saveThreeStyleTable = (hot, part, numbering) => {
 
 const init = () => {
     const userName = localStorage.userName;
+    const h2Part = document.querySelector('.h2__part');
 
     const saveBtn = document.querySelector('.threeStyleTableForm__saveBtn');
     saveBtn.disabled = true; // ロードが完了する前は押せないようにする
 
-    const part = constant.partType.corner; // FIXME
+    const urlObj = url.parse(location.href, true);
 
-    getNumbering(userName, part)
+    // URLのオプションでpart=(corner|edgeMiddle)という形式で、パートが渡される
+    // それ以外の場合はエラー
+    const partQuery = urlObj.query.part;
+    let part;
+    if (partQuery === 'corner') {
+        part = constant.partType.corner;
+        h2Part.appendChild(document.createTextNode('コーナー'));
+    } else if (partQuery === 'edgeMiddle') {
+        part = constant.partType.edgeMiddle;
+        h2Part.appendChild(document.createTextNode('エッジ'));
+    } else {
+        alert('URLが不正です: part=corner か part=edgeMiddle のどちらかを指定してください');
+        return;
+    }
+
+    return getNumbering(userName, part)
         .then((numbering) => {
-            getThreeStyles(userName, part)
+            return getThreeStyles(userName, part)
                 .then((threeStyle) => {
                     const tableData = generateTableData(userName, numbering, threeStyle);
 
@@ -240,7 +257,7 @@ const init = () => {
                     saveBtn.disabled = false; // もし後続の色付けに失敗したとしても、保存はできるようにする
 
                     // クイズのタイムに応じて色を付ける
-                    getThreeStyleLogs(userName, part)
+                    return getThreeStyleLogs(userName, part)
                         .then((threeStyleLogs) => {
                             const buffer = numbering.filter(a => a.letter === '@')[0].sticker;
                             const stickers = numbering.filter(numbering => numbering.letter !== '@').map(a => a.sticker);
