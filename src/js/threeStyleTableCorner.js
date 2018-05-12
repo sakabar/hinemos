@@ -171,7 +171,7 @@ const saveThreeStyleTable = (hot, numberingCorner) => {
     }
 
     const options = {
-        url: `${config.apiRoot}/threeStyleCornerTable`,
+        url: `${config.apiRoot}/threeStyleTable/corner`,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
