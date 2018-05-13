@@ -281,5 +281,32 @@ describe('threeStyleScrambler.js', () => {
             assert.deepEqual(actual.includes(ts3), true);
             assert.deepEqual(isValid(actual), true);
         });
+
+        it('正常系: 入力された3-styleが2つで、複複がある場合、どちらかが選ばれる', () => {
+            const ts1 = {
+                buffer: 'DF',
+                sticker1: 'FU',
+                sticker2: 'UB',
+                setup: 'D U M M y',
+                move1: '',
+                move2: '',
+            };
+
+            const ts2 = {
+                buffer: 'DF',
+                sticker1: 'FU',
+                sticker2: 'UR',
+                setup: 'D U M M y',
+                move1: '',
+                move2: '',
+            };
+
+            const arg = [ ts1, ts2, ];
+
+            const actual = threeStyleScramblerJS.pickThreeStyles(arg);
+
+            assert.deepEqual(actual.length, 1);
+            assert.deepEqual(actual.includes(ts1) || actual.includes(ts2), true);
+        });
     });
 });
