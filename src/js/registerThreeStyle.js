@@ -70,7 +70,7 @@ const saveThreeStyle = (part) => {
         form: {},
     };
 
-    rp(numberingOptions)
+    return rp(numberingOptions)
         .then((ans) => {
             const result = ans.success.result;
             if (result.length !== 3) {
@@ -136,7 +136,7 @@ const saveThreeStyle = (part) => {
                     move2Text.value = tmpSwap;
 
                     // 登録済かどうか確認
-                    return checkNew()
+                    return checkNew(part)
                         .then((isNew) => {
                             // 登録済でない場合、空にする
                             if (!isNew) {
