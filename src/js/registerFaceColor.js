@@ -3,15 +3,6 @@ const config = require('./config');
 const constant = require('./constant');
 // const utils = require('./utils');
 
-const defaultColor = {
-    U: '白',
-    L: '橙',
-    F: '緑',
-    R: '赤',
-    B: '青',
-    D: '黄',
-};
-
 const getFaceColors = (userName) => {
     const options = {
         url: `${config.apiRoot}/faceColor/${userName}`,
@@ -57,7 +48,7 @@ const save = () => {
         const text = document.querySelector(`.registerFaceColorForm__text--${face}`);
 
         // 空欄もしくはスペースしか入力されていない場合、デフォルトの色を入力
-        const color = (text.value.match(/^\s*$/)) ? defaultColor[face] : text.value;
+        const color = (text.value.match(/^\s*$/)) ? constant.defaultColor[face] : text.value;
 
         faceColor[face] = color;
     }
