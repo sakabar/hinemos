@@ -1,4 +1,8 @@
+const Cube = require('cubejs');
+require('cubejs/lib/solve.js');
 const shuffle = require('shuffle-array');
+const constant = require('./constant');
+const threeStyleUtils = require('./threeStyleUtils');
 const utils = require('./utils');
 
 // sticker1とsticker2のパーツを、若い順に並べる
@@ -82,8 +86,67 @@ const pickThreeStyles = (threeStyles) => {
     return ans;
 };
 
+// ランダムに3-styleを選び、それらを使うスクランブルを生成
+const getSingleScramble = (threeStylesCorner, threeStylesEdgeMiddle) => {
+    // 逆順にして1つずつ処理
+    // 例: "さみ あか たに"をやりたい -> inv(たに) inv(あか) inv(さみ) で崩した時のsolve の逆順が、欲しいスクランブル
+    const pickedThreeStylesCorner = pickThreeStyles(threeStylesCorner).reverse();
+    const pickedThreeStylesEdgeMiddle = pickThreeStyles(threeStylesEdgeMiddle).reverse();
+
+    const cube = new Cube();
+
+    for (let i = 0; i < pickedThreeStylesCorner.length; i++) {
+        const ts = pickedThreeStylesCorner[i];
+        const expanded = utils.expandMove(ts.setup, ts.move1, ts.move2);
+        cube.move(Cube.inverse(expanded));
+    }
+
+    for (let i = 0; i < pickedThreeStylesEdgeMiddle.length; i++) {
+        const ts = pickedThreeStylesEdgeMiddle[i];
+        const expanded = utils.expandMove(ts.setup, ts.move1, ts.move2);
+        cube.move(Cube.inverse(expanded));
+    }
+
+    Cube.initSolver();
+    const ansMoves = cube.solve();
+    return Cube.inverse(ansMoves);
+};
+
+const getScrambles = (cnt, useCorner, useEdgeMiddle, threeStylesCorner, threeStylesEdgeMiddle) => {
+    const argThreeStylesCorner = useCorner ? threeStylesCorner : [];
+    const argThreeStylesEdgeMiddle = useEdgeMiddle ? threeStylesEdgeMiddle : [];
+
+    const ans = [];
+
+    for (let i = 0; i < cnt; i++) {
+        const scramble = getSingleScramble(argThreeStylesCorner, argThreeStylesEdgeMiddle);
+        ans.push(scramble);
+    }
+
+    return ans;
+};
+
 const init = () => {
-    //
+    const userName = localStorage.userName;
+
+    return threeStyleUtils.getThreeStyles(userName, constant.partType.corner)
+        .then((threeStylesCorner) => {
+            return threeStyleUtils.getThreeStyles(userName, constant.partType.edgeMiddle)
+                .then((threeStylesEdgeMiddle) => {
+                    // FIXME
+                    const cnt = 1;
+                    const useCorner = true;
+                    const useEdgeMiddle = false;
+                    const scrambles = getScrambles(cnt, useCorner, useEdgeMiddle, threeStylesCorner, threeStylesEdgeMiddle);
+                    alert(JSON.stringify(scrambles));
+                });
+        })
+        .catch(() => {
+            alert('エラー');
+        });
+
+    // FEから、エッジ/コーナー/両方読み込み
+    // FEから、スクランブルを出す数を読み込み (n)
 };
 
 init();

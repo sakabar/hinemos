@@ -1,4 +1,5 @@
 const chunk = require('chunk');
+const Cube = require('cubejs');
 const shuffle = require('shuffle-array');
 
 const corners = [
@@ -31,6 +32,21 @@ const showMove = (setup, move1, move2) => {
     } else {
         return `[${setup}, [${move1}, ${move2}]]`;
     }
+};
+
+// 3-styleの記法を展開し、moveの文字列にする
+const expandMove = (setup, move1, move2) => {
+    const t = getThreeStyleType(showMove(setup, move1, move2));
+
+    if (t === ThreeStyleType.pure) {
+        return [ move1, move2, Cube.inverse(move1), Cube.inverse(move2), ].join(' ');
+    } else if (t === ThreeStyleType.setup) {
+        return [ setup, move1, move2, Cube.inverse(move1), Cube.inverse(move2), Cube.inverse(setup), ].join(' ');
+    } else if (t === ThreeStyleType.seq) {
+        return setup;
+    }
+
+    return '';
 };
 
 const strMax = (s1, s2) => {
@@ -237,6 +253,7 @@ exports.corners = corners;
 exports.edges = edges;
 exports.getHiraganas = getHiraganas;
 exports.showMove = showMove;
+exports.expandMove = expandMove;
 exports.strMax = strMax;
 exports.strMin = strMin;
 exports.isInSameParts = isInSameParts;

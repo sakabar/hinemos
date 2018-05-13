@@ -2,7 +2,7 @@ const assert = require('assert');
 const utils = require('../src/js/utils');
 
 describe('utils.js', () => {
-    describe('showMove', () => {
+    describe('showMove()', () => {
         it('正常系: setupが空の場合', () => {
             assert.deepEqual(utils.showMove('', 'U', 'R D R\''), '[U, R D R\']');
         });
@@ -13,6 +13,26 @@ describe('utils.js', () => {
 
         it('正常系: setupのみの場合 (cyclic shift)', () => {
             assert.deepEqual(utils.showMove('D Rw2 U R U\' Rw2 D R\' D2', '', ''), '[D Rw2 U R U\' Rw2 D R\' D2]');
+        });
+    });
+
+    describe('expandMove()', () => {
+        it('正常系: pure', () => {
+            const actual = utils.expandMove('', 'U', 'R D R\'');
+            const expected = 'U R D R\' U\' R D\' R\'';
+            assert.deepEqual(actual, expected);
+        });
+
+        it('正常系: setup', () => {
+            const actual = utils.expandMove('M', 'U', 'R D R\'');
+            const expected = 'M U R D R\' U\' R D\' R\' M\'';
+            assert.deepEqual(actual, expected);
+        });
+
+        it('正常系: seq', () => {
+            const actual = utils.expandMove('R D R\'', '', '');
+            const expected = 'R D R\'';
+            assert.deepEqual(actual, expected);
         });
     });
 

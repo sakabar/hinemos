@@ -42,6 +42,7 @@
   "dependencies": {
     "chunk": "0.0.2",
     "count-array-values": "^1.2.1",
+    "cubejs": "^1.1.0",
     "handsontable": "^2.0.0",
     "mathjs": "^4.2.2",
     "net": "1.0.2",
