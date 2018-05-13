@@ -21,7 +21,7 @@ const embedFaceColor = (faceColors) => {
         for (let k = 0; k < spans.length; k++) {
             const span = spans[k];
             const tmpList = faceColors.filter(x => x.face === face);
-            const color = tmpList.length >= 1 ? tmpList[0].color : '(読み込み失敗)';
+            const color = tmpList.length >= 1 ? tmpList[0].color : constant.defaultColor[face];
             span.appendChild(document.createTextNode(color));
         }
     }
