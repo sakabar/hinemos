@@ -23,6 +23,7 @@ module.exports = {
         threeStyleTable: './threeStyleTable.js',
         threeStyleQuiz: './threeStyleQuiz.js',
         threeStyleQuizCornerStats: './threeStyleQuizCornerStats.js',
+        threeStyleScramber: './threeStyleScrambler.js',
         transformFromAnalysis: './transformFromAnalysis.js',
         tutorialAnalysisForBeginner: './tutorialAnalysisForBeginner.js',
     },
