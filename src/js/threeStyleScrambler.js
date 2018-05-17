@@ -95,22 +95,22 @@ const getSingleScramble = (threeStylesCorner, threeStylesEdgeMiddle) => {
 
     const cube = new Cube();
 
-    Cube.initSolver();
-
     for (let i = 0; i < pickedThreeStylesCorner.length; i++) {
         const ts = pickedThreeStylesCorner[i];
-        const expanded = utils.expandMove(ts.setup, ts.move1, ts.move2).replace(/Rw/g, 'r').replace(/Lw/g, 'l');
-        cube.move(Cube.inverse(expanded));
+        const expanded = utils.expandMove(ts.setup, ts.move1, ts.move2);
+        const s = utils.big2Small(utils.inverse(expanded));
+        cube.move(s);
     }
 
     for (let i = 0; i < pickedThreeStylesEdgeMiddle.length; i++) {
         const ts = pickedThreeStylesEdgeMiddle[i];
-        const expanded = utils.expandMove(ts.setup, ts.move1, ts.move2).replace(/Rw/g, 'r').replace(/Lw/g, 'l');
-        cube.move(Cube.inverse(expanded));
+        const expanded = utils.expandMove(ts.setup, ts.move1, ts.move2);
+        const s = utils.big2Small(utils.inverse(expanded));
+        cube.move(s);
     }
 
     const ansMoves = cube.solve();
-    return Cube.inverse(ansMoves);
+    return utils.inverse(ansMoves);
 };
 
 const getScrambles = (cnt, useCorner, useEdgeMiddle, threeStylesCorner, threeStylesEdgeMiddle) => {
@@ -130,6 +130,8 @@ const getScrambles = (cnt, useCorner, useEdgeMiddle, threeStylesCorner, threeSty
 const init = () => {
     const userName = localStorage.userName;
     const scramblesContainer = document.querySelector('.scrambles');
+
+    Cube.initSolver();
 
     return threeStyleUtils.getThreeStyles(userName, constant.partType.corner)
         .then((threeStylesCorner) => {

@@ -16,6 +16,20 @@ describe('utils.js', () => {
         });
     });
 
+    describe('inverse()', () => {
+        it('正常系:', () => {
+            const actual = utils.inverse('R');
+            const expected = 'R\'';
+            assert.deepEqual(actual, expected);
+        });
+
+        it('正常系:', () => {
+            const actual = utils.inverse('Rw2');
+            const expected = 'Rw2';
+            assert.deepEqual(actual, expected);
+        });
+    });
+
     describe('expandMove()', () => {
         it('正常系: pure', () => {
             const actual = utils.expandMove('', 'U', 'R D R\'');
@@ -26,6 +40,18 @@ describe('utils.js', () => {
         it('正常系: setup', () => {
             const actual = utils.expandMove('M', 'U', 'R D R\'');
             const expected = 'M U R D R\' U\' R D\' R\' M\'';
+            assert.deepEqual(actual, expected);
+        });
+
+        it('正常系: setup Lw\'', () => {
+            const actual = utils.expandMove('U\'', 'Lw\'', 'D');
+            const expected = 'U\' Lw\' D Lw D\' U';
+            assert.deepEqual(actual, expected);
+        });
+
+        it('正常系: setup Rw', () => {
+            const actual = utils.expandMove('U\'', 'Rw2', 'D');
+            const expected = 'U\' Rw2 D Rw2 D\' U';
             assert.deepEqual(actual, expected);
         });
 

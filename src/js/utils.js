@@ -34,14 +34,31 @@ const showMove = (setup, move1, move2) => {
     }
 };
 
+const big2Small = (s) => {
+    return s.replace(/Uw/g, 'u').replace(/Dw/g, 'd').replace(/Rw/g, 'r').replace(/Lw/g, 'l').replace(/Fw/g, 'f').replace(/Bw/g, 'b');
+};
+
+const small2Big = (s) => {
+    return s.replace(/u/g, 'Uw').replace(/d/g, 'Dw').replace(/r/g, 'Rw').replace(/l/g, 'Lw').replace(/f/g, 'Fw').replace(/b/g, 'Bw');
+};
+
+// 逆手順を求めるラッパー
+// LwやRwをl, rに変換してからinverse()
+const inverse = (s) => {
+    const replaced = big2Small(s);
+    return small2Big(Cube.inverse(replaced));
+};
+
 // 3-styleの記法を展開し、moveの文字列にする
+// LwやRwが含まれているとinverse()できないので変換
+// 最後には、lやrなくす
 const expandMove = (setup, move1, move2) => {
     const t = getThreeStyleType(showMove(setup, move1, move2));
 
     if (t === ThreeStyleType.pure) {
-        return [ move1, move2, Cube.inverse(move1), Cube.inverse(move2), ].join(' ');
+        return [ move1, move2, inverse(move1), inverse(move2), ].join(' ');
     } else if (t === ThreeStyleType.setup) {
-        return [ setup, move1, move2, Cube.inverse(move1), Cube.inverse(move2), Cube.inverse(setup), ].join(' ');
+        return [ setup, move1, move2, inverse(move1), inverse(move2), inverse(setup), ].join(' ');
     } else if (t === ThreeStyleType.seq) {
         return setup;
     }
@@ -253,6 +270,9 @@ exports.corners = corners;
 exports.edges = edges;
 exports.getHiraganas = getHiraganas;
 exports.showMove = showMove;
+exports.big2Small = big2Small;
+exports.small2Big = small2Big;
+exports.inverse = inverse;
 exports.expandMove = expandMove;
 exports.strMax = strMax;
 exports.strMin = strMin;
