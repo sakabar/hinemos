@@ -95,19 +95,20 @@ const getSingleScramble = (threeStylesCorner, threeStylesEdgeMiddle) => {
 
     const cube = new Cube();
 
+    Cube.initSolver();
+
     for (let i = 0; i < pickedThreeStylesCorner.length; i++) {
         const ts = pickedThreeStylesCorner[i];
-        const expanded = utils.expandMove(ts.setup, ts.move1, ts.move2);
+        const expanded = utils.expandMove(ts.setup, ts.move1, ts.move2).replace(/Rw/g, 'r').replace(/Lw/g, 'l');
         cube.move(Cube.inverse(expanded));
     }
 
     for (let i = 0; i < pickedThreeStylesEdgeMiddle.length; i++) {
         const ts = pickedThreeStylesEdgeMiddle[i];
-        const expanded = utils.expandMove(ts.setup, ts.move1, ts.move2);
+        const expanded = utils.expandMove(ts.setup, ts.move1, ts.move2).replace(/Rw/g, 'r').replace(/Lw/g, 'l');
         cube.move(Cube.inverse(expanded));
     }
 
-    Cube.initSolver();
     const ansMoves = cube.solve();
     return Cube.inverse(ansMoves);
 };
@@ -128,21 +129,28 @@ const getScrambles = (cnt, useCorner, useEdgeMiddle, threeStylesCorner, threeSty
 
 const init = () => {
     const userName = localStorage.userName;
+    const scramblesContainer = document.querySelector('.scrambles');
 
     return threeStyleUtils.getThreeStyles(userName, constant.partType.corner)
         .then((threeStylesCorner) => {
             return threeStyleUtils.getThreeStyles(userName, constant.partType.edgeMiddle)
                 .then((threeStylesEdgeMiddle) => {
                     // FIXME
-                    const cnt = 1;
+                    const cnt = 100;
                     const useCorner = true;
                     const useEdgeMiddle = false;
                     const scrambles = getScrambles(cnt, useCorner, useEdgeMiddle, threeStylesCorner, threeStylesEdgeMiddle);
-                    alert(JSON.stringify(scrambles));
+
+                    for (let i = 0; i < scrambles.length; i++) {
+                        const scramble = scrambles[i];
+                        const pTag = document.createElement('p');
+                        pTag.appendChild(document.createTextNode(scramble));
+                        scramblesContainer.appendChild(pTag);
+                    }
                 });
         })
-        .catch(() => {
-            alert('エラー');
+        .catch((err) => {
+            alert(`エラー:${err}`);
         });
 
     // FEから、エッジ/コーナー/両方読み込み
