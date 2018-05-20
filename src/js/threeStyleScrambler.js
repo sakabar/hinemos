@@ -117,6 +117,7 @@ const getRandomScramble = (partType) => {
     }
 
     const ansList = [];
+    const xyzList = []; // 持ち替えた方向を記録しておき、最後に元に戻す
 
     const CNT = 100;
     const XYZ_CNT = 10;
@@ -125,10 +126,18 @@ const getRandomScramble = (partType) => {
             // 適当に向きを変える
             const xyz = shuffle.pick([ 'x', 'y', 'z', ]);
             ansList.push(xyz);
+            xyzList.push(xyz);
         }
 
         // 崩す
         ansList.push(basicScramble);
+    }
+
+    // 持ち替えを元に戻す
+    const xyzListRev = xyzList.reverse();
+    for (let i = 0; i < xyzList.length; i++) {
+        const xyz = xyzListRev[i];
+        ansList.push(`${xyz}'`);
     }
 
     return ansList.join(' ');
