@@ -88,7 +88,8 @@ const init = () => {
     submitBtn.addEventListener('click', submit);
 
     // 「ユーザ名とパスワードを保存する」設定の場合、あらかじめフォームに入力
-    if (localStorage.rememberPassword) {
+    // localStorageに入る値は文字列なので注意。
+    if (localStorage.rememberPassword === 'true') {
         inputSavedInfo();
     }
 };
