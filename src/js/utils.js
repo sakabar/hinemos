@@ -43,7 +43,7 @@ const small2Big = (s) => {
 };
 
 // 逆手順を求めるラッパー
-// LwやRwをl, rに変換してからinverse()
+// LwやRwをl, rに変換してからinverse()、その後に元に戻す
 const inverse = (s) => {
     const replaced = big2Small(s);
     return small2Big(Cube.inverse(replaced));

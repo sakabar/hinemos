@@ -27,6 +27,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="../normalize.css">
     <link rel="stylesheet" type="text/css" href="../common.css?version=v0.8.1">
+    <link rel="stylesheet" type="text/css" href="./scrambler.css?version=v0.8.2">
   </head>
 
   <body>
@@ -40,10 +41,47 @@
 
     <main>
       <h1>3-style Scrambler</h1>
-      <h2 class="h2__part"></h2>
       <ul>
-        <li>登録済の3-styleだけで完成させることができるスクランブルを生成します</li>
+        <li>"3-style"を選択したパートの性質</li>
+        <ul>
+          <li>登録済の3-styleだけで完成可能</li>
+          <li>1ループ</li>
+          <li>パリティ無し</li>
+          <li>CO・EO無し</li>
+        </ul>
+        <li>スクランブル数100のとき、15秒ほどかかります</li>
       </ul>
+
+      <form class="scramblerForm">
+       <!-- FIXME table レイアウトはやめよう -->
+       <table>
+         <tr>
+           <td>スクランブル数</td>
+           <td>
+             <input type="text" class="scramblerForm__numText" placeholder="12" value="12">
+           </td>
+         </tr>
+
+         <tr>
+           <td>コーナー</td>
+           <td><select class="scrambleTypeSelect--corner">
+               <option value="threeStyle">3-style</option>
+               <option value="random">ランダム</option>
+               <option value="none">崩さない</option>
+           </select></td>
+         </tr>
+
+         <tr>
+           <td>エッジ</td>
+           <td><select class="scrambleTypeSelect--edgeMiddle">
+               <option value="threeStyle">3-style</option>
+               <option value="random">ランダム</option>
+               <option value="none">崩さない</option>
+           </select></td>
+         </tr>
+       </table>
+        <input class="scrambleForm__submitBtn" type="button" value="決定" disabled>
+      </form>
 
       <div class="scrambles">
       </div>

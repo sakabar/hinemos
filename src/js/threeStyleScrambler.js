@@ -86,50 +86,169 @@ const pickThreeStyles = (threeStyles) => {
     return ans;
 };
 
-// ランダムに3-styleを選び、それらを使うスクランブルを生成
-const getSingleScramble = (threeStylesCorner, threeStylesEdgeMiddle) => {
+// コーナーかエッジの3-styleリストを渡し、その中からランダムに3-styleを選び、それらを使うスクランブルを生成
+const getThreeStyleScramble = (threeStyles) => {
     // 逆順にして1つずつ処理
-    // 例: "さみ あか たに"をやりたい -> inv(たに) inv(あか) inv(さみ) で崩した時のsolve の逆順が、欲しいスクランブル
-    const pickedThreeStylesCorner = pickThreeStyles(threeStylesCorner).reverse();
-    const pickedThreeStylesEdgeMiddle = pickThreeStyles(threeStylesEdgeMiddle).reverse();
+    // 例: "さみ あか たに"をやりたい -> 完成状態から inv(たに) inv(あか) inv(さみ) で崩す手順を返す
 
+    // 実際に解きたい3-style (やる順)
+    const pickedThreeStyles = pickThreeStyles(threeStyles);
+
+    // 逆順に処理
+    const pickedThreeStylesRev = pickedThreeStyles.reverse();
+
+    // 逆手順を列挙してつなげる
+    return pickedThreeStylesRev.map((ts) => utils.inverse(utils.expandMove(ts.setup, ts.move1, ts.move2))).join(' ');
+};
+
+// コーナーかエッジのランダムスクランブル
+// EOやCOが発生する可能性がある
+// 「良い」ランダムであることは保証しない
+const getRandomScramble = (partType) => {
+    let basicScramble = '';
+    if (partType === constant.partType.corner) {
+        // UBL UBR LBD
+        // [U, R D\' R\']
+        basicScramble = 'U R D\' R\' U\' R D R\'';
+    } else if (partType === constant.partType.edgeMiddle) {
+        // DF RU UL
+        // [R' F' R, S]
+        basicScramble = 'R\' F\' R S R\' F R S\'';
+    }
+
+    const ansList = [];
+
+    const CNT = 100;
+    const XYZ_CNT = 10;
+    for (let i = 0; i < CNT; i++) {
+        for (let k = 0; k < XYZ_CNT; k++) {
+            // 適当に向きを変える
+            const xyz = shuffle.pick([ 'x', 'y', 'z', ]);
+            ansList.push(xyz);
+        }
+
+        // 崩す
+        ansList.push(basicScramble);
+    }
+
+    return ansList.join(' ');
+};
+
+const getSingleScramble = (scrambleTypeCorner, scrambleTypeEdge, threeStylesCorner, threeStylesEdgeMiddle) => {
     const cube = new Cube();
 
-    for (let i = 0; i < pickedThreeStylesCorner.length; i++) {
-        const ts = pickedThreeStylesCorner[i];
-        const expanded = utils.expandMove(ts.setup, ts.move1, ts.move2);
-        const s = utils.big2Small(utils.inverse(expanded));
-        cube.move(s);
+    // コーナーを崩す
+    switch (scrambleTypeCorner) {
+    case scrambleType.threeStyle:
+        cube.move(utils.big2Small(getThreeStyleScramble(threeStylesCorner)));
+        break;
+    case scrambleType.random:
+        cube.move(utils.big2Small(getRandomScramble(constant.partType.corner)));
+        break;
+    case scrambleType.none:
+        // 何もしない
+        break;
+    default:
+        throw new Error('Unexpected scrambleType corner');
     }
 
-    for (let i = 0; i < pickedThreeStylesEdgeMiddle.length; i++) {
-        const ts = pickedThreeStylesEdgeMiddle[i];
-        const expanded = utils.expandMove(ts.setup, ts.move1, ts.move2);
-        const s = utils.big2Small(utils.inverse(expanded));
-        cube.move(s);
+    // エッジを崩す
+    switch (scrambleTypeEdge) {
+    case scrambleType.threeStyle:
+        cube.move(utils.big2Small(getThreeStyleScramble(threeStylesEdgeMiddle)));
+        break;
+    case scrambleType.random:
+        cube.move(utils.big2Small(getRandomScramble(constant.partType.edgeMiddle)));
+        break;
+    case scrambleType.none:
+        // 何もしない
+        break;
+    default:
+        throw new Error('Unexpected scrambleType edge');
     }
 
+    // 解いて、その逆順を得る
     const ansMoves = cube.solve();
     return utils.inverse(ansMoves);
 };
 
-const getScrambles = (cnt, useCorner, useEdgeMiddle, threeStylesCorner, threeStylesEdgeMiddle) => {
-    const argThreeStylesCorner = useCorner ? threeStylesCorner : [];
-    const argThreeStylesEdgeMiddle = useEdgeMiddle ? threeStylesEdgeMiddle : [];
-
+const getScrambles = (cnt, scrambleTypeCorner, scrambleTypeEdge, threeStylesCorner, threeStylesEdgeMiddle) => {
     const ans = [];
 
     for (let i = 0; i < cnt; i++) {
-        const scramble = getSingleScramble(argThreeStylesCorner, argThreeStylesEdgeMiddle);
+        const scramble = getSingleScramble(scrambleTypeCorner, scrambleTypeEdge, threeStylesCorner, threeStylesEdgeMiddle);
         ans.push(scramble);
     }
 
     return ans;
 };
 
+const scrambleType = {
+    threeStyle: { value: 0, name: 'threeStyle', },
+    random: { value: 1, name: 'random', },
+    none: { value: 2, name: 'none', },
+};
+
+const readScrambleType = (s) => {
+    switch (s) {
+    case 'threeStyle':
+        return scrambleType.threeStyle;
+    case 'random':
+        return scrambleType.random;
+    case 'none':
+        return scrambleType.none;
+    default:
+        throw new Error('Unexpected scrambleType corner');
+    }
+};
+
+const submit = (threeStylesCorner, threeStylesEdgeMiddle) => {
+    const numText = document.querySelector('.scramblerForm__numText');
+    const selectCorner = document.querySelector('.scrambleTypeSelect--corner');
+    const selectEdge = document.querySelector('.scrambleTypeSelect--edgeMiddle');
+
+    const scrambleTypeCorner = readScrambleType(selectCorner.value);
+    const scrambleTypeEdge = readScrambleType(selectEdge.value);
+
+    const tmpCnt = parseInt(numText.value);
+    let cnt = 12; // デフォルト値は12とする (ao12を計るため)
+    if (tmpCnt <= 0) {
+        alert('スクランブル数は正の数にしてください');
+        return;
+    } else if (tmpCnt > 100) {
+        alert('スクランブル数は100以下にしてください');
+        return;
+    } else if (isNaN(tmpCnt)) {
+        numText.value = '';
+    } else {
+        cnt = tmpCnt;
+    }
+
+    const scrambles = getScrambles(cnt, scrambleTypeCorner, scrambleTypeEdge, threeStylesCorner, threeStylesEdgeMiddle);
+
+    // まず消す
+    const scramblesContainer = document.querySelector('.scrambles');
+    while (scramblesContainer.firstChild) {
+        scramblesContainer.removeChild(scramblesContainer.firstChild);
+    };
+
+    // ノードに追加
+    for (let i = 0; i < scrambles.length; i++) {
+        const scramble = scrambles[i];
+        const pTag = document.createElement('p');
+        pTag.appendChild(document.createTextNode(scramble));
+        scramblesContainer.appendChild(pTag);
+    }
+};
+
 const init = () => {
     const userName = localStorage.userName;
-    const scramblesContainer = document.querySelector('.scrambles');
+    const button = document.querySelector('.scrambleForm__submitBtn');
+
+    // 以下は、テストの時には実行しない
+    if (!button) {
+        return;
+    }
 
     Cube.initSolver();
 
@@ -137,26 +256,13 @@ const init = () => {
         .then((threeStylesCorner) => {
             return threeStyleUtils.getThreeStyles(userName, constant.partType.edgeMiddle)
                 .then((threeStylesEdgeMiddle) => {
-                    // FIXME
-                    const cnt = 100;
-                    const useCorner = true;
-                    const useEdgeMiddle = false;
-                    const scrambles = getScrambles(cnt, useCorner, useEdgeMiddle, threeStylesCorner, threeStylesEdgeMiddle);
-
-                    for (let i = 0; i < scrambles.length; i++) {
-                        const scramble = scrambles[i];
-                        const pTag = document.createElement('p');
-                        pTag.appendChild(document.createTextNode(scramble));
-                        scramblesContainer.appendChild(pTag);
-                    }
+                    button.addEventListener('click', () => submit(threeStylesCorner, threeStylesEdgeMiddle));
+                    button.disabled = false;
                 });
         })
         .catch((err) => {
             alert(`エラー:${err}`);
         });
-
-    // FEから、エッジ/コーナー/両方読み込み
-    // FEから、スクランブルを出す数を読み込み (n)
 };
 
 init();
