@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="ja">
   <head>
+    <script type="text/javascript" src="../auth.bundle.js?version=v0.9.0"></script>
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-119101911-1"></script>
     <script>
@@ -8,7 +9,13 @@
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
 
-      gtag('config', 'UA-119101911-1');
+      if (localStorage.userName) {
+        gtag('config', 'UA-119101911-1', {
+          'user_id': localStorage.userName
+        });
+      } else {
+        gtag('config', 'UA-119101911-1');
+      }
     </script>
 
     <title>3-style Quiz 問題リスト編集</title>
@@ -19,9 +26,8 @@
     <meta name="expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../common.css?version=v0.8.2">
-    <link rel="stylesheet" type="text/css" href="../editQuizList.css?version=v0.8.2">
-    <script type="text/javascript" src="../auth.bundle.js?version=v0.8.2"></script>
+    <link rel="stylesheet" type="text/css" href="../common.css?version=v0.9.0">
+    <link rel="stylesheet" type="text/css" href="../editQuizList.css?version=v0.9.0">
   </head>
 
   <body>
@@ -78,6 +84,6 @@
       </form>
     </main>
 
-    <script type="text/javascript" src="../editThreeStyleQuizList.bundle.js?version=v0.8.2"></script>
+    <script type="text/javascript" src="../editThreeStyleQuizList.bundle.js?version=v0.9.0"></script>
   </body>
 </html>
