@@ -4,6 +4,7 @@ const rp = require('request-promise');
 const url = require('url');
 const config = require('./config');
 const constant = require('./constant');
+const threeStyleUtils = require('./threeStyleUtils');
 const utils = require('./utils');
 
 const getNumbering = (userName, part) => {
@@ -28,27 +29,6 @@ const getNumbering = (userName, part) => {
         })
         .catch((err) => {
             alert(`ナンバリングの取得に失敗しました:${err}`);
-            return [];
-        });
-};
-
-const getThreeStyles = (userName, part) => {
-    const options = {
-        url: `${config.apiRoot}/threeStyle/${part.name}?userName=${userName}`,
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        json: true,
-        form: {},
-    };
-
-    return rp(options)
-        .then((result) => {
-            return result.success.result;
-        })
-        .catch((err) => {
-            alert(`3-styleの取得に失敗しました: ${err}`);
             return [];
         });
 };
@@ -230,7 +210,7 @@ const init = () => {
 
     return getNumbering(userName, part)
         .then((numbering) => {
-            return getThreeStyles(userName, part)
+            return threeStyleUtils.getThreeStyles(userName, part)
                 .then((threeStyle) => {
                     const tableData = generateTableData(userName, numbering, threeStyle);
 
