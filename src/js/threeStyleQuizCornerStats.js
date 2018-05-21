@@ -27,6 +27,7 @@ const init = () => {
             const sum = math.sum(avgSecs);
             const mean = math.mean(avgSecs);
             const sumOver5 = math.sum(over5Secs);
+            const meanIn6 = math.mean(avgSecs.filter(x => x < threshold));
 
             const p1 = document.createElement('p');
             p1.appendChild(document.createTextNode(`所要時間合計: ${sum.toFixed(1)}秒 (${Math.floor(sum / 60)}分${(Math.floor(sum) % 60)}秒)`));
@@ -37,8 +38,12 @@ const init = () => {
             msgArea.appendChild(p3);
 
             const p2 = document.createElement('p');
-            p2.appendChild(document.createTextNode(`平均: ${mean.toFixed(2)}秒`));
+            p2.appendChild(document.createTextNode(`平均: ${mean.toFixed(2)}秒 (全体)`));
             msgArea.appendChild(p2);
+
+            const p8 = document.createElement('p');
+            p8.appendChild(document.createTextNode(`平均: ${meanIn6.toFixed(2)}秒 (${threshold}秒以内の手順)`));
+            msgArea.appendChild(p8);
 
             const p4 = document.createElement('p');
             p4.appendChild(document.createTextNode(`${threshold}秒以上かかっている手順の数: ${over5Secs.length}手順`));
