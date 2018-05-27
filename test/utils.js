@@ -344,6 +344,24 @@ describe('utils.js', () => {
             assert.deepEqual(utils.readThreeStyles('[L2 F ,[L2, E]]'), [ expected, ]);
         });
 
+        it('正常系: setup [U, [ S\' , R\' D\' R]] (スペース、カッコ、スペース)', () => {
+            const expected = {
+                setup: 'U',
+                move1: 'S\'',
+                move2: 'R\' D\' R',
+            };
+            assert.deepEqual(utils.readThreeStyles('[U, [ S\' , R\' D\' R]]'), [ expected, ]);
+        });
+
+        it('正常系: setup [F Lw\' U\' L U R U\' Rw\' ] (カッコの前にスペース)', () => {
+            const expected = {
+                setup: 'F Lw\' U\' L U R U\' Rw\'',
+                move1: '',
+                move2: '',
+            };
+            assert.deepEqual(utils.readThreeStyles('[F Lw\' U\' L U R U\' Rw\' ]'), [ expected, ]);
+        });
+
         it('正常系: 複数', () => {
             const ts1 = {
                 setup: 'R L',
