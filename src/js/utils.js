@@ -202,7 +202,7 @@ const readThreeStyles = (s) => {
     }
 
     // 似たような文字や、複数個のスペースを置換
-    const replacedStr = s.trim().replace(/[‘’´｀`]/g, '\'').replace(/[，、]/g, ',').replace(/[({【「]/g, '[').replace(/[」】}]/g, ']').replace(/\s+/g, ' ').replace(/ *,/g, ',');
+    const replacedStr = s.trim().replace(/[‘’´｀`]/g, '\'').replace(/[，、]/g, ',').replace(/[({【「]/g, '[').replace(/[」】}]/g, ']').replace(/\s+/g, ' ').replace(/ *,/g, ',').replace(/\s+]/g, ']').replace(/]\s+/g, ']').replace(/\[\s+/g, '[').replace(/,\[/g, ', [');
 
     // 複数の場合
     // 効率が悪そうなので納得できていないが、とりあえず再帰で実装できた FIXME
