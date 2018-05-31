@@ -383,5 +383,10 @@ describe('utils.js', () => {
             const actual = () => utils.readThreeStyles('[');
             assert.throws(actual, Error);
         });
+
+        it('異常系: [UD]', () => {
+            const actual = () => utils.readThreeStyles('[UD]');
+            assert.throws(actual, Error);
+        });
     });
 });

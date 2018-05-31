@@ -224,6 +224,10 @@ const readThreeStyles = (s) => {
             throw new Error('Unexpected pureMatch pattern');
         }
 
+        if (!isValidMoves(pureMatch[1]) || !isValidMoves(pureMatch[2])) {
+            throw new Error(`Invalid Moves in: ${s}`);
+        }
+
         const ts = {
             setup: '',
             move1: pureMatch[1],
@@ -239,6 +243,10 @@ const readThreeStyles = (s) => {
             throw new Error('Unexpected setupMatch pattern');
         }
 
+        if (!isValidMoves(setupMatch[1]) || !isValidMoves(setupMatch[2]) || !isValidMoves(setupMatch[3])) {
+            throw new Error(`Invalid Move in: ${s}`);
+        }
+
         const ts = {
             setup: setupMatch[1],
             move1: setupMatch[2],
@@ -252,6 +260,10 @@ const readThreeStyles = (s) => {
         const seqMatch = replacedStr.match(/^\[([^,]+)\]$/);
         if (!seqMatch) {
             throw new Error('Unexpected seqMatch pattern');
+        }
+
+        if (!isValidMoves(seqMatch[1])) {
+            throw new Error(`Invalid Move in: ${s}`);
         }
 
         const ts = {
