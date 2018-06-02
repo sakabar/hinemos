@@ -1,0 +1,7 @@
+.changeLog {
+    float: right;
+}
+
+.changeLog li {
+    list-style-type: none;
+}
