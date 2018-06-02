@@ -13,6 +13,7 @@ npm run eslint && npm run test && npm run webpack && {
     mkdir -p public
 
     cp ${IMG_DIR}/tw_header_no_space.jpg public/tw_header.jpg
+    cp ${IMG_DIR}/icon_bw.png public/icon_bw.png
     cp src/html/*.html public
     cp dist/*.js public
     cp src/css/*.css public
