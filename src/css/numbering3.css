@@ -100,7 +100,7 @@
     justify-content:         flex-start;
 }
 
-img {
+.numberingExample {
     width: 90%;
     border: solid 1px #000000;
 }
