@@ -48,8 +48,10 @@ header ul li:last-child {
 }
 
 header .logo__img--rectangle {
-    height: 156px;
+    height: auto;
     width: auto;
+    max-height: 156px;
+    max-width: 100%;
     margin: 4px;
 }
 
