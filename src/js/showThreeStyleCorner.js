@@ -4,7 +4,9 @@ const utils = require('./utils');
 
 // 3-style登録ページを開く
 const openRegisterPage = (letters) => {
-    window.open(`${config.urlRoot}/threeStyle/register.html?letters=${letters}`);
+    // FIXME Edgeに対応させる
+    const part = 'corner';
+    window.open(`${config.urlRoot}/threeStyle/register.html?part=${part}&letters=${letters}`);
 };
 
 // threeStyleを削除する
