@@ -1,6 +1,6 @@
 {
   "name": "hinemos",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Website for Rubik's cube blindfolded players",
   "main": "index.js",
   "scripts": {
@@ -43,8 +43,8 @@
     "chunk": "0.0.2",
     "count-array-values": "^1.2.1",
     "cubejs": "^1.1.0",
-    "handsontable": "^3.0.0",
-    "mathjs": "^4.4.2",
+    "handsontable": "^4.0.0",
+    "mathjs": "^5.0.0",
     "net": "1.0.2",
     "request": "^2.87.0",
     "request-promise": "~4.2.2",
