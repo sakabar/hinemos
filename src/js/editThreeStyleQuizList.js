@@ -291,6 +291,36 @@ const loadList = (part) => {
         });
 };
 
+const deleteAllQuizzes = (userName, part) => {
+    const token = localStorage.token;
+    const confirmed = confirm('登録済の問題を全てリセットします。よろしいですか？');
+
+    if (!confirmed) {
+        return;
+    }
+
+    const options = {
+        url: `${config.apiRoot}/threeStyleQuizList/${part.name}`,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {
+            token,
+            threeStyleQuizList: [],
+        },
+    };
+
+    return rp(options)
+        .then(() => {
+            location.reload(false);
+        })
+        .catch((err) => {
+            alert(`エラー: ${err}`);
+        });
+};
+
 const init = () => {
     const userName = localStorage.userName;
 
@@ -327,6 +357,9 @@ const init = () => {
 
     const autoAddButton = document.querySelector('.editQuizListForm__autoAddButton');
     autoAddButton.addEventListener('click', () => addStickersAutomatically(userName, part));
+
+    const deleteAllQuizzesButton = document.querySelector('.editQuizListForm__deleteAllQuizzesButton');
+    deleteAllQuizzesButton.addEventListener('click', () => deleteAllQuizzes(userName, part));
 
     loadList(part);
 };
