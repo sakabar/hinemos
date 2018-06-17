@@ -95,9 +95,9 @@ const isValidMoves = (moveStr) => {
 // validationしつつ、3-styleのオブジェクトを生成
 // validationにエラーがあった場合は、値を返さずエラー
 const makeThreeStyle = (buffer, sticker1, sticker2, setup, move1, move2) => {
-    const replacedSetup = setup.replace(/[‘’´｀`]/g, '\'').replace(/[:;\[\]\(\)：；]/g, '').trim();
-    const replacedMove1 = move1.replace(/[‘’´｀`]/g, '\'').replace(/[:;\[\]\(\)：；]/g, '').trim();
-    const replacedMove2 = move2.replace(/[‘’´｀`]/g, '\'').replace(/[:;\[\]\(\)：；]/g, '').trim();
+    const replacedSetup = setup.replace(/[‘’´｀`]/g, '\'').replace(/[,:;\[\]\(\)：；、，]/g, '').trim();
+    const replacedMove1 = move1.replace(/[‘’´｀`]/g, '\'').replace(/[,:;\[\]\(\)：；、，]/g, '').trim();
+    const replacedMove2 = move2.replace(/[‘’´｀`]/g, '\'').replace(/[,:;\[\]\(\)：；、，]/g, '').trim();
 
     const okCond1 = (replacedMove1 !== '' && replacedMove2 !== '');
     const okCond2 = (replacedMove1 === '' && replacedMove2 === '' && replacedSetup !== '');
