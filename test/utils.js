@@ -371,6 +371,24 @@ describe('utils.js', () => {
             assert.deepEqual(utils.readThreeStyles('[R U , [U ,R D R’]]'), [ expected, ]);
         });
 
+        it('正常系: setup [R U : [U ,R D R’]] (コロン)', () => {
+            const expected = {
+                setup: 'R U',
+                move1: 'U',
+                move2: 'R D R\'',
+            };
+            assert.deepEqual(utils.readThreeStyles('[R U : [U ,R D R’]]'), [ expected, ]);
+        });
+
+        it('正常系: setup [R U ; [U ,R D R’]] (セミコロン)', () => {
+            const expected = {
+                setup: 'R U',
+                move1: 'U',
+                move2: 'R D R\'',
+            };
+            assert.deepEqual(utils.readThreeStyles('[R U ; [U ,R D R’]]'), [ expected, ]);
+        });
+
         it('正常系: 複数', () => {
             const ts1 = {
                 setup: 'R L',
