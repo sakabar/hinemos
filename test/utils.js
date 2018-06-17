@@ -197,6 +197,34 @@ describe('utils.js', () => {
             assert.deepEqual(actual, expected);
         });
 
+        it('正常系: 余計な文字を削除 1', () => {
+            const actual = utils.makeThreeStyle('UBL', 'URF', 'RDF', '', 'U2 :', '[R’ D\' R]]');
+            const expected = {
+                buffer: 'UBL',
+                sticker1: 'UFR',
+                sticker2: 'RDF',
+                setup: '',
+                move1: 'U2',
+                move2: 'R\' D\' R',
+            };
+
+            assert.deepEqual(actual, expected);
+        });
+
+        it('正常系: 余計な文字を削除 2', () => {
+            const actual = utils.makeThreeStyle('UBL', 'URF', 'RDF', '; [ ( )', 'U2', 'R’ D\' R');
+            const expected = {
+                buffer: 'UBL',
+                sticker1: 'UFR',
+                sticker2: 'RDF',
+                setup: '',
+                move1: 'U2',
+                move2: 'R\' D\' R',
+            };
+
+            assert.deepEqual(actual, expected);
+        });
+
         it('異常系: move1のみが空', () => {
             const actual = () => utils.makeThreeStyle('UBL', 'URF', 'RDF', 'Mw', '', 'R\' D\' R');
             assert.throws(actual, Error);
