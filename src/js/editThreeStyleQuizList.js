@@ -63,6 +63,7 @@ const searchThreeStyles = (part) => {
 };
 
 // stickersを渡して、追加候補に入れる
+// 渡すのは"あた (UBL UFR UFL)"という形式の文字列
 const addCandStickers = (text) => {
     const addCandAreaUlistNode = document.querySelector('.editQuizListForm__addCandArea .editQuizListForm__uList--cand');
 
@@ -72,6 +73,56 @@ const addCandStickers = (text) => {
         addCandAreaUlistNode.removeChild(liNode);
     });
     addCandAreaUlistNode.appendChild(liNode);
+};
+
+// タイムの遅いものから順に5個登録
+const addStickersAutomatically = (userName, part) => {
+    const threeStyleOptions = {
+        url: `${config.apiRoot}/threeStyleQuizLog/${part.name}/${userName}`,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {},
+    };
+
+    // ナンバリング
+    const numberingOptions = {
+        url: `${config.apiRoot}/numbering/${part.name}/${userName}`,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {},
+    };
+
+    return rp(numberingOptions)
+        .then((result) => {
+            const numbering = result.success.result;
+            return rp(threeStyleOptions)
+                .then((result) => {
+                    const num = 5;
+                    // ログの遅いほうから5個取る
+                    const slowestStickers = result.success.result.slice(0, num);
+                    // 追加
+                    for (let i = 0; i < slowestStickers.length; i++) {
+                        const slowest = slowestStickers[i];
+                        const letter1 = numbering.filter(x => x.sticker === slowest.sticker1)[0].letter;
+                        const letter2 = numbering.filter(x => x.sticker === slowest.sticker2)[0].letter;
+                        const letters = `${letter1}${letter2}`;
+                        const text = `${letters} (${slowest.stickers})`;
+                        addCandStickers(text);
+                    }
+                })
+                .catch((err) => {
+                    alert(`エラーが発生しました: ${err}`);
+                });
+        })
+        .catch((err) => {
+            alert(`エラーが発生しました: ${err}`);
+        });
 };
 
 // stickersを渡して、削除候補に入れる
@@ -240,7 +291,39 @@ const loadList = (part) => {
         });
 };
 
+const deleteAllQuizzes = (userName, part) => {
+    const token = localStorage.token;
+    const confirmed = confirm('登録済の問題を全てリセットします。よろしいですか？');
+
+    if (!confirmed) {
+        return;
+    }
+
+    const options = {
+        url: `${config.apiRoot}/threeStyleQuizList/${part.name}`,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {
+            token,
+            threeStyleQuizList: [],
+        },
+    };
+
+    return rp(options)
+        .then(() => {
+            location.reload(false);
+        })
+        .catch((err) => {
+            alert(`エラー: ${err}`);
+        });
+};
+
 const init = () => {
+    const userName = localStorage.userName;
+
     // 内部表現
     // const addCandHash = {};
     // const deleteCandHash = {};
@@ -271,6 +354,12 @@ const init = () => {
         const button = buttons[i];
         button.addEventListener('click', () => submit(part));
     }
+
+    const autoAddButton = document.querySelector('.editQuizListForm__autoAddButton');
+    autoAddButton.addEventListener('click', () => addStickersAutomatically(userName, part));
+
+    const deleteAllQuizzesButton = document.querySelector('.editQuizListForm__deleteAllQuizzesButton');
+    deleteAllQuizzesButton.addEventListener('click', () => deleteAllQuizzes(userName, part));
 
     loadList(part);
 };

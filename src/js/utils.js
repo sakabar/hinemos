@@ -95,9 +95,9 @@ const isValidMoves = (moveStr) => {
 // validationしつつ、3-styleのオブジェクトを生成
 // validationにエラーがあった場合は、値を返さずエラー
 const makeThreeStyle = (buffer, sticker1, sticker2, setup, move1, move2) => {
-    const replacedSetup = setup.trim().replace(/[‘’´｀`]/g, '\'');
-    const replacedMove1 = move1.trim().replace(/[‘’´｀`]/g, '\'');
-    const replacedMove2 = move2.trim().replace(/[‘’´｀`]/g, '\'');
+    const replacedSetup = setup.replace(/[‘’´｀`]/g, '\'').replace(/[,:;\[\]\(\)：；、，]/g, '').trim();
+    const replacedMove1 = move1.replace(/[‘’´｀`]/g, '\'').replace(/[,:;\[\]\(\)：；、，]/g, '').trim();
+    const replacedMove2 = move2.replace(/[‘’´｀`]/g, '\'').replace(/[,:;\[\]\(\)：；、，]/g, '').trim();
 
     const okCond1 = (replacedMove1 !== '' && replacedMove2 !== '');
     const okCond2 = (replacedMove1 === '' && replacedMove2 === '' && replacedSetup !== '');
@@ -202,7 +202,7 @@ const readThreeStyles = (s) => {
     }
 
     // 似たような文字や、複数個のスペースを置換
-    const replacedStr = s.trim().replace(/[‘’´｀`]/g, '\'').replace(/[，、]/g, ',').replace(/[({【「]/g, '[').replace(/[」】}]/g, ']').replace(/\s+/g, ' ').replace(/ *,/g, ',').replace(/\s+]/g, ']').replace(/]\s+/g, ']').replace(/\[\s+/g, '[').replace(/,\[/g, ', [');
+    const replacedStr = s.trim().replace(/[;:；：]/g, ',').replace(/[‘’´｀`]/g, '\'').replace(/[，、]/g, ',').replace(/,/g, ' , ').replace(/[({【「]/g, '[').replace(/[」】}]/g, ']').replace(/\s+/g, ' ').replace(/ *,/g, ',').replace(/\s+]/g, ']').replace(/]\s+/g, ']').replace(/\[\s+/g, '[').replace(/,\[/g, ', [');
 
     // 複数の場合
     // 効率が悪そうなので納得できていないが、とりあえず再帰で実装できた FIXME

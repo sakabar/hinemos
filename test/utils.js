@@ -197,6 +197,48 @@ describe('utils.js', () => {
             assert.deepEqual(actual, expected);
         });
 
+        it('正常系: 余計な文字を削除 1', () => {
+            const actual = utils.makeThreeStyle('UBL', 'URF', 'RDF', '', 'U2 :', '[R’ D\' R]]');
+            const expected = {
+                buffer: 'UBL',
+                sticker1: 'UFR',
+                sticker2: 'RDF',
+                setup: '',
+                move1: 'U2',
+                move2: 'R\' D\' R',
+            };
+
+            assert.deepEqual(actual, expected);
+        });
+
+        it('正常系: 余計な文字を削除 2', () => {
+            const actual = utils.makeThreeStyle('UBL', 'URF', 'RDF', '; [ ( )', 'U2', 'R’ D\' R');
+            const expected = {
+                buffer: 'UBL',
+                sticker1: 'UFR',
+                sticker2: 'RDF',
+                setup: '',
+                move1: 'U2',
+                move2: 'R\' D\' R',
+            };
+
+            assert.deepEqual(actual, expected);
+        });
+
+        it('正常系: 余計な文字を削除 3', () => {
+            const actual = utils.makeThreeStyle('UBL', 'URF', 'RDF', '', ',U2 :', '[R’ D\' R]]');
+            const expected = {
+                buffer: 'UBL',
+                sticker1: 'UFR',
+                sticker2: 'RDF',
+                setup: '',
+                move1: 'U2',
+                move2: 'R\' D\' R',
+            };
+
+            assert.deepEqual(actual, expected);
+        });
+
         it('異常系: move1のみが空', () => {
             const actual = () => utils.makeThreeStyle('UBL', 'URF', 'RDF', 'Mw', '', 'R\' D\' R');
             assert.throws(actual, Error);
@@ -360,6 +402,33 @@ describe('utils.js', () => {
                 move2: '',
             };
             assert.deepEqual(utils.readThreeStyles('[F Lw\' U\' L U R U\' Rw\' ]'), [ expected, ]);
+        });
+
+        it('正常系: setup [R U , [U ,R D R’]] (コンマの直後にスペースを空けずにアルファベット)', () => {
+            const expected = {
+                setup: 'R U',
+                move1: 'U',
+                move2: 'R D R\'',
+            };
+            assert.deepEqual(utils.readThreeStyles('[R U , [U ,R D R’]]'), [ expected, ]);
+        });
+
+        it('正常系: setup [R U : [U ,R D R’]] (コロン)', () => {
+            const expected = {
+                setup: 'R U',
+                move1: 'U',
+                move2: 'R D R\'',
+            };
+            assert.deepEqual(utils.readThreeStyles('[R U : [U ,R D R’]]'), [ expected, ]);
+        });
+
+        it('正常系: setup [R U ; [U ,R D R’]] (セミコロン)', () => {
+            const expected = {
+                setup: 'R U',
+                move1: 'U',
+                move2: 'R D R\'',
+            };
+            assert.deepEqual(utils.readThreeStyles('[R U ; [U ,R D R’]]'), [ expected, ]);
         });
 
         it('正常系: 複数', () => {
