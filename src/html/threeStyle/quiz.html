@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ja">
   <head>
-    <script type="text/javascript" src="../auth.bundle.js?version=v1.0.2"></script>
+    <script type="text/javascript" src="../auth.bundle.js?version=v1.0.3"></script>
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-119101911-1"></script>
     <script>
@@ -27,9 +27,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="../icon_bw.png">
     <link rel="stylesheet" type="text/css" href="../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../common.css?version=v1.0.2">
+    <link rel="stylesheet" type="text/css" href="../common.css?version=v1.0.3">
     <!-- レターペアクイズのCSSを流用しているので注意 -->
-    <link rel="stylesheet" type="text/css" href="../letterPairQuiz.css?version=v1.0.2">
+    <link rel="stylesheet" type="text/css" href="../letterPairQuiz.css?version=v1.0.3">
   </head>
 
   <body>
@@ -41,7 +41,7 @@
         </ul>
       </div>
 
-      <a href="../mypage.html"><img class="logo__img--rectangle" src="../tw_header.jpg?version=v1.0.2" alt="ロゴ"></a>
+      <a href="../mypage.html"><img class="logo__img--rectangle" src="../tw_header.jpg?version=v1.0.3" alt="ロゴ"></a>
     </header>
 
     <main>
@@ -58,6 +58,13 @@
         </ul>
       </ul>
 
+      <form class="settingForm">
+        優先: <input class="settingForm__daysText" type="text" value="">日以内に
+        <input type="radio" id="settingForm__radio--solved" name="settingForm__solvedRadio" value="solved">解いた問題
+        <input type="radio" id="settingForm__radio--unsolved" name="settingForm__solvedRadio" value="unsolved" checked>解いていない問題
+        <input class="settingForm__reloadBtn" type="button" value="リロード">
+      </form>
+
       <form class="quizForm">
         <input class="quizForm__quizIndHidden" type="text" value="このセッションで解いた問題数:0" size="36" readonly><br>
         <input class="quizForm__prevSecText" type="text" value="前問の秒数" size="36" readonly><br>
@@ -73,6 +80,6 @@
       </form>
     </main>
 
-    <script type="text/javascript" src="../threeStyleQuiz.bundle.js?version=v1.0.2"></script>
+    <script type="text/javascript" src="../threeStyleQuiz.bundle.js?version=v1.0.3"></script>
   </body>
 </html>
