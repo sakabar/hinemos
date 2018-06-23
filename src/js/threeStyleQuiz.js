@@ -1,4 +1,5 @@
 const rp = require('request-promise');
+const shuffle = require('shuffle-array');
 const url = require('url');
 const constant = require('./constant');
 const config = require('./config');
@@ -72,7 +73,7 @@ const selectThreeStyles = (threeStyles, quizLogRes) => {
     const solvedThreeStyles = quizLogRes.map(x => x.stickers).filter(stickers => allThreeStyles.includes(stickers));
     const unsolvedThreeStyles = allThreeStyles.filter(x => !solvedThreeStyles.includes(x));
 
-    return unsolvedThreeStyles.length > 0 ? unsolvedThreeStyles.map(stickers => stickersToThreeStyles(smallThreeStyles, stickers)) : solvedThreeStyles.map(stickers => stickersToThreeStyles(smallThreeStyles, stickers));
+    return unsolvedThreeStyles.length > 0 ? shuffle(unsolvedThreeStyles.map(stickers => stickersToThreeStyles(smallThreeStyles, stickers)), { copy: true, }) : solvedThreeStyles.map(stickers => stickersToThreeStyles(smallThreeStyles, stickers));
 };
 
 // threeStyleのうち、problemListに含まれるもののみを抽出
