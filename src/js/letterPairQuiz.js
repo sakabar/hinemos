@@ -1,4 +1,5 @@
 const rp = require('request-promise');
+const shuffle = require('shuffle-array');
 const url = require('url');
 const config = require('./config');
 const utils = require('./utils');
@@ -25,7 +26,7 @@ const selectUnsolvedLetterPairs = (letterPairs, quizLogRes) => {
     const allLetters = Array.from(new Set(letterPairs.map(x => x.letters)));
     const unsolvedLetters = allLetters.filter(x => !solvedLetters.includes(x));
 
-    return unsolvedLetters.length > 0 ? unsolvedLetters.map(letters => letterPairsToWords(letterPairs, letters)) : solvedLetters.filter(letters => allLetters.includes(letters)).map(letters => letterPairsToWords(letterPairs, letters)); // 配列のincludeを何回も回すのは遅い レイテンシが遅いならFIXME
+    return unsolvedLetters.length > 0 ? shuffle(unsolvedLetters.map(letters => letterPairsToWords(letterPairs, letters)), { copy: true, }) : solvedLetters.filter(letters => allLetters.includes(letters)).map(letters => letterPairsToWords(letterPairs, letters)); // 配列のincludeを何回も回すのは遅い レイテンシが遅いならFIXME
 };
 
 // 登録済のレターペアと、「解いた」問題ログ(agg済)を受け取り、解いた問題から出題
