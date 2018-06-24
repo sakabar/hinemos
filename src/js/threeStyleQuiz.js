@@ -22,7 +22,7 @@ const renderSettings = (days, solved) => {
 
 // 入力された設定を反映
 // FIXME レターペアと実装が重複…いや、partが入っているからそうでもなかった
-const reloadWithOptions = (part) => {
+const reloadWithOptions = (part, problemListType) => {
     const daysText = document.querySelector('.settingForm__daysText');
 
     // daysは1以上の値であることを想定
@@ -30,7 +30,7 @@ const reloadWithOptions = (part) => {
 
     const solved = document.querySelector('#settingForm__radio--solved').checked;
 
-    location.href = `${config.urlRoot}/threeStyle/quiz.html?&part=${part.name}&solved=${solved}&days=${days}`;
+    location.href = `${config.urlRoot}/threeStyle/quiz.html?&part=${part.name}&problemListType=${problemListType.name}&solved=${solved}&days=${days}`;
 };
 
 const getHint = (setup, move1, move2) => {
@@ -235,14 +235,14 @@ const init = () => {
     // ロード時に埋める
     renderSettings(days, solved);
 
+    // URLでproblemListType=manualが指定された場合、自分が設定した問題でやる
+    const problemListType = urlObj.query.problemListType === ProblemListType.manual.name ? ProblemListType.manual : ProblemListType.all;
+
     // 設定読み込みボタン
     const reloadBtn = document.querySelector('.settingForm__reloadBtn');
     if (reloadBtn) {
-        reloadBtn.addEventListener('click', () => reloadWithOptions(part));
+        reloadBtn.addEventListener('click', () => reloadWithOptions(part, problemListType));
     }
-
-    // URLでproblemListType=manualが指定された場合、自分が設定した問題でやる
-    const problemListType = urlObj.query.problemListType === ProblemListType.manual.name ? ProblemListType.manual : ProblemListType.all;
 
     // 登録済の3-styleを持っておく
     const threeStyleOptions = {
