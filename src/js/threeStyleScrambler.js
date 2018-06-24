@@ -1,3 +1,4 @@
+const _ = require('underscore');
 const Cube = require('cubejs');
 require('cubejs/lib/solve.js');
 const shuffle = require('shuffle-array');
@@ -46,12 +47,10 @@ const classifyWithPartPairs = (threeStyles) => {
 // できるだけ多くの3-styleを選ぶ (n個選んだ後、まだ条件を満たすような選び方があるならば、停止せずに次を選ぶ)
 // 必ず停止する
 // 許容できる時間で停止する (曖昧...)
-const pickThreeStyles = (threeStyles) => {
-    if (threeStyles.length === 0) {
+const pickThreeStyles = (threeStyleGroups) => {
+    if (Object.keys(threeStyleGroups).length === 0) {
         return [];
     }
-
-    const threeStyleGroups = classifyWithPartPairs(threeStyles);
 
     const ans = [];
     const delim = '-'; // 区切り文字。ステッカーに出てこない文字なら何でもいい
@@ -86,13 +85,13 @@ const pickThreeStyles = (threeStyles) => {
     return ans;
 };
 
-// コーナーかエッジの3-styleリストを渡し、その中からランダムに3-styleを選び、それらを使うスクランブルを生成
-const getThreeStyleScramble = (threeStyles) => {
+// コーナーかエッジの3-styleグループを渡し、その中からランダムに3-styleを選び、それらを使うスクランブルを生成
+const getThreeStyleScramble = (threeStyleGroups) => {
     // 逆順にして1つずつ処理
     // 例: "さみ あか たに"をやりたい -> 完成状態から inv(たに) inv(あか) inv(さみ) で崩す手順を返す
 
     // 実際に解きたい3-style (やる順)
-    const pickedThreeStyles = pickThreeStyles(threeStyles);
+    const pickedThreeStyles = pickThreeStyles(threeStyleGroups);
 
     // 逆順に処理
     const pickedThreeStylesRev = pickedThreeStyles.reverse();
@@ -143,13 +142,13 @@ const getRandomScramble = (partType) => {
     return ansList.join(' ');
 };
 
-const getSingleScramble = (scrambleTypeCorner, scrambleTypeEdge, threeStylesCorner, threeStylesEdgeMiddle) => {
+const getSingleScramble = (scrambleTypeCorner, scrambleTypeEdge, threeStyleGroupsCorner, threeStyleGroupsEdgeMiddle) => {
     const cube = new Cube();
 
     // コーナーを崩す
     switch (scrambleTypeCorner) {
     case scrambleType.threeStyle:
-        cube.move(utils.big2Small(getThreeStyleScramble(threeStylesCorner)));
+        cube.move(utils.big2Small(getThreeStyleScramble(threeStyleGroupsCorner)));
         break;
     case scrambleType.random:
         cube.move(utils.big2Small(getRandomScramble(constant.partType.corner)));
@@ -164,7 +163,7 @@ const getSingleScramble = (scrambleTypeCorner, scrambleTypeEdge, threeStylesCorn
     // エッジを崩す
     switch (scrambleTypeEdge) {
     case scrambleType.threeStyle:
-        cube.move(utils.big2Small(getThreeStyleScramble(threeStylesEdgeMiddle)));
+        cube.move(utils.big2Small(getThreeStyleScramble(threeStyleGroupsEdgeMiddle)));
         break;
     case scrambleType.random:
         cube.move(utils.big2Small(getRandomScramble(constant.partType.edgeMiddle)));
@@ -184,8 +183,11 @@ const getSingleScramble = (scrambleTypeCorner, scrambleTypeEdge, threeStylesCorn
 const getScrambles = (cnt, scrambleTypeCorner, scrambleTypeEdge, threeStylesCorner, threeStylesEdgeMiddle) => {
     const ans = [];
 
+    const threeStyleGroupsCorner = classifyWithPartPairs(threeStylesCorner);
+    const threeStyleGroupsEdgeMiddle = classifyWithPartPairs(threeStylesEdgeMiddle);
+
     for (let i = 0; i < cnt; i++) {
-        const scramble = getSingleScramble(scrambleTypeCorner, scrambleTypeEdge, threeStylesCorner, threeStylesEdgeMiddle);
+        const scramble = getSingleScramble(scrambleTypeCorner, scrambleTypeEdge, _.clone(threeStyleGroupsCorner), _.clone(threeStyleGroupsEdgeMiddle));
         ans.push(scramble);
     }
 

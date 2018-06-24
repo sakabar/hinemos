@@ -1,4 +1,5 @@
 const rp = require('request-promise');
+const shuffle = require('shuffle-array');
 const url = require('url');
 const constant = require('./constant');
 const config = require('./config');
@@ -21,7 +22,7 @@ const renderSettings = (days, solved) => {
 
 // 入力された設定を反映
 // FIXME レターペアと実装が重複…いや、partが入っているからそうでもなかった
-const reloadWithOptions = (part) => {
+const reloadWithOptions = (part, problemListType) => {
     const daysText = document.querySelector('.settingForm__daysText');
 
     // daysは1以上の値であることを想定
@@ -29,7 +30,7 @@ const reloadWithOptions = (part) => {
 
     const solved = document.querySelector('#settingForm__radio--solved').checked;
 
-    location.href = `${config.urlRoot}/threeStyle/quiz.html?&part=${part.name}&solved=${solved}&days=${days}`;
+    location.href = `${config.urlRoot}/threeStyle/quiz.html?&part=${part.name}&problemListType=${problemListType.name}&solved=${solved}&days=${days}`;
 };
 
 const getHint = (setup, move1, move2) => {
@@ -57,38 +58,28 @@ const stickersToThreeStyles = (threeStyles, stickers) => {
 };
 
 // クイズに使うlettersを決定
-// まだやっていない問題がある → それをやる
-// やっていない問題がない → 正解数が少ないもの順
+// まだやっていない問題をシャッフルしたもの + やったことある問題を遅い順
 const selectThreeStyles = (threeStyles, quizLogRes) => {
-    // セットアップ1手まで、5問以内にベタ打ち
-    let setupMax = 100;
-    if (localStorage.setupMax) {
-        setupMax = localStorage.setupMax; // FIXME 公なオプションに直す
-    }
-
-    const smallThreeStyles = threeStyles.filter(x => x.setup.split(' ').length <= setupMax);
-
-    const allThreeStyles = Array.from(new Set(smallThreeStyles.map(x => x.stickers)));
+    const allThreeStyles = Array.from(new Set(threeStyles.map(x => x.stickers)));
     const solvedThreeStyles = quizLogRes.map(x => x.stickers).filter(stickers => allThreeStyles.includes(stickers));
     const unsolvedThreeStyles = allThreeStyles.filter(x => !solvedThreeStyles.includes(x));
 
-    return unsolvedThreeStyles.length > 0 ? unsolvedThreeStyles.map(stickers => stickersToThreeStyles(smallThreeStyles, stickers)) : solvedThreeStyles.map(stickers => stickersToThreeStyles(smallThreeStyles, stickers));
+    const unsolvedAns = shuffle(unsolvedThreeStyles.map(stickers => stickersToThreeStyles(threeStyles, stickers)), { copy: true, });
+    const solvedAns = solvedThreeStyles.map(stickers => stickersToThreeStyles(threeStyles, stickers));
+
+    return unsolvedAns.concat(solvedAns);
 };
 
 // threeStyleのうち、problemListに含まれるもののみを抽出
-const selectFromManualList = (threeStyles, problemList) => {
+const selectFromManualList = (threeStyles, quizLogRes, problemList) => {
     if (threeStyles.length === 0 || problemList.length === 0) {
         return [];
     }
 
-    // stickers -> bool のハッシュ
-    const problemHash = {};
-    for (let i = 0; i < problemList.length; i++) {
-        const stickers = problemList[i].stickers;
-        problemHash[stickers] = true;
-    }
+    const problemListStickers = problemList.map(x => x.stickers);
+    const threeStylesInProblemList = threeStyles.filter(x => problemListStickers.includes(x.stickers));
 
-    return threeStyles.filter(x => problemHash[x.stickers]);
+    return selectThreeStyles(threeStylesInProblemList, quizLogRes);
 };
 
 const showHint = () => {
@@ -244,14 +235,14 @@ const init = () => {
     // ロード時に埋める
     renderSettings(days, solved);
 
+    // URLでproblemListType=manualが指定された場合、自分が設定した問題でやる
+    const problemListType = urlObj.query.problemListType === ProblemListType.manual.name ? ProblemListType.manual : ProblemListType.all;
+
     // 設定読み込みボタン
     const reloadBtn = document.querySelector('.settingForm__reloadBtn');
     if (reloadBtn) {
-        reloadBtn.addEventListener('click', () => reloadWithOptions(part));
+        reloadBtn.addEventListener('click', () => reloadWithOptions(part, problemListType));
     }
-
-    // URLでproblemListType=manualが指定された場合、自分が設定した問題でやる
-    const problemListType = urlObj.query.problemListType === ProblemListType.manual.name ? ProblemListType.manual : ProblemListType.all;
 
     // 登録済の3-styleを持っておく
     const threeStyleOptions = {
@@ -339,12 +330,7 @@ const init = () => {
                                             if (problemListType === ProblemListType.all) {
                                                 selectedThreeStyles = utils.chunkAndShuffle(selectThreeStyles(threeStyles, quizLogRes), 10);
                                             } else if (problemListType === ProblemListType.manual) {
-                                                // 取得したproblemListとthreeStyleCornerを組み合わせて、
-                                                // 問題リストを作る
-                                                const manualThreeStyles = selectFromManualList(threeStyles, problemList);
-
-                                                // FIXME 変な実装になっていて、selectThreeStyles()とは結果の形式が異なる
-                                                selectedThreeStyles = utils.chunkAndShuffle(problemList.map(p => stickersToThreeStyles(manualThreeStyles, p.stickers)), 10);
+                                                selectedThreeStyles = utils.chunkAndShuffle(selectFromManualList(threeStyles, quizLogRes, problemList), 10);
                                             }
 
                                             if (selectedThreeStyles.length === 0) {

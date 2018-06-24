@@ -219,18 +219,18 @@ describe('threeStyleScrambler.js', () => {
         });
 
         it('正常系: 入力された3-styleのリストの要素数が1の場合、必ずそれが選ばれる', () => {
-            const arg = [
-                {
-                    buffer: 'UBL',
-                    sticker1: 'DFR',
-                    sticker2: 'LFU',
-                    setup: 'D U M M y',
-                    move1: '',
-                    move2: '',
-                },
-            ];
+            const ts = {
+                buffer: 'UBL',
+                sticker1: 'DFR',
+                sticker2: 'LFU',
+                setup: 'D U M M y',
+                move1: '',
+                move2: '',
+            };
 
-            const actual = threeStyleScramblerJS.pickThreeStyles(arg);
+            const threeStyleGroups = threeStyleScramblerJS.classifyWithPartPairs([ ts, ]);
+
+            const actual = threeStyleScramblerJS.pickThreeStyles(threeStyleGroups);
             const expected = [
                 {
                     buffer: 'UBL',
@@ -273,8 +273,8 @@ describe('threeStyleScrambler.js', () => {
             };
 
             const arg = [ ts1, ts2, ts3, ];
-
-            const actual = threeStyleScramblerJS.pickThreeStyles(arg);
+            const threeStyleGroups = threeStyleScramblerJS.classifyWithPartPairs(arg);
+            const actual = threeStyleScramblerJS.pickThreeStyles(threeStyleGroups);
 
             assert.deepEqual(actual.includes(ts1), true);
             assert.deepEqual(actual.includes(ts2), true);
@@ -302,8 +302,9 @@ describe('threeStyleScrambler.js', () => {
             };
 
             const arg = [ ts1, ts2, ];
+            const threeStyleGroups = threeStyleScramblerJS.classifyWithPartPairs(arg);
 
-            const actual = threeStyleScramblerJS.pickThreeStyles(arg);
+            const actual = threeStyleScramblerJS.pickThreeStyles(threeStyleGroups);
 
             assert.deepEqual(actual.length, 1);
             assert.deepEqual(actual.includes(ts1) || actual.includes(ts2), true);
