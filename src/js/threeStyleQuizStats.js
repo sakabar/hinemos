@@ -1,14 +1,34 @@
 const rp = require('request-promise');
 const math = require('mathjs');
+const url = require('url');
 const config = require('./config');
+const constant = require('./constant');
 
 const init = () => {
     const userName = localStorage.userName;
     const msgArea = document.querySelector('.msgArea');
+    const h2Part = document.querySelector('.h2__part');
+
+    const urlObj = url.parse(location.href, true);
+
+    // URLのオプションでpart=(corner|edgeMiddle)という形式で、パートが渡される
+    // それ以外の場合はエラー
+    const partQuery = urlObj.query.part;
+    let part;
+    if (partQuery === 'corner') {
+        part = constant.partType.corner;
+        h2Part.appendChild(document.createTextNode('コーナー'));
+    } else if (partQuery === 'edgeMiddle') {
+        part = constant.partType.edgeMiddle;
+        h2Part.appendChild(document.createTextNode('エッジ'));
+    } else {
+        alert('URLが不正です: part=corner か part=edgeMiddle のどちらかを指定してください');
+        return;
+    }
 
     // クイズ履歴
     const quizOptions = {
-        url: `${config.apiRoot}/threeStyleQuizLog/corner/${userName}`,
+        url: `${config.apiRoot}/threeStyleQuizLog/${part.name}/${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
