@@ -1,6 +1,6 @@
 {
   "name": "hinemos",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "Website for Rubik's cube blindfolded players",
   "main": "index.js",
   "scripts": {
@@ -23,9 +23,9 @@
     "@babel/preset-env": "7.0.0-beta.44",
     "babel-loader": "8.0.0-beta.0",
     "css-loader": "^0.28.11",
-    "eslint": "^5.0.0",
+    "eslint": "^5.0.1",
     "eslint-config-standard": "^11.0.0",
-    "eslint-plugin-import": "^2.12.0",
+    "eslint-plugin-import": "^2.13.0",
     "eslint-plugin-node": "^6.0.0",
     "eslint-plugin-promise": "^3.8.0",
     "eslint-plugin-standard": "^3.1.0",
