@@ -17,7 +17,7 @@
       }
     </script>
 
-    <title>3-style corner 確認</title>
+    <title>3-style 確認・登録・削除</title>
     <meta charset="UTF-8">
     <meta name="robots" content="noindex,nofollow,noarchive">
     <meta http-equiv="pragma" content="no-store">
@@ -27,7 +27,7 @@
     <link rel="shortcut icon" href="../icon_bw.png">
     <link rel="stylesheet" type="text/css" href="../normalize.css">
     <link rel="stylesheet" type="text/css" href="../common.css?version=v1.0.4">
-    <link rel="stylesheet" type="text/css" href="./showCorner.css?version=v1.0.4">
+    <link rel="stylesheet" type="text/css" href="./list.css?version=v1.0.4">
   </head>
 
   <body>
@@ -43,9 +43,10 @@
     </header>
 
     <main>
-      <h1>3-style corner 確認</h1>
+      <h1>3-style 確認・登録・削除</h1>
+      <h2 class="h2__part"></h2>
       <ul>
-        <li>コーナー3-style手順が登録済かどうか確認できます</li>
+        <li>3-style手順を一覧で確認できます</li>
         <ul>
           <li>登録済の手順は削除できます</li>
           <li>未登録の手順は登録できます</li>
@@ -53,20 +54,20 @@
         <li>テキストボックスが空の状態で検索すると、全ての組み合わせを列挙します</li>
       </ul>
 
-      <form class="showThreeStyleCornerForm">
-        <input class="showThreeStyleCornerForm__lettersText" type="text" maxlength="2" size="10" placeholder="ひらがな">
-        <label><input type="radio" name="showThreeStyleCornerForm__radio" value="前方一致" checked>前方一致</label>
-        <label><input type="radio" name="showThreeStyleCornerForm__radio" value="後方一致">後方一致</label>
-        <input type="button" class="showThreeStyleCornerForm__submitBtn" value="検索">
-        <input type="text" class="showThreeStyleCornerForm__invisibleText" style="display:none" value="">
+      <form class="listThreeStyleForm">
+        <input class="listThreeStyleForm__lettersText" type="text" maxlength="2" size="10" placeholder="ひらがな">
+        <label><input type="radio" name="listThreeStyleForm__radio" value="前方一致" checked>前方一致</label>
+        <label><input type="radio" name="listThreeStyleForm__radio" value="後方一致">後方一致</label>
+        <input type="button" class="listThreeStyleForm__submitBtn" value="検索">
+        <input type="text" class="listThreeStyleForm__invisibleText" style="display:none" value="">
         <br>
 
-        <ol class="showThreeStyleCornerForm__oList">
+        <ol class="listThreeStyleForm__oList">
           <!-- JavaScriptで子ノードを作る -->
         </ol>
       </form>
     </main>
 
-    <script type="text/javascript" src="../showThreeStyleCorner.bundle.js?version=v1.0.4"></script>
+    <script type="text/javascript" src="../listThreeStyle.bundle.js?version=v1.0.4"></script>
   </body>
 </html>
