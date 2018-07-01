@@ -316,10 +316,13 @@ const init = () => {
                     return rp(quizOptions)
                         .then((ans) => {
                             const quizLogRes = ans.success.result;
+                            const quizLogStickers = quizLogRes.map(x => x.stickers);
 
                             return rp(threeStyleOptions)
                                 .then((ans) => {
-                                    const threeStyles = ans.success.result;
+                                    const tmpThreeStyles = ans.success.result;
+                                    // n日以内に解いた問題をやるという機能は、登録済の手順を「n日以内に解いた手順」のみにすることで実現
+                                    const threeStyles = solved ? tmpThreeStyles.filter(x => quizLogStickers.includes(x.stickers)) : tmpThreeStyles;
 
                                     return rp(problemListOptions)
                                         .then((ans) => {
