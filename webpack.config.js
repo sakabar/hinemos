@@ -22,7 +22,7 @@ module.exports = {
         signout: './signout.js',
         threeStyleTable: './threeStyleTable.js',
         threeStyleQuiz: './threeStyleQuiz.js',
-        threeStyleQuizCornerStats: './threeStyleQuizCornerStats.js',
+        threeStyleQuizStats: './threeStyleQuizStats.js',
         threeStyleScrambler: './threeStyleScrambler.js',
         transformFromAnalysis: './transformFromAnalysis.js',
         tutorialAnalysisForBeginner: './tutorialAnalysisForBeginner.js',
