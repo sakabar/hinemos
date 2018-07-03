@@ -18,6 +18,9 @@ const renderStats = (threeStyles, threeStyleQuizLog) => {
     const sumOver5 = math.sum(over5Secs);
     const avgSecsIn6 = avgSecs.filter(x => x < threshold);
     const meanIn6 = avgSecsIn6.length === 0 ? 0 : math.mean(avgSecsIn6);
+    const newnessList = threeStyleQuizLog.map(x => x.newness);
+    const worstNewness = newnessList.length === 0 ? 0 : Math.min(...newnessList);
+    const avgNewness = newnessList.length === 0 ? 0 : math.mean(newnessList);
 
     const p1 = document.createElement('p');
     p1.appendChild(document.createTextNode(`所要時間合計: ${sum.toFixed(1)}秒 (${Math.floor(sum / 60)}分${(Math.floor(sum) % 60)}秒)`));
@@ -27,6 +30,14 @@ const renderStats = (threeStyles, threeStyleQuizLog) => {
     // ここ、マジックナンバー入っている FIXME
     p3.appendChild(document.createTextNode(`28日間で解いた手順数: ${avgSecs.length}/${threeStyleStickerSet.size}手順`));
     msgArea.appendChild(p3);
+
+    const p9 = document.createElement('p');
+    p9.appendChild(document.createTextNode(`平均の「鮮度」: ${avgNewness.toFixed(1)}日`));
+    msgArea.appendChild(p9);
+
+    const p10 = document.createElement('p');
+    p10.appendChild(document.createTextNode(`「鮮度」が最も悪い問題の鮮度 : ${worstNewness}日`));
+    msgArea.appendChild(p10);
 
     const p2 = document.createElement('p');
     p2.appendChild(document.createTextNode(`平均: ${mean.toFixed(2)}秒 (全体)`));
