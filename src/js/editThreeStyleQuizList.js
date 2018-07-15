@@ -225,6 +225,7 @@ const submit = (part) => {
     return rp(options)
         .then(() => {
             alert('登録しました');
+            location.reload(false);
         })
         .catch((err) => {
             alert(`エラー: ${err}`);
