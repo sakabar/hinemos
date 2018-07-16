@@ -55,6 +55,13 @@ describe('utils.js', () => {
             assert.deepEqual(actual, expected);
         });
 
+        it('正常系: setup R\'2', () => {
+            const actual = utils.expandMove('U\'', 'R\'2', 'D');
+            // inverse()する前はR\'2を変換せずにそのまま
+            const expected = 'U\' R\'2 D R2 D\' U';
+            assert.deepEqual(actual, expected);
+        });
+
         it('正常系: seq', () => {
             const actual = utils.expandMove('R D R\'', '', '');
             const expected = 'R D R\'';

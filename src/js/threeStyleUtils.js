@@ -22,4 +22,26 @@ const getThreeStyles = (userName, part) => {
         });
 };
 
+const getThreeStyleQuizList = (userName, part) => {
+    const options = {
+        url: `${config.apiRoot}/threeStyleQuizList/${part.name}/${userName}`,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {},
+    };
+
+    return rp(options)
+        .then((result) => {
+            return result.success.result;
+        })
+        .catch((err) => {
+            alert(`3-style問題リストの取得に失敗しました: ${err}`);
+            return [];
+        });
+};
+
 exports.getThreeStyles = getThreeStyles;
+exports.getThreeStyleQuizList = getThreeStyleQuizList;
