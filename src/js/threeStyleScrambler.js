@@ -148,6 +148,8 @@ const getSingleScramble = (scrambleTypeCorner, scrambleTypeEdge, threeStyleGroup
     // コーナーを崩す
     switch (scrambleTypeCorner) {
     case scrambleType.threeStyle:
+        // fall through
+    case scrambleType.threeStyleList:
         cube.move(utils.big2Small(getThreeStyleScramble(threeStyleGroupsCorner)));
         break;
     case scrambleType.random:
@@ -163,6 +165,8 @@ const getSingleScramble = (scrambleTypeCorner, scrambleTypeEdge, threeStyleGroup
     // エッジを崩す
     switch (scrambleTypeEdge) {
     case scrambleType.threeStyle:
+        // fall through
+    case scrambleType.threeStyleList:
         cube.move(utils.big2Small(getThreeStyleScramble(threeStyleGroupsEdgeMiddle)));
         break;
     case scrambleType.random:
@@ -196,14 +200,17 @@ const getScrambles = (cnt, scrambleTypeCorner, scrambleTypeEdge, threeStylesCorn
 
 const scrambleType = {
     threeStyle: { value: 0, name: 'threeStyle', },
-    random: { value: 1, name: 'random', },
-    none: { value: 2, name: 'none', },
+    threeStyleList: { value: 1, name: 'threeStyleList', },
+    random: { value: 2, name: 'random', },
+    none: { value: 3, name: 'none', },
 };
 
 const readScrambleType = (s) => {
     switch (s) {
     case 'threeStyle':
         return scrambleType.threeStyle;
+    case 'threeStyleList':
+        return scrambleType.threeStyleList;
     case 'random':
         return scrambleType.random;
     case 'none':
@@ -213,13 +220,13 @@ const readScrambleType = (s) => {
     }
 };
 
-const submit = (threeStylesCorner, threeStylesEdgeMiddle) => {
+const submit = (threeStylesCorner, threeStylesEdgeMiddle, threeStyleQuizListCorner, threeStyleQuizListEdgeMiddle) => {
     const numText = document.querySelector('.scramblerForm__numText');
     const selectCorner = document.querySelector('.scrambleTypeSelect--corner');
     const selectEdge = document.querySelector('.scrambleTypeSelect--edgeMiddle');
 
     const scrambleTypeCorner = readScrambleType(selectCorner.value);
-    const scrambleTypeEdge = readScrambleType(selectEdge.value);
+    const scrambleTypeEdgeMiddle = readScrambleType(selectEdge.value);
 
     const tmpCnt = parseInt(numText.value);
     let cnt = 12; // デフォルト値は12とする (ao12を計るため)
@@ -235,7 +242,14 @@ const submit = (threeStylesCorner, threeStylesEdgeMiddle) => {
         cnt = tmpCnt;
     }
 
-    const scrambles = getScrambles(cnt, scrambleTypeCorner, scrambleTypeEdge, threeStylesCorner, threeStylesEdgeMiddle);
+    // 3-style (問題リスト) が選ばれている場合、ここで登録済の3-styleを問題リストに登録されているものだけに絞り込んでおく
+    const threeStyleQuizListCornerStickers = threeStyleQuizListCorner.map(x => x.stickers);
+    const filteredThreeStylesCorner = scrambleTypeCorner === scrambleType.threeStyleList ? threeStylesCorner.filter(x => threeStyleQuizListCornerStickers.includes(x.stickers)) : threeStylesCorner;
+
+    const threeStyleQuizListEdgeMiddleStickers = threeStyleQuizListEdgeMiddle.map(x => x.stickers);
+    const filteredThreeStylesEdgeMiddle = scrambleTypeEdgeMiddle === scrambleType.threeStyleList ? threeStylesEdgeMiddle.filter(x => threeStyleQuizListEdgeMiddleStickers.includes(x.stickers)) : threeStylesEdgeMiddle;
+
+    const scrambles = getScrambles(cnt, scrambleTypeCorner, scrambleTypeEdgeMiddle, filteredThreeStylesCorner, filteredThreeStylesEdgeMiddle);
 
     // まず消す
     const scramblesContainer = document.querySelector('.scrambles');
@@ -267,8 +281,23 @@ const init = () => {
         .then((threeStylesCorner) => {
             return threeStyleUtils.getThreeStyles(userName, constant.partType.edgeMiddle)
                 .then((threeStylesEdgeMiddle) => {
-                    button.addEventListener('click', () => submit(threeStylesCorner, threeStylesEdgeMiddle));
-                    button.disabled = false;
+                    return threeStyleUtils.getThreeStyleQuizList(userName, constant.partType.corner)
+                        .then((threeStyleQuizListCorner) => {
+                            return threeStyleUtils.getThreeStyleQuizList(userName, constant.partType.edgeMiddle)
+                                .then((threeStyleQuizListEdgeMiddle) => {
+                                    button.addEventListener('click', () => submit(threeStylesCorner, threeStylesEdgeMiddle, threeStyleQuizListCorner, threeStyleQuizListEdgeMiddle));
+                                    button.disabled = false;
+                                })
+                                .catch((err) => {
+                                    alert(`エラー:${err}`);
+                                });
+                        })
+                        .catch((err) => {
+                            alert(`エラー:${err}`);
+                        });
+                })
+                .catch((err) => {
+                    alert(`エラー:${err}`);
                 });
         })
         .catch((err) => {

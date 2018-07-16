@@ -225,6 +225,7 @@ const submit = (part) => {
     return rp(options)
         .then(() => {
             alert('登録しました');
+            location.reload(false);
         })
         .catch((err) => {
             alert(`エラー: ${err}`);
@@ -265,6 +266,11 @@ const loadList = (part) => {
             return rp(problemListOptions)
                 .then((ans) => {
                     const results = ans.success.result;
+
+                    // 登録済みの問題数を表示
+                    const problemListSizeSpan = document.querySelector('.problemListSize');
+                    problemListSizeSpan.appendChild(document.createTextNode(`${results.length}問`));
+                    // 登録済みの問題数を表示、ここまで
 
                     for (let i = 0; i < results.length; i++) {
                         const result = results[i];
