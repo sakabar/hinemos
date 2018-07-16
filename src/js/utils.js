@@ -35,22 +35,35 @@ const showMove = (setup, move1, move2) => {
 };
 
 const big2Small = (s) => {
-    return s.replace(/Uw/g, 'u').replace(/Dw/g, 'd').replace(/Rw/g, 'r').replace(/Lw/g, 'l').replace(/Fw/g, 'f').replace(/Bw/g, 'b');
+    return s
+        .replace(/Uw/g, 'u')
+        .replace(/Dw/g, 'd')
+        .replace(/Rw/g, 'r')
+        .replace(/Lw/g, 'l')
+        .replace(/Fw/g, 'f')
+        .replace(/Bw/g, 'b');
 };
 
 const small2Big = (s) => {
-    return s.replace(/u/g, 'Uw').replace(/d/g, 'Dw').replace(/r/g, 'Rw').replace(/l/g, 'Lw').replace(/f/g, 'Fw').replace(/b/g, 'Bw');
+    return s
+        .replace(/u/g, 'Uw')
+        .replace(/d/g, 'Dw')
+        .replace(/r/g, 'Rw')
+        .replace(/l/g, 'Lw')
+        .replace(/f/g, 'Fw')
+        .replace(/b/g, 'Bw');
 };
 
 // 逆手順を求めるラッパー
 // LwやRwをl, rに変換してからinverse()、その後に元に戻す
+// R'2のように、間に'が入っている場合は置換
 const inverse = (s) => {
-    const replaced = big2Small(s);
+    const replaced = big2Small(s).replace(/'2/g, '2');
     return small2Big(Cube.inverse(replaced));
 };
 
 // 3-styleの記法を展開し、moveの文字列にする
-// LwやRwが含まれているとinverse()できないので変換
+// LwやRwやR'2などが含まれているとinverse()できないので変換
 // 最後には、lやrなくす
 const expandMove = (setup, move1, move2) => {
     const t = getThreeStyleType(showMove(setup, move1, move2));
