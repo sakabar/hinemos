@@ -25,8 +25,8 @@ const renderSettings = (days, solved) => {
 const reloadWithOptions = (part, problemListType) => {
     const daysText = document.querySelector('.settingForm__daysText');
 
-    // daysは1以上の値であることを想定
-    const days = Math.max(parseInt(daysText.value), 1);
+    // daysは0以上の値であることを想定
+    const days = Math.max(parseFloat(daysText.value), 0);
 
     const solved = document.querySelector('#settingForm__radio--solved').checked;
 
@@ -229,7 +229,7 @@ const init = () => {
         return;
     }
 
-    const days = urlObj.query.days ? parseInt(urlObj.query.days) : 28; // 「n日間に」
+    const days = urlObj.query.days ? parseFloat(urlObj.query.days) : 28; // 「n日間に」
     const solved = urlObj.query.solved === 'true'; // 解いた or 解いていない問題
 
     // ロード時に埋める

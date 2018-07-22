@@ -309,5 +309,41 @@ describe('threeStyleScrambler.js', () => {
             assert.deepEqual(actual.length, 1);
             assert.deepEqual(actual.includes(ts1) || actual.includes(ts2), true);
         });
+
+        it('正常系: 入力された3-styleが2つで、複複がある場合、repetitionがfalseならば2回pickすれば必ず両方が選ばれる', () => {
+            const ts1 = {
+                buffer: 'DF',
+                sticker1: 'FU',
+                sticker2: 'UB',
+                setup: 'D U M M y',
+                move1: '',
+                move2: '',
+            };
+
+            const ts2 = {
+                buffer: 'DF',
+                sticker1: 'FU',
+                sticker2: 'UR',
+                setup: 'D U M M y',
+                move1: '',
+                move2: '',
+            };
+
+            const arg = [ ts1, ts2, ];
+            const threeStyleGroups = threeStyleScramblerJS.classifyWithPartPairs(arg);
+            const fst = threeStyleScramblerJS.pickThreeStyles(threeStyleGroups, true);
+            const snd = threeStyleScramblerJS.pickThreeStyles(threeStyleGroups, true);
+            const third = threeStyleScramblerJS.pickThreeStyles(threeStyleGroups, true);
+
+            // 1手順ずつ選ばれる
+            assert.deepEqual(fst.length, 1);
+            assert.deepEqual(snd.length, 1);
+
+            // 2手順で全てなので、3回目は空
+            assert.deepEqual(third.length, 0);
+
+            const cond = (fst.includes(ts1) && snd.includes(ts2)) || (fst.includes(ts2) && snd.includes(ts1));
+            assert.deepEqual(cond, true);
+        });
     });
 });

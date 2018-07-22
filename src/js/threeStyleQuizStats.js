@@ -5,7 +5,7 @@ const config = require('./config');
 const constant = require('./constant');
 const threeStyleUtils = require('./threeStyleUtils');
 
-const renderStats = (threeStyles, threeStyleQuizLog) => {
+const renderStats = (threeStyles, threeStyleQuizLog, problemList) => {
     const msgArea = document.querySelector('.msgArea');
 
     const threshold = 6.0;
@@ -21,6 +21,8 @@ const renderStats = (threeStyles, threeStyleQuizLog) => {
     const newnessList = threeStyleQuizLog.map(x => x.newness);
     const worstNewness = newnessList.length === 0 ? 0 : Math.min(...newnessList);
     const avgNewness = newnessList.length === 0 ? 0 : math.mean(newnessList);
+    const problemListStickers = problemList.map(x => x.stickers);
+    const threeStylesInProblemList = threeStyleQuizLog.filter(x => problemListStickers.includes(x.stickers));
 
     const p1 = document.createElement('p');
     p1.appendChild(document.createTextNode(`所要時間合計: ${sum.toFixed(1)}秒 (${Math.floor(sum / 60)}分${(Math.floor(sum) % 60)}秒)`));
@@ -50,6 +52,10 @@ const renderStats = (threeStyles, threeStyleQuizLog) => {
     const p4 = document.createElement('p');
     p4.appendChild(document.createTextNode(`${threshold}秒以上かかっている手順の数: ${over5Secs.length}手順`));
     msgArea.appendChild(p4);
+
+    const p11 = document.createElement('p');
+    p11.appendChild(document.createTextNode(`問題リストの中で、${threshold}秒以上かかっている手順の数: ${threeStylesInProblemList.filter(x => x.avg_sec >= threshold).length}/${threeStylesInProblemList.length}手順`));
+    msgArea.appendChild(p11);
 
     const p5 = document.createElement('p');
     p5.appendChild(document.createTextNode(`${threshold}秒以上かかっている手順の合計時間: ${sumOver5.toFixed(1)}秒 (${Math.floor(sumOver5 / 60)}分${(Math.floor(sumOver5) % 60)}秒)`));
@@ -92,12 +98,31 @@ const init = () => {
         form: {},
     };
 
+    // 問題リスト
+    const problemListOptions = {
+        url: `${config.apiRoot}/threeStyleQuizList/${part.name}/${userName}`,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {},
+    };
+
     return threeStyleUtils.getThreeStyles(userName, part)
         .then((threeStyles) => {
             return rp(quizOptions)
                 .then((ans) => {
                     const threeStyleQuizLog = ans.success.result;
-                    renderStats(threeStyles, threeStyleQuizLog);
+
+                    return rp(problemListOptions)
+                        .then((threeStyleQuizListAns) => {
+                            const problemList = threeStyleQuizListAns.success.result;
+                            return renderStats(threeStyles, threeStyleQuizLog, problemList);
+                        })
+                        .catch((err) => {
+                            alert(`エラーが発生しました:${err}`);
+                        });
                 })
                 .catch((err) => {
                     alert(`エラーが発生しました:${err}`);

@@ -47,36 +47,56 @@ const classifyWithPartPairs = (threeStyles) => {
 // できるだけ多くの3-styleを選ぶ (n個選んだ後、まだ条件を満たすような選び方があるならば、停止せずに次を選ぶ)
 // 必ず停止する
 // 許容できる時間で停止する (曖昧...)
-const pickThreeStyles = (threeStyleGroups) => {
+// appearOnceがtrueのとき、threeStyleGroupを破壊的に変更して、以降呼び出した時に同じ3-styleが出題されないようにする
+// これはmutableなので、リファクタリング時などに注意すること
+const pickThreeStyles = (threeStyleGroups, appearOnce = false) => {
     if (Object.keys(threeStyleGroups).length === 0) {
         return [];
+    }
+
+    // threeStyleGroupsの破壊が外側のthreeStyleGroupsに影響しないようにコピー
+    // threeStyleGroupsは2次元連想配列で、単純に_.clone()すると深い部分の配列が参照渡しされてしまうので、
+    // 丁寧にループでコピーを記述
+    const threeStyleGroupsCopied = {};
+    const ks1 = Object.keys(threeStyleGroups);
+    for (let i = 0; i < ks1.length; i++) {
+        const p1 = ks1[i];
+        threeStyleGroupsCopied[p1] = _.clone(threeStyleGroups[p1]);
     }
 
     const ans = [];
     const delim = '-'; // 区切り文字。ステッカーに出てこない文字なら何でもいい
 
     // ペアを列挙 (`${part1}-${part2}` の形式に変形してからflatten)
-    const pairs = Object.keys(threeStyleGroups).map(part1 => Object.keys(threeStyleGroups[part1]).map(part2 => `${part1}${delim}${part2}`));
+    const pairs = Object.keys(threeStyleGroupsCopied).map(part1 => Object.keys(threeStyleGroupsCopied[part1]).map(part2 => `${part1}${delim}${part2}`));
     let flattenedPairs = pairs.reduce((acc, val) => acc.concat(val), []);
 
     while (flattenedPairs.length > 0) {
         // キーの中からランダムに1つ選ぶ
         const [ part1, part2, ] = shuffle.pick(flattenedPairs).split(delim);
-        const pickedThreeStyle = shuffle.pick(threeStyleGroups[part1][part2]);
+        const pickedThreeStyle = shuffle.pick(threeStyleGroupsCopied[part1][part2]);
         ans.push(pickedThreeStyle);
 
         // 選んだkeyを削除
-        delete threeStyleGroups[part1];
-        delete threeStyleGroups[part2];
+        delete threeStyleGroupsCopied[part1];
+        delete threeStyleGroupsCopied[part2];
         // *-part1 か *-part2
-        const ks = Object.keys(threeStyleGroups);
+        const ks = Object.keys(threeStyleGroupsCopied);
         for (let i = 0; i < ks.length; i++) {
-            const key1 = ks[i];
-            delete threeStyleGroups[key1][part1];
-            delete threeStyleGroups[key1][part2];
+            const tmpPart = ks[i];
+            delete threeStyleGroupsCopied[tmpPart][part1];
+            delete threeStyleGroupsCopied[tmpPart][part2];
         }
 
-        const pairs = Object.keys(threeStyleGroups).map(part1 => Object.keys(threeStyleGroups[part1]).map(part2 => `${part1}${delim}${part2}`));
+        // appearOnce が true の場合は外側のthreeStyleGroupsから、使った3-styleを削除
+        if (appearOnce) {
+            threeStyleGroups[part1][part2] = threeStyleGroups[part1][part2].filter(x => x !== pickedThreeStyle);
+            if (threeStyleGroups[part1][part2].length === 0) {
+                delete threeStyleGroups[part1][part2];
+            }
+        }
+
+        const pairs = Object.keys(threeStyleGroupsCopied).map(part1 => Object.keys(threeStyleGroupsCopied[part1]).map(part2 => `${part1}${delim}${part2}`));
 
         // 削除後のkeysを反映
         flattenedPairs = pairs.reduce((acc, val) => acc.concat(val), []);
@@ -86,12 +106,12 @@ const pickThreeStyles = (threeStyleGroups) => {
 };
 
 // コーナーかエッジの3-styleグループを渡し、その中からランダムに3-styleを選び、それらを使うスクランブルを生成
-const getThreeStyleScramble = (threeStyleGroups) => {
+const getThreeStyleScramble = (threeStyleGroups, appearOnce = false) => {
     // 逆順にして1つずつ処理
     // 例: "さみ あか たに"をやりたい -> 完成状態から inv(たに) inv(あか) inv(さみ) で崩す手順を返す
 
     // 実際に解きたい3-style (やる順)
-    const pickedThreeStyles = pickThreeStyles(threeStyleGroups);
+    const pickedThreeStyles = pickThreeStyles(threeStyleGroups, appearOnce);
 
     // 逆順に処理
     const pickedThreeStylesRev = pickedThreeStyles.reverse();
@@ -142,7 +162,7 @@ const getRandomScramble = (partType) => {
     return ansList.join(' ');
 };
 
-const getSingleScramble = (scrambleTypeCorner, scrambleTypeEdge, threeStyleGroupsCorner, threeStyleGroupsEdgeMiddle) => {
+const getSingleScramble = (scrambleTypeCorner, scrambleTypeEdge, threeStyleGroupsCorner, threeStyleGroupsEdgeMiddle, appearOnce = false) => {
     const cube = new Cube();
 
     // コーナーを崩す
@@ -150,7 +170,7 @@ const getSingleScramble = (scrambleTypeCorner, scrambleTypeEdge, threeStyleGroup
     case scrambleType.threeStyle:
         // fall through
     case scrambleType.threeStyleList:
-        cube.move(utils.big2Small(getThreeStyleScramble(threeStyleGroupsCorner)));
+        cube.move(utils.big2Small(getThreeStyleScramble(threeStyleGroupsCorner, appearOnce)));
         break;
     case scrambleType.random:
         cube.move(utils.big2Small(getRandomScramble(constant.partType.corner)));
@@ -167,7 +187,7 @@ const getSingleScramble = (scrambleTypeCorner, scrambleTypeEdge, threeStyleGroup
     case scrambleType.threeStyle:
         // fall through
     case scrambleType.threeStyleList:
-        cube.move(utils.big2Small(getThreeStyleScramble(threeStyleGroupsEdgeMiddle)));
+        cube.move(utils.big2Small(getThreeStyleScramble(threeStyleGroupsEdgeMiddle, appearOnce)));
         break;
     case scrambleType.random:
         cube.move(utils.big2Small(getRandomScramble(constant.partType.edgeMiddle)));
@@ -184,14 +204,15 @@ const getSingleScramble = (scrambleTypeCorner, scrambleTypeEdge, threeStyleGroup
     return utils.inverse(ansMoves);
 };
 
-const getScrambles = (cnt, scrambleTypeCorner, scrambleTypeEdge, threeStylesCorner, threeStylesEdgeMiddle) => {
+// appearOnce: 同じ3-style手順が複数のスクランブル中で1回だけしか出現しないようにする
+const getScrambles = (cnt, scrambleTypeCorner, scrambleTypeEdge, threeStylesCorner, threeStylesEdgeMiddle, appearOnce = false) => {
     const ans = [];
 
     const threeStyleGroupsCorner = classifyWithPartPairs(threeStylesCorner);
     const threeStyleGroupsEdgeMiddle = classifyWithPartPairs(threeStylesEdgeMiddle);
 
     for (let i = 0; i < cnt; i++) {
-        const scramble = getSingleScramble(scrambleTypeCorner, scrambleTypeEdge, _.clone(threeStyleGroupsCorner), _.clone(threeStyleGroupsEdgeMiddle));
+        const scramble = getSingleScramble(scrambleTypeCorner, scrambleTypeEdge, threeStyleGroupsCorner, threeStyleGroupsEdgeMiddle, appearOnce);
         ans.push(scramble);
     }
 
@@ -220,7 +241,7 @@ const readScrambleType = (s) => {
     }
 };
 
-const submit = (threeStylesCorner, threeStylesEdgeMiddle, threeStyleQuizListCorner, threeStyleQuizListEdgeMiddle) => {
+const submit = (threeStylesCorner, threeStylesEdgeMiddle, threeStyleQuizListCorner, threeStyleQuizListEdgeMiddle, appearOnce) => {
     const numText = document.querySelector('.scramblerForm__numText');
     const selectCorner = document.querySelector('.scrambleTypeSelect--corner');
     const selectEdge = document.querySelector('.scrambleTypeSelect--edgeMiddle');
@@ -249,7 +270,7 @@ const submit = (threeStylesCorner, threeStylesEdgeMiddle, threeStyleQuizListCorn
     const threeStyleQuizListEdgeMiddleStickers = threeStyleQuizListEdgeMiddle.map(x => x.stickers);
     const filteredThreeStylesEdgeMiddle = scrambleTypeEdgeMiddle === scrambleType.threeStyleList ? threeStylesEdgeMiddle.filter(x => threeStyleQuizListEdgeMiddleStickers.includes(x.stickers)) : threeStylesEdgeMiddle;
 
-    const scrambles = getScrambles(cnt, scrambleTypeCorner, scrambleTypeEdgeMiddle, filteredThreeStylesCorner, filteredThreeStylesEdgeMiddle);
+    const scrambles = getScrambles(cnt, scrambleTypeCorner, scrambleTypeEdgeMiddle, filteredThreeStylesCorner, filteredThreeStylesEdgeMiddle, appearOnce);
 
     // まず消す
     const scramblesContainer = document.querySelector('.scrambles');
@@ -277,6 +298,9 @@ const init = () => {
 
     Cube.initSolver();
 
+    const appearOnceBox = document.querySelector('.scrambleForm__appearOnceBox');
+    const appearOnce = appearOnceBox.checked;
+
     return threeStyleUtils.getThreeStyles(userName, constant.partType.corner)
         .then((threeStylesCorner) => {
             return threeStyleUtils.getThreeStyles(userName, constant.partType.edgeMiddle)
@@ -285,7 +309,7 @@ const init = () => {
                         .then((threeStyleQuizListCorner) => {
                             return threeStyleUtils.getThreeStyleQuizList(userName, constant.partType.edgeMiddle)
                                 .then((threeStyleQuizListEdgeMiddle) => {
-                                    button.addEventListener('click', () => submit(threeStylesCorner, threeStylesEdgeMiddle, threeStyleQuizListCorner, threeStyleQuizListEdgeMiddle));
+                                    button.addEventListener('click', () => submit(threeStylesCorner, threeStylesEdgeMiddle, threeStyleQuizListCorner, threeStyleQuizListEdgeMiddle, appearOnce));
                                     button.disabled = false;
                                 })
                                 .catch((err) => {
