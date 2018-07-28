@@ -107,6 +107,10 @@ const submit = (part) => {
 
     const searchCond = checkedBtn.value;
 
+    const orderRadios = document.getElementsByName('listThreeStyleForm__radio--order');
+    const checkedOrderBtn = [ ...orderRadios, ].find(elm => elm.checked);
+    const order = checkedOrderBtn.value;
+
     // ナンバリング
     const numberingOptions = {
         url: `${config.apiRoot}/numbering/${part.name}/${userName}`,
@@ -270,8 +274,11 @@ const submit = (part) => {
                                 }
                             }
 
-                            for (let i = 0; i < lineObjList.length; i++) {
-                                const obj = lineObjList[i];
+                            // クイズの履歴に従ってソート
+                            const useSortByQuizLog = order === '苦手順';
+                            const sortedLineObjList = useSortByQuizLog ? lineObjList.sort((a, b) => (a.solved - b.solved) || -(a.avgSec - b.avgSec)) : lineObjList;
+                            for (let i = 0; i < sortedLineObjList.length; i++) {
+                                const obj = sortedLineObjList[i];
 
                                 if (obj.registered) {
                                     const liNode = document.createElement('li');
