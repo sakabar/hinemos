@@ -43,5 +43,27 @@ const getThreeStyleQuizList = (userName, part) => {
         });
 };
 
+const getThreeStyleQuizLog = (userName, part) => {
+    const options = {
+        url: `${config.apiRoot}/threeStyleQuizLog/${part.name}/${userName}`,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {},
+    };
+
+    return rp(options)
+        .then((result) => {
+            return result.success.result;
+        })
+        .catch((err) => {
+            alert(`3-styleクイズの記録の取得に失敗しました: ${err}`);
+            return [];
+        });
+};
+
 exports.getThreeStyles = getThreeStyles;
 exports.getThreeStyleQuizList = getThreeStyleQuizList;
+exports.getThreeStyleQuizLog = getThreeStyleQuizLog;

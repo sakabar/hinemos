@@ -3,6 +3,7 @@ const url = require('url');
 const config = require('./config');
 const constant = require('./constant');
 const utils = require('./utils');
+const threeStyleUtils = require('./threeStyleUtils');
 
 // 3-style登録ページを開く
 const openRegisterPage = (letters, part) => {
@@ -39,6 +40,46 @@ const deleteThreeStyle = (id, part) => {
         .catch(() => {
             alert('削除中に何らかのエラーが発生しました');
         });
+};
+
+// quizLogHash[stickers].solved -> 正解数
+// quizLogHash[stickers].tried -> 最近で解いた問題数
+// quizLogHash[stickers].avgSec -> 3-styleクイズのタイム
+const getQuizLogHash = (quizLogRes) => {
+    const ansHash = {};
+
+    for (let i = 0; i < quizLogRes.length; i++) {
+        const quizLog = quizLogRes[i];
+        const stickers = quizLog.stickers;
+
+        const obj = {
+            solved: quizLog.solved,
+            tried: quizLog.tried,
+            avgSec: quizLog['avg_sec'],
+        };
+
+        ansHash[stickers] = obj;
+    }
+
+    return ansHash;
+};
+
+// threeStyleHash[stickers] -> 手順のリスト
+const getThreeStyleHash = (threeStyles) => {
+    const ansHash = {};
+
+    for (let i = 0; i < threeStyles.length; i++) {
+        const alg = threeStyles[i];
+
+        const stickers = alg.stickers;
+        if (stickers in ansHash) {
+            ansHash[stickers].push(alg);
+        } else {
+            ansHash[stickers] = [ alg, ];
+        }
+    }
+
+    return ansHash;
 };
 
 // タブを開きっぱなしの場合にも対応できるように、
@@ -149,73 +190,79 @@ const submit = (part) => {
 
             return rp(threeStyleOptions)
                 .then((ans) => {
-                    const results = ans.success.result;
+                    const threeStyles = ans.success.result;
 
-                    // 何回も引くことになるのでハッシュ化
-                    const threeStyleHash = {};
-                    for (let i = 0; i < results.length; i++) {
-                        const result = results[i];
+                    return threeStyleUtils.getThreeStyleQuizLog(userName, part)
+                        .then((quizLogRes) => {
+                            // 何回も引くことになるのでハッシュ化
+                            // quizLogHash[stickers].solved -> 正解数
+                            // quizLogHash[stickers].tried -> 最近で解いた問題数
+                            // quizLogHash[stickers].avgSec -> 3-styleクイズのタイム
+                            const quizLogHash = getQuizLogHash(quizLogRes);
 
-                        const stickers = result.stickers;
-                        if (stickers in threeStyleHash) {
-                            threeStyleHash[stickers].push(result);
-                        } else {
-                            threeStyleHash[stickers] = [ result, ];
-                        }
-                    }
+                            // 何回も引くことになるのでハッシュ化
+                            // threeStyleHash[stickers] -> 手順のリスト
+                            const threeStyleHash = getThreeStyleHash(threeStyles);
 
-                    for (let i = 0; i < selectedPerms.length; i++) {
-                        const perm = selectedPerms[i];
+                            for (let i = 0; i < selectedPerms.length; i++) {
+                                const perm = selectedPerms[i];
 
-                        if (perm.stickers in threeStyleHash) {
-                            // 結果がある場合は、それを表示
-                            const lst = threeStyleHash[perm.stickers];
-                            for (let k = 0; k < lst.length; k++) {
-                                const result = lst[k];
-                                const id = result.id;
-                                const buffer = result.buffer;
-                                const sticker1 = result.sticker1;
-                                const sticker2 = result.sticker2;
-                                const setup = result.setup;
-                                const move1 = result.move1;
-                                const move2 = result.move2;
-                                const moveStr = utils.showMove(setup, move1, move2);
+                                if (perm.stickers in threeStyleHash) {
+                                    // 結果がある場合は、それを表示
+                                    const lst = threeStyleHash[perm.stickers];
+                                    const quizLog = quizLogHash[perm.stickers];
 
-                                const liNode = document.createElement('li');
-                                liNode.className = `listThreeStyleForm__oList__list--id${id}`;
+                                    for (let k = 0; k < lst.length; k++) {
+                                        const result = lst[k];
+                                        const id = result.id;
+                                        const buffer = result.buffer;
+                                        const sticker1 = result.sticker1;
+                                        const sticker2 = result.sticker2;
+                                        const setup = result.setup;
+                                        const move1 = result.move1;
+                                        const move2 = result.move2;
+                                        const moveStr = utils.showMove(setup, move1, move2);
 
-                                // 同じ文字に対して、複数の手順を登録してある場合には強調
-                                const dupMsg = lst.length > 1 ? '【重複】 ' : '';
+                                        const liNode = document.createElement('li');
+                                        liNode.className = `listThreeStyleForm__oList__list--id${id}`;
 
-                                const letters = perm.letters;
-                                const textNode = document.createTextNode(`${dupMsg}${letters} ${buffer} ${sticker1} ${sticker2} ${moveStr} `);
-                                const btnNode = document.createElement('input');
-                                btnNode.type = 'button';
-                                btnNode.className = 'listThreeStyleForm__deleteBtn';
-                                btnNode.value = '削除';
-                                btnNode.style.borderColor = '#ff0000';
-                                btnNode.addEventListener('click', () => deleteThreeStyle(id, part));
+                                        // 同じ文字に対して、複数の手順を登録してある場合には強調
+                                        const dupMsg = lst.length > 1 ? '【重複】 ' : '';
 
-                                liNode.appendChild(textNode);
-                                liNode.appendChild(btnNode);
-                                olNode.appendChild(liNode);
+                                        const letters = perm.letters;
+                                        const text = (typeof quizLog === 'undefined') ? `${dupMsg}${letters} ${buffer} ${sticker1} ${sticker2} ${moveStr} 0/0 クイズ記録なし ` : `${dupMsg}${letters} ${buffer} ${sticker1} ${sticker2} ${moveStr} ${quizLog.solved}/${quizLog.tried} ${quizLog.avgSec.toFixed(2)}秒 `;
+                                        const textNode = document.createTextNode(text);
+                                        const btnNode = document.createElement('input');
+                                        btnNode.type = 'button';
+                                        btnNode.className = 'listThreeStyleForm__deleteBtn';
+                                        btnNode.value = '削除';
+                                        btnNode.style.borderColor = '#ff0000';
+                                        btnNode.addEventListener('click', () => deleteThreeStyle(id, part));
+
+                                        liNode.appendChild(textNode);
+                                        liNode.appendChild(btnNode);
+                                        olNode.appendChild(liNode);
+                                    }
+                                } else {
+                                    // 結果が無い場合は、登録するための表示
+                                    const liNode = document.createElement('li');
+                                    const textNode = document.createTextNode(`${perm.letters} ${perm.stickers} 3-style未登録 `);
+                                    const btnNode = document.createElement('input');
+                                    btnNode.type = 'button';
+                                    btnNode.className = 'listThreeStyleForm__registerBtn';
+                                    btnNode.value = '登録';
+                                    btnNode.style.borderColor = '#00ff00';
+                                    btnNode.addEventListener('click', () => openRegisterPage(perm.letters, part));
+
+                                    liNode.appendChild(textNode);
+                                    liNode.appendChild(btnNode);
+                                    olNode.appendChild(liNode);
+                                }
                             }
-                        } else {
-                            // 結果が無い場合は、登録するための表示
-                            const liNode = document.createElement('li');
-                            const textNode = document.createTextNode(`${perm.letters} ${perm.stickers} 3-style未登録 `);
-                            const btnNode = document.createElement('input');
-                            btnNode.type = 'button';
-                            btnNode.className = 'listThreeStyleForm__registerBtn';
-                            btnNode.value = '登録';
-                            btnNode.style.borderColor = '#00ff00';
-                            btnNode.addEventListener('click', () => openRegisterPage(perm.letters, part));
-
-                            liNode.appendChild(textNode);
-                            liNode.appendChild(btnNode);
-                            olNode.appendChild(liNode);
-                        }
-                    }
+                        })
+                        .catch((err) => {
+                            alert(`3-styleクイズ履歴の読み込み中にエラーが発生しました: ${err}`);
+                        });
                 })
                 .catch((err) => {
                     alert(`3-style読み込み中にエラーが発生しました: ${err}`);
