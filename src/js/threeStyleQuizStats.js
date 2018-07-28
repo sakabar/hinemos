@@ -14,7 +14,7 @@ const renderStats = (threeStyles, threeStyleQuizLog, problemList) => {
     const over5Secs = threeStyleQuizLog.filter(x => x.solved < x.tried).map(x => x.avg_sec);
     const sum = math.sum(avgSecs);
     const mean = avgSecs.length === 0 ? 0 : math.mean(avgSecs);
-    const avgSecsIn6 = avgSecs.filter(x => x.tried > 0 && x.solved === x.tried).map(x => x.avg_sec);
+    const avgSecsIn6 = threeStyleQuizLog.filter(x => x.tried > 0 && x.solved === x.tried).map(x => x.avg_sec);
     const meanIn6 = avgSecsIn6.length === 0 ? 0 : math.mean(avgSecsIn6);
     const newnessList = threeStyleQuizLog.map(x => x.newness);
     const worstNewness = newnessList.length === 0 ? 0 : Math.min(...newnessList);
