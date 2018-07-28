@@ -56,9 +56,18 @@
 
       <form class="listThreeStyleForm">
         <input class="listThreeStyleForm__lettersText" type="text" maxlength="2" size="10" placeholder="ひらがな">
+        <br>
+
         <label><input type="radio" name="listThreeStyleForm__radio" value="前方一致" checked>前方一致</label>
         <label><input type="radio" name="listThreeStyleForm__radio" value="後方一致">後方一致</label>
+        <br>
+
+        <label><input type="radio" name="listThreeStyleForm__radio--order" value="ひらがな順" checked>ひらがな順</label>
+        <label><input type="radio" name="listThreeStyleForm__radio--order" value="苦手順">苦手順</label>
+        <br>
+
         <input type="button" class="listThreeStyleForm__submitBtn" value="検索">
+        <!-- エンターで遷移しないようにするため -->
         <input type="text" class="listThreeStyleForm__invisibleText" style="display:none" value="">
         <br>
 
