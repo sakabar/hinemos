@@ -276,7 +276,9 @@ const submit = (part) => {
 
                             // クイズの履歴に従ってソート
                             const useSortByQuizLog = order === '苦手順';
-                            const sortedLineObjList = useSortByQuizLog ? lineObjList.sort((a, b) => (a.solved - b.solved) || -(a.avgSec - b.avgSec)) : lineObjList;
+
+                            // FIXME ここのソートの順、APIと重複しているのでなんとかしたい
+                            const sortedLineObjList = useSortByQuizLog ? lineObjList.sort((a, b) => (a.solved - b.solved) || -(a.tried - b.tried) || -(a.avgSec - b.avgSec)) : lineObjList;
                             for (let i = 0; i < sortedLineObjList.length; i++) {
                                 const obj = sortedLineObjList[i];
 
