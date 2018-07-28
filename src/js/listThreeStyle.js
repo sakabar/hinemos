@@ -204,6 +204,8 @@ const submit = (part) => {
                             // threeStyleHash[stickers] -> 手順のリスト
                             const threeStyleHash = getThreeStyleHash(threeStyles);
 
+                            const lineObjList = []; // 1行で表示したい情報のリスト
+
                             for (let i = 0; i < selectedPerms.length; i++) {
                                 const perm = selectedPerms[i];
 
@@ -223,36 +225,82 @@ const submit = (part) => {
                                         const move2 = result.move2;
                                         const moveStr = utils.showMove(setup, move1, move2);
 
-                                        const liNode = document.createElement('li');
-                                        liNode.className = `listThreeStyleForm__oList__list--id${id}`;
-
                                         // 同じ文字に対して、複数の手順を登録してある場合には強調
                                         const dupMsg = lst.length > 1 ? '【重複】 ' : '';
-
                                         const letters = perm.letters;
-                                        const text = (typeof quizLog === 'undefined') ? `${dupMsg}${letters} ${buffer} ${sticker1} ${sticker2} ${moveStr} 0/0 クイズ記録なし ` : `${dupMsg}${letters} ${buffer} ${sticker1} ${sticker2} ${moveStr} ${quizLog.solved}/${quizLog.tried} ${quizLog.avgSec.toFixed(2)}秒 `;
-                                        const textNode = document.createTextNode(text);
-                                        const btnNode = document.createElement('input');
-                                        btnNode.type = 'button';
-                                        btnNode.className = 'listThreeStyleForm__deleteBtn';
-                                        btnNode.value = '削除';
-                                        btnNode.style.borderColor = '#ff0000';
-                                        btnNode.addEventListener('click', () => deleteThreeStyle(id, part));
 
-                                        liNode.appendChild(textNode);
-                                        liNode.appendChild(btnNode);
-                                        olNode.appendChild(liNode);
+                                        if (typeof quizLog === 'undefined') {
+                                            const text = `${dupMsg}${letters} ${buffer} ${sticker1} ${sticker2} ${moveStr} 0/0 クイズ記録なし `;
+                                            const obj = {
+                                                registered: true,
+                                                id,
+                                                letters,
+                                                solved: 0,
+                                                tried: 0,
+                                                avgSec: 0.0,
+                                                text,
+                                            };
+
+                                            lineObjList.push(obj);
+                                        } else {
+                                            const text = `${dupMsg}${letters} ${buffer} ${sticker1} ${sticker2} ${moveStr} ${quizLog.solved}/${quizLog.tried} ${quizLog.avgSec.toFixed(2)}秒 `;
+                                            const obj = {
+                                                registered: true,
+                                                id,
+                                                letters,
+                                                solved: quizLog.solved,
+                                                tried: quizLog.tried,
+                                                avgSec: quizLog.avgSec,
+                                                text,
+                                            };
+
+                                            lineObjList.push(obj);
+                                        }
                                     }
+                                } else {
+                                    const text = `${perm.letters} ${perm.stickers} 3-style未登録 `;
+                                    const letters = perm.letters;
+                                    const obj = {
+                                        registered: false,
+                                        letters,
+                                        text,
+                                    };
+
+                                    lineObjList.push(obj);
+                                }
+                            }
+
+                            for (let i = 0; i < lineObjList.length; i++) {
+                                const obj = lineObjList[i];
+
+                                if (obj.registered) {
+                                    const liNode = document.createElement('li');
+                                    const id = obj.id;
+                                    liNode.className = `listThreeStyleForm__oList__list--id${id}`;
+
+                                    const text = obj.text;
+                                    const textNode = document.createTextNode(text);
+                                    const btnNode = document.createElement('input');
+                                    btnNode.type = 'button';
+                                    btnNode.className = 'listThreeStyleForm__deleteBtn';
+                                    btnNode.value = '削除';
+                                    btnNode.style.borderColor = '#ff0000';
+                                    btnNode.addEventListener('click', () => deleteThreeStyle(id, part));
+
+                                    liNode.appendChild(textNode);
+                                    liNode.appendChild(btnNode);
+                                    olNode.appendChild(liNode);
                                 } else {
                                     // 結果が無い場合は、登録するための表示
                                     const liNode = document.createElement('li');
-                                    const textNode = document.createTextNode(`${perm.letters} ${perm.stickers} 3-style未登録 `);
+                                    const text = obj.text;
+                                    const textNode = document.createTextNode(text);
                                     const btnNode = document.createElement('input');
                                     btnNode.type = 'button';
                                     btnNode.className = 'listThreeStyleForm__registerBtn';
                                     btnNode.value = '登録';
                                     btnNode.style.borderColor = '#00ff00';
-                                    btnNode.addEventListener('click', () => openRegisterPage(perm.letters, part));
+                                    btnNode.addEventListener('click', () => openRegisterPage(obj.letters, part));
 
                                     liNode.appendChild(textNode);
                                     liNode.appendChild(btnNode);
