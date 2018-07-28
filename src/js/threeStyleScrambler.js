@@ -281,9 +281,9 @@ const submit = (threeStylesCorner, threeStylesEdgeMiddle, threeStyleQuizListCorn
     // ノードに追加
     for (let i = 0; i < scrambles.length; i++) {
         const scramble = scrambles[i];
-        const pTag = document.createElement('p');
-        pTag.appendChild(document.createTextNode(scramble));
-        scramblesContainer.appendChild(pTag);
+        const scrambleNode = document.createElement('li');
+        scrambleNode.appendChild(document.createTextNode(scramble));
+        scramblesContainer.appendChild(scrambleNode);
     }
 };
 
