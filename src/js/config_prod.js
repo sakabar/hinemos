@@ -1,4 +1,4 @@
 module.exports = {
-    apiRoot: 'http://saxcy.info:8192/hinemos',
-    urlRoot: 'http://saxcy.info/hinemos',
+    apiRoot: 'https://saxcy.info:8192/hinemos',
+    urlRoot: 'https://saxcy.info/hinemos',
 };
