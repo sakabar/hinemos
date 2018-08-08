@@ -231,6 +231,9 @@ const init = () => {
 
     const days = urlObj.query.days ? parseFloat(urlObj.query.days) : 28; // 「n日間に」
     const solved = urlObj.query.solved === 'true'; // 解いた or 解いていない問題
+    // FIXME 本来はこれをAPIにそのまま渡すべき
+    // 本来は+avgSecのように明示したかったが、+が半角スペースに置き換わってしまうので断念
+    const quizOrder = urlObj.query['sort']; // '-avg_sec' -> タイム降順、'avg_sec' -> タイム昇順。デフォルトは降順
 
     // ロード時に埋める
     renderSettings(days, solved);
@@ -315,7 +318,7 @@ const init = () => {
 
                     return rp(quizOptions)
                         .then((ans) => {
-                            const quizLogRes = ans.success.result;
+                            const quizLogRes = quizOrder === 'avgSec' ? ans.success.result.reverse() : ans.success.result;
                             const quizLogStickers = quizLogRes.map(x => x.stickers);
 
                             return rp(threeStyleOptions)
