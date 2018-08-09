@@ -22,7 +22,7 @@ const renderSettings = (days, solved) => {
 
 // 入力された設定を反映
 // FIXME レターペアと実装が重複…いや、partが入っているからそうでもなかった
-const reloadWithOptions = (part, problemListType) => {
+const reloadWithOptions = (part, problemListType, quizOrder) => {
     const daysText = document.querySelector('.settingForm__daysText');
 
     // daysは0以上の値であることを想定
@@ -30,7 +30,7 @@ const reloadWithOptions = (part, problemListType) => {
 
     const solved = document.querySelector('#settingForm__radio--solved').checked;
 
-    location.href = `${config.urlRoot}/threeStyle/quiz.html?&part=${part.name}&problemListType=${problemListType.name}&solved=${solved}&days=${days}`;
+    location.href = `${config.urlRoot}/threeStyle/quiz.html?&part=${part.name}&problemListType=${problemListType.name}&solved=${solved}&days=${days}&sort=${quizOrder}`;
 };
 
 const getHint = (setup, move1, move2) => {
@@ -244,7 +244,7 @@ const init = () => {
     // 設定読み込みボタン
     const reloadBtn = document.querySelector('.settingForm__reloadBtn');
     if (reloadBtn) {
-        reloadBtn.addEventListener('click', () => reloadWithOptions(part, problemListType));
+        reloadBtn.addEventListener('click', () => reloadWithOptions(part, problemListType, quizOrder));
     }
 
     // 登録済の3-styleを持っておく
