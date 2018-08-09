@@ -43,7 +43,7 @@
     "chunk": "0.0.2",
     "count-array-values": "^1.2.1",
     "cubejs": "^1.1.0",
-    "handsontable": "^4.0.0",
+    "handsontable": "^5.0.0",
     "mathjs": "^5.0.4",
     "net": "1.0.2",
     "request": "^2.87.0",
