@@ -11,10 +11,11 @@ const renderStats = (threeStyles, threeStyleQuizLog, problemList) => {
     const threeStyleStickerSet = new Set(threeStyles.map(x => x.stickers));
 
     const avgSecs = threeStyleQuizLog.map(x => x.avg_sec);
-    const over5Secs = threeStyleQuizLog.filter(x => x.solved < x.tried).map(x => x.avg_sec);
+    // FIXME 3がマジックナンバー
+    const over5Secs = threeStyleQuizLog.filter(x => x.solved < 3).map(x => x.avg_sec);
     const sum = math.sum(avgSecs);
     const mean = avgSecs.length === 0 ? 0 : math.mean(avgSecs);
-    const avgSecsIn6 = threeStyleQuizLog.filter(x => x.tried > 0 && x.solved === x.tried).map(x => x.avg_sec);
+    const avgSecsIn6 = threeStyleQuizLog.filter(x => x.solved >= 3).map(x => x.avg_sec);
     const meanIn6 = avgSecsIn6.length === 0 ? 0 : math.mean(avgSecsIn6);
     const newnessList = threeStyleQuizLog.map(x => x.newness);
     const worstNewness = newnessList.length === 0 ? 0 : Math.min(...newnessList);
@@ -48,11 +49,12 @@ const renderStats = (threeStyles, threeStyleQuizLog, problemList) => {
     msgArea.appendChild(p8);
 
     const p4 = document.createElement('p');
-    p4.appendChild(document.createTextNode(`失敗することがある手順の数: ${over5Secs.length}手順`));
+    p4.appendChild(document.createTextNode(`直近で3回連続で正解できなかった手順: ${over5Secs.length}手順`));
     msgArea.appendChild(p4);
 
     const p11 = document.createElement('p');
-    p11.appendChild(document.createTextNode(`問題リストの中で、失敗することがある手順の数: ${threeStylesInProblemList.filter(x => x.solved < x.tried).length}/${threeStylesInProblemList.length}手順`));
+    // FIXME 3がマジックナンバー
+    p11.appendChild(document.createTextNode(`問題リストの中で、直近で3回連続で正解できなかった手順: ${threeStylesInProblemList.filter(x => x.solved < 3).length}/${threeStylesInProblemList.length}手順`));
     msgArea.appendChild(p11);
 };
 
