@@ -18,7 +18,7 @@ const getOldPochmannMethods = (s2l) => {
     oldPochmannMethods['BDL'] = `D' (「${s2l['RBD']}」手順 ) D`;
     oldPochmannMethods['BDR'] = `D' (「${s2l['RDF']}」手順 ) D`;
     // oldPochmannMethods['BLU']
-    oldPochmannMethods['BRU'] = `R F (「${s2l['RDF']}」手順 ) F' R'`;
+    oldPochmannMethods['BRU'] = `R' F (「${s2l['RDF']}」手順 ) F' R`;
 
     // oldPochmannMethods['LBU']
     oldPochmannMethods['LDF'] = `D2 (「${s2l['RBD']}」手順 ) D2`;
