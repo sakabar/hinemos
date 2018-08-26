@@ -18,7 +18,7 @@
       }
     </script>
 
-    <title>レターペア表</title>
+    <title>Old Pochmann法 手順表</title>
     <meta charset="UTF-8">
     <meta name="robots" content="noindex,nofollow,noarchive">
     <meta http-equiv="pragma" content="no-store">
@@ -28,6 +28,8 @@
     <link rel="shortcut icon" href="./icon_bw.png">
     <link rel="stylesheet" type="text/css" href="normalize.css">
     <link rel="stylesheet" type="text/css" href="common.css?version=v1.3.0">
+    <!-- M2法のCSSと設定を共有しているので注意 -->
+    <link rel="stylesheet" type="text/css" href="m2Method.css?version=v1.3.0">
   </head>
 
   <body>
@@ -43,23 +45,29 @@
     </header>
 
     <main>
-      <h1>レターペア表</h1>
-      <div class="viewLetterPair">
-        <div "viewLetterPair__msg">
+      <h1>Old Pochmann法 手順表</h1>
+      <div class="oldPochmannMethod">
+        <ul>
+          <li>まず<a href="numbering3.html">ナンバリング</a>を登録して下さい</li>
+          <li><a href="https://ameblo.jp/shin2179/entry-12294462304.html">コーナーOld Pochmann法の拡張について (外部リンク)</a>のように、R面のどこかにセットアップしています</li>
           <ul>
-            <li>ひらがなは、ヨコ→タテの順に読んでください</li>
-            <li>単語サジェスト機能を使う場合は<a href="registerLetterPair.html">こちら</a></li>
-            <li><b>登録したレターペアは他の人に対してサジェストされる場合があります。誰が登録した単語なのかは表示されませんが、フルネームや住所など、個人の特定に繋がる情報は入力しないでください</b></li>
+            <li>hinemos管理者は、最初からR面のどこかにセットアップするやり方を覚えたほうが、逆セットアップのミスが減ってよいと考えています</li>
           </ul>
-        </div>
+          <li>手順は一例であり、他のセットアップも存在する場合があります</li>
+        </ul>
 
-        <form class="viewLetterPairForm">
-          <input class="viewLetterPairForm__saveBtn" type="button" value="保存">
-          <div class="viewLetterPairForm__table"></div>
-        </form>
+        <table class="oldPochmannMethod__table" border="1">
+          <tr>
+            <th>ステッカー</th>
+            <th>ナンバリング</th>
+            <th>手順</th>
+            <th>備考</th>
+          </tr>
+        </table>
+        <br>
       </div>
     </main>
 
-    <script type="text/javascript" src="./letterPairTable.bundle.js?version=v1.3.0"></script>
+    <script type="text/javascript" src="./oldPochmannMethod.bundle.js?version=v1.3.0"></script>
   </body>
 </html>
