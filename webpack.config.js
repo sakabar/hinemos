@@ -14,6 +14,7 @@ module.exports = {
         m2Method: './m2Method.js',
         mypage: './mypage.js',
         numbering3: './numbering3.js',
+        oldPochmannMethod: './oldPochmannMethod.js',
         registerFaceColor: './registerFaceColor.js',
         registerLetterPair: './registerLetterPair.js',
         registerThreeStyle: './registerThreeStyle.js',
