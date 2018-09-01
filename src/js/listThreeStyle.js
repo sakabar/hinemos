@@ -280,10 +280,16 @@ const submit = (part) => {
                             }
 
                             // クイズの履歴に従ってソート
-                            const useSortByQuizLog = order === '苦手順';
-
+                            // デフォルトはひらがな順
                             // FIXME ここのソートの順、APIと重複しているのでなんとかしたい
-                            const sortedLineObjList = useSortByQuizLog ? lineObjList.sort((a, b) => ((a.registered ? 1 : 0) - (b.registered ? 1 : 0)) || -((a.solved === 0 && a.tried === 0 ? 1 : 0) - (b.solved === 0 && b.tried === 0 ? 1 : 0)) || (a.solved - b.solved) || -(a.tried - b.tried) || -(a.avgSec - b.avgSec)) : lineObjList;
+                            let sortedLineObjList = lineObjList;
+
+                            if (order === '覚えていない順') {
+                                sortedLineObjList = lineObjList.sort((a, b) => ((a.registered ? 1 : 0) - (b.registered ? 1 : 0)) || -((a.solved === 0 && a.tried === 0 ? 1 : 0) - (b.solved === 0 && b.tried === 0 ? 1 : 0)) || (a.solved - b.solved) || -(a.tried - b.tried) || -(a.avgSec - b.avgSec));
+                            } else if (order === '遅い順') {
+                                sortedLineObjList = lineObjList.sort((a, b) => ((a.registered ? 1 : 0) - (b.registered ? 1 : 0)) || -((a.solved === 0 && a.tried === 0 ? 1 : 0) - (b.solved === 0 && b.tried === 0 ? 1 : 0)) || -(a.avgSec - b.avgSec) || (a.solved - b.solved) || -(a.tried - b.tried));
+                            }
+
                             for (let i = 0; i < sortedLineObjList.length; i++) {
                                 const obj = sortedLineObjList[i];
 
