@@ -182,16 +182,16 @@ const ProblemListType = {
 // 画面での配置を変えた時にはこれも変えないといけない
 const keyUpAction = (part, letterPairs, numberings, selectedThreeStyles) => {
     return (evt) => {
-        if (evt.which === 37) {
-            // 左キー
+        if (evt.which === 37 || evt.which === 13) {
+            // 左キー or Enter
             submit(part, letterPairs, numberings, selectedThreeStyles, 1);
         } else if (evt.which === 38) {
             // 上キー
-        } else if (evt.which === 39) {
-            // 右キー
+        } else if (evt.which === 39 || evt.which === 8) {
+            // 右キー or BackSpace
             submit(part, letterPairs, numberings, selectedThreeStyles, 0);
-        } else if (evt.which === 40) {
-            // 下キー
+        } else if (evt.which === 40 || evt.which === 32) {
+            // 下キー or Space
             showHint();
         }
     };
@@ -233,7 +233,11 @@ const init = () => {
     const solved = urlObj.query.solved === 'true'; // 解いた or 解いていない問題
     // FIXME 本来はこれをAPIにそのまま渡すべき
     // 本来は+avgSecのように明示したかったが、+が半角スペースに置き換わってしまうので断念
-    const quizOrder = urlObj.query['sort']; // '-avg_sec' -> タイム降順、'avg_sec' -> タイム昇順。デフォルトは降順
+    // 'acc' -> 正解率昇順、タイム降順 (デフォルトはacc)
+    // '-acc' -> 正解率降順、タイム昇順
+    // '-avgSec' -> タイム降順、(かつ、sovled === triedである手順だけに絞り込む)
+    // 本来は、sort順とフィルタ条件は分けるべき FIXME
+    const quizOrder = urlObj.query['sort'];
 
     // ロード時に埋める
     renderSettings(days, solved);
@@ -318,14 +322,25 @@ const init = () => {
 
                     return rp(quizOptions)
                         .then((ans) => {
-                            const quizLogRes = quizOrder === 'avgSec' ? ans.success.result.reverse() : ans.success.result;
+                            const quizLogRes = quizOrder === '-acc' ? ans.success.result.reverse() : ans.success.result;
                             const quizLogStickers = quizLogRes.map(x => x.stickers);
 
                             return rp(threeStyleOptions)
                                 .then((ans) => {
-                                    const tmpThreeStyles = ans.success.result;
                                     // n日以内に解いた問題をやるという機能は、登録済の手順を「n日以内に解いた手順」のみにすることで実現
-                                    const threeStyles = solved ? tmpThreeStyles.filter(x => quizLogStickers.includes(x.stickers)) : tmpThreeStyles;
+                                    // 得意な順に解く場合や、正解率100%の手順を遅い順で解く場合にも、同様に登録済の手順を絞り込む (あまり美しくない実現方法である。FIXME)
+                                    let tmpThreeStyles = ans.success.result;
+                                    if (solved || quizOrder === '-acc') {
+                                        // 履歴無しの問題が出題されないようにする
+                                        tmpThreeStyles = tmpThreeStyles.filter(x => quizLogStickers.includes(x.stickers));
+                                    } else if (quizOrder === '-avgSec') {
+                                        // 履歴無しの問題が出題されないようにする
+                                        // かつ、正解率100%の手順だけ出題するようにする
+
+                                        const quizLogStickersAccurate = quizLogRes.filter(x => x.solved === x.tried).map(x => x.stickers);
+                                        tmpThreeStyles = tmpThreeStyles.filter(x => quizLogStickersAccurate.includes(x.stickers));
+                                    }
+                                    const threeStyles = tmpThreeStyles;
 
                                     return rp(problemListOptions)
                                         .then((ans) => {

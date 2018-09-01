@@ -5,7 +5,7 @@ const config = require('./config');
 const constant = require('./constant');
 const threeStyleUtils = require('./threeStyleUtils');
 
-const renderStats = (threeStyles, threeStyleQuizLog, problemList) => {
+const renderStats = (part, threeStyles, threeStyleQuizLog, problemList) => {
     const msgArea = document.querySelector('.msgArea');
 
     const threeStyleStickerSet = new Set(threeStyles.map(x => x.stickers));
@@ -14,7 +14,8 @@ const renderStats = (threeStyles, threeStyleQuizLog, problemList) => {
     // FIXME 3がマジックナンバー
     const over5Secs = threeStyleQuizLog.filter(x => x.solved < 3).map(x => x.avg_sec);
     const sum = math.sum(avgSecs);
-    const mean = avgSecs.length === 0 ? 0 : math.mean(avgSecs);
+    const avgSecsWithoutZero = threeStyleQuizLog.filter(x => x.avg_sec > 0).map(x => x.avg_sec);
+    const mean = avgSecsWithoutZero.length === 0 ? 0 : math.mean(avgSecsWithoutZero);
     const avgSecsIn6 = threeStyleQuizLog.filter(x => x.solved >= 3).map(x => x.avg_sec);
     const meanIn6 = avgSecsIn6.length === 0 ? 0 : math.mean(avgSecsIn6);
     const newnessList = threeStyleQuizLog.map(x => x.newness);
@@ -22,6 +23,8 @@ const renderStats = (threeStyles, threeStyleQuizLog, problemList) => {
     const avgNewness = newnessList.length === 0 ? 0 : math.mean(newnessList);
     const problemListStickers = problemList.map(x => x.stickers);
     const threeStylesInProblemList = threeStyleQuizLog.filter(x => problemListStickers.includes(x.stickers));
+    const avgSecInThreeStylesInProblemListWithoutZero = threeStylesInProblemList.filter(x => x.avg_sec > 0).map(x => x.avg_sec);
+    const meanInProblemList = avgSecInThreeStylesInProblemListWithoutZero.length === 0 ? 0 : math.mean(avgSecInThreeStylesInProblemListWithoutZero);
 
     const p1 = document.createElement('p');
     p1.appendChild(document.createTextNode(`所要時間合計: ${sum.toFixed(1)}秒 (${Math.floor(sum / 60)}分${(Math.floor(sum) % 60)}秒)`));
@@ -47,6 +50,18 @@ const renderStats = (threeStyles, threeStyleQuizLog, problemList) => {
     const p8 = document.createElement('p');
     p8.appendChild(document.createTextNode(`平均: ${meanIn6.toFixed(2)}秒 (直近で3回連続で正解できた手順)`));
     msgArea.appendChild(p8);
+
+    const p13 = document.createElement('p');
+    if (part === constant.partType.corner) {
+        p13.appendChild(document.createTextNode(`平均: ${(meanIn6 * 4).toFixed(2)}秒 (直近で3回連続で正解できた手順、4手順実行)`));
+    } else if (part === constant.partType.edgeMiddle) {
+        p13.appendChild(document.createTextNode(`平均: ${(meanIn6 * 6).toFixed(2)}秒 (直近で3回連続で正解できた手順、6手順実行)`));
+    }
+    msgArea.appendChild(p13);
+
+    const p12 = document.createElement('p');
+    p12.appendChild(document.createTextNode(`平均: ${meanInProblemList.toFixed(2)}秒 (問題リスト内)`));
+    msgArea.appendChild(p12);
 
     const p4 = document.createElement('p');
     p4.appendChild(document.createTextNode(`直近で3回連続で正解できなかった手順: ${over5Secs.length}手順`));
@@ -110,7 +125,7 @@ const init = () => {
                     return rp(problemListOptions)
                         .then((threeStyleQuizListAns) => {
                             const problemList = threeStyleQuizListAns.success.result;
-                            return renderStats(threeStyles, threeStyleQuizLog, problemList);
+                            return renderStats(part, threeStyles, threeStyleQuizLog, problemList);
                         })
                         .catch((err) => {
                             alert(`エラーが発生しました:${err}`);

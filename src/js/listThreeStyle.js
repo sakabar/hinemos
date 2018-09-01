@@ -13,7 +13,7 @@ const openRegisterPage = (letters, part) => {
 // threeStyleを削除する
 const deleteThreeStyle = (id, part) => {
     const token = localStorage.token;
-    const olNode = document.querySelector('.listThreeStyleForm__oList');
+    const tbodyNode = document.querySelector('.listThreeStyleForm__table__tbody');
 
     if (!window.confirm('本当に削除しますか?')) {
         return;
@@ -34,8 +34,8 @@ const deleteThreeStyle = (id, part) => {
 
     rp(deleteOption)
         .then(() => {
-            const liNode = document.querySelector(`.listThreeStyleForm__oList__list--id${id}`);
-            olNode.removeChild(liNode);
+            const rowNode = document.querySelector(`.listThreeStyleForm__table__tbody__row--id${id}`);
+            tbodyNode.removeChild(rowNode);
         })
         .catch(() => {
             alert('削除中に何らかのエラーが発生しました');
@@ -87,11 +87,11 @@ const getThreeStyleHash = (threeStyles) => {
 const submit = (part) => {
     const userName = localStorage.userName;
 
-    const olNode = document.querySelector('.listThreeStyleForm__oList');
-    // まずolNodeの要素を空に
-    while (olNode.firstChild) {
-        olNode.removeChild(olNode.firstChild);
-    };
+    const tbodyNode = document.querySelector('.listThreeStyleForm__table__tbody');
+    // tbodyNodeの子要素を削除
+    while (tbodyNode.firstChild) {
+        tbodyNode.removeChild(tbodyNode.firstChild);
+    }
 
     const lettersText = document.querySelector('.listThreeStyleForm__lettersText');
     const inputLetters = lettersText.value;
@@ -224,6 +224,7 @@ const submit = (part) => {
                                         const buffer = result.buffer;
                                         const sticker1 = result.sticker1;
                                         const sticker2 = result.sticker2;
+                                        const stickers = `${buffer} ${sticker1} ${sticker2}`;
                                         const setup = result.setup;
                                         const move1 = result.move1;
                                         const move2 = result.move2;
@@ -234,40 +235,44 @@ const submit = (part) => {
                                         const letters = perm.letters;
 
                                         if (typeof quizLog === 'undefined') {
-                                            const text = `${dupMsg}${letters} ${buffer} ${sticker1} ${sticker2} ${moveStr} 0/0 クイズ記録なし `;
                                             const obj = {
                                                 registered: true,
                                                 id,
-                                                letters,
+                                                letters: `${dupMsg}${letters}`,
+                                                stickers,
+                                                moveStr,
                                                 solved: 0,
                                                 tried: 0,
                                                 avgSec: 0.0,
-                                                text,
                                             };
 
                                             lineObjList.push(obj);
                                         } else {
-                                            const text = `${dupMsg}${letters} ${buffer} ${sticker1} ${sticker2} ${moveStr} ${quizLog.solved}/${quizLog.tried} ${quizLog.avgSec.toFixed(2)}秒 `;
                                             const obj = {
                                                 registered: true,
                                                 id,
-                                                letters,
+                                                letters: `${dupMsg}${letters}`,
+                                                stickers,
+                                                moveStr,
                                                 solved: quizLog.solved,
                                                 tried: quizLog.tried,
                                                 avgSec: quizLog.avgSec,
-                                                text,
                                             };
 
                                             lineObjList.push(obj);
                                         }
                                     }
                                 } else {
-                                    const text = `${perm.letters} ${perm.stickers} 3-style未登録 `;
                                     const letters = perm.letters;
                                     const obj = {
                                         registered: false,
+                                        id: undefined,
                                         letters,
-                                        text,
+                                        stickers: perm.stickers,
+                                        moveStr: undefined,
+                                        solved: undefined,
+                                        tried: undefined,
+                                        avgSec: undefined,
                                     };
 
                                     lineObjList.push(obj);
@@ -275,20 +280,52 @@ const submit = (part) => {
                             }
 
                             // クイズの履歴に従ってソート
-                            const useSortByQuizLog = order === '苦手順';
-
+                            // デフォルトはひらがな順
                             // FIXME ここのソートの順、APIと重複しているのでなんとかしたい
-                            const sortedLineObjList = useSortByQuizLog ? lineObjList.sort((a, b) => (a.solved - b.solved) || -(a.tried - b.tried) || -(a.avgSec - b.avgSec)) : lineObjList;
+                            let sortedLineObjList = lineObjList;
+
+                            if (order === '覚えていない順') {
+                                sortedLineObjList = lineObjList.sort((a, b) => ((a.registered ? 1 : 0) - (b.registered ? 1 : 0)) || -((a.solved === 0 && a.tried === 0 ? 1 : 0) - (b.solved === 0 && b.tried === 0 ? 1 : 0)) || (a.solved - b.solved) || -(a.tried - b.tried) || -(a.avgSec - b.avgSec));
+                            } else if (order === '遅い順') {
+                                sortedLineObjList = lineObjList.sort((a, b) => ((a.registered ? 1 : 0) - (b.registered ? 1 : 0)) || -((a.solved === 0 && a.tried === 0 ? 1 : 0) - (b.solved === 0 && b.tried === 0 ? 1 : 0)) || -(a.avgSec - b.avgSec) || (a.solved - b.solved) || -(a.tried - b.tried));
+                            }
+
                             for (let i = 0; i < sortedLineObjList.length; i++) {
                                 const obj = sortedLineObjList[i];
 
                                 if (obj.registered) {
-                                    const liNode = document.createElement('li');
+                                    const trNode = document.createElement('tr');
                                     const id = obj.id;
-                                    liNode.className = `listThreeStyleForm__oList__list--id${id}`;
+                                    trNode.className = `listThreeStyleForm__table__tbody__row--id${id}`;
 
-                                    const text = obj.text;
-                                    const textNode = document.createTextNode(text);
+                                    const tdNodeIndex = document.createElement('td');
+                                    tdNodeIndex.appendChild(document.createTextNode(`${i + 1}`));
+                                    trNode.appendChild(tdNodeIndex);
+
+                                    const tdNodeLetters = document.createElement('td');
+                                    tdNodeLetters.appendChild(document.createTextNode(`${obj.letters}`));
+                                    trNode.appendChild(tdNodeLetters);
+
+                                    const tdNodeStickers = document.createElement('td');
+                                    tdNodeStickers.appendChild(document.createTextNode(`${obj.stickers}`));
+                                    trNode.appendChild(tdNodeStickers);
+
+                                    const tdNodeMoveStr = document.createElement('td');
+                                    tdNodeMoveStr.appendChild(document.createTextNode(`${obj.moveStr}`));
+                                    trNode.appendChild(tdNodeMoveStr);
+
+                                    const tdNodeAcc = document.createElement('td');
+                                    if (obj.solved !== 0 || obj.tried !== 0) {
+                                        tdNodeAcc.appendChild(document.createTextNode(`${obj.solved}/${obj.tried}`));
+                                    }
+                                    trNode.appendChild(tdNodeAcc);
+
+                                    const tdNodeAvgSec = document.createElement('td');
+                                    if ((obj.solved !== 0 || obj.tried !== 0) && obj.avgSec > 0.0) {
+                                        tdNodeAvgSec.appendChild(document.createTextNode(`${obj.avgSec.toFixed(2)}秒`));
+                                    }
+                                    trNode.appendChild(tdNodeAvgSec);
+
                                     const btnNode = document.createElement('input');
                                     btnNode.type = 'button';
                                     btnNode.className = 'listThreeStyleForm__deleteBtn';
@@ -296,14 +333,40 @@ const submit = (part) => {
                                     btnNode.style.borderColor = '#ff0000';
                                     btnNode.addEventListener('click', () => deleteThreeStyle(id, part));
 
-                                    liNode.appendChild(textNode);
-                                    liNode.appendChild(btnNode);
-                                    olNode.appendChild(liNode);
+                                    const tdNodeBtn = document.createElement('td');
+                                    tdNodeBtn.appendChild(btnNode);
+                                    trNode.appendChild(tdNodeBtn);
+
+                                    tbodyNode.appendChild(trNode);
                                 } else {
                                     // 結果が無い場合は、登録するための表示
-                                    const liNode = document.createElement('li');
-                                    const text = obj.text;
-                                    const textNode = document.createTextNode(text);
+                                    // FIXME すごく重複している…
+
+                                    const trNode = document.createElement('tr');
+                                    const tdNodeIndex = document.createElement('td');
+                                    tdNodeIndex.appendChild(document.createTextNode(`${i + 1}`));
+                                    trNode.appendChild(tdNodeIndex);
+
+                                    const tdNodeLetters = document.createElement('td');
+                                    tdNodeLetters.appendChild(document.createTextNode(`${obj.letters}`));
+                                    trNode.appendChild(tdNodeLetters);
+
+                                    const tdNodeStickers = document.createElement('td');
+                                    tdNodeStickers.appendChild(document.createTextNode(`${obj.stickers}`));
+                                    trNode.appendChild(tdNodeStickers);
+
+                                    const tdNodeMoveStr = document.createElement('td');
+                                    tdNodeMoveStr.appendChild(document.createTextNode('3-style未登録'));
+                                    trNode.appendChild(tdNodeMoveStr);
+
+                                    const tdNodeAcc = document.createElement('td');
+                                    tdNodeAcc.appendChild(document.createTextNode(''));
+                                    trNode.appendChild(tdNodeAcc);
+
+                                    const tdNodeAvgSec = document.createElement('td');
+                                    tdNodeAvgSec.appendChild(document.createTextNode(''));
+                                    trNode.appendChild(tdNodeAvgSec);
+
                                     const btnNode = document.createElement('input');
                                     btnNode.type = 'button';
                                     btnNode.className = 'listThreeStyleForm__registerBtn';
@@ -311,9 +374,11 @@ const submit = (part) => {
                                     btnNode.style.borderColor = '#00ff00';
                                     btnNode.addEventListener('click', () => openRegisterPage(obj.letters, part));
 
-                                    liNode.appendChild(textNode);
-                                    liNode.appendChild(btnNode);
-                                    olNode.appendChild(liNode);
+                                    const tdNodeBtn = document.createElement('td');
+                                    tdNodeBtn.appendChild(btnNode);
+                                    trNode.appendChild(tdNodeBtn);
+
+                                    tbodyNode.appendChild(trNode);
                                 }
                             }
                         })
