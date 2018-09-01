@@ -14,7 +14,8 @@ const renderStats = (threeStyles, threeStyleQuizLog, problemList) => {
     // FIXME 3がマジックナンバー
     const over5Secs = threeStyleQuizLog.filter(x => x.solved < 3).map(x => x.avg_sec);
     const sum = math.sum(avgSecs);
-    const mean = avgSecs.length === 0 ? 0 : math.mean(avgSecs);
+    const avgSecsWithoutZero = threeStyleQuizLog.filter(x => x.avg_sec > 0).map(x => x.avg_sec);
+    const mean = avgSecsWithoutZero.length === 0 ? 0 : math.mean(avgSecsWithoutZero);
     const avgSecsIn6 = threeStyleQuizLog.filter(x => x.solved >= 3).map(x => x.avg_sec);
     const meanIn6 = avgSecsIn6.length === 0 ? 0 : math.mean(avgSecsIn6);
     const newnessList = threeStyleQuizLog.map(x => x.newness);
