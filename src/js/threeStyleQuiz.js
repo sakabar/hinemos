@@ -182,16 +182,16 @@ const ProblemListType = {
 // 画面での配置を変えた時にはこれも変えないといけない
 const keyUpAction = (part, letterPairs, numberings, selectedThreeStyles) => {
     return (evt) => {
-        if (evt.which === 37) {
-            // 左キー
+        if (evt.which === 37 || evt.which === 13) {
+            // 左キー or Enter
             submit(part, letterPairs, numberings, selectedThreeStyles, 1);
         } else if (evt.which === 38) {
             // 上キー
-        } else if (evt.which === 39) {
-            // 右キー
+        } else if (evt.which === 39 || evt.which === 8) {
+            // 右キー or BackSpace
             submit(part, letterPairs, numberings, selectedThreeStyles, 0);
-        } else if (evt.which === 40) {
-            // 下キー
+        } else if (evt.which === 40 || evt.which === 32) {
+            // 下キー or Space
             showHint();
         }
     };
