@@ -5,7 +5,7 @@ const config = require('./config');
 const constant = require('./constant');
 const threeStyleUtils = require('./threeStyleUtils');
 
-const renderStats = (threeStyles, threeStyleQuizLog, problemList) => {
+const renderStats = (part, threeStyles, threeStyleQuizLog, problemList) => {
     const msgArea = document.querySelector('.msgArea');
 
     const threeStyleStickerSet = new Set(threeStyles.map(x => x.stickers));
@@ -50,6 +50,14 @@ const renderStats = (threeStyles, threeStyleQuizLog, problemList) => {
     const p8 = document.createElement('p');
     p8.appendChild(document.createTextNode(`平均: ${meanIn6.toFixed(2)}秒 (直近で3回連続で正解できた手順)`));
     msgArea.appendChild(p8);
+
+    const p13 = document.createElement('p');
+    if (part === constant.partType.corner) {
+        p13.appendChild(document.createTextNode(`平均: ${(meanIn6 * 4).toFixed(2)}秒 (直近で3回連続で正解できた手順、4手順実行)`));
+    } else if (part === constant.partType.edgeMiddle) {
+        p13.appendChild(document.createTextNode(`平均: ${(meanIn6 * 6).toFixed(2)}秒 (直近で3回連続で正解できた手順、6手順実行)`));
+    }
+    msgArea.appendChild(p13);
 
     const p12 = document.createElement('p');
     p12.appendChild(document.createTextNode(`平均: ${meanInProblemList.toFixed(2)}秒 (問題リスト内)`));
@@ -117,7 +125,7 @@ const init = () => {
                     return rp(problemListOptions)
                         .then((threeStyleQuizListAns) => {
                             const problemList = threeStyleQuizListAns.success.result;
-                            return renderStats(threeStyles, threeStyleQuizLog, problemList);
+                            return renderStats(part, threeStyles, threeStyleQuizLog, problemList);
                         })
                         .catch((err) => {
                             alert(`エラーが発生しました:${err}`);
