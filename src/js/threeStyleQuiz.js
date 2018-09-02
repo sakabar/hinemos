@@ -182,6 +182,11 @@ const ProblemListType = {
 // 画面での配置を変えた時にはこれも変えないといけない
 const keyUpAction = (part, letterPairs, numberings, selectedThreeStyles) => {
     return (evt) => {
+        // 日数のテキストボックスにフォーカスしている間は、何もしない
+        if (document.activeElement.className === 'settingForm__daysText') {
+            return;
+        }
+
         if (evt.which === 37 || evt.which === 13) {
             // 左キー or Enter
             submit(part, letterPairs, numberings, selectedThreeStyles, 1);
