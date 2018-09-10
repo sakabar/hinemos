@@ -6,13 +6,13 @@ describe('numbering3.js', () => {
         it('正常系: コーナー', () => {
             const actual = numbering3.getBlankStickers('UBL');
             const expected = [ 'BLU', 'LBU', ];
-            assert.deepEqual(actual, expected);
+            assert.deepStrictEqual(actual, expected);
         });
 
         it('正常系: エッジ', () => {
             const actual = numbering3.getBlankStickers('UB');
             const expected = [ 'BU', ];
-            assert.deepEqual(actual, expected);
+            assert.deepStrictEqual(actual, expected);
         });
 
         it('異常系: 入力文字数がステッカーではない', () => {

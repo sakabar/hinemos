@@ -20,7 +20,7 @@ describe('threeStyleScrambler.js', () => {
         it('正常系: 入力が空', () => {
             const actual = threeStyleScramblerJS.getPartPair('DFR', 'UFR');
             const expected = [ 'DFR', 'FRU', ];
-            assert.deepEqual(actual, expected);
+            assert.deepStrictEqual(actual, expected);
         });
     });
 
@@ -29,7 +29,7 @@ describe('threeStyleScrambler.js', () => {
             const arg = [];
             const actual = threeStyleScramblerJS.classifyWithPartPairs(arg);
             const expected = {};
-            assert.deepEqual(actual, expected);
+            assert.deepStrictEqual(actual, expected);
         });
 
         it('正常系: コーナー', () => {
@@ -77,7 +77,7 @@ describe('threeStyleScrambler.js', () => {
                     ],
                 },
             };
-            assert.deepEqual(actual, expected);
+            assert.deepStrictEqual(actual, expected);
         });
 
         it('正常系: コーナー: part2で枝分かれ', () => {
@@ -141,7 +141,7 @@ describe('threeStyleScrambler.js', () => {
                     ],
                 },
             };
-            assert.deepEqual(actual, expected);
+            assert.deepStrictEqual(actual, expected);
         });
 
         it('正常系: コーナー: part1で枝分かれ', () => {
@@ -207,7 +207,7 @@ describe('threeStyleScrambler.js', () => {
                     ],
                 },
             };
-            assert.deepEqual(actual, expected);
+            assert.deepStrictEqual(actual, expected);
         });
     });
 
@@ -215,7 +215,7 @@ describe('threeStyleScrambler.js', () => {
         it('正常系: 入力が空', () => {
             const actual = threeStyleScramblerJS.pickThreeStyles([]);
             const expected = [];
-            assert.deepEqual(actual, expected);
+            assert.deepStrictEqual(actual, expected);
         });
 
         it('正常系: 入力された3-styleのリストの要素数が1の場合、必ずそれが選ばれる', () => {
@@ -241,7 +241,7 @@ describe('threeStyleScrambler.js', () => {
                     move2: '',
                 },
             ];
-            assert.deepEqual(actual, expected);
+            assert.deepStrictEqual(actual, expected);
         });
 
         it('正常系: 入力された3-styleが3つで、それぞれパーツの重複が無い場合、3つ全てが選ばれる。順番は不定', () => {
@@ -276,10 +276,10 @@ describe('threeStyleScrambler.js', () => {
             const threeStyleGroups = threeStyleScramblerJS.classifyWithPartPairs(arg);
             const actual = threeStyleScramblerJS.pickThreeStyles(threeStyleGroups);
 
-            assert.deepEqual(actual.includes(ts1), true);
-            assert.deepEqual(actual.includes(ts2), true);
-            assert.deepEqual(actual.includes(ts3), true);
-            assert.deepEqual(isValid(actual), true);
+            assert.deepStrictEqual(actual.includes(ts1), true);
+            assert.deepStrictEqual(actual.includes(ts2), true);
+            assert.deepStrictEqual(actual.includes(ts3), true);
+            assert.deepStrictEqual(isValid(actual), true);
         });
 
         it('正常系: 入力された3-styleが2つで、複複がある場合、どちらかが選ばれる', () => {
@@ -306,8 +306,8 @@ describe('threeStyleScrambler.js', () => {
 
             const actual = threeStyleScramblerJS.pickThreeStyles(threeStyleGroups);
 
-            assert.deepEqual(actual.length, 1);
-            assert.deepEqual(actual.includes(ts1) || actual.includes(ts2), true);
+            assert.deepStrictEqual(actual.length, 1);
+            assert.deepStrictEqual(actual.includes(ts1) || actual.includes(ts2), true);
         });
 
         it('正常系: 入力された3-styleが2つで、複複がある場合、repetitionがfalseならば2回pickすれば必ず両方が選ばれる', () => {
@@ -336,14 +336,14 @@ describe('threeStyleScrambler.js', () => {
             const third = threeStyleScramblerJS.pickThreeStyles(threeStyleGroups, true);
 
             // 1手順ずつ選ばれる
-            assert.deepEqual(fst.length, 1);
-            assert.deepEqual(snd.length, 1);
+            assert.deepStrictEqual(fst.length, 1);
+            assert.deepStrictEqual(snd.length, 1);
 
             // 2手順で全てなので、3回目は空
-            assert.deepEqual(third.length, 0);
+            assert.deepStrictEqual(third.length, 0);
 
             const cond = (fst.includes(ts1) && snd.includes(ts2)) || (fst.includes(ts2) && snd.includes(ts1));
-            assert.deepEqual(cond, true);
+            assert.deepStrictEqual(cond, true);
         });
     });
 });

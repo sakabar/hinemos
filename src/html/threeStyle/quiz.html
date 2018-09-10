@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ja">
   <head>
-    <script type="text/javascript" src="../auth.bundle.js?version=v1.3.1"></script>
+    <script type="text/javascript" src="../auth.bundle.js?version=v1.3.2"></script>
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-119101911-1"></script>
     <script>
@@ -27,9 +27,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="../icon_bw.png">
     <link rel="stylesheet" type="text/css" href="../normalize.css">
-    <link rel="stylesheet" type="text/css" href="../common.css?version=v1.3.1">
+    <link rel="stylesheet" type="text/css" href="../common.css?version=v1.3.2">
     <!-- レターペアクイズのCSSを流用しているので注意 -->
-    <link rel="stylesheet" type="text/css" href="../letterPairQuiz.css?version=v1.3.1">
+    <link rel="stylesheet" type="text/css" href="../letterPairQuiz.css?version=v1.3.2">
   </head>
 
   <body>
@@ -41,7 +41,7 @@
         </ul>
       </div>
 
-      <a href="../mypage.html"><img class="logo__img--rectangle" src="../tw_header.jpg?version=v1.3.1" alt="ロゴ"></a>
+      <a href="../mypage.html"><img class="logo__img--rectangle" src="../tw_header.jpg?version=v1.3.2" alt="ロゴ"></a>
     </header>
 
     <main>
@@ -49,12 +49,11 @@
       <h2 class="h2__part"></h2>
       <ul>
         <li>同じ手順を3回繰り返して、元の形に復元できたら「わかった」ボタンを押してください</li>
-        <li>正解率の低い手順や、回すのに時間がかかっている手順を優先的に出題します</li>
         <li>PCでのショートカット</li>
         <ul>
-          <li>(← or Enter) : 「わかった」</li>
+          <li>(← or <span style="color:red">Space</span>) : 「わかった」</li>
           <li>(→ or BackSpace) : 「わからん」</li>
-          <li>(↓ or Space) : 「ヒント」</li>
+          <li>(↓ or Enter) : 「ヒント」</li>
         </ul>
       </ul>
 
@@ -74,12 +73,12 @@
         <input class="quizForm__submitBtn--OK" type="button" value="わかった">
         <input class="quizForm__submitBtn--NG" type="button" value="わからん"><br>
         <input class="quizForm__submitBtn--hint" type="button" value="ヒントくれ"><br>
-        <textArea class="quizForm__hintText" rows="5" cols="36" style="display:none;"></textArea><br>
+        <textArea class="quizForm__hintText" rows="2" cols="36" style="display:none;"></textArea><br>
         <input class="quizForm__startUnixTimeHidden" type="hidden" value="" readonly><br>
 
       </form>
     </main>
 
-    <script type="text/javascript" src="../threeStyleQuiz.bundle.js?version=v1.3.1"></script>
+    <script type="text/javascript" src="../threeStyleQuiz.bundle.js?version=v1.3.2"></script>
   </body>
 </html>
