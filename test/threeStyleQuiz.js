@@ -6,29 +6,29 @@ describe('threeStyleQuiz.js', () => {
         it('正常系: セットアップなし', () => {
             const actual = threeStyleQuiz.getHint('', 'U', 'R D\' R\'');
             const expected = '(セットアップなし)';
-            assert.deepEqual(actual, expected);
+            assert.deepStrictEqual(actual, expected);
         });
 
         it('正常系: セットアップあり: セットアップとmove1の1手目を表示', () => {
             const actual = threeStyleQuiz.getHint('D', 'U', 'R D\' R\'');
             const expected = '[D [U    ]]';
-            assert.deepEqual(actual, expected);
+            assert.deepStrictEqual(actual, expected);
         });
 
         it('正常系: cyclic_shift: 4手目まで表示', () => {
             const actual = threeStyleQuiz.getHint('D Rw2 U R U\' Rw2 D R\' D2', '', '');
             const expected = '[D Rw2 U R    ]';
-            assert.deepEqual(actual, expected);
+            assert.deepStrictEqual(actual, expected);
         });
     });
 
     describe('selectFromManualList()', () => {
         it('正常系: problemListが空', () => {
-            assert.deepEqual(threeStyleQuiz.selectFromManualList([ null, ], [ null, ], []), []);
+            assert.deepStrictEqual(threeStyleQuiz.selectFromManualList([ null, ], [ null, ], []), []);
         });
 
         it('正常系: threeStylesが空', () => {
-            assert.deepEqual(threeStyleQuiz.selectFromManualList([], [ null, ], [ null, ]), []);
+            assert.deepStrictEqual(threeStyleQuiz.selectFromManualList([], [ null, ], [ null, ]), []);
         });
 
         it('正常系: どちらも空ではない', () => {
@@ -52,7 +52,7 @@ describe('threeStyleQuiz.js', () => {
             const actual = threeStyleQuiz.selectFromManualList(threeStyles, quizLogRes, problemList).map(x => x.stickers);
             const expected = [ 'UBL UFR LDF', 'UBL UFR RDF', ]; // 2, 1
 
-            assert.deepEqual(actual, expected);
+            assert.deepStrictEqual(actual, expected);
         });
 
         it('正常系: threeStyleに登録していないものが問題リストにあった場合は無視', () => {
@@ -77,7 +77,7 @@ describe('threeStyleQuiz.js', () => {
             const actual = threeStyleQuiz.selectFromManualList(threeStyles, quizLogRes, problemList).map(x => x.stickers);
             const expected = [ 'UBL UFR RDF', 'UBL UFR LDF', ]; // 1, 2
 
-            assert.deepEqual(actual, expected);
+            assert.deepStrictEqual(actual, expected);
         });
 
         it('正常系: まず解いたことのない問題をやり、その後にタイムの遅い順にやる', () => {
@@ -103,7 +103,7 @@ describe('threeStyleQuiz.js', () => {
             const actual = threeStyleQuiz.selectFromManualList(threeStyles, quizLogRes, problemList).map(x => x.stickers);
             // 解いていない問題で、problemListに登録してある順 + 遅い順
             const expected = [ 'UBL UFR BDF', 'UBL UFR RDF', 'UBL UFR LDF', ]; // 3, 1, 2
-            assert.deepEqual(actual, expected);
+            assert.deepStrictEqual(actual, expected);
         });
     });
 });
