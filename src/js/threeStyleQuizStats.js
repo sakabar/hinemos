@@ -43,6 +43,10 @@ const renderStats = (part, threeStyles, threeStyleQuizLog, problemList) => {
     p10.appendChild(document.createTextNode(`「鮮度」が最も悪い問題の鮮度 : ${worstNewness}日`));
     msgArea.appendChild(p10);
 
+    const p15 = document.createElement('p');
+    p15.appendChild(document.createTextNode(`「鮮度」が0の手順数 : ${newnessList.filter(x => x === 0).length}手順`));
+    msgArea.appendChild(p15);
+
     const p2 = document.createElement('p');
     p2.appendChild(document.createTextNode(`平均: ${mean.toFixed(2)}秒 (全体)`));
     msgArea.appendChild(p2);
