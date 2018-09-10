@@ -71,6 +71,16 @@ const renderStats = (part, threeStyles, threeStyleQuizLog, problemList) => {
     // FIXME 3がマジックナンバー
     p11.appendChild(document.createTextNode(`問題リストの中で、直近で3回連続で正解できなかった手順: ${threeStylesInProblemList.filter(x => x.solved < 3).length}/${threeStylesInProblemList.length}手順`));
     msgArea.appendChild(p11);
+
+    const p14 = document.createElement('p');
+    if (part === constant.partType.corner) {
+        const prob = (1.0 * (avgSecs.length - over5Secs.length) / (21 * 18)) ** 4;
+        p14.appendChild(document.createTextNode(`4手順連続で3-styleを成功できる確率: ${(prob * 100).toFixed(1)}%`));
+    } else if (part === constant.partType.edgeMiddle) {
+        const prob = (1.0 * (avgSecs.length - over5Secs.length) / (22 * 20)) ** 6;
+        p14.appendChild(document.createTextNode(`6手順連続で3-styleを成功できる確率: ${(prob * 100).toFixed(1)}%`));
+    }
+    msgArea.appendChild(p14);
 };
 
 const init = () => {
