@@ -187,16 +187,16 @@ const keyUpAction = (part, letterPairs, numberings, selectedThreeStyles) => {
             return;
         }
 
-        if (evt.which === 37 || evt.which === 13) {
-            // 左キー or Enter
+        if (evt.which === 37 || evt.which === 32) {
+            // 左キー or Space
             submit(part, letterPairs, numberings, selectedThreeStyles, 1);
         } else if (evt.which === 38) {
             // 上キー
         } else if (evt.which === 39 || evt.which === 8) {
             // 右キー or BackSpace
             submit(part, letterPairs, numberings, selectedThreeStyles, 0);
-        } else if (evt.which === 40 || evt.which === 32) {
-            // 下キー or Space
+        } else if (evt.which === 40 || evt.which === 13) {
+            // 下キー or Enter
             showHint();
         }
     };

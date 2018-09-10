@@ -134,8 +134,8 @@ const renderSettings = (days, solved) => {
 // 画面での配置を変えた時にはこれも変えないといけない
 const keyUpAction = (selectedLetterPairs) => {
     return (evt) => {
-        if (evt.which === 37 || evt.which === 13) {
-            // 左キー or Enter
+        if (evt.which === 37 || evt.which === 32) {
+            // 左キー or Space
             submit(selectedLetterPairs, 1);
         } else if (evt.which === 38) {
             // 上キー
