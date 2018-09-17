@@ -87,7 +87,7 @@ const showHint = () => {
     hintText.style.display = 'block';
 };
 
-const submit = (part, letterPairs, numberings, selectedThreeStyles, isRecalled) => {
+const submit = (part, letterPairs, numberings, selectedThreeStyles, isRecalled, quizLogRes) => {
     const token = localStorage.token;
     const hintText = document.querySelector('.quizForm__hintText');
     const quizIndHidden = document.querySelector('.quizForm__quizIndHidden');
@@ -147,6 +147,24 @@ const submit = (part, letterPairs, numberings, selectedThreeStyles, isRecalled) 
             }
             const nextInd = ind + 1;
 
+            // これまでの記録との差を計算
+            const quizLog = quizLogRes.filter(x => x.stickers === selectedThreeStyles[ind].stickers);
+            const timeDiff = quizLog.length > 0 ? sec - quizLog[0]['avg_sec'] * 3 : 0;
+            let diffStr = '';
+            if (isRecalled === 0) {
+                diffStr = '';
+            } else {
+                if (quizLog.length > 0) {
+                    if (timeDiff >= 0) {
+                        diffStr = `(+${timeDiff.toFixed(2)})`;
+                    } else {
+                        diffStr = `(${timeDiff.toFixed(2)})`;
+                    }
+                } else {
+                    diffStr = '(new)';
+                }
+            }
+
             if (nextInd <= selectedThreeStyles.length - 1) {
                 quizFormStartUnixTimeHidden.value = String(new Date().getTime());
                 quizIndHidden.value = `このセッションで解いた問題数:${nextInd}`;
@@ -159,12 +177,12 @@ const submit = (part, letterPairs, numberings, selectedThreeStyles, isRecalled) 
                 hintText.value = hints.join('\nまたは\n');
 
                 quizFormPrevAnsText.value = prevAns;
-                quizFormPrevSecText.value = `前問の秒数:${sec.toFixed(2)}`;
+                quizFormPrevSecText.value = `前問の秒数:${sec.toFixed(2)} ${diffStr}`;
             } else {
                 quizIndHidden.value = `このセッションで解いた問題数:${nextInd}`;
                 quizFormLettersText.value = 'お疲れ様です、ページを更新してください。';
                 quizFormPrevAnsText.value = prevAns;
-                quizFormPrevSecText.value = `前問の秒数:${sec.toFixed(2)}`;
+                quizFormPrevSecText.value = `前問の秒数:${sec.toFixed(2)} ${diffStr}`;
             }
         })
         .catch((err) => {
@@ -180,7 +198,7 @@ const ProblemListType = {
 
 // 右/左のボタンの挙動を設定
 // 画面での配置を変えた時にはこれも変えないといけない
-const keyUpAction = (part, letterPairs, numberings, selectedThreeStyles) => {
+const keyUpAction = (part, letterPairs, numberings, selectedThreeStyles, quizLogRes) => {
     return (evt) => {
         // 日数のテキストボックスにフォーカスしている間は、何もしない
         if (document.activeElement.className === 'settingForm__daysText') {
@@ -189,12 +207,12 @@ const keyUpAction = (part, letterPairs, numberings, selectedThreeStyles) => {
 
         if (evt.which === 37 || evt.which === 32) {
             // 左キー or Space
-            submit(part, letterPairs, numberings, selectedThreeStyles, 1);
+            submit(part, letterPairs, numberings, selectedThreeStyles, 1, quizLogRes);
         } else if (evt.which === 38) {
             // 上キー
         } else if (evt.which === 39 || evt.which === 8) {
             // 右キー or BackSpace
-            submit(part, letterPairs, numberings, selectedThreeStyles, 0);
+            submit(part, letterPairs, numberings, selectedThreeStyles, 0, quizLogRes);
         } else if (evt.which === 40 || evt.which === 13) {
             // 下キー or Enter
             showHint();
@@ -381,12 +399,12 @@ const init = () => {
                                             hintText.value = hints.join('\nまたは\n');
 
                                             quizFormStartUnixTimeHidden.value = String(new Date().getTime());
-                                            okBtn.addEventListener('click', () => submit(part, letterPairs, numberings, selectedThreeStyles, 1));
-                                            ngBtn.addEventListener('click', () => submit(part, letterPairs, numberings, selectedThreeStyles, 0));
+                                            okBtn.addEventListener('click', () => submit(part, letterPairs, numberings, selectedThreeStyles, 1, quizLogRes));
+                                            ngBtn.addEventListener('click', () => submit(part, letterPairs, numberings, selectedThreeStyles, 0, quizLogRes));
                                             hintBtn.addEventListener('click', showHint);
 
                                             // 左右のキーのショートカット
-                                            document.onkeyup = keyUpAction(part, letterPairs, numberings, selectedThreeStyles);
+                                            document.onkeyup = keyUpAction(part, letterPairs, numberings, selectedThreeStyles, quizLogRes);
                                         })
                                         .catch((err) => {
                                             alert('1' + err);
