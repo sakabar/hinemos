@@ -13,7 +13,7 @@ const Header = () => (
             </ul>
         </div>
 
-        <a href="./mypage.html"><img className="logo__img--rectangle" src="./tw_header.jpg?version=v1.3.3" alt="ロゴ" /></a>
+        <a href="./mypage.html"><img className="logo__img--rectangle" src="./tw_header.jpg?version=v1.3.4" alt="ロゴ" /></a>
     </header>
 );
 
