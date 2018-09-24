@@ -1,7 +1,8 @@
-const config = require('./config');
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './components/pages/App';
 
-const init = () => {
-    location.href = `${config.urlRoot}/top.html`;
-};
-
-init();
+ReactDOM.render(
+    <App />,
+    document.getElementById('root')
+);

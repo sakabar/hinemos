@@ -1,5 +1,13 @@
 module.exports = {
-    "extends": "standard",
+    "extends": [
+        "standard",
+        "plugin:react/recommended",
+    ],
+    "settings": {
+        "react": {
+            "version": "16.5.0",
+        },
+    },
     "env": {
         "browser": true,
     },
