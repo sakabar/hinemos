@@ -5,8 +5,9 @@ import {
 } from 'react-router-dom';
 import Faq from './Faq';
 const config = require('../../config');
-const dirs = config.urlRoot.split('/');
-const urlRoot = dirs[dirs.length - 1];
+const path = require('path');
+
+const urlRoot = path.basename(config.urlRoot);
 
 const App = () => (
     <BrowserRouter>
