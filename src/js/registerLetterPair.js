@@ -7,6 +7,12 @@ const utils = require('./utils');
 const suggestWord = () => {
     const lettersText = document.querySelector('.registerLetterPairForm__lettersText');
     const letters = lettersText.value.replace(/\s/g, '');
+
+    // 欄が空のときはサジェストしない
+    // APIの仕様で、空でリクエストすると全ての単語が返ってくる
+    if (letters === '') {
+        return;
+    }
     const wordText = document.querySelector('.registerLetterPairForm__wordText');
 
     const options = {
