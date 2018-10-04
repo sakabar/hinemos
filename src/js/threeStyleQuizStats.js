@@ -27,7 +27,8 @@ const renderStats = (part, threeStyles, threeStyleQuizLog, problemList) => {
     const meanInProblemList = avgSecInThreeStylesInProblemListWithoutZero.length === 0 ? 0 : math.mean(avgSecInThreeStylesInProblemListWithoutZero);
 
     const p1 = document.createElement('p');
-    p1.appendChild(document.createTextNode(`所要時間合計: ${sum.toFixed(1)}秒 (${Math.floor(sum / 60)}分${(Math.floor(sum) % 60)}秒)`));
+    const sumThreeTimes = sum * 3;
+    p1.appendChild(document.createTextNode(`3回ずつの所要時間合計: ${sumThreeTimes.toFixed(1)}秒 (${Math.floor(sumThreeTimes / 60)}分${(Math.floor(sumThreeTimes) % 60)}秒)`));
     msgArea.appendChild(p1);
 
     const p3 = document.createElement('p');
