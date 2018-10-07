@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Header from '../molecules/Header';
+import Header from '../organisms/Header';
 
 const Paragraph = (props) => (
     <div>
