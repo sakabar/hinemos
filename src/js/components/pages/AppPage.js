@@ -3,18 +3,18 @@ import {
     BrowserRouter,
     Route,
 } from 'react-router-dom';
-import Faq from './Faq';
+import FaqPage from './FaqPage';
 const config = require('../../config');
 const path = require('path');
 
 const urlRoot = path.basename(config.urlRoot);
 
-const App = () => (
+const AppPage = () => (
     <BrowserRouter>
         <div>
-            <Route path={`/${urlRoot}/faq.html`} component={Faq} />
+            <Route path={`/${urlRoot}/faq.html`} component={FaqPage} />
         </div>
     </BrowserRouter>
 );
 
-export default App;
+export default AppPage;

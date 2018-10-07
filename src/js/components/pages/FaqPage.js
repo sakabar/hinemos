@@ -1,8 +1,8 @@
 import React from 'react';
 import FaqTemplate from '../templates/FaqTemplate';
 
-const Faq = () => (
+const FaqPage = () => (
     <FaqTemplate />
 );
 
-export default Faq;
+export default FaqPage;
