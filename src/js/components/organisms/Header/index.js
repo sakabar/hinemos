@@ -16,7 +16,7 @@ const Header = () => (
             </ul>
         </div>
 
-        <a href="./mypage.html"><img className="logo__img--rectangle" src="./tw_header.jpg?version=v1.3.5" alt="ロゴ" /></a>
+        <a href="./mypage.html"><img className="logo__img--rectangle" src="./tw_header.jpg?version=v1.3.6" alt="ロゴ" /></a>
     </header>
 );
 
