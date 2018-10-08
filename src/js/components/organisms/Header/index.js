@@ -12,11 +12,11 @@ const Header = () => (
         <div className="header__bar">
             <ul>
                 <li><Link to={`/${urlRoot}/faq.html`}>FAQ</Link></li>
-                <li><a href="./signout.html">サインアウト</a></li>
+                <li><a href={`/${urlRoot}/signout.html`}>サインアウト</a></li>
             </ul>
         </div>
 
-        <a href="./mypage.html"><img className="logo__img--rectangle" src="./tw_header.jpg?version=v1.3.6" alt="ロゴ" /></a>
+        <a href={`/${urlRoot}/mypage.html`}><img className="logo__img--rectangle" src={`/${urlRoot}/tw_header.jpg`} alt="ロゴ" /></a>
     </header>
 );
 
