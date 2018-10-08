@@ -3,8 +3,8 @@ import {
     BrowserRouter,
     Route,
 } from 'react-router-dom';
-import FaqPage from './FaqPage';
-const config = require('../../config');
+import FaqPage from '../FaqPage';
+const config = require('../../../config');
 const path = require('path');
 
 const urlRoot = path.basename(config.urlRoot);
