@@ -1,11 +1,13 @@
-import React from 'react'; // Component,
+import React from 'react';
 import {
     BrowserRouter,
+    Link,
     Route,
     Switch,
 } from 'react-router-dom';
 import BldTimerPage from '../BldTimerPage';
 import FaqPage from '../FaqPage';
+import ThreeStyleListPage from '../ThreeStyleListPage';
 import MemoTrainingTrialPage from '../MemoTrainingTrialPage';
 import MemoTrainingMbldPage from '../MemoTrainingMbldPage';
 import MemoTrainingCardsPage from '../MemoTrainingCardsPage';
@@ -20,6 +22,9 @@ const urlRoot = path.basename(config.urlRoot);
 const routeDict = {
     bldSmartTimer: BldTimerPage,
     faq: FaqPage,
+    threeStyle: {
+        listNew: ThreeStyleListPage,
+    },
     memoTraining: {
         index: MemoTrainingTrialPage,
         cards: {
@@ -55,6 +60,8 @@ if (!Object.keys(flatRouteDict).map(path => `${config.urlRoot}/${path}`).include
 const AppPage = () => (
     <BrowserRouter>
         <div>
+            <Link to={`/${urlRoot}/threeStyle/listNew.html`}>3-style 一覧</Link>
+
             <Switch>
                 {
                     Object.keys(flatRouteDict).map((path, i) => {
