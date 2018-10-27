@@ -1,11 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Heading2 from '../../atoms/Heading2';
+import Txt from '../../atoms/Txt';
 import Header from '../../organisms/Header';
 
 const Paragraph = (props) => (
     <div>
-        <h2>{props.title}</h2>
-        <p>{props.desc}</p>
+        <Heading2 title={props.title} />
+        <Txt text={props.desc} />
     </div>
 );
 
@@ -14,13 +16,11 @@ Paragraph.propTypes = {
     desc: PropTypes.string,
 };
 
-const FaqTemplate = () => (
+const FaqTemplate = (props) => (
     <div>
-        <Header />
+        <Header title="FAQ" />
 
         <main>
-            <h1>FAQ</h1>
-
             <Paragraph
                 title="不具合や要望を伝えたい"
                 desc="誤字・不具合・ご要望はいずれかのアカウントにお気軽にご連絡ください。" />

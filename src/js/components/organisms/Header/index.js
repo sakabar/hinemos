@@ -2,12 +2,14 @@ import React from 'react';
 import {
     Link,
 } from 'react-router-dom';
+import PropTypes from 'prop-types';
+import Heading1 from '../../atoms/Heading1';
 const config = require('../../../config');
 const path = require('path');
 
 const urlRoot = path.basename(config.urlRoot);
 
-const Header = () => (
+const Header = ({ title, }) => (
     <header>
         <div className="header__bar">
             <ul>
@@ -17,7 +19,12 @@ const Header = () => (
         </div>
 
         <a href={`/${urlRoot}/mypage.html`}><img className="logo__img--rectangle" src={`/${urlRoot}/tw_header.jpg`} alt="ロゴ" /></a>
+        <Heading1 text={title} />
     </header>
 );
+
+Header.propTypes = {
+    title: PropTypes.string,
+};
 
 export default Header;
