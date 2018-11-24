@@ -1,8 +1,8 @@
 import React from 'react';
 
-const Radio = ({ type, ...rest }) => (
+const Radio = ({ type, text, ...rest }) => (
     <label>
-        <input type="radio" {...rest} />
+        <input type="radio" {...rest} />{text}
     </label>
 );
 
