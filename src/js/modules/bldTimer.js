@@ -23,19 +23,19 @@ const REQUEST_CONNECT_CUBE = 'REQUEST_CONNECT_CUBE';
 const SUCCESS_CONNECT_CUBE = 'SUCCESS_CONNECT_CUBE';
 const FAILURE_CONNECT_CUBE = 'FAILURE_CONNECT_CUBE';
 
-const MARK_AS_SOLVED = 'MARK_AS_SOLVED';
-
 // const MOVE_CUBE = 'MOVE_CUBE';
 const UPDATE_MOVE_HISTORY = 'UPDATE_MOVE_HISTORY';
 
 const ANALYZE_MOVE_HISTORY = 'ANALYZE_MOVE_HISTORY';
 
-const DONE_MEMO = 'DONE_MEMO';
-
-const STOP_TO_WAITING = 'STOP_TO_WAITING';
-const WAITING_TO_STOP = 'WAITING_TO_STOP';
-const WAITING_TO_UPDATING = 'WAITING_TO_UPDATING';
+const STOP_TO_HOLDING = 'STOP_TO_HOLDING';
+const HOLDING_TO_STOP = 'HOLDING_TO_STOP';
+const HOLDING_TO_READY = 'HOLDING_TO_UPDATING';
+const READY_TO_STOP = 'READY_TO_STOP';
+const READY_TO_UPDATING = 'READY_TO_UPDATING';
 const UPDATING_TO_STOP = 'UPDATING_TO_STOP';
+
+const TRY_TO_READY = 'TRY_TO_READY';
 
 const UPDATE_TIMER = 'UPDATE_TIMER';
 
@@ -48,20 +48,20 @@ export const requestConnectCube = createAction(REQUEST_CONNECT_CUBE);
 export const successConnectCube = createAction(SUCCESS_CONNECT_CUBE);
 export const failureConnectCube = createAction(FAILURE_CONNECT_CUBE);
 
-export const markAsSolved = createAction(MARK_AS_SOLVED);
-
 // export const moveCube = createAction(MOVE_CUBE);
 
 export const updateMoveHistory = createAction(UPDATE_MOVE_HISTORY);
 
 export const analyzeMoveHistory = createAction(ANALYZE_MOVE_HISTORY);
 
-export const doneMemo = createAction(DONE_MEMO);
-
-export const stopToWaiting = createAction(STOP_TO_WAITING);
-export const waitingToStop = createAction(WAITING_TO_STOP);
-export const waitingToUpdating = createAction(WAITING_TO_UPDATING);
+export const stopToHolding = createAction(STOP_TO_HOLDING);
+export const holdingToStop = createAction(HOLDING_TO_STOP);
+export const holdingToReady = createAction(HOLDING_TO_READY);
+export const readyToStop = createAction(READY_TO_STOP);
+export const readyToUpdating = createAction(READY_TO_UPDATING);
 export const updatingToStop = createAction(UPDATING_TO_STOP);
+
+export const tryToReady = createAction(TRY_TO_READY);
 
 export const updateTimer = createAction(UPDATE_TIMER);
 
@@ -96,10 +96,17 @@ const writeTextbox = (s) => {
 function * handleRequestConnectCube () {
     while (true) {
         yield take(REQUEST_CONNECT_CUBE);
+        const cubeConnection = yield select(state => state.cubeConnection);
+
+        // 既に接続できていたら何もしない
+        if (cubeConnection) {
+            continue;
+        }
+
         try {
             const cubeConnection = yield call(GiiKER.connect);
             cubeConnection.on('move', (move) => {
-                writeTextbox(`${move.notation} ${moment().format('x')}` + '\n');
+                writeTextbox(`${move.notation} ${parseInt(moment().format('x'))}` + '\n');
             });
 
             if (cubeConnection) {
@@ -119,26 +126,26 @@ function * handleOnKeyDown () {
         const keyDownAction = yield take(KEY_DOWN);
 
         const timerState = yield select(state => state.timerState);
+        const mutableScramble = yield select(state => state.mutableScramble);
         const memorizeDoneMiliUnixtime = yield select(state => state.memorizeDoneMiliUnixtime);
 
-        if (timerState === TimerState.stop) {
-            if (keyDownAction.payload.keyCode === SPACE_KEYCODE) {
-                const miliUnixtime = moment().format('x');
-                yield put(stopToWaiting(miliUnixtime));
-            }
-        } else if (timerState === TimerState.waiting) {
-            // waitの時に、さらに別のキーを押されても何もしない
-        } else if (timerState === TimerState.updating) {
-            // どのキーでもよい
-            const miliUnixtime = moment().format('x');
+        const miliUnixtime = parseInt(moment().format('x'));
 
-            if (typeof memorizeDoneMiliUnixtime === 'undefined') {
-                // 未登録であれば記憶完了
-                yield call(writeTextbox, `@ ${miliUnixtime}` + '\n');
-                yield put(doneMemo(miliUnixtime));
-            } else {
+        if (timerState === bldTimerUtils.TimerState.stop) {
+            if (mutableScramble === '' && keyDownAction.payload.keyCode === SPACE_KEYCODE) {
+                // スクランブルが完了した状態でスペースを押した時
+                yield fork(emitDelayTryToReady);
+                yield put(stopToHolding(miliUnixtime));
+            }
+        } else if (timerState === bldTimerUtils.TimerState.holding || timerState === bldTimerUtils.TimerState.ready) {
+            // waitの時に、さらに別のキーを押されても何もしない
+        } else if (timerState === bldTimerUtils.TimerState.updating) {
+            // どのキーでもよい
+            if (typeof memorizeDoneMiliUnixtime !== 'undefined') {
                 // 分析記憶時間が登録済であれば、タイマー止める
                 yield put(updatingToStop(miliUnixtime));
+            } else {
+                // 何もしない
             }
         } else {
             throw new Error(`Unexpected timerState: ${timerState}`);
@@ -149,38 +156,66 @@ function * handleOnKeyDown () {
 // 離したキーの種類によって分岐
 function * handleOnKeyUp () {
     while (true) {
-        yield take(KEY_UP);
+        const keyUpAction = yield take(KEY_UP);
 
         const timerState = yield select(state => state.timerState);
-        const lastModified = yield select(state => state.lastModified);
+        const mutableScramble = yield select(state => state.mutableScramble);
+        const miliUnixtime = parseInt(moment().format('x'));
 
-        if (timerState === TimerState.stop) {
+        if (timerState === bldTimerUtils.TimerState.stop) {
             // 何もしない
-        } else if (timerState === TimerState.waiting) {
-            const miliUnixtime = moment().format('x');
-            const WAIT_THRESHOLD_MILISEC = 100;
-            if (miliUnixtime - lastModified >= WAIT_THRESHOLD_MILISEC) {
-                // 時間が充分ならupdating
-                yield put(waitingToUpdating(miliUnixtime));
-                yield fork(handleUpdateTimer);
-            } else {
-                // 足りなければstop
-                yield put(waitingToStop(miliUnixtime));
+        } else if (timerState === bldTimerUtils.TimerState.holding) {
+            if (keyUpAction.payload.keyCode === SPACE_KEYCODE) {
+                yield put(holdingToStop(miliUnixtime));
             }
-        } else if (timerState === TimerState.updating) {
+        } else if (timerState === bldTimerUtils.TimerState.ready) {
+            if (keyUpAction.payload.keyCode === SPACE_KEYCODE) {
+                if (mutableScramble !== '') {
+                    // スクランブルが完了していなかったらstopに戻す
+                    yield put(readyToStop(miliUnixtime));
+                } else {
+                    yield put(readyToUpdating(miliUnixtime));
+                    yield fork(handleUpdateTimer);
+                }
+            }
+        } else if (timerState === bldTimerUtils.TimerState.updating) {
             // 何もしない
         }
     }
 }
 
+function * emitDelayTryToReady () {
+    yield call(delay, bldTimerUtils.WAIT_THRESHOLD_MILISEC);
+    const miliUnixtime = parseInt(moment().format('x'));
+    yield put(tryToReady(miliUnixtime));
+};
+
+// STOPの状態でエンターを押し始めてから、時間が経った後にも条件が満たされていたらReadyに遷移
+function * handleTryToReady () {
+    while (true) {
+        const tryToReadyAction = yield take(TRY_TO_READY);
+        const nowMiliUnixtime = tryToReadyAction.payload;
+
+        const timerState = yield select(state => state.timerState);
+        const mutableScramble = yield select(state => state.mutableScramble);
+        const lastModified = yield select(state => state.lastModified);
+
+        if (mutableScramble === '' && timerState === bldTimerUtils.TimerState.holding && nowMiliUnixtime - lastModified >= bldTimerUtils.WAIT_THRESHOLD_MILISEC) {
+            yield put(holdingToReady(nowMiliUnixtime));
+        } else {
+            // 何もしない
+        }
+    }
+};
+
 function * handleUpdateTimer () {
     const timerState = yield select(state => state.timerState);
 
-    if (timerState === TimerState.updating) {
+    if (timerState === bldTimerUtils.TimerState.updating) {
         const delayMiliSec = 100;
         yield call(delay, delayMiliSec);
 
-        const miliUnixtime = moment().format('x');
+        const miliUnixtime = parseInt(moment().format('x'));
         yield put(updateTimer(miliUnixtime));
         yield fork(handleUpdateTimer);
     } else {
@@ -696,11 +731,8 @@ F 1542901461473
 // R' 1542529198036
 // `.slice(1);
 
-const TimerState = {
-    stop: 0,
-    waiting: 1,
-    updating: 2,
-};
+// eslint-disable-next-line quotes
+const dummyScrambles = [ "U R' D U' F2".split(' '), "F D2 L' D' R2 U2 L U' D2 F B2 U F2 U2 L2 U' R2' U2 F2 D2 L' F2".split(' '), ];
 
 const initialState = {
     // キューブとの接続
@@ -713,15 +745,17 @@ const initialState = {
     sectionResults: [],
 
     // scrambles: [],
-    // eslint-disable-next-line quotes
-    scrambles: [ "F D D L' D' R R U' U' L U' D D F B' B' U F F U' U' L' L' U' R2' U' U' F' F' D D L' F' F'", ],
+    scrambles: dummyScrambles,
+    scramblesIndex: 0,
+    compared: bldTimerUtils.compareMovesAndScramble(exampleHistory2.split('\n').map(s => s.split(' ')[0]).filter(s => s !== '' && s !== '@'), dummyScrambles[0]),
+    mutableScramble: bldTimerUtils.modifyScramble(exampleHistory2.split('\n').map(s => s.split(' ')[0]).filter(s => s !== '' && s !== '@'), dummyScrambles[0]),
 
     timerCount: 0.0,
-    timerState: TimerState.stop,
+    timerState: bldTimerUtils.TimerState.stop,
     lastModified: 0,
     solveStartMiliUnixtime: undefined,
     memorizeDoneMiliUnixtime: undefined,
-    execDoneMiliUnixtime: undefined,
+    solveDoneMiliUnixtime: undefined,
 };
 
 export const bldTimerReducer = handleActions(
@@ -733,23 +767,35 @@ export const bldTimerReducer = handleActions(
                 cubeConnection,
             });
         },
-        [markAsSolved]: (state, action) => (
-            {
-                ...state,
-                moveHistoryStr: '',
+        [updateMoveHistory]: (state, action) => {
+            let memorizeDoneMiliUnixtime = state.memorizeDoneMiliUnixtime;
+            let moveHistoryStr = action.payload.value;
+
+            // ソルブのスタート後にキューブを動かした場合は分析記憶が完了したと見なす
+            // 便宜的に、キューブを動かす100ミリ秒前に分析記憶が完了したとする
+            if (state.solveStartMiliUnixtime && !state.memorizeDoneMiliUnixtime) {
+                const miliUnixtime = action.payload.miliUnixtime;
+                const CONST_DIFF = 100;
+
+                const tmpLst = action.payload.value.split('\n');
+
+                const prev = tmpLst.filter(line => line !== '' && line.split(' ')[0] !== '@' && parseInt(line.split(' ')[1]) < state.solveStartMiliUnixtime);
+                const aft = tmpLst.filter(line => line !== '' && line.split(' ')[0] !== '@' && parseInt(line.split(' ')[1]) >= state.solveStartMiliUnixtime);
+
+                memorizeDoneMiliUnixtime = miliUnixtime - CONST_DIFF;
+                moveHistoryStr = prev.join('\n') + '\n' + `@ ${memorizeDoneMiliUnixtime}` + '\n' + aft.join('\n') + '\n';
             }
-        ),
-        [updateMoveHistory]: (state, action) => (
-            {
-                ...state,
-                moveHistoryStr: action.payload,
-            }
-        ),
-        [doneMemo]: (state, action) => {
-            const nowMiliUnixtime = action.payload;
+
+            const moves = moveHistoryStr.split('\n').map(s => s.split(' ')[0]).filter(s => s !== '' && s !== '@');
+            const scramble = state.scrambles[state.scramblesIndex];
+            const mutableScramble = (state.timerState === bldTimerUtils.TimerState.updating) ? '' : bldTimerUtils.modifyScramble(moves, scramble);
+
             return {
                 ...state,
-                memorizeDoneMiliUnixtime: nowMiliUnixtime,
+                moveHistoryStr,
+                compared: bldTimerUtils.compareMovesAndScramble(moves, scramble),
+                mutableScramble,
+                memorizeDoneMiliUnixtime,
             };
         },
         [analyzeMoveHistory]: (state, action) => (
@@ -758,44 +804,61 @@ export const bldTimerReducer = handleActions(
                 sectionResults: bldTimerUtils.splitMoveOpsSeq(bldTimerUtils.parseMoveHistoryStr(state.moveHistoryStr)),
             }
         ),
-        [stopToWaiting]: (state, action) => {
+        [stopToHolding]: (state, action) => {
             return {
                 ...state,
-                timerState: TimerState.waiting,
+                timerState: bldTimerUtils.TimerState.holding,
                 lastModified: action.payload,
             };
         },
-        [waitingToUpdating]: (state, action) => {
-            const nowMiliUnixtime = action.payload;
+        [holdingToStop]: (state, action) => {
             return {
                 ...state,
-                timerState: TimerState.updating,
+                timerState: bldTimerUtils.TimerState.stop,
+                lastModified: action.payload,
+            };
+        },
+        [readyToStop]: (state, action) => {
+            return {
+                ...state,
+                timerState: bldTimerUtils.TimerState.stop,
+                lastModified: action.payload,
+            };
+        },
+        [holdingToReady]: (state, action) => {
+            return {
+                ...state,
+                timerState: bldTimerUtils.TimerState.ready,
+                lastModified: action.payload,
+            };
+        },
+        [readyToUpdating]: (state, action) => {
+            const nowMiliUnixtime = action.payload;
+
+            return {
+                ...state,
+                timerState: bldTimerUtils.TimerState.updating,
                 lastModified: nowMiliUnixtime,
                 solveStartMiliUnixtime: nowMiliUnixtime,
                 memorizeDoneMiliUnixtime: undefined,
-                execDoneMiliUnixtime: undefined,
-            };
-        },
-        [waitingToStop]: (state, action) => {
-            const nowMiliUnixtime = action.payload;
-            return {
-                ...state,
-                timerState: TimerState.stop,
-                lastModified: nowMiliUnixtime,
+                solveDoneMiliUnixtime: undefined,
             };
         },
         [updatingToStop]: (state, action) => {
             const nowMiliUnixtime = action.payload;
             return {
                 ...state,
-                timerState: TimerState.stop,
+                timerState: bldTimerUtils.TimerState.stop,
                 lastModified: nowMiliUnixtime,
-                execDoneMiliUnixtime: nowMiliUnixtime,
+                solveDoneMiliUnixtime: nowMiliUnixtime,
             };
         },
         [updateTimer]: (state, action) => {
             const nowMiliUnixtime = action.payload;
-            const miliSec = nowMiliUnixtime - state.solveStartMiliUnixtime;
+
+            const miliSec = (typeof state.solveDoneMiliUnixtime === 'undefined')
+                ? nowMiliUnixtime - state.solveStartMiliUnixtime
+                : state.solveDoneMiliUnixtime - state.solveStartMiliUnixtime;
             return {
                 ...state,
                 timerCount: miliSec / 1000.0,
@@ -821,4 +884,5 @@ export function * rootSaga () {
     yield fork(handleRequestConnectCube);
     yield fork(handleOnKeyDown);
     yield fork(handleOnKeyUp);
+    yield fork(handleTryToReady);
 };

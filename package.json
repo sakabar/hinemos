@@ -46,6 +46,7 @@
     "babel-polyfill": "^6.26.0",
     "chunk": "0.0.2",
     "count-array-values": "^1.2.1",
+    "cube-notation-normalizer": "^1.0.0",
     "cubejs": "^1.1.0",
     "giiker": "2.0.1",
     "handsontable": "^5.0.2",

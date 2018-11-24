@@ -1,6 +1,16 @@
 const config = require('./config');
 const Cube = require('cubejs');
+const normalize = require('cube-notation-normalizer');
 const _ = require('lodash');
+
+export const TimerState = {
+    stop: 0,
+    holding: 1,
+    ready: 2,
+    updating: 3,
+};
+
+export const WAIT_THRESHOLD_MILISEC = 1000;
 
 // 1手の回転と、それが完了したUnixtimestamp (ミリ秒)
 // export const MoveOps = (notation, miliUnixtime) => {
@@ -79,12 +89,13 @@ export const splitMoveOpsSeq = (moveOpsSeq) => {
     for (let i = 0; i < moveOpsSeq.length; i++) {
         const notation = moveOpsSeq[i].notation;
         if (notation === '@') {
-            startMiliUnixtime = moveOpsSeq[i].miliUnixtime;
             // タイマー開始したタイミング (@) より前の操作はセクションに登録しない
-            // @が2行以上あるとバグる FIXME
+            // @が2回以上あった場合、最後の@を優先
+            startMiliUnixtime = moveOpsSeq[i].miliUnixtime;
             prevStateJSON = _.cloneDeep(cube.toJSON());
             raps.length = 0;
             tmp_rap.length = 0;
+
             continue;
         }
 
@@ -113,9 +124,6 @@ export const splitMoveOpsSeq = (moveOpsSeq) => {
         const diffJSON = calcDiff(prevStateJSON, newStateJSON);
         const diffParityJSON = calcDiff(prevStateJSON, parityStateJSON);
         const diffNonParityJSON = calcDiff(prevStateJSON, nonParityStateJSON);
-        // console.dir(`${i}-norm; ${JSON.stringify(diffJSON)}`);
-        // console.dir(`${i}-pari; ${JSON.stringify(diffParityJSON)}`);
-        // console.dir(`${i}-nonpari; ${JSON.stringify(diffNonParityJSON)}`);
 
         if (diffJSON.center === 0 && ((diffJSON.edge <= 3 && diffJSON.corner <= 2) ||
                                       (diffJSON.edge <= 2 && diffJSON.corner <= 3) ||
@@ -145,22 +153,48 @@ export const splitMoveOpsSeq = (moveOpsSeq) => {
     return ans;
 };
 
+// [ 'U', 'R', 'L', ] のようなmovesと['U', 'R', 'D', ]のようなスクランブルを比較し、
+// { 一致: ['U', 'R', ], 過剰: ['L'], 残り: ['D']} のように解析する
+export const compareMovesAndScramble = (moves, scramble) => {
+    const normalizedMoves = normalize(moves.join(' '), {
+        separator: '',
+        useModifiers: false,
+        uniformCenterMoves: false,
+    });
 
+    const normalizedScramble = normalize(scramble.join(' '), {
+        separator: '',
+        useModifiers: false,
+        uniformCenterMoves: false,
+    });
 
+    const minLen = Math.min(normalizedMoves.length, normalizedScramble.length);
+    for (let i = 0; i < minLen; i++) {
+        if (normalizedMoves[i] !== normalizedScramble[i]) {
+            const tmpMatch = normalize(normalizedMoves.slice(0, i), { separator: ' ' });
+            const tmpOverdo = normalize(normalizedMoves.slice(i), { separator: ' ' });
+            const tmpRemain = normalize(normalizedScramble.slice(i), { separator: ' ' });
 
+            return {
+                match: (tmpMatch === '') ? [] : tmpMatch.split(' '),
+                overdo: (tmpOverdo === '') ? [] : tmpOverdo.split(' '),
+                remain: (tmpRemain === '') ? [] : tmpRemain.split(' '),
+            };
+        }
+    }
 
-// > const moveOpsSeq = a.split('\n').map(s => { const lst = s.split(' '); return {notation: lst[0], miliUnixtime: lst[1]}} )
-// [ { notation: 'a', miliUnixtime: 'b' },
-//   { notation: 'c', miliUnixtime: 'd' } ]
-// >
+    const tmpMatch = normalize(normalizedMoves.slice(0, minLen), { separator: ' ' });
+    const tmpOverdo = normalize(normalizedMoves.slice(minLen), { separator: ' ' });
+    const tmpRemain = normalize(normalizedScramble.slice(minLen), { separator: ' ' });
 
+    return {
+        match: (tmpMatch === '') ? [] : tmpMatch.split(' '),
+        overdo: (tmpOverdo === '') ? [] : tmpOverdo.split(' '),
+        remain: (tmpRemain === '') ? [] : tmpRemain.split(' '),
+    };
+};
 
-
-// キューブのmiliUnixtimeの情報をうまく持って、くり返しの読み込みで時間をロスしないようにしたい
-// ひと区切りの手順をクラスにするか
-// 1手目を回したunixtime
-// 最終の手順を回したunixtime
-// 手数
-//
-
-// あれ、手順と手順の間の時間を認識できていないぞ?
+export const modifyScramble = (moves, scramble) => {
+    const { match, overdo, remain, } = compareMovesAndScramble(moves, scramble);
+    return (Cube.inverse(overdo.join(' ')) + ' ' + remain.join(' ')).trim();
+};

@@ -2,17 +2,30 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Br from '../../atoms/Br';
 import Button from '../../atoms/Button';
+import Img from '../../atoms/Img';
 import Textarea from '../../atoms/Textarea';
 import Textbox from '../../atoms/Textbox';
-import SectionResultPanels from '../../organisms/SectionResultPanels';
+import Txt from '../../atoms/Txt';
+import TimerCount from '../../molecules/TimerCount';
 import Header from '../../organisms/Header';
+import ScramblePanel from '../../organisms/ScramblePanel';
+import SectionResultPanels from '../../organisms/SectionResultPanels';
+const moment = require('moment');
 
 const BldTimerTemplate = (
     {
         moveHistoryStr,
+        scrambles,
+        scramblesIndex,
+        compared,
+        mutableScramble,
         sectionResults,
         timerCount,
         timerState,
+        lastModified,
+        solveStartMiliUnixtime,
+        memorizeDoneMiliUnixtime,
+        solveDoneMiliUnixtime,
 
         markAsSolved,
         updateMoveHistory,
@@ -26,27 +39,40 @@ const BldTimerTemplate = (
     <div>
         <Header title="BLD Timer"/>
 
-        <main tabIndex="0" onKeyDown={(e) => keyDown(e)} onKeyUp={(e) => keyUp(e)} >
+        <main className="bldTimerTemplateMain" tabIndex="0" onKeyDown={(e) => keyDown(e)} onKeyUp={(e) => keyUp(e)} >
 
-            <Button onClick={() => requestConnectCube()} value="接続"/>
-            <Button onClick={() => markAsSolved()} value="Mark as solved"/>
+            <ScramblePanel className="scramblePanel" mutableScramble={mutableScramble}/>
+
+            <Img src={
+                (() => {
+                    const alg = moveHistoryStr.split('\n').map(line => line.split(' ')[0]).filter(s => s !== '' && s !== '@').join('');
+                    return `https://cube.crider.co.uk/visualcube.php?fmt=svg&size=100&pzl=3&alg=y2z2${alg}`;
+                })()}
+            />
             <Br />
 
-            <Textarea readOnly={true}value={JSON.stringify({
-                timerCount,
-                timerState,
-            })} />
+            <Button tabIndex="-1" onClick={(e) => { requestConnectCube(); e.target.blur(); }} value="接続"/>
+            <Button tabIndex="-1" onClick={(e) => { markAsSolved(parseInt(moment().format('x'))); e.target.blur(); }} value="Mark as solved"/>
+            <Br />
+
+            <TimerCount timerCount={timerCount} timerState={timerState} solveStartMiliUnixtime={solveStartMiliUnixtime} memorizeDoneMiliUnixtime={memorizeDoneMiliUnixtime} solveDoneMiliUnixtime={solveDoneMiliUnixtime} />
             <Br />
 
             <Textarea
-                onChange={ (e) => { updateMoveHistory(e.target.value) }}
+                tabIndex="-1"
+                style={{ display: 'none', }}
+                onChange={ (e) => {
+                    updateMoveHistory({
+                        value: e.target.value,
+                        miliUnixtime: parseInt(moment().format('x')),
+                    })}}
                 className="moveSeqTextbox"
                 value={moveHistoryStr}
             />
             <Br />
-            <Button onClick={() => analyzeMoveHistory()} value="解析" />
+            <Button tabIndex="-1" onClick={(e) => { analyzeMoveHistory(); e.target.blur(); }} value="解析" />
 
-            <SectionResultPanels sectionResults={sectionResults} />
+            <SectionResultPanels sectionResults={sectionResults} solveStartMiliUnixtime={solveStartMiliUnixtime} memorizeDoneMiliUnixtime={memorizeDoneMiliUnixtime} solveDoneMiliUnixtime={solveDoneMiliUnixtime} />
         </main>
     </div>
 );

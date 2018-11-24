@@ -126,20 +126,74 @@ D 1542472620274
 
 describe('bldTimerUtils.js', () => {
     describe('splitMoveOpsSeq()', () => {
-        it('正常系: スクランブル:L\'→今で要確認', () => {
+        it('正常系: スクランブル:L\'', () => {
             const moves = bldTimerUtils.parseMoveHistoryStr(inputStr);
             const actual = bldTimerUtils.splitMoveOpsSeq(moves);
             assert.deepStrictEqual(actual.length, 9); // エッジ5、コーナー3、パリティ処理
         });
     });
+
+    describe('compareMovesAndScramble()', () => {
+        it('正常系', () => {
+            const moves = [ 'U', 'R', 'L', ];
+            const scramble = [ 'U', 'R', 'D', ];
+            const actual = bldTimerUtils.compareMovesAndScramble(moves, scramble);
+            const expected = {
+                match: [ 'U', 'R', ],
+                overdo: [ 'L', ],
+                remain: [ 'D', ],
+            };
+            assert.deepStrictEqual(actual, expected);
+        });
+
+        it('正常系: 90度だけ回す部分で180度回した', () => {
+            const moves = [ 'U', 'R', 'L2', ];
+            const scramble = [ 'U', 'R', 'L', ];
+            const actual = bldTimerUtils.compareMovesAndScramble(moves, scramble);
+            const expected = {
+                match: [ 'U', 'R', 'L', ],
+                overdo: [ 'L', ],
+                remain: [],
+            };
+            assert.deepStrictEqual(actual, expected);
+        });
+
+        it('正常系: スクランブル180度回転のうち90度だけ一致', () => {
+            const moves = [ 'U', 'R', 'L', ];
+            const scramble = [ 'U', 'R', 'L2', ];
+            const actual = bldTimerUtils.compareMovesAndScramble(moves, scramble);
+            const expected = {
+                match: [ 'U', 'R', 'L', ],
+                overdo: [],
+                remain: [ 'L', ],
+            };
+            assert.deepStrictEqual(actual, expected);
+        });
+
+        it('正常系: スクランブル180度回転のうち90度だけ一致、正規化前を返す', () => {
+            const moves = [ 'U', 'R', 'L', ];
+            const scramble = [ 'U', 'R', 'L2', 'D2', 'R', ];
+            const actual = bldTimerUtils.compareMovesAndScramble(moves, scramble);
+            const expected = {
+                match: [ 'U', 'R', 'L', ],
+                overdo: [],
+                remain: [ 'L', 'D2', 'R', ],
+            };
+            assert.deepStrictEqual(actual, expected);
+        });
+
+        it('正常系: プライム', () => {
+            const moves = [ 'F', 'D2', 'L', ];
+            // eslint-disable-next-line quotes
+            const scramble = [ 'F', 'D2', 'L', "D'", ];
+            const actual = bldTimerUtils.compareMovesAndScramble(moves, scramble);
+            const expected = {
+                match: [ 'F', 'D2', 'L', ],
+                overdo: [],
+                // eslint-disable-next-line quotes
+                remain: [ "D'", ],
+            };
+            assert.deepStrictEqual(actual, expected);
+        });
+    });
 });
-
-// const scramble = 'U\' L\' U R2 U\' L U R2'; // [U' L' U, R2]
-// const yPermRDF = 'R U\' R\' U\' R U R\' F\' R U R\' U\' R\' F R';
-// const yPermRBU = 'R\' U\' R\' U\' R U R\' F\' R U R\' U\' R\' F R\'';
-// const seq = yPermRDF + yPermRBU;
-// milisecs = Array.from({length: seq.length}, (_, i) => i+1);
-
-// const actual = bldTimerUtils.splitMoveSeq(scramble, _.zip(seq, milisecs));
-// const expected = []
-// assert.deepStrictEqual(actual, );
