@@ -39,7 +39,7 @@ const ThreeStyleListTemplate = (
         <Header title="3-style 一覧" />
 
         <main>
-            <Heading2 text={part} />
+            <Heading2>{part}</Heading2>
 
             <Msg />
 
