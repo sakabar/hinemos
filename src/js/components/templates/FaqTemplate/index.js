@@ -6,7 +6,7 @@ import Header from '../../organisms/Header';
 
 const Paragraph = (props) => (
     <div>
-        <Heading2 title={props.title} />
+        <Heading2 text={props.title} />
         <Txt text={props.desc} />
     </div>
 );
