@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Heading2 from '../../atoms/Heading2';
 import Txt from '../../atoms/Txt';
 
-const Paragraph = ({ title, desc }) => (
+const Paragraph = ({ title, desc, }) => (
     <div>
         <Heading2>{title}</Heading2>
         <Txt>{desc}</Txt>
