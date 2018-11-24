@@ -1,12 +1,7 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
-const Heading2 = (props) => (
-    <h2>{props.text}</h2>
+const Heading2 = ({ ...rest }) => (
+    <h2 {...rest} />
 );
-
-Heading2.propTypes = {
-    text: PropTypes.string,
-};
 
 export default Heading2;

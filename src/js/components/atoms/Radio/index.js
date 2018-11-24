@@ -1,14 +1,9 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
-const Radio = ({ type, text, ...rest }) => (
+const Radio = ({ type, ...rest }) => (
     <label>
-        <input type="radio" {...rest} />{text}
+        <input type="radio" {...rest} />
     </label>
 );
-
-Radio.propTypes = {
-    text: PropTypes.string,
-};
 
 export default Radio;

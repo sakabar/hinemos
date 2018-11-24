@@ -19,7 +19,7 @@ const Header = ({ title, }) => (
         </div>
 
         <a href={`/${urlRoot}/mypage.html`}><img className="logo__img--rectangle" src={`/${urlRoot}/tw_header.jpg`} alt="ロゴ" /></a>
-        <Heading1 text={title} />
+        <Heading1>{title}</Heading1>
     </header>
 );
 

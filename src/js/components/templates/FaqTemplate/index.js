@@ -1,20 +1,6 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import Heading2 from '../../atoms/Heading2';
-import Txt from '../../atoms/Txt';
 import Header from '../../organisms/Header';
-
-const Paragraph = (props) => (
-    <div>
-        <Heading2 title={props.title} />
-        <Txt text={props.desc} />
-    </div>
-);
-
-Paragraph.propTypes = {
-    title: PropTypes.string,
-    desc: PropTypes.string,
-};
+import Paragraph from '../../molecules/Paragraph';
 
 const FaqTemplate = (props) => (
     <div>

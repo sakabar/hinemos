@@ -1,12 +1,7 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
-const Txt = (props) => (
-    <p>{props.text}</p>
+const Txt = ({ ...rest }) => (
+    <p {...rest} />
 );
-
-Txt.propTypes = {
-    text: PropTypes.string,
-};
 
 export default Txt;

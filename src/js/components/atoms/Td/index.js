@@ -1,7 +1,7 @@
 import React from 'react';
 
-const Td = ({ children, ...rest }) => (
-    <td {...rest}>{children}</td>
+const Td = ({ ...rest }) => (
+    <td {...rest} />
 );
 
 export default Td;
