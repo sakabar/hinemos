@@ -798,12 +798,17 @@ export const bldTimerReducer = handleActions(
                 memorizeDoneMiliUnixtime,
             };
         },
-        [analyzeMoveHistory]: (state, action) => (
-            {
+        [analyzeMoveHistory]: (state, action) => {
+            const moveOpsSeq = bldTimerUtils.parseMoveHistoryStr(state.moveHistoryStr);
+            const merged = bldTimerUtils.mergeSliceAuto(moveOpsSeq);
+            const rotated = bldTimerUtils.mergeRotation(merged);
+            const sectionResults = bldTimerUtils.splitMoveOpsSeq(rotated);
+
+            return {
                 ...state,
-                sectionResults: bldTimerUtils.splitMoveOpsSeq(bldTimerUtils.parseMoveHistoryStr(state.moveHistoryStr)),
-            }
-        ),
+                sectionResults,
+            };
+        },
         [stopToHolding]: (state, action) => {
             return {
                 ...state,

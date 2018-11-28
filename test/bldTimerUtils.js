@@ -126,9 +126,31 @@ D 1542472620274
 
 describe('bldTimerUtils.js', () => {
     describe('splitMoveOpsSeq()', () => {
-        it('正常系: スクランブル:L\'', () => {
+        // これは、M列と持ち替え記号を消さないロジックの場合
+        // it('正常系: スクランブル:L\'', () => {
+        //     const moves = bldTimerUtils.parseMoveHistoryStr(inputStr);
+        //     const actual = bldTimerUtils.splitMoveOpsSeq(moves);
+        //     assert.deepStrictEqual(actual.length, 9); // エッジ5、コーナー3、パリティ処理
+        // });
+
+        // これは、M列と持ち替え記号を消さないロジックの場合
+        // it('正常系: スクランブル:L\' M列表記にする場合', () => {
+        //     const moves = bldTimerUtils.parseMoveHistoryStr(inputStr);
+        //     const merged = bldTimerUtils.mergeSliceAuto(moves);
+        //     const actual = bldTimerUtils.splitMoveOpsSeq(merged);
+        //     console.log(JSON.stringify(actual[0]));
+        //     assert.deepStrictEqual(actual.length, 9); // エッジ5、コーナー3、パリティ処理
+        // });
+
+        it('正常系: スクランブル:L\' M列表記にして、更に回転記号を消した場合', () => {
             const moves = bldTimerUtils.parseMoveHistoryStr(inputStr);
-            const actual = bldTimerUtils.splitMoveOpsSeq(moves);
+            const merged = bldTimerUtils.mergeSliceAuto(moves);
+            const rotated = bldTimerUtils.mergeRotation(merged);
+            const actual = bldTimerUtils.splitMoveOpsSeq(rotated);
+            // for (let i = 0; i < actual.length; i++) {
+            //     console.log(JSON.stringify(actual[i]));
+            // }
+
             assert.deepStrictEqual(actual.length, 9); // エッジ5、コーナー3、パリティ処理
         });
     });
@@ -193,6 +215,214 @@ describe('bldTimerUtils.js', () => {
                 // eslint-disable-next-line quotes
                 remain: [ "D'", ],
             };
+            assert.deepStrictEqual(actual, expected);
+        });
+    });
+
+    describe('mergeSliceAuto()', () => {
+        it('正常系: L R\' -> M', () => {
+            const MoveOps = bldTimerUtils.MoveOps;
+            const moveOpsList = [
+                new MoveOps('U', 0),
+                new MoveOps('L', 15),
+                new MoveOps('R\'', 30),
+            ];
+
+            const actual = bldTimerUtils.mergeSliceAuto(moveOpsList);
+            const expected = [
+                new MoveOps('U', 0),
+                new MoveOps('M\'', 30),
+                new MoveOps('x\'', 30),
+            ];
+
+            assert.deepStrictEqual(actual, expected);
+        });
+
+        it('正常系: L2 R2 -> M2', () => {
+            const MoveOps = bldTimerUtils.MoveOps;
+            const moveOpsList = [
+                new MoveOps('L2', 0),
+                new MoveOps('R2', 15),
+            ];
+
+            const actual = bldTimerUtils.mergeSliceAuto(moveOpsList);
+            const expected = [
+                new MoveOps('M2', 15),
+                new MoveOps('x2', 15),
+            ];
+
+            assert.deepStrictEqual(actual, expected);
+        });
+
+        it('正常系: R\' L2 R\'-> M2', () => {
+            const MoveOps = bldTimerUtils.MoveOps;
+            const moveOpsList = [
+                new MoveOps('R\'', 0),
+                new MoveOps('L2', 15),
+                new MoveOps('R\'', 30),
+            ];
+
+            const actual = bldTimerUtils.mergeSliceAuto(moveOpsList);
+            const expected = [
+                new MoveOps('M2', 30),
+                new MoveOps('x2', 30),
+            ];
+
+            assert.deepStrictEqual(actual, expected);
+        });
+
+        it('正常系: @をまたいでのマージはしない', () => {
+            const MoveOps = bldTimerUtils.MoveOps;
+            const moveOpsList = [
+                new MoveOps('L2', 0),
+                new MoveOps('@', 15),
+                new MoveOps('R2', 30),
+            ];
+
+            const actual = bldTimerUtils.mergeSliceAuto(moveOpsList);
+            const expected = [
+                new MoveOps('L2', 0),
+                new MoveOps('@', 15),
+                new MoveOps('R2', 30),
+            ];
+
+            assert.deepStrictEqual(actual, expected);
+        });
+    });
+
+    describe('mergeRotation()', () => {
+        it('正常系: x2', () => {
+            const MoveOps = bldTimerUtils.MoveOps;
+            const moveOpsList = [
+                new MoveOps('U', 0),
+                new MoveOps('x2', 0),
+                new MoveOps('U', 30),
+            ];
+
+            const actual = bldTimerUtils.mergeRotation(moveOpsList);
+            const expected = [
+                new MoveOps('U', 0),
+                new MoveOps('D', 30),
+            ];
+
+            assert.deepStrictEqual(actual, expected);
+        });
+
+        it('正常系: S z\' R2', () => {
+            const MoveOps = bldTimerUtils.MoveOps;
+            const moveOpsList = [
+                new MoveOps('S', 0),
+                new MoveOps('z\'', 0),
+                new MoveOps('R2', 30),
+            ];
+
+            const actual = bldTimerUtils.mergeRotation(moveOpsList);
+            const expected = [
+                new MoveOps('S', 0),
+                new MoveOps('D2', 30),
+            ];
+
+            assert.deepStrictEqual(actual, expected);
+        });
+
+        it('正常系: x4', () => {
+            const MoveOps = bldTimerUtils.MoveOps;
+            const moveOpsList = [
+                new MoveOps('x4', 0),
+                new MoveOps('M', 1),
+                new MoveOps('S', 2),
+                new MoveOps('E', 3),
+            ];
+
+            const actual = bldTimerUtils.mergeRotation(moveOpsList);
+            const expected = [
+                new MoveOps('M', 1),
+                new MoveOps('S', 2),
+                new MoveOps('E', 3),
+            ];
+
+            assert.deepStrictEqual(actual, expected);
+        });
+
+        it('正常系: UFステッカーの手順', () => {
+            const MoveOps = bldTimerUtils.MoveOps;
+            /* eslint-disable */
+            const moveOpsList = [
+                new MoveOps("x2", 1542901411987),
+                new MoveOps("D'", 1542901411988),
+                new MoveOps("D'", 1542901412048),
+                new MoveOps("M'", 1542901412234),
+                new MoveOps("x'", 1542901412234),
+                // new MoveOps("L", 1542901412228),
+                // new MoveOps("R'", 1542901412234),
+                new MoveOps("B'", 1542901412407),
+                new MoveOps("B'", 1542901412468),
+                // new MoveOps("R'", 1542901412588),
+                // new MoveOps("L", 1542901412593),
+                new MoveOps("M'", 1542901412593),
+                new MoveOps("x'", 1542901412593),
+            ];
+
+            const actual = bldTimerUtils.mergeRotation(moveOpsList);
+            const expected = [
+                new MoveOps("U'", 1542901411988),
+                new MoveOps("U'", 1542901412048),
+                new MoveOps("M'", 1542901412234),
+                new MoveOps("U'", 1542901412407),
+                new MoveOps("U'", 1542901412468),
+                new MoveOps("M'", 1542901412593),
+            ];
+            /* eslint-enable */
+
+            assert.deepStrictEqual(actual, expected);
+        });
+
+        it('正常系: 2ステッカー', () => {
+            const MoveOps = bldTimerUtils.MoveOps;
+            /* eslint-disable */
+            const moveOpsList = [
+                new MoveOps("L'", 1542901409889),
+                new MoveOps("U'", 1542901410008),
+                new MoveOps("L", 1542901410128),
+                new MoveOps("U", 1542901410248),
+                new MoveOps("M2", 1542901410788),
+                new MoveOps("x2", 1542901410788),
+                new MoveOps("D'", 1542901410848),
+                new MoveOps("L'", 1542901411027),
+                new MoveOps("D", 1542901411088),
+                new MoveOps("L", 1542901411268),
+
+                new MoveOps("D'", 1542901411988),
+                new MoveOps("D'", 1542901412048),
+                new MoveOps("M'", 1542901412234),
+                new MoveOps("x'", 1542901412234),
+                new MoveOps("B'", 1542901412407),
+                new MoveOps("B'", 1542901412468),
+                new MoveOps("M'", 1542901412593),
+                new MoveOps("x'", 1542901412593),
+            ];
+
+            const actual = bldTimerUtils.mergeRotation(moveOpsList);
+            const expected = [
+                new MoveOps("L'", 1542901409889),
+                new MoveOps("U'", 1542901410008),
+                new MoveOps("L", 1542901410128),
+                new MoveOps("U", 1542901410248),
+                new MoveOps("M2", 1542901410788),
+                new MoveOps("U'", 1542901410848),
+                new MoveOps("L'", 1542901411027),
+                new MoveOps("U", 1542901411088),
+                new MoveOps("L", 1542901411268),
+
+                new MoveOps("U'", 1542901411988),
+                new MoveOps("U'", 1542901412048),
+                new MoveOps("M'", 1542901412234),
+                new MoveOps("U'", 1542901412407),
+                new MoveOps("U'", 1542901412468),
+                new MoveOps("M'", 1542901412593),
+            ];
+            /* eslint-enable */
+
             assert.deepStrictEqual(actual, expected);
         });
     });
