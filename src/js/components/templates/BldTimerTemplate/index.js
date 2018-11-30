@@ -31,6 +31,8 @@ const BldTimerTemplate = (
         scramblesIndex,
         compared,
         mutableScramble,
+        inputScramblesStr,
+        isOpen,
         sectionResults,
         timerCount,
         timerState,
@@ -46,14 +48,15 @@ const BldTimerTemplate = (
         analyzeMoveHistory,
         keyDown,
         keyUp,
+        toggleModal,
     }
 ) => (
     <div>
-        <Header title="BLD Timer"/>
+        <Header title="BLD Smart Timer"/>
 
-        <main className="bldTimerTemplateMain" tabIndex="0" onKeyDown={(e) => { keyDown(e); e.preventDefault(); }} onKeyUp={(e) => { keyUp(e); e.preventDefault(); }} >
+        <main className="bldTimerTemplateMain" tabIndex="0" onKeyDown={(e) => { keyDown(e); if (e.keyCode === 32) { e.preventDefault(); }}} onKeyUp={(e) => { keyUp(e); if (e.keyCode === 32) { e.preventDefault(); }}} >
 
-            <ScramblePanel className="scramblePanel" mutableScramble={mutableScramble}/>
+            <ScramblePanel className="scramblePanel" mutableScramble={mutableScramble} inputScramblesStr={inputScramblesStr} isOpen={isOpen} toggleModal={toggleModal}/>
 
             <ButtonToolbar>
                 <Button color="primary" tabIndex="-1" onClick={(e) => { requestConnectCube(); e.target.blur(); }} value="接続"/>

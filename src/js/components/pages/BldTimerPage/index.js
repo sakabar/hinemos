@@ -17,6 +17,7 @@ import {
     startSolve,
     keyDown,
     keyUp,
+    toggleModal,
     bldTimerReducer,
     rootSaga,
 } from '../../../modules/bldTimer';
@@ -27,6 +28,8 @@ const mapStateToProps = ({
     scramblesIndex,
     compared,
     mutableScramble,
+    inputScramblesStr,
+    isOpen,
     sectionResults,
     timerCount,
     timerState,
@@ -41,6 +44,8 @@ const mapStateToProps = ({
         scramblesIndex,
         compared,
         mutableScramble,
+        inputScramblesStr,
+        isOpen,
         sectionResults,
         timerCount,
         timerState,
@@ -73,6 +78,9 @@ const mapDispatchToProps = (dispatch) => {
         },
         keyUp: (e) => {
             dispatch(keyUp(e));
+        },
+        toggleModal: () => {
+            dispatch(toggleModal());
         },
     };
 };

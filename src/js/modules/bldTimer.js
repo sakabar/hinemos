@@ -44,6 +44,8 @@ const KEY_UP = 'KEY_UP';
 const KEY_DOWN_ENTER = 'KEY_DOWN_ENTER';
 const KEY_UP_ENTER = 'KEY_UP_ENTER';
 
+const TOGGLE_MODAL = 'TOGGLE_MODAL';
+
 export const requestConnectCube = createAction(REQUEST_CONNECT_CUBE);
 export const successConnectCube = createAction(SUCCESS_CONNECT_CUBE);
 export const failureConnectCube = createAction(FAILURE_CONNECT_CUBE);
@@ -69,6 +71,8 @@ export const keyDown = createAction(KEY_DOWN);
 export const keyUp = createAction(KEY_UP);
 export const keyDownEnter = createAction(KEY_DOWN_ENTER);
 export const keyUpEnter = createAction(KEY_UP_ENTER);
+
+export const toggleModal = createAction(TOGGLE_MODAL);
 
 // テキストボックスの値をJSの機能で変えた時にイベントを発火させるには、ひと手間必要
 // https://github.com/facebook/react/issues/10135
@@ -745,6 +749,9 @@ const initialState = {
     compared: bldTimerUtils.compareMovesAndScramble(exampleHistory2.split('\n').map(s => s.split(' ')[0]).filter(s => s !== '' && s !== '@'), dummyScrambles[0]),
     mutableScramble: bldTimerUtils.modifyScramble(exampleHistory2.split('\n').map(s => s.split(' ')[0]).filter(s => s !== '' && s !== '@'), dummyScrambles[0]),
 
+    inputScramblesStr: '',
+    isOpen: false,
+
     timerCount: 0.0,
     timerState: bldTimerUtils.TimerState.stop,
     lastModified: 0,
@@ -862,6 +869,12 @@ export const bldTimerReducer = handleActions(
             return {
                 ...state,
                 timerCount: miliSec / 1000.0,
+            };
+        },
+        [toggleModal]: (state, action) => {
+            return {
+                ...state,
+                isOpen: !state.isOpen,
             };
         },
         // [moveCube]: (state, action) => {
