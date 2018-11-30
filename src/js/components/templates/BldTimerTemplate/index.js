@@ -9,7 +9,7 @@ import Txt from '../../atoms/Txt';
 import TimerCount from '../../molecules/TimerCount';
 import Header from '../../organisms/Header';
 import ScramblePanel from '../../organisms/ScramblePanel';
-import SectionResultPanels from '../../organisms/SectionResultPanels';
+import SectionResultPanelsContainer from '../../organisms/SectionResultPanelsContainer';
 const moment = require('moment');
 
 const BldTimerTemplate = (
@@ -72,7 +72,7 @@ const BldTimerTemplate = (
             <Br />
             <Button tabIndex="-1" onClick={(e) => { analyzeMoveHistory(); e.target.blur(); }} value="解析" />
 
-            <SectionResultPanels sectionResults={sectionResults} solveStartMiliUnixtime={solveStartMiliUnixtime} memorizeDoneMiliUnixtime={memorizeDoneMiliUnixtime} solveDoneMiliUnixtime={solveDoneMiliUnixtime} />
+            <SectionResultPanelsContainer sectionResults={sectionResults} solveStartMiliUnixtime={solveStartMiliUnixtime} memorizeDoneMiliUnixtime={memorizeDoneMiliUnixtime} solveDoneMiliUnixtime={solveDoneMiliUnixtime} />
         </main>
     </div>
 );

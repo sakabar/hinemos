@@ -4,7 +4,7 @@ import Txt from '../../atoms/Txt';
 import SectionResultPanel from '../../molecules/SectionResultPanel';
 const math = require('mathjs');
 
-const SectionResultPanels = ({
+const SectionResultPanelsContainer = ({
     sectionResults,
     solveStartMiliUnixtime,
     memorizeDoneMiliUnixtime,
@@ -30,8 +30,8 @@ const SectionResultPanels = ({
     );
 }
 
-SectionResultPanels.propTypes = {
+SectionResultPanelsContainer.propTypes = {
     sectionResults: PropTypes.array,
 };
 
-export default SectionResultPanels;
+export default SectionResultPanelsContainer;
