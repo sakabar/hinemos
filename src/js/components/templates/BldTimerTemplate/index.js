@@ -51,7 +51,7 @@ const BldTimerTemplate = (
     <div>
         <Header title="BLD Timer"/>
 
-        <main className="bldTimerTemplateMain" tabIndex="0" onKeyDown={(e) => keyDown(e)} onKeyUp={(e) => keyUp(e)} >
+        <main className="bldTimerTemplateMain" tabIndex="0" onKeyDown={(e) => { keyDown(e); e.preventDefault(); }} onKeyUp={(e) => { keyUp(e); e.preventDefault(); }} >
 
             <ScramblePanel className="scramblePanel" mutableScramble={mutableScramble}/>
 
