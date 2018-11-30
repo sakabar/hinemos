@@ -1,5 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import {
+    ButtonToolbar,
+} from 'reactstrap';
 import Br from '../../atoms/Br';
 import Button from '../../atoms/Button';
 import Img from '../../atoms/Img';
@@ -11,6 +14,15 @@ import Header from '../../organisms/Header';
 import ScramblePanel from '../../organisms/ScramblePanel';
 import SectionResultPanelsContainer from '../../organisms/SectionResultPanelsContainer';
 const moment = require('moment');
+
+// <Img src={
+//     (() => {
+//         const alg = moveHistoryStr.split('\n').map(line => line.split(' ')[0]).filter(s => s !== '' && s !== '@').join('');
+//         return `https://cube.crider.co.uk/visualcube.php?fmt=svg&size=100&pzl=3&alg=y2z2${alg}`;
+//     })()}
+// />
+// <Br />
+
 
 const BldTimerTemplate = (
     {
@@ -43,16 +55,10 @@ const BldTimerTemplate = (
 
             <ScramblePanel className="scramblePanel" mutableScramble={mutableScramble}/>
 
-            <Img src={
-                (() => {
-                    const alg = moveHistoryStr.split('\n').map(line => line.split(' ')[0]).filter(s => s !== '' && s !== '@').join('');
-                    return `https://cube.crider.co.uk/visualcube.php?fmt=svg&size=100&pzl=3&alg=y2z2${alg}`;
-                })()}
-            />
-            <Br />
-
-            <Button tabIndex="-1" onClick={(e) => { requestConnectCube(); e.target.blur(); }} value="接続"/>
-            <Button tabIndex="-1" onClick={(e) => { markAsSolved(parseInt(moment().format('x'))); e.target.blur(); }} value="Mark as solved"/>
+            <ButtonToolbar>
+                <Button color="primary" tabIndex="-1" onClick={(e) => { requestConnectCube(); e.target.blur(); }} value="接続"/>
+                <Button color="primary" tabIndex="-1" onClick={(e) => { markAsSolved(parseInt(moment().format('x'))); e.target.blur(); }} value="Mark as solved"/>
+            </ButtonToolbar>
             <Br />
 
             <TimerCount timerCount={timerCount} timerState={timerState} solveStartMiliUnixtime={solveStartMiliUnixtime} memorizeDoneMiliUnixtime={memorizeDoneMiliUnixtime} solveDoneMiliUnixtime={solveDoneMiliUnixtime} />
@@ -70,7 +76,8 @@ const BldTimerTemplate = (
                 value={moveHistoryStr}
             />
             <Br />
-            <Button tabIndex="-1" onClick={(e) => { analyzeMoveHistory(); e.target.blur(); }} value="解析" />
+            <Button color="primary" tabIndex="-1" onClick={(e) => { analyzeMoveHistory(); e.target.blur(); }} value="解析" />
+            <Br />
 
             <SectionResultPanelsContainer sectionResults={sectionResults} solveStartMiliUnixtime={solveStartMiliUnixtime} memorizeDoneMiliUnixtime={memorizeDoneMiliUnixtime} solveDoneMiliUnixtime={solveDoneMiliUnixtime} />
         </main>

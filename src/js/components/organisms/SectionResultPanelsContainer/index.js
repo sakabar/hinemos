@@ -1,5 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Col from '../../atoms/Col';
+import Container from '../../atoms/Container';
+import Heading2 from '../../atoms/Heading2';
+import Row from '../../atoms/Row';
 import Txt from '../../atoms/Txt';
 import SectionResultPanel from '../../molecules/SectionResultPanel';
 const math = require('mathjs');
@@ -19,13 +23,19 @@ const SectionResultPanelsContainer = ({
 
     return (
     <div>
-        <Txt>解析結果</Txt>
+        <Heading2>解析結果</Heading2>
         <Txt>{sumInfo}</Txt>
-        {
-            sectionResults.map((secRes, ind) =>
-                <SectionResultPanel key={ind} sectionResult={secRes} />
-            )
-        }
+        <Container>
+            <Row>
+            {
+                sectionResults.map((secRes, ind) =>
+                    <Col key={ind} xs="3">
+                        <SectionResultPanel sectionResult={secRes} className="h-100"/>
+                    </Col>
+                )
+            }
+            </Row>
+        </Container>
     </div>
     );
 }
