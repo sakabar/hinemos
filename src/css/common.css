@@ -75,3 +75,18 @@ header .logo__img--rectangle {
         padding-left: 6.0vw;
     }
 }
+
+.fontCheck {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 3em;
+    margin: 1.0vh 0;
+}
+
+.scramblePanel {
+    /* min-height: 5ex; */
+    /* max-height: 5ex; */
+}
+
+.bldTimerTemplateMain:focus {
+    outline: none;
+}

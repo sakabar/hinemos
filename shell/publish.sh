@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# DEPLOY_ENVが明示されていない場合は""とする
+# set -u より前に書く必要がある
+if [[ "${DEPLOY_ENV}" = "" ]]; then
+    DEPLOY_ENV=""
+fi
+
 set -ue
 
 # git pullするたびにconfig_stg.jsの中身がダミーになってしまうので、
@@ -27,4 +33,15 @@ npm run eslint && npm run test && npm run webpack && {
     cp dist/errorPage.bundle.js ${PUBLISHED_DIR}/threeStyle
 
     cp node_modules/normalize.css/normalize.css ${PUBLISHED_DIR}
+
+    # これだけ、pathを書き換える必要があるので特別
+    url_root=$(cat ~/work/hinemos_conf/js/config_stg.js | grep 'urlRoot' | grep -o "'.*'" | tr -d "'")
+    url_root_basename=$(basename $url_root)
+    if [[ "${DEPLOY_ENV}" == 'prod' ]]; then
+        # 何もしない
+        cat src/html/index.html > ${PUBLISHED_DIR}/index.html
+    else
+        # ルートディレクトリを書き換える
+        cat src/html/index.html | sed -e "s|/hinemos/|/${url_root_basename}/|g" > ${PUBLISHED_DIR}/index.html
+    fi
 }
