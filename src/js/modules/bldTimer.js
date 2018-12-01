@@ -44,10 +44,14 @@ const KEY_UP = 'KEY_UP';
 const KEY_DOWN_ENTER = 'KEY_DOWN_ENTER';
 const KEY_UP_ENTER = 'KEY_UP_ENTER';
 
-const TOGGLE_MODAL = 'TOGGLE_MODAL';
+const TOGGLE_SCRAMBLE_MODAL = 'TOGGLE_SCRAMBLE_MODAL';
+const TOGGLE_FIRST_ROTATION_MODAL = 'TOGGLE_FIRST_ROTATION_MODAL';
+
 const UPDATE_INPUT_SCRAMBLES_STR = 'UPDATE_INPUT_SCRAMBLES_STR';
 const ADD_SCRAMBLES = 'ADD_SCRAMBLES';
 const CHANGE_SCRAMBLE = 'CHANGE_SCRAMBLE';
+
+const UPDATE_FIRST_ROTATION_STR = 'UPDATE_FIRST_ROTATION_STR';
 
 export const requestConnectCube = createAction(REQUEST_CONNECT_CUBE);
 export const successConnectCube = createAction(SUCCESS_CONNECT_CUBE);
@@ -75,10 +79,14 @@ export const keyUp = createAction(KEY_UP);
 export const keyDownEnter = createAction(KEY_DOWN_ENTER);
 export const keyUpEnter = createAction(KEY_UP_ENTER);
 
-export const toggleModal = createAction(TOGGLE_MODAL);
+export const toggleScrambleModal = createAction(TOGGLE_SCRAMBLE_MODAL);
+export const toggleFirstRotationModal = createAction(TOGGLE_FIRST_ROTATION_MODAL);
+
 export const addScrambles = createAction(ADD_SCRAMBLES);
 export const updateInputScramblesStr = createAction(UPDATE_INPUT_SCRAMBLES_STR);
 export const changeScramble = createAction(CHANGE_SCRAMBLE);
+
+export const updateFirstRotationStr = createAction(UPDATE_FIRST_ROTATION_STR);
 
 // テキストボックスの値をJSの機能で変えた時にイベントを発火させるには、ひと手間必要
 // https://github.com/facebook/react/issues/10135
@@ -242,16 +250,16 @@ const initialState = {
     moveHistoryStr: '',
     sectionResults: [],
 
+    // FIXME localStorageを使っているのをDBに登録/引き出すように直す
+    firstRotationStr: localStorage.firstRotationStr ? localStorage.firstRotationStr : '',
     scrambles: [],
     scramblesIndex: 0,
     compared: undefined,
     mutableScramble: '',
-    // scrambles: dummyScrambles,
-    // compared: bldTimerUtils.compareMovesAndScramble(exampleHistory2.split('\n').map(s => s.split(' ')[0]).filter(s => s !== '' && s !== '@'), dummyScrambles[0]),
-    // mutableScramble: bldTimerUtils.modifyScramble(exampleHistory2.split('\n').map(s => s.split(' ')[0]).filter(s => s !== '' && s !== '@'), dummyScrambles[0]),
 
     inputScramblesStr: '',
-    isOpen: false,
+    isOpenScrambleModal: false,
+    isOpenFirstRotaionModal: false,
 
     timerCount: 0.0,
     timerState: bldTimerUtils.TimerState.stop,
@@ -291,21 +299,24 @@ export const bldTimerReducer = handleActions(
 
             const moves = moveHistoryStr.split('\n').map(s => s.split(' ')[0]).filter(s => s !== '' && s !== '@');
             const scramble = state.scrambles[state.scramblesIndex];
-            const mutableScramble = (state.timerState === bldTimerUtils.TimerState.updating) ? '' : bldTimerUtils.modifyScramble(moves, scramble);
+            const mutableScramble = (state.timerState === bldTimerUtils.TimerState.updating || !scramble) ? '' : bldTimerUtils.modifyScramble(moves, scramble);
+            const compared = (moves && scramble) ? bldTimerUtils.compareMovesAndScramble(moves, scramble) : undefined;
 
             return {
                 ...state,
                 moveHistoryStr,
-                compared: bldTimerUtils.compareMovesAndScramble(moves, scramble),
+                compared,
                 mutableScramble,
                 memorizeDoneMiliUnixtime,
             };
         },
         [analyzeMoveHistory]: (state, action) => {
-            const moveOpsSeq = bldTimerUtils.parseMoveHistoryStr(state.moveHistoryStr);
-            const merged = bldTimerUtils.mergeSliceAuto(moveOpsSeq);
-            const rotated = bldTimerUtils.mergeRotation(merged);
-            const sectionResults = bldTimerUtils.splitMoveOpsSeq(rotated);
+            const rotationInsertedMoveHistoryStr = bldTimerUtils.insertFirstRotation(state.moveHistoryStr, state.firstRotationStr);
+            const moveOpsSeq = bldTimerUtils.parseMoveHistoryStr(rotationInsertedMoveHistoryStr);
+            const firstRotationRemoved = bldTimerUtils.mergeRotationFirst(moveOpsSeq);
+            const merged = bldTimerUtils.mergeSliceAuto(firstRotationRemoved);
+            const rotationRemovedAfterSlice = bldTimerUtils.mergeRotationAfterSlice(merged);
+            const sectionResults = bldTimerUtils.splitMoveOpsSeq(rotationRemovedAfterSlice);
 
             return {
                 ...state,
@@ -365,7 +376,7 @@ export const bldTimerReducer = handleActions(
                 // 次のスクランブルへ。もし最後だったら入力欄を開く
                 scramblesIndex: newScramblesIndex,
                 mutableScramble,
-                isOpen: (state.scramblesIndex === state.scrambles.length - 1) ? true : state.isOpen,
+                isOpenScrambleModal: (state.scramblesIndex === state.scrambles.length - 1) ? true : state.isOpenScrambleModal,
             };
         },
         [updateTimer]: (state, action) => {
@@ -379,10 +390,16 @@ export const bldTimerReducer = handleActions(
                 timerCount: miliSec / 1000.0,
             };
         },
-        [toggleModal]: (state, action) => {
+        [toggleScrambleModal]: (state, action) => {
             return {
                 ...state,
-                isOpen: !state.isOpen,
+                isOpenScrambleModal: !state.isOpenScrambleModal,
+            };
+        },
+        [toggleFirstRotationModal]: (state, action) => {
+            return {
+                ...state,
+                isOpenFirstRotationModal: !state.isOpenFirstRotationModal,
             };
         },
         [updateInputScramblesStr]: (state, action) => {
@@ -425,18 +442,16 @@ export const bldTimerReducer = handleActions(
                 mutableScramble,
             };
         },
-        // [moveCube]: (state, action) => {
-        //     const move = action.payload;
-        //     console.log(move.face); // => "F"
-        //     console.log(move.amount); // => -1
-        //     console.log(move.notation); // => "F'"
+        [updateFirstRotationStr]: (state, action) => {
+            const firstRotationStr = action.payload;
+            // FIXME DBに入れる
+            localStorage.firstRotationStr = firstRotationStr;
 
-        //     console.log(JSON.stringify(state.cube));
-
-        //     return ({
-        //         ...state,
-        //     });
-        // },
+            return {
+                ...state,
+                firstRotationStr,
+            };
+        },
     },
     initialState
 );
