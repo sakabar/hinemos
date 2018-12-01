@@ -18,6 +18,8 @@ import {
     keyDown,
     keyUp,
     toggleModal,
+    updateInputScramblesStr,
+    addScrambles,
     bldTimerReducer,
     rootSaga,
 } from '../../../modules/bldTimer';
@@ -81,6 +83,12 @@ const mapDispatchToProps = (dispatch) => {
         },
         toggleModal: () => {
             dispatch(toggleModal());
+        },
+        updateInputScramblesStr: (s) => {
+            dispatch(updateInputScramblesStr(s));
+        },
+        addScrambles: (scramblesStr) => {
+            dispatch(addScrambles(scramblesStr));
         },
     };
 };

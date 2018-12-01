@@ -5,7 +5,6 @@ import {
 } from 'reactstrap';
 import Br from '../../atoms/Br';
 import Button from '../../atoms/Button';
-import Img from '../../atoms/Img';
 import Textarea from '../../atoms/Textarea';
 import Textbox from '../../atoms/Textbox';
 import Txt from '../../atoms/Txt';
@@ -14,15 +13,6 @@ import Header from '../../organisms/Header';
 import ScramblePanel from '../../organisms/ScramblePanel';
 import SectionResultPanelsContainer from '../../organisms/SectionResultPanelsContainer';
 const moment = require('moment');
-
-// <Img src={
-//     (() => {
-//         const alg = moveHistoryStr.split('\n').map(line => line.split(' ')[0]).filter(s => s !== '' && s !== '@').join('');
-//         return `https://cube.crider.co.uk/visualcube.php?fmt=svg&size=100&pzl=3&alg=y2z2${alg}`;
-//     })()}
-// />
-// <Br />
-
 
 const BldTimerTemplate = (
     {
@@ -49,14 +39,16 @@ const BldTimerTemplate = (
         keyDown,
         keyUp,
         toggleModal,
+        updateInputScramblesStr,
+        addScrambles,
     }
 ) => (
     <div>
         <Header title="BLD Smart Timer"/>
 
-        <main className="bldTimerTemplateMain" tabIndex="0" onKeyDown={(e) => { keyDown(e); if (e.keyCode === 32) { e.preventDefault(); }}} onKeyUp={(e) => { keyUp(e); if (e.keyCode === 32) { e.preventDefault(); }}} >
+        <main className="bldTimerTemplateMain" tabIndex="0" onKeyDown={(e) => { if (!isOpen) { keyDown(e); } if (!isOpen && e.keyCode === 32) { e.preventDefault(); }}} onKeyUp={(e) => { if (!isOpen) { keyUp(e); } if (!isOpen && e.keyCode === 32) { e.preventDefault(); }}} >
 
-            <ScramblePanel className="scramblePanel" mutableScramble={mutableScramble} inputScramblesStr={inputScramblesStr} isOpen={isOpen} toggleModal={toggleModal}/>
+            <ScramblePanel className="scramblePanel" moveHistoryStr={moveHistoryStr} scrambles={scrambles} mutableScramble={mutableScramble} inputScramblesStr={inputScramblesStr} isOpen={isOpen} toggleModal={toggleModal} updateInputScramblesStr={updateInputScramblesStr} addScrambles={addScrambles}/>
 
             <ButtonToolbar>
                 <Button color="primary" tabIndex="-1" onClick={(e) => { requestConnectCube(); e.target.blur(); }} value="接続"/>
@@ -79,8 +71,10 @@ const BldTimerTemplate = (
                 value={moveHistoryStr}
             />
             <Br />
+            {/*
             <Button color="primary" tabIndex="-1" onClick={(e) => { analyzeMoveHistory(); e.target.blur(); }} value="解析" />
             <Br />
+            */}
 
             <SectionResultPanelsContainer sectionResults={sectionResults} solveStartMiliUnixtime={solveStartMiliUnixtime} memorizeDoneMiliUnixtime={memorizeDoneMiliUnixtime} solveDoneMiliUnixtime={solveDoneMiliUnixtime} />
         </main>

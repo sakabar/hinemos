@@ -45,6 +45,8 @@ const KEY_DOWN_ENTER = 'KEY_DOWN_ENTER';
 const KEY_UP_ENTER = 'KEY_UP_ENTER';
 
 const TOGGLE_MODAL = 'TOGGLE_MODAL';
+const UPDATE_INPUT_SCRAMBLES_STR = 'UPDATE_INPUT_SCRAMBLES_STR';
+const ADD_SCRAMBLES = 'ADD_SCRAMBLES';
 
 export const requestConnectCube = createAction(REQUEST_CONNECT_CUBE);
 export const successConnectCube = createAction(SUCCESS_CONNECT_CUBE);
@@ -73,6 +75,8 @@ export const keyDownEnter = createAction(KEY_DOWN_ENTER);
 export const keyUpEnter = createAction(KEY_UP_ENTER);
 
 export const toggleModal = createAction(TOGGLE_MODAL);
+export const addScrambles = createAction(ADD_SCRAMBLES);
+export const updateInputScramblesStr = createAction(UPDATE_INPUT_SCRAMBLES_STR);
 
 // テキストボックスの値をJSの機能で変えた時にイベントを発火させるには、ひと手間必要
 // https://github.com/facebook/react/issues/10135
@@ -147,7 +151,9 @@ function * handleOnKeyDown () {
             // どのキーでもよい
             if (typeof memorizeDoneMiliUnixtime !== 'undefined') {
                 // 分析記憶時間が登録済であれば、タイマー止める
+                // 自動的に解析
                 yield put(updatingToStop(miliUnixtime));
+                yield put(analyzeMoveHistory());
             } else {
                 // 何もしない
             }
@@ -731,7 +737,7 @@ F 1542901461473
 // `.slice(1);
 
 // eslint-disable-next-line quotes
-const dummyScrambles = [ "U R' D U' F2".split(' '), "F D2 L' D' R2 U2 L U' D2 F B2 U F2 U2 L2 U' R2' U2 F2 D2 L' F2".split(' '), ];
+// const dummyScrambles = [ "U R' D U' F2".split(' '), "F D2 L' D' R2 U2 L U' D2 F B2 U F2 U2 L2 U' R2' U2 F2 D2 L' F2".split(' '), ];
 
 const initialState = {
     // キューブとの接続
@@ -743,11 +749,13 @@ const initialState = {
 
     sectionResults: [],
 
-    // scrambles: [],
-    scrambles: dummyScrambles,
+    scrambles: [],
     scramblesIndex: 0,
-    compared: bldTimerUtils.compareMovesAndScramble(exampleHistory2.split('\n').map(s => s.split(' ')[0]).filter(s => s !== '' && s !== '@'), dummyScrambles[0]),
-    mutableScramble: bldTimerUtils.modifyScramble(exampleHistory2.split('\n').map(s => s.split(' ')[0]).filter(s => s !== '' && s !== '@'), dummyScrambles[0]),
+    compared: undefined,
+    mutableScramble: '',
+    // scrambles: dummyScrambles,
+    // compared: bldTimerUtils.compareMovesAndScramble(exampleHistory2.split('\n').map(s => s.split(' ')[0]).filter(s => s !== '' && s !== '@'), dummyScrambles[0]),
+    // mutableScramble: bldTimerUtils.modifyScramble(exampleHistory2.split('\n').map(s => s.split(' ')[0]).filter(s => s !== '' && s !== '@'), dummyScrambles[0]),
 
     inputScramblesStr: '',
     isOpen: false,
@@ -853,11 +861,18 @@ export const bldTimerReducer = handleActions(
         },
         [updatingToStop]: (state, action) => {
             const nowMiliUnixtime = action.payload;
+            const newScramblesIndex = Math.min(state.scramblesIndex + 1, state.scrambles.length - 1);
+            const mutableScramble = state.scrambles[newScramblesIndex];
+
             return {
                 ...state,
                 timerState: bldTimerUtils.TimerState.stop,
                 lastModified: nowMiliUnixtime,
                 solveDoneMiliUnixtime: nowMiliUnixtime,
+                // 次のスクランブルへ。もし最後だったら入力欄を開く
+                scramblesIndex: newScramblesIndex,
+                mutableScramble,
+                isOpen: (state.scramblesIndex === state.scrambles.length - 1) ? true : state.isOpen,
             };
         },
         [updateTimer]: (state, action) => {
@@ -875,6 +890,28 @@ export const bldTimerReducer = handleActions(
             return {
                 ...state,
                 isOpen: !state.isOpen,
+            };
+        },
+        [updateInputScramblesStr]: (state, action) => {
+            return {
+                ...state,
+                inputScramblesStr: action.payload,
+            };
+        },
+        [addScrambles]: (state, action) => {
+            const inputScramblesStr = state.inputScramblesStr;
+            const newScrambles = inputScramblesStr.split('\n').filter(s => s !== '').map(s => s.split(' '));
+            const scrambles = state.scrambles.concat(newScrambles);
+            // 新しく追加したスクランブルの1番目に移動
+            const scramblesIndex = scrambles.length - newScrambles.length;
+
+            return {
+                ...state,
+                scrambles,
+                scramblesIndex,
+                compared: undefined,
+                mutableScramble: scrambles[scramblesIndex],
+                inputScramblesStr: '',
             };
         },
         // [moveCube]: (state, action) => {
