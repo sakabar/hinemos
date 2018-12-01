@@ -47,6 +47,7 @@ const KEY_UP_ENTER = 'KEY_UP_ENTER';
 const TOGGLE_MODAL = 'TOGGLE_MODAL';
 const UPDATE_INPUT_SCRAMBLES_STR = 'UPDATE_INPUT_SCRAMBLES_STR';
 const ADD_SCRAMBLES = 'ADD_SCRAMBLES';
+const CHANGE_SCRAMBLE = 'CHANGE_SCRAMBLE';
 
 export const requestConnectCube = createAction(REQUEST_CONNECT_CUBE);
 export const successConnectCube = createAction(SUCCESS_CONNECT_CUBE);
@@ -77,6 +78,7 @@ export const keyUpEnter = createAction(KEY_UP_ENTER);
 export const toggleModal = createAction(TOGGLE_MODAL);
 export const addScrambles = createAction(ADD_SCRAMBLES);
 export const updateInputScramblesStr = createAction(UPDATE_INPUT_SCRAMBLES_STR);
+export const changeScramble = createAction(CHANGE_SCRAMBLE);
 
 // テキストボックスの値をJSの機能で変えた時にイベントを発火させるには、ひと手間必要
 // https://github.com/facebook/react/issues/10135
@@ -861,7 +863,7 @@ export const bldTimerReducer = handleActions(
         },
         [updatingToStop]: (state, action) => {
             const nowMiliUnixtime = action.payload;
-            const newScramblesIndex = Math.min(state.scramblesIndex + 1, state.scrambles.length - 1);
+            const newScramblesIndex = Math.max(0, Math.min(state.scramblesIndex + 1, state.scrambles.length - 1));
             const mutableScramble = state.scrambles[newScramblesIndex].join(' ');
 
             return {
@@ -912,6 +914,24 @@ export const bldTimerReducer = handleActions(
                 compared: undefined,
                 mutableScramble: scrambles[scramblesIndex].join(' '),
                 inputScramblesStr: '',
+            };
+        },
+        [changeScramble]: (state, action) => {
+            const offset = action.payload;
+            if (state.scrambles.length === 0) {
+                return {
+                    ...state,
+                };
+            }
+
+            const scramblesIndex = Math.max(0, Math.min(state.scramblesIndex + offset, state.scrambles.length - 1));
+            const mutableScramble = state.scrambles[scramblesIndex].join(' ');
+
+            return {
+                ...state,
+                scramblesIndex,
+                compared: undefined,
+                mutableScramble,
             };
         },
         // [moveCube]: (state, action) => {

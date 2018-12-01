@@ -20,6 +20,7 @@ import {
     toggleModal,
     updateInputScramblesStr,
     addScrambles,
+    changeScramble,
     bldTimerReducer,
     rootSaga,
 } from '../../../modules/bldTimer';
@@ -89,6 +90,12 @@ const mapDispatchToProps = (dispatch) => {
         },
         addScrambles: (scramblesStr) => {
             dispatch(addScrambles(scramblesStr));
+        },
+        prevScramble: () => {
+            dispatch(changeScramble(-1));
+        },
+        nextScramble: () => {
+            dispatch(changeScramble(+1));
         },
     };
 };

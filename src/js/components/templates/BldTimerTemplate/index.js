@@ -48,6 +48,8 @@ const BldTimerTemplate = (
         toggleModal,
         updateInputScramblesStr,
         addScrambles,
+        prevScramble,
+        nextScramble,
     }
 ) => (
     <div>
@@ -61,7 +63,7 @@ const BldTimerTemplate = (
             </ButtonToolbar>
             <Br/>
 
-            <ScramblePanel className="scramblePanel" moveHistoryStr={moveHistoryStr} scrambles={scrambles} mutableScramble={mutableScramble} markAsSolved={markAsSolved} inputScramblesStr={inputScramblesStr} isOpen={isOpen} toggleModal={toggleModal} updateInputScramblesStr={updateInputScramblesStr} addScrambles={addScrambles}/>
+            <ScramblePanel className="scramblePanel" moveHistoryStr={moveHistoryStr} scrambles={scrambles} mutableScramble={mutableScramble} markAsSolved={markAsSolved} inputScramblesStr={inputScramblesStr} isOpen={isOpen} toggleModal={toggleModal} updateInputScramblesStr={updateInputScramblesStr} addScrambles={addScrambles} prevScramble={prevScramble} nextScramble={nextScramble}/>
             <Br />
 
             <TimerCount timerCount={timerCount} timerState={timerState} solveStartMiliUnixtime={solveStartMiliUnixtime} memorizeDoneMiliUnixtime={memorizeDoneMiliUnixtime} solveDoneMiliUnixtime={solveDoneMiliUnixtime} />

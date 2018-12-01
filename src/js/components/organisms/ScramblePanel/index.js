@@ -25,6 +25,8 @@ const ScramblePanel = ({
     toggleModal,
     updateInputScramblesStr,
     addScrambles,
+    prevScramble,
+    nextScramble,
     ...rest,
 }) => {
     const scrambleTxt = ( () => {
@@ -54,6 +56,10 @@ const ScramblePanel = ({
         <Txt>{scrambleTxt}</Txt>
         <ButtonToolbar>
             <Button color="primary" onClick={toggleModal} value="スクランブル追加"/>
+            <Button onClick={prevScramble} value="prev"/>
+            <Button onClick={nextScramble} value="next"/>
+        </ButtonToolbar>
+        <ButtonToolbar>
             <Button color="primary" tabIndex="-1" onClick={(e) => { markAsSolved(parseInt(moment().format('x'))); e.target.blur(); }} value="Mark as solved"/>
         </ButtonToolbar>
 
