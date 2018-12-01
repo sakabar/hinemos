@@ -17,8 +17,10 @@ import {
     startSolve,
     keyDown,
     keyUp,
-    toggleModal,
+    toggleScrambleModal,
+    toggleFirstRotationModal,
     updateInputScramblesStr,
+    updateFirstRotationStr,
     addScrambles,
     changeScramble,
     bldTimerReducer,
@@ -27,12 +29,14 @@ import {
 
 const mapStateToProps = ({
     moveHistoryStr,
+    firstRotationStr,
     scrambles,
     scramblesIndex,
     compared,
     mutableScramble,
     inputScramblesStr,
-    isOpen,
+    isOpenScrambleModal,
+    isOpenFirstRotationModal,
     sectionResults,
     timerCount,
     timerState,
@@ -43,12 +47,14 @@ const mapStateToProps = ({
 }) => {
     return {
         moveHistoryStr,
+        firstRotationStr,
         scrambles,
         scramblesIndex,
         compared,
         mutableScramble,
         inputScramblesStr,
-        isOpen,
+        isOpenScrambleModal,
+        isOpenFirstRotationModal,
         sectionResults,
         timerCount,
         timerState,
@@ -82,8 +88,11 @@ const mapDispatchToProps = (dispatch) => {
         keyUp: (e) => {
             dispatch(keyUp(e));
         },
-        toggleModal: () => {
-            dispatch(toggleModal());
+        toggleScrambleModal: () => {
+            dispatch(toggleScrambleModal());
+        },
+        toggleFirstRotationModal: () => {
+            dispatch(toggleFirstRotationModal());
         },
         updateInputScramblesStr: (s) => {
             dispatch(updateInputScramblesStr(s));
@@ -96,6 +105,9 @@ const mapDispatchToProps = (dispatch) => {
         },
         nextScramble: () => {
             dispatch(changeScramble(+1));
+        },
+        updateFirstRotationStr: (s) => {
+            dispatch(updateFirstRotationStr(s));
         },
     };
 };

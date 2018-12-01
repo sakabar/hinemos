@@ -29,7 +29,9 @@ const BldTimerTemplate = (
         compared,
         mutableScramble,
         inputScramblesStr,
-        isOpen,
+        isOpenScrambleModal,
+        isOpenFirstRotationModal,
+        firstRotationStr,
         sectionResults,
         timerCount,
         timerState,
@@ -45,25 +47,27 @@ const BldTimerTemplate = (
         analyzeMoveHistory,
         keyDown,
         keyUp,
-        toggleModal,
+        toggleScrambleModal,
+        toggleFirstRotationModal,
         updateInputScramblesStr,
         addScrambles,
         prevScramble,
         nextScramble,
+        updateFirstRotationStr,
     }
 ) => (
     <div>
         <Header title="BLD Smart Timer"/>
 
-        <main className="bldTimerTemplateMain" tabIndex="0" onKeyDown={(e) => { if (!isOpen) { keyDown(e); } if (!isOpen && e.keyCode === 32) { e.preventDefault(); }}} onKeyUp={(e) => { if (!isOpen) { keyUp(e); } if (!isOpen && e.keyCode === 32) { e.preventDefault(); }}} >
+        <main className="bldTimerTemplateMain" tabIndex="0" onKeyDown={(e) => { if (!isOpenScrambleModal && !isOpenFirstRotationModal) { keyDown(e); } if (!isOpenScrambleModal && !isOpenFirstRotationModal && e.keyCode === 32) { e.preventDefault(); }}} onKeyUp={(e) => { if (!isOpenScrambleModal && !isOpenFirstRotationModal) { keyUp(e); } if (!isOpenScrambleModal && !isOpenFirstRotationModal && e.keyCode === 32) { e.preventDefault(); }}} >
             <Txt>既知のバグや仕様については<Link to={`/${urlRoot}/faq.html`}>FAQ</Link>をご覧ください。</Txt>
-            <Txt>もし必要なら、<Link to={`/${urlRoot}/threeStyle/scrambler.html`}>登録済の3-styleだけが出現するスクランブルを生成する</Link>機能も併わせてご利用ください。</Txt>
+            <Txt>もし必要なら、<Link to={`/${urlRoot}/threeStyle/scrambler.html`}>登録済の3-styleだけが出現するスクランブルを生成する</Link>機能も併せてご利用ください。</Txt>
             <ButtonToolbar>
-                <Button color="primary" tabIndex="-1" onClick={(e) => { requestConnectCube(); e.target.blur(); }} value="Giiker接続"/>
+                <Button color="primary" tabIndex="-1" onClick={(e) => { requestConnectCube(); e.target.blur(); }} value="GiiKER接続"/>
             </ButtonToolbar>
             <Br/>
 
-            <ScramblePanel className="scramblePanel" moveHistoryStr={moveHistoryStr} scrambles={scrambles} mutableScramble={mutableScramble} markAsSolved={markAsSolved} inputScramblesStr={inputScramblesStr} isOpen={isOpen} toggleModal={toggleModal} updateInputScramblesStr={updateInputScramblesStr} addScrambles={addScrambles} prevScramble={prevScramble} nextScramble={nextScramble}/>
+            <ScramblePanel className="scramblePanel" moveHistoryStr={moveHistoryStr} scrambles={scrambles} mutableScramble={mutableScramble} markAsSolved={markAsSolved} inputScramblesStr={inputScramblesStr} isOpenScrambleModal={isOpenScrambleModal} isOpenFirstRotationModal={isOpenFirstRotationModal} toggleScrambleModal={toggleScrambleModal} toggleFirstRotationModal={toggleFirstRotationModal} updateInputScramblesStr={updateInputScramblesStr} addScrambles={addScrambles} prevScramble={prevScramble} nextScramble={nextScramble} firstRotationStr={firstRotationStr} updateFirstRotationStr={updateFirstRotationStr}/>
             <Br />
 
             <TimerCount timerCount={timerCount} timerState={timerState} solveStartMiliUnixtime={solveStartMiliUnixtime} memorizeDoneMiliUnixtime={memorizeDoneMiliUnixtime} solveDoneMiliUnixtime={solveDoneMiliUnixtime} />

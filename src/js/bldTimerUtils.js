@@ -78,7 +78,7 @@ const calcDiff = (prevStateJSON, newStateJSON) => {
 };
 
 // [{notation, miliUnixtime}]を受け取り、ステッカー単位で[[{notation, miliUnixtime}]]に変換する
-// Giikerの出力をM列、S列変換をして、かつ、x2などの持ち替え記号を消した状態のmoveOpsSeqを与える前提
+// GiiKERの出力をM列、S列変換をして、かつ、x2などの持ち替え記号を消した状態のmoveOpsSeqを与える前提
 export const splitMoveOpsSeq = (moveOpsSeq) => {
     const cube = new Cube();
 
@@ -111,13 +111,13 @@ export const splitMoveOpsSeq = (moveOpsSeq) => {
         tmp_rap.push(moveOpsSeq[i]);
 
         // // M2していない状態からした状態に変えて比較するため
-        // // Giikerが基準面の変更が考慮しないので、持ち替えが必要
+        // // GiiKERが基準面の変更が考慮しないので、持ち替えが必要
         // const parityCube = cube.clone();
         // parityCube.move('D\' L2 D M2 D\' L2 D x2');
         // const parityStateJSON = _.cloneDeep(parityCube.toJSON());
 
         // // M2した状態からしていない状態に変えて比較するため
-        // // Giikerが基準面の変更が考慮しないので、持ち替えが必要
+        // // GiiKERが基準面の変更が考慮しないので、持ち替えが必要
         // const nonParityCube = cube.clone();
         // nonParityCube.move('x2 D\' L2 D M2 D\' L2 D');
         // const nonParityStateJSON = _.cloneDeep(nonParityCube.toJSON());
@@ -321,13 +321,39 @@ export const mergeSliceAuto = (moveOpsList) => {
     return ans;
 };
 
+// 最初に持ち替える用
+const getRemoveRotateNotationFirstDict = () => {
+    return {
+        x: {
+            U: 'B',
+            F: 'U',
+            R: 'R',
+            B: 'D',
+            L: 'L',
+            D: 'F',
+        },
+        y: {
+            U: 'U',
+            F: 'L',
+            R: 'F',
+            B: 'R',
+            L: 'B',
+            D: 'D',
+        },
+        z: {
+            U: 'R',
+            F: 'F',
+            R: 'D',
+            B: 'B',
+            L: 'U',
+            D: 'L',
+        },
+    };
+};
 
-// x'した状態で緑色(F)を回すことは、x'がなければUを回すことだ
-// R' L F2 -> M' x' F2 -> M' U2
-// スライスムーブが関係ない場合の持ち替えに関しては、
-// 想定している挙動が違うはず。そういう場合は使えない
-const rotateNotation = (rotationsStr, moveOps) => {
-    const transDict = {
+// スライス戻す用
+const getRemoveRotateNotationAfterSliceDict = () => {
+    return {
         x: {
             U: 'F',
             F: 'D',
@@ -362,8 +388,11 @@ const rotateNotation = (rotationsStr, moveOps) => {
             E: 'M\'',
         },
     };
+};
 
 
+// transDictを抽出した
+const removeRotateNotation = (rotationsStr, moveOps, transDict) => {
     const notation = moveOps.notation;
     const rotations = normalize(rotationsStr, { separator: ' ', useModifiers: false }).split(' ').filter(s => s !== '');
 
@@ -377,7 +406,22 @@ const rotateNotation = (rotationsStr, moveOps) => {
     return new MoveOps(newNotation, miliUnixtime);
 };
 
-const mergeRotationRec = (rotationsStr, acc, moveOpsList) => {
+// 最初の持ち替えを変換する。
+// スライスムーブが関係ない場合の持ち替えに関しては、別メソッド
+const removeRotateNotationFirst = (rotationsStr, moveOps) => {
+    const transDict = getRemoveRotateNotationFirstDict();
+    return removeRotateNotation(rotationsStr, moveOps, transDict);
+};
+
+// x'した状態で緑色(F)を回すことは、x'がなければUを回すことだ
+// ( R' L F2 -> ) M' x' F2 -> M' U2
+// スライスムーブが関係ない場合の持ち替えに関しては、別メソッド
+const removeRotateNotationAfterSlice = (rotationsStr, moveOps) => {
+    const transDict = getRemoveRotateNotationAfterSliceDict();
+    return removeRotateNotation(rotationsStr, moveOps, transDict);
+};
+
+const mergeRotationAfterSliceRec = (rotationsStr, acc, moveOpsList) => {
     if (moveOpsList.length === 0) {
         return acc;
     }
@@ -386,16 +430,44 @@ const mergeRotationRec = (rotationsStr, acc, moveOpsList) => {
     const tl = moveOpsList.slice(1);
 
     if ([ 'x', 'y', 'z', ].includes(hd.notation[0])) {
-        // console.log(`Rec1: "${rotationsStr} ${hd.notation}", ${JSON.stringify(acc)}, ${JSON.stringify(tl)}`);
-        // console.log(`Rec1: "${rotationsStr} ${hd.notation}", ${JSON.stringify(tl[0])}`);
-        return mergeRotationRec(`${rotationsStr} ${hd.notation}`, acc, tl);
+        return mergeRotationAfterSliceRec(`${rotationsStr} ${hd.notation}`, acc, tl);
     }
 
-    const newHd = rotateNotation(rotationsStr, hd);
-    // console.log(`Rec2: "${rotationsStr}", ${JSON.stringify(acc.concat([newHd]))}, ${JSON.stringify(tl[0])}`);
-    return mergeRotationRec(rotationsStr, acc.concat([newHd]), tl);
+    const newHd = removeRotateNotationAfterSlice(rotationsStr, hd);
+    return mergeRotationAfterSliceRec(rotationsStr, acc.concat([newHd]), tl);
 };
 
-export const mergeRotation = (moveOpsList) => {
-    return mergeRotationRec('', [], moveOpsList);
+export const mergeRotationAfterSlice = (moveOpsList) => {
+    return mergeRotationAfterSliceRec('', [], moveOpsList);
+};
+
+const mergeRotationFirstRec = (rotationsStr, acc, moveOpsList) => {
+    if (moveOpsList.length === 0) {
+        return acc;
+    }
+
+    const hd = moveOpsList[0];
+    const tl = moveOpsList.slice(1);
+
+    if ([ 'x', 'y', 'z', ].includes(hd.notation[0])) {
+        return mergeRotationFirstRec(`${rotationsStr} ${hd.notation}`, acc, tl);
+    }
+
+    const newHd = removeRotateNotationFirst(rotationsStr, hd);
+    return mergeRotationFirstRec(rotationsStr, acc.concat([newHd]), tl);
+};
+
+export const mergeRotationFirst = (moveOpsList) => {
+    return mergeRotationFirstRec('', [], moveOpsList);
+};
+
+// 最後の@の後に持ち替え記号を挟み込む
+export const insertFirstRotation = (moveHistoryStr, firstRotationStr) => {
+    const moveHistoryStrList = moveHistoryStr.split('\n');
+    const aft = _.takeRightWhile(moveHistoryStrList, s => s.split(' ')[0] !== '@');
+    const prev = moveHistoryStrList.slice(0, -(aft.length));
+    const memorizeDoneMiliUnixtime = parseInt(prev.slice(-1)[0].split(' ')[1]);
+    const rotationHistory = firstRotationStr.split(' ').filter(s => s !== '').map(x => `${x} ${memorizeDoneMiliUnixtime}`);
+
+    return prev.join('\n') + '\n' + rotationHistory.join('\n') + '\n' + aft.join('\n') + '\n';
 };
