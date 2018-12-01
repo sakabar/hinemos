@@ -34,7 +34,7 @@ const ScramblePanel = ({
             return 'スクランブルを追加してください';
         }
         if (mutableScramble === '') {
-            return 'スペースをクリックしてスタート！';
+            return 'スペースを長押ししてスタート！';
         }
 
         if (!mutableScramble) {
