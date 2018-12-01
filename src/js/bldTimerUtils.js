@@ -78,7 +78,7 @@ const calcDiff = (prevStateJSON, newStateJSON) => {
 };
 
 // [{notation, miliUnixtime}]を受け取り、ステッカー単位で[[{notation, miliUnixtime}]]に変換する
-// Giikerの出力をM列、S列変換をして、かつ、x2などの持ち替え記号を消した状態のmoveOpsSeqを与える前提
+// GiiKERの出力をM列、S列変換をして、かつ、x2などの持ち替え記号を消した状態のmoveOpsSeqを与える前提
 export const splitMoveOpsSeq = (moveOpsSeq) => {
     const cube = new Cube();
 
@@ -111,13 +111,13 @@ export const splitMoveOpsSeq = (moveOpsSeq) => {
         tmp_rap.push(moveOpsSeq[i]);
 
         // // M2していない状態からした状態に変えて比較するため
-        // // Giikerが基準面の変更が考慮しないので、持ち替えが必要
+        // // GiiKERが基準面の変更が考慮しないので、持ち替えが必要
         // const parityCube = cube.clone();
         // parityCube.move('D\' L2 D M2 D\' L2 D x2');
         // const parityStateJSON = _.cloneDeep(parityCube.toJSON());
 
         // // M2した状態からしていない状態に変えて比較するため
-        // // Giikerが基準面の変更が考慮しないので、持ち替えが必要
+        // // GiiKERが基準面の変更が考慮しないので、持ち替えが必要
         // const nonParityCube = cube.clone();
         // nonParityCube.move('x2 D\' L2 D M2 D\' L2 D');
         // const nonParityStateJSON = _.cloneDeep(nonParityCube.toJSON());

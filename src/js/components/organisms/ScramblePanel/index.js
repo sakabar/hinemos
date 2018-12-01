@@ -34,7 +34,7 @@ const ScramblePanel = ({
             return 'スクランブルを追加してください';
         }
         if (mutableScramble === '') {
-            return 'スペースをクリックしてスタート！';
+            return 'スペースを長押ししてスタート！';
         }
 
         if (!mutableScramble) {
@@ -49,7 +49,7 @@ const ScramblePanel = ({
         <Img src={
             (() => {
                 const alg = moveHistoryStr.split('\n').map(line => line.split(' ')[0]).filter(s => s !== '' && s !== '@').join('');
-                return `https://cube.crider.co.uk/visualcube.php?fmt=svg&size=100&pzl=3&alg=y2z2${alg}`;
+                return `http://cube.crider.co.uk/visualcube.php?fmt=svg&size=100&pzl=3&alg=y2z2${alg}`;
             })()}
         />
         <Br />

@@ -59,7 +59,7 @@ const BldTimerTemplate = (
             <Txt>既知のバグや仕様については<Link to={`/${urlRoot}/faq.html`}>FAQ</Link>をご覧ください。</Txt>
             <Txt>もし必要なら、<Link to={`/${urlRoot}/threeStyle/scrambler.html`}>登録済の3-styleだけが出現するスクランブルを生成する</Link>機能も併わせてご利用ください。</Txt>
             <ButtonToolbar>
-                <Button color="primary" tabIndex="-1" onClick={(e) => { requestConnectCube(); e.target.blur(); }} value="Giiker接続"/>
+                <Button color="primary" tabIndex="-1" onClick={(e) => { requestConnectCube(); e.target.blur(); }} value="GiiKER接続"/>
             </ButtonToolbar>
             <Br/>
 
