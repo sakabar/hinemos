@@ -1,4 +1,7 @@
 import React from 'react';
+import {
+    ButtonToolbar,
+} from 'reactstrap';
 import PropTypes from 'prop-types';
 import Br from '../../atoms/Br';
 import Button from '../../atoms/Button';
@@ -9,12 +12,14 @@ import ModalBody from '../../atoms/ModalBody';
 import ModalFooter from '../../atoms/ModalFooter';
 import ModalHeader from '../../atoms/ModalHeader';
 import Textarea from '../../atoms/Textarea';
+const moment = require('moment');
 
 const ScramblePanel = ({
     className,
     moveHistoryStr,
     scrambles,
     mutableScramble,
+    markAsSolved,
     inputScramblesStr,
     isOpen,
     toggleModal,
@@ -47,7 +52,11 @@ const ScramblePanel = ({
         />
         <Br />
         <Txt>{scrambleTxt}</Txt>
-        <Button color="primary" onClick={toggleModal} value="スクランブル追加"/>
+        <ButtonToolbar>
+            <Button color="primary" onClick={toggleModal} value="スクランブル追加"/>
+            <Button color="primary" tabIndex="-1" onClick={(e) => { markAsSolved(parseInt(moment().format('x'))); e.target.blur(); }} value="Mark as solved"/>
+        </ButtonToolbar>
+
         <Modal isOpen={isOpen}>
             <ModalHeader>
                 <Txt>スクランブルを入力してください(複数行可)</Txt>

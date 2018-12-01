@@ -862,7 +862,7 @@ export const bldTimerReducer = handleActions(
         [updatingToStop]: (state, action) => {
             const nowMiliUnixtime = action.payload;
             const newScramblesIndex = Math.min(state.scramblesIndex + 1, state.scrambles.length - 1);
-            const mutableScramble = state.scrambles[newScramblesIndex];
+            const mutableScramble = state.scrambles[newScramblesIndex].join(' ');
 
             return {
                 ...state,
@@ -910,7 +910,7 @@ export const bldTimerReducer = handleActions(
                 scrambles,
                 scramblesIndex,
                 compared: undefined,
-                mutableScramble: scrambles[scramblesIndex],
+                mutableScramble: scrambles[scramblesIndex].join(' '),
                 inputScramblesStr: '',
             };
         },

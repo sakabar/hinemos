@@ -1,4 +1,7 @@
 import React from 'react';
+import {
+    Link,
+} from 'react-router-dom';
 import PropTypes from 'prop-types';
 import {
     ButtonToolbar,
@@ -12,7 +15,11 @@ import TimerCount from '../../molecules/TimerCount';
 import Header from '../../organisms/Header';
 import ScramblePanel from '../../organisms/ScramblePanel';
 import SectionResultPanelsContainer from '../../organisms/SectionResultPanelsContainer';
+const config = require('../../../config');
 const moment = require('moment');
+const path = require('path');
+
+const urlRoot = path.basename(config.urlRoot);
 
 const BldTimerTemplate = (
     {
@@ -47,13 +54,14 @@ const BldTimerTemplate = (
         <Header title="BLD Smart Timer"/>
 
         <main className="bldTimerTemplateMain" tabIndex="0" onKeyDown={(e) => { if (!isOpen) { keyDown(e); } if (!isOpen && e.keyCode === 32) { e.preventDefault(); }}} onKeyUp={(e) => { if (!isOpen) { keyUp(e); } if (!isOpen && e.keyCode === 32) { e.preventDefault(); }}} >
-
-            <ScramblePanel className="scramblePanel" moveHistoryStr={moveHistoryStr} scrambles={scrambles} mutableScramble={mutableScramble} inputScramblesStr={inputScramblesStr} isOpen={isOpen} toggleModal={toggleModal} updateInputScramblesStr={updateInputScramblesStr} addScrambles={addScrambles}/>
-
+            <Txt>既知のバグや仕様については<Link to={`/${urlRoot}/faq.html`}>FAQ</Link>をご覧ください。</Txt>
+            <Txt>もし必要なら、<Link to={`/${urlRoot}/threeStyle/scrambler.html`}>登録済の3-styleだけが出現するスクランブルを生成する</Link>機能も併わせてご利用ください。</Txt>
             <ButtonToolbar>
-                <Button color="primary" tabIndex="-1" onClick={(e) => { requestConnectCube(); e.target.blur(); }} value="接続"/>
-                <Button color="primary" tabIndex="-1" onClick={(e) => { markAsSolved(parseInt(moment().format('x'))); e.target.blur(); }} value="Mark as solved"/>
+                <Button color="primary" tabIndex="-1" onClick={(e) => { requestConnectCube(); e.target.blur(); }} value="Giiker接続"/>
             </ButtonToolbar>
+            <Br/>
+
+            <ScramblePanel className="scramblePanel" moveHistoryStr={moveHistoryStr} scrambles={scrambles} mutableScramble={mutableScramble} markAsSolved={markAsSolved} inputScramblesStr={inputScramblesStr} isOpen={isOpen} toggleModal={toggleModal} updateInputScramblesStr={updateInputScramblesStr} addScrambles={addScrambles}/>
             <Br />
 
             <TimerCount timerCount={timerCount} timerState={timerState} solveStartMiliUnixtime={solveStartMiliUnixtime} memorizeDoneMiliUnixtime={memorizeDoneMiliUnixtime} solveDoneMiliUnixtime={solveDoneMiliUnixtime} />
