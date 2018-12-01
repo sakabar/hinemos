@@ -326,7 +326,7 @@ export const mergeSliceAuto = (moveOpsList) => {
 // R' L F2 -> M' x' F2 -> M' U2
 // スライスムーブが関係ない場合の持ち替えに関しては、
 // 想定している挙動が違うはず。そういう場合は使えない
-const rotateNotation = (rotationsStr, moveOps) => {
+const removeRotateNotationAfterSlice = (rotationsStr, moveOps) => {
     const transDict = {
         x: {
             U: 'F',
@@ -391,7 +391,7 @@ const mergeRotationRec = (rotationsStr, acc, moveOpsList) => {
         return mergeRotationRec(`${rotationsStr} ${hd.notation}`, acc, tl);
     }
 
-    const newHd = rotateNotation(rotationsStr, hd);
+    const newHd = removeRotateNotationAfterSlice(rotationsStr, hd);
     // console.log(`Rec2: "${rotationsStr}", ${JSON.stringify(acc.concat([newHd]))}, ${JSON.stringify(tl[0])}`);
     return mergeRotationRec(rotationsStr, acc.concat([newHd]), tl);
 };
