@@ -145,7 +145,7 @@ describe('bldTimerUtils.js', () => {
         it('正常系: スクランブル:L\' M列表記にして、更に回転記号を消した場合', () => {
             const moves = bldTimerUtils.parseMoveHistoryStr(inputStr);
             const merged = bldTimerUtils.mergeSliceAuto(moves);
-            const rotated = bldTimerUtils.mergeRotation(merged);
+            const rotated = bldTimerUtils.mergeRotationAfterSlice(merged);
             const actual = bldTimerUtils.splitMoveOpsSeq(rotated);
             // for (let i = 0; i < actual.length; i++) {
             //     console.log(JSON.stringify(actual[i]));
@@ -290,7 +290,7 @@ describe('bldTimerUtils.js', () => {
         });
     });
 
-    describe('mergeRotation()', () => {
+    describe('mergeRotationAfterSlice()', () => {
         it('正常系: x2', () => {
             const MoveOps = bldTimerUtils.MoveOps;
             const moveOpsList = [
@@ -299,7 +299,7 @@ describe('bldTimerUtils.js', () => {
                 new MoveOps('U', 30),
             ];
 
-            const actual = bldTimerUtils.mergeRotation(moveOpsList);
+            const actual = bldTimerUtils.mergeRotationAfterSlice(moveOpsList);
             const expected = [
                 new MoveOps('U', 0),
                 new MoveOps('D', 30),
@@ -316,7 +316,7 @@ describe('bldTimerUtils.js', () => {
                 new MoveOps('R2', 30),
             ];
 
-            const actual = bldTimerUtils.mergeRotation(moveOpsList);
+            const actual = bldTimerUtils.mergeRotationAfterSlice(moveOpsList);
             const expected = [
                 new MoveOps('S', 0),
                 new MoveOps('D2', 30),
@@ -334,7 +334,7 @@ describe('bldTimerUtils.js', () => {
                 new MoveOps('E', 3),
             ];
 
-            const actual = bldTimerUtils.mergeRotation(moveOpsList);
+            const actual = bldTimerUtils.mergeRotationAfterSlice(moveOpsList);
             const expected = [
                 new MoveOps('M', 1),
                 new MoveOps('S', 2),
@@ -363,7 +363,7 @@ describe('bldTimerUtils.js', () => {
                 new MoveOps("x'", 1542901412593),
             ];
 
-            const actual = bldTimerUtils.mergeRotation(moveOpsList);
+            const actual = bldTimerUtils.mergeRotationAfterSlice(moveOpsList);
             const expected = [
                 new MoveOps("U'", 1542901411988),
                 new MoveOps("U'", 1542901412048),
@@ -402,7 +402,7 @@ describe('bldTimerUtils.js', () => {
                 new MoveOps("x'", 1542901412593),
             ];
 
-            const actual = bldTimerUtils.mergeRotation(moveOpsList);
+            const actual = bldTimerUtils.mergeRotationAfterSlice(moveOpsList);
             const expected = [
                 new MoveOps("L'", 1542901409889),
                 new MoveOps("U'", 1542901410008),
