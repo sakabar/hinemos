@@ -60,12 +60,12 @@ const ScramblePanel = ({
         <Br />
         <Txt>{scrambleTxt}</Txt>
         <ButtonToolbar>
-            <Button color="primary" onClick={toggleScrambleModal} value="スクランブル追加"/>
+            <Button color="primary" onClick={toggleScrambleModal} value="add scramble[s]"/>
             <Button onClick={prevScramble} value="prev"/>
             <Button onClick={nextScramble} value="next"/>
         </ButtonToolbar>
         <ButtonToolbar>
-            <Button color="primary" tabIndex="-1" onClick={(e) => { markAsSolved(parseInt(moment().format('x'))); e.target.blur(); }} value="Mark as solved"/>
+            <Button color="primary" tabIndex="-1" onClick={(e) => { markAsSolved(parseInt(moment().format('x'))); e.target.blur(); }} value="mark as solved"/>
             <Button color="primary" onClick={toggleFirstRotationModal} value="持ち替え登録"/>
         </ButtonToolbar>
 
