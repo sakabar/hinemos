@@ -1,5 +1,6 @@
 const rp = require('request-promise');
 const url = require('url');
+const path = require('path');
 const config = require('./config');
 
 const init = () => {
@@ -21,6 +22,11 @@ const init = () => {
         }
         const paramVal = urlObj.query[paramKey];
         newUrl = `${newUrl}&${paramKey}=${paramVal}`;
+    }
+
+    const hinemosPath = path.basename(config.urlRoot);
+    if ([ `/${hinemosPath}`, `/${hinemosPath}/`, '/${hinemosPath}/top.html', ].includes(urlObj.pathname)) {
+        newUrl = `${config.urlRoot}/top.html`;
     }
 
     if (!token) {
