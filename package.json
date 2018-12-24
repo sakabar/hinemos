@@ -3,6 +3,7 @@
   "version": "1.4.2",
   "description": "Website for Rubik's cube blindfolded players",
   "main": "index.js",
+  "private": true,
   "scripts": {
     "eslint": "eslint src/js/**/*.js test/**/*.js",
     "test": "mocha-webpack --webpack-config webpack.config.js --require mock-local-storage --require jsdom-global/register test/**/*.js",
