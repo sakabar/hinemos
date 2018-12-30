@@ -166,6 +166,9 @@ const loadCornerNumbering = () => {
 const init = () => {
     loadCornerNumbering()
         .then((numberings) => {
+            if (numberings.s2l['UBL'] !== '@') {
+                throw new Error('バッファをUBLステッカーに設定してください');
+            }
             render(numberings);
         })
         .catch((err) => {
