@@ -113,6 +113,9 @@ const loadEdgeNumbering = () => {
 const init = () => {
     loadEdgeNumbering()
         .then((numberings) => {
+            if (numberings.s2l['DF'] !== '@') {
+                throw new Error('バッファをDFステッカーに設定してください');
+            }
             render(m2Methods, numberings);
         })
         .catch((err) => {
