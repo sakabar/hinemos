@@ -87,6 +87,18 @@ const showHint = () => {
     hintText.style.display = 'block';
 };
 
+// 次の次の問題があれば取得
+const getNextNextLettersAndWords = (nextInd, selectedThreeStyles, numberings, letterPairs) => {
+    const nextNextInd = nextInd + 1;
+    if (nextNextInd > selectedThreeStyles.length - 1) {
+        return '';
+    }
+
+    const nextLetters = selectedThreeStyles[nextNextInd].stickers.split(' ').map(sticker => numberings.filter(x => x.sticker === sticker)[0].letter).join('').replace(/@/g, '');
+    const nextWords = letterPairs.filter(x => x.letters === nextLetters).map(x => x.word).join(',');
+    return `(Next ${nextLetters}: ${nextWords})`;
+};
+
 const submit = (part, letterPairs, numberings, selectedThreeStyles, isRecalled, quizLogRes) => {
     const token = localStorage.token;
     const hintText = document.querySelector('.quizForm__hintText');
@@ -170,7 +182,9 @@ const submit = (part, letterPairs, numberings, selectedThreeStyles, isRecalled, 
                 quizIndHidden.value = `このセッションで解いた問題数:${nextInd}`;
                 const letters = selectedThreeStyles[nextInd].stickers.split(' ').map(sticker => numberings.filter(x => x.sticker === sticker)[0].letter).join('').replace(/@/g, '');
                 const words = letterPairs.filter(x => x.letters === letters).map(x => x.word).join(',');
-                quizFormLettersText.value = `${letters}: ${words}`;
+
+                const nextLettersAndWords = getNextNextLettersAndWords(nextInd, selectedThreeStyles, numberings, letterPairs);
+                quizFormLettersText.value = `${letters}: ${words}${nextLettersAndWords}`;
 
                 const hints = selectedThreeStyles[nextInd].hints;
                 hintText.style.display = 'none';
@@ -392,8 +406,9 @@ const init = () => {
                                             const letter2 = numberings.filter(x => x.sticker === sticker2)[0].letter;
                                             const letters = letter1 + letter2;
                                             const words = letterPairs.filter(x => x.letters === letters).map(x => x.word).join(',');
-                                            quizFormLettersText.value = `${letters}: ${words}`;
 
+                                            const nextLettersAndWords = getNextNextLettersAndWords(0, selectedThreeStyles, numberings, letterPairs);
+                                            quizFormLettersText.value = `${letters}: ${words}${nextLettersAndWords}`;
                                             const hints = selectedThreeStyles[0].hints;
                                             hintText.style.display = 'none';
                                             hintText.value = hints.join('\nまたは\n');
