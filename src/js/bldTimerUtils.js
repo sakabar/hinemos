@@ -30,7 +30,10 @@ export const parseMoveHistoryStr = (inputStr) => {
 // 1ステッカーなどの部分回転列
 function SectionResult(startRecallMiliUnixtime, moveOpsList){
     // 植木算
-    const miliSecPerMove = 1.0 * (moveOpsList.slice(-1)[0].miliUnixtime - moveOpsList[0].miliUnixtime) / (moveOpsList.filter(ops => ![ 'x', 'y', 'z', ].includes(ops.notation[0])).length - 1);
+    // 1手順でステッカーが埋まる場合(例:M2)にゼロ割りでNaNになってしまうので、
+    // その場合は便宜的に 1.0 / (想起+実行) をtpsとする
+    const turns = moveOpsList.filter(ops => ![ 'x', 'y', 'z', ].includes(ops.notation[0])).length - 1;
+    const miliSecPerMove = turns >= 1 ? 1.0 * (moveOpsList.slice(-1)[0].miliUnixtime - moveOpsList[0].miliUnixtime) / turns : moveOpsList.slice(-1)[0].miliUnixtime - startRecallMiliUnixtime;
     const tps = 1.0 / (miliSecPerMove / 1000.0);
 
     const endRecallMiliUnixtime = moveOpsList[0].miliUnixtime - miliSecPerMove;
