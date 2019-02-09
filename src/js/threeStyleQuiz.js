@@ -95,8 +95,8 @@ const getNextNextLettersAndWords = (nextInd, selectedThreeStyles, numberings, le
     }
 
     const nextLetters = selectedThreeStyles[nextNextInd].stickers.split(' ').map(sticker => numberings.filter(x => x.sticker === sticker)[0].letter).join('').replace(/@/g, '');
-    const nextWords = letterPairs.filter(x => x.letters === nextLetters).map(x => x.word).join(',');
-    return `(Next ${nextLetters}: ${nextWords})`;
+    // const nextWords = letterPairs.filter(x => x.letters === nextLetters).map(x => x.word).join(',');
+    return `(NEXT:「${nextLetters}」)`;
 };
 
 const submit = (part, letterPairs, numberings, selectedThreeStyles, isRecalled, quizLogRes) => {
@@ -184,7 +184,7 @@ const submit = (part, letterPairs, numberings, selectedThreeStyles, isRecalled, 
                 const words = letterPairs.filter(x => x.letters === letters).map(x => x.word).join(',');
 
                 const nextLettersAndWords = getNextNextLettersAndWords(nextInd, selectedThreeStyles, numberings, letterPairs);
-                quizFormLettersText.value = `${letters}: ${words}${nextLettersAndWords}`;
+                quizFormLettersText.value = `${letters}: ${words} ${nextLettersAndWords}`;
 
                 const hints = selectedThreeStyles[nextInd].hints;
                 hintText.style.display = 'none';
