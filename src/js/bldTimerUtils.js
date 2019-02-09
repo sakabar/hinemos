@@ -30,7 +30,10 @@ export const parseMoveHistoryStr = (inputStr) => {
 // 1ステッカーなどの部分回転列
 function SectionResult(startRecallMiliUnixtime, moveOpsList){
     // 植木算
-    const miliSecPerMove = 1.0 * (moveOpsList.slice(-1)[0].miliUnixtime - moveOpsList[0].miliUnixtime) / (moveOpsList.filter(ops => ![ 'x', 'y', 'z', ].includes(ops.notation[0])).length - 1);
+    // 1手順でステッカーが埋まる場合(例:M2)にゼロ割りでNaNになってしまうので、
+    // その場合は便宜的に 1.0 / (想起+実行) をtpsとする
+    const turns = moveOpsList.filter(ops => ![ 'x', 'y', 'z', ].includes(ops.notation[0])).length - 1;
+    const miliSecPerMove = turns >= 1 ? 1.0 * (moveOpsList.slice(-1)[0].miliUnixtime - moveOpsList[0].miliUnixtime) / turns : moveOpsList.slice(-1)[0].miliUnixtime - startRecallMiliUnixtime;
     const tps = 1.0 / (miliSecPerMove / 1000.0);
 
     const endRecallMiliUnixtime = moveOpsList[0].miliUnixtime - miliSecPerMove;
@@ -110,18 +113,6 @@ export const splitMoveOpsSeq = (moveOpsSeq) => {
         const newStateJSON = _.cloneDeep(cube.toJSON());
         tmp_rap.push(moveOpsSeq[i]);
 
-        // // M2していない状態からした状態に変えて比較するため
-        // // GiiKERが基準面の変更が考慮しないので、持ち替えが必要
-        // const parityCube = cube.clone();
-        // parityCube.move('D\' L2 D M2 D\' L2 D x2');
-        // const parityStateJSON = _.cloneDeep(parityCube.toJSON());
-
-        // // M2した状態からしていない状態に変えて比較するため
-        // // GiiKERが基準面の変更が考慮しないので、持ち替えが必要
-        // const nonParityCube = cube.clone();
-        // nonParityCube.move('x2 D\' L2 D M2 D\' L2 D');
-        // const nonParityStateJSON = _.cloneDeep(nonParityCube.toJSON());
-
         // rotateを消した場合、x2不要
         // M2した状態からしていない状態に変えて比較するため
         const noRotationCube = cube.clone();
@@ -129,35 +120,21 @@ export const splitMoveOpsSeq = (moveOpsSeq) => {
         const noRotationStateJSON = _.cloneDeep(noRotationCube.toJSON());
 
         const diffJSON = calcDiff(prevStateJSON, newStateJSON);
-        // const diffParityJSON = calcDiff(prevStateJSON, parityStateJSON);
-        // const diffNonParityJSON = calcDiff(prevStateJSON, nonParityStateJSON);
         const diffNoRotationJSON = calcDiff(prevStateJSON, noRotationStateJSON);
-
-        // const judged = diffJSON.center === 0 && ((diffJSON.edge <= 3 && diffJSON.corner <= 2) ||
-        //                                          (diffJSON.edge <= 2 && diffJSON.corner <= 3) ||
-        //                                          (diffParityJSON.edge <= 3 && diffParityJSON.corner <= 2) ||
-        //                                          (diffParityJSON.edge <= 2 && diffParityJSON.corner <= 3))
-        //       || (diffNonParityJSON.edge <= 3 && diffNonParityJSON.corner <= 2)
-        //       || (diffNonParityJSON.edge <= 2 && diffNonParityJSON.corner <= 3);
 
         const sameCenterBool = diffJSON.center === 0 && ((diffJSON.edge <= 3 && diffJSON.corner <= 2) ||
                                                          (diffJSON.edge <= 2 && diffJSON.corner <= 3));
         const differentCenterBool = diffJSON.center !== 0 && ((diffNoRotationJSON.edge <= 4 && diffNoRotationJSON.corner <= 2) ||
                                                               (diffNoRotationJSON.edge <= 2 && diffNoRotationJSON.corner <= 3));
-        const judged = sameCenterBool || differentCenterBool;
+
+        // Advanced M2を認識させるため、M2単体で区間が切られないようにする
+        const judged = (sameCenterBool || differentCenterBool) && tmp_rap.length > 1;
 
         if (judged) {
             // ここまでで1区切りの手順とする
             raps.push(tmp_rap);
             prevStateJSON = _.cloneDeep(cube.toJSON());
             tmp_rap = [];
-        } else {
-            // console.dir('S----')
-            // console.log(notation);
-            // console.log(JSON.stringify(diffJSON));
-            // console.log(JSON.stringify(diffNonParityJSON));
-            // console.log(JSON.stringify(diffParityJSON));
-            // console.dir('E----');
         }
     }
 
