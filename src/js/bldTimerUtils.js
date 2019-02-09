@@ -126,7 +126,9 @@ export const splitMoveOpsSeq = (moveOpsSeq) => {
                                                          (diffJSON.edge <= 2 && diffJSON.corner <= 3));
         const differentCenterBool = diffJSON.center !== 0 && ((diffNoRotationJSON.edge <= 4 && diffNoRotationJSON.corner <= 2) ||
                                                               (diffNoRotationJSON.edge <= 2 && diffNoRotationJSON.corner <= 3));
-        const judged = sameCenterBool || differentCenterBool;
+
+        // Advanced M2を認識させるため、M2単体で区間が切られないようにする
+        const judged = (sameCenterBool || differentCenterBool) && tmp_rap.length > 1;
 
         if (judged) {
             // ここまでで1区切りの手順とする
