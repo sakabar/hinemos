@@ -113,18 +113,6 @@ export const splitMoveOpsSeq = (moveOpsSeq) => {
         const newStateJSON = _.cloneDeep(cube.toJSON());
         tmp_rap.push(moveOpsSeq[i]);
 
-        // // M2していない状態からした状態に変えて比較するため
-        // // GiiKERが基準面の変更が考慮しないので、持ち替えが必要
-        // const parityCube = cube.clone();
-        // parityCube.move('D\' L2 D M2 D\' L2 D x2');
-        // const parityStateJSON = _.cloneDeep(parityCube.toJSON());
-
-        // // M2した状態からしていない状態に変えて比較するため
-        // // GiiKERが基準面の変更が考慮しないので、持ち替えが必要
-        // const nonParityCube = cube.clone();
-        // nonParityCube.move('x2 D\' L2 D M2 D\' L2 D');
-        // const nonParityStateJSON = _.cloneDeep(nonParityCube.toJSON());
-
         // rotateを消した場合、x2不要
         // M2した状態からしていない状態に変えて比較するため
         const noRotationCube = cube.clone();
@@ -132,16 +120,7 @@ export const splitMoveOpsSeq = (moveOpsSeq) => {
         const noRotationStateJSON = _.cloneDeep(noRotationCube.toJSON());
 
         const diffJSON = calcDiff(prevStateJSON, newStateJSON);
-        // const diffParityJSON = calcDiff(prevStateJSON, parityStateJSON);
-        // const diffNonParityJSON = calcDiff(prevStateJSON, nonParityStateJSON);
         const diffNoRotationJSON = calcDiff(prevStateJSON, noRotationStateJSON);
-
-        // const judged = diffJSON.center === 0 && ((diffJSON.edge <= 3 && diffJSON.corner <= 2) ||
-        //                                          (diffJSON.edge <= 2 && diffJSON.corner <= 3) ||
-        //                                          (diffParityJSON.edge <= 3 && diffParityJSON.corner <= 2) ||
-        //                                          (diffParityJSON.edge <= 2 && diffParityJSON.corner <= 3))
-        //       || (diffNonParityJSON.edge <= 3 && diffNonParityJSON.corner <= 2)
-        //       || (diffNonParityJSON.edge <= 2 && diffNonParityJSON.corner <= 3);
 
         const sameCenterBool = diffJSON.center === 0 && ((diffJSON.edge <= 3 && diffJSON.corner <= 2) ||
                                                          (diffJSON.edge <= 2 && diffJSON.corner <= 3));
@@ -154,13 +133,6 @@ export const splitMoveOpsSeq = (moveOpsSeq) => {
             raps.push(tmp_rap);
             prevStateJSON = _.cloneDeep(cube.toJSON());
             tmp_rap = [];
-        } else {
-            // console.dir('S----')
-            // console.log(notation);
-            // console.log(JSON.stringify(diffJSON));
-            // console.log(JSON.stringify(diffNonParityJSON));
-            // console.log(JSON.stringify(diffParityJSON));
-            // console.dir('E----');
         }
     }
 
