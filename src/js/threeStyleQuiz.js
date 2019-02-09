@@ -288,22 +288,11 @@ const init = () => {
         reloadBtn.addEventListener('click', () => reloadWithOptions(part, problemListType, quizOrder));
     }
 
-    // 登録済の3-styleを持っておく
-    const threeStyleOptions = {
-        url: `${config.apiRoot}/threeStyle/${part.name}?userName=${userName}`,
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        json: true,
-        form: {},
-    };
-
-    const urlStr = days ? `${config.apiRoot}/threeStyleQuizLog/${part.name}/${userName}?days=${days}` : `${config.apiRoot}/threeStyleQuizLog/${part.name}/${userName}`;
+    const quizUrlStr = days ? `${config.apiRoot}/threeStyleQuizLog/${part.name}/${userName}?days=${days}` : `${config.apiRoot}/threeStyleQuizLog/${part.name}/${userName}`;
 
     // クイズ履歴
     const quizOptions = {
-        url: urlStr,
+        url: quizUrlStr,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -334,17 +323,6 @@ const init = () => {
         form: {},
     };
 
-    // 登録した問題
-    const problemListOptions = {
-        url: `${config.apiRoot}/threeStyleQuizList/${part.name}/${userName}`,
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        json: true,
-        form: {},
-    };
-
     return rp(letterPairOptions)
         .then((ans) => {
             const letterPairs = ans.success.result;
@@ -352,15 +330,38 @@ const init = () => {
             return rp(numberingOptions)
                 .then((ans) => {
                     const numberings = ans.success.result;
+                    const buffer = numberings.filter(numbering => numbering.letter === '@')[0].sticker;
 
                     if (numberings.length === 0) {
                         return;
                     }
 
+                    // 登録した問題
+                    const problemListOptions = {
+                        url: `${config.apiRoot}/threeStyleQuizList/${part.name}/${userName}?buffer=${buffer}`,
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        json: true,
+                        form: {},
+                    };
+
                     return rp(quizOptions)
                         .then((ans) => {
                             const quizLogRes = quizOrder === '-acc' ? ans.success.result.reverse() : ans.success.result;
                             const quizLogStickers = quizLogRes.map(x => x.stickers);
+
+                            // 登録済の3-styleを持っておく
+                            const threeStyleOptions = {
+                                url: `${config.apiRoot}/threeStyle/${part.name}?userName=${userName}&buffer=${buffer}`,
+                                method: 'GET',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                json: true,
+                                form: {},
+                            };
 
                             return rp(threeStyleOptions)
                                 .then((ans) => {

@@ -58,7 +58,9 @@ const getThreeStyleLogs = (userName, part) => {
 // 受け取り、セルに表示するデータを返す
 // 余裕があったらテストを書こう FIXME
 const generateTableData = (userName, numberingIn, threeStyles) => {
-    const numbering = numberingIn.filter(numbering => numbering.letter !== '@'); // この関数内では、バッファの情報は使わない
+    const numbering = numberingIn.filter(numbering => numbering.letter !== '@'); // 表の中にはバッファ('@')の文字は出現させない
+
+    const buffer = numberingIn.filter(numbering => numbering.letter === '@')[0].sticker;
     const letters = numbering.map(a => a.letter);
     const fstRow = [ ' 3rd \\ 2nd ', ...numbering.map(a => `${a.letter} (${a.sticker})`), ];
     const ans = [ fstRow, ];
@@ -73,7 +75,7 @@ const generateTableData = (userName, numberingIn, threeStyles) => {
             const sticker1 = numbering.filter(a => a.letter === letter2nd)[0].sticker;
             const sticker2 = numbering.filter(a => a.letter === letter3rd)[0].sticker;
 
-            const threeStyle = threeStyles.filter(a => a.sticker1 === sticker1 && a.sticker2 === sticker2);
+            const threeStyle = threeStyles.filter(a => a.buffer === buffer && a.sticker1 === sticker1 && a.sticker2 === sticker2);
 
             // 同じステッカーに対して複数の手順が登録されていた場合は、', '区切りで出力(半角スペースが入っているので注意)
             const threeStyleStr = threeStyle.map(st => utils.showMove(st.setup, st.move1, st.move2)).join(', ');
@@ -160,6 +162,7 @@ const saveThreeStyleTable = (hot, part, numbering) => {
         },
         json: true,
         form: {
+            buffer: bufferSticker,
             threeStyleTable,
             token,
         },
@@ -239,7 +242,7 @@ const init = () => {
                     // クイズのタイムに応じて色を付ける
                     return getThreeStyleLogs(userName, part)
                         .then((threeStyleLogs) => {
-                            const buffer = numbering.filter(a => a.letter === '@')[0].sticker;
+                            const bufferSticker = numbering.filter(a => a.letter === '@')[0].sticker;
                             const stickers = numbering.filter(numbering => numbering.letter !== '@').map(a => a.sticker);
 
                             // 0行目、0列目はヘッダ行/カラムなので、1から始まる
@@ -250,7 +253,7 @@ const init = () => {
                                     const sticker1 = stickers[colInd - 1];
                                     const td = hot.getCell(rowInd, colInd);
 
-                                    const threeStyleLog = threeStyleLogs.filter(a => a.buffer === buffer && a.sticker1 === sticker1 && a.sticker2 === sticker2);
+                                    const threeStyleLog = threeStyleLogs.filter(a => a.buffer === bufferSticker && a.sticker1 === sticker1 && a.sticker2 === sticker2);
 
                                     if (threeStyleLog && threeStyleLog.length !== 0) {
                                         // 秒数の記録があったら、その記録に応じて色を付ける
