@@ -2,7 +2,9 @@ const _ = require('underscore');
 const Cube = require('cubejs');
 require('cubejs/lib/solve.js');
 const shuffle = require('shuffle-array');
+const config = require('./config');
 const constant = require('./constant');
+const rp = require('request-promise');
 const threeStyleUtils = require('./threeStyleUtils');
 const utils = require('./utils');
 
@@ -301,16 +303,61 @@ const init = () => {
     const appearOnceBox = document.querySelector('.scrambleForm__appearOnceBox');
     const appearOnce = appearOnceBox.checked;
 
-    return threeStyleUtils.getThreeStyles(userName, constant.partType.corner)
-        .then((threeStylesCorner) => {
-            return threeStyleUtils.getThreeStyles(userName, constant.partType.edgeMiddle)
-                .then((threeStylesEdgeMiddle) => {
-                    return threeStyleUtils.getThreeStyleQuizList(userName, constant.partType.corner)
-                        .then((threeStyleQuizListCorner) => {
-                            return threeStyleUtils.getThreeStyleQuizList(userName, constant.partType.edgeMiddle)
-                                .then((threeStyleQuizListEdgeMiddle) => {
-                                    button.addEventListener('click', () => submit(threeStylesCorner, threeStylesEdgeMiddle, threeStyleQuizListCorner, threeStyleQuizListEdgeMiddle, appearOnce));
-                                    button.disabled = false;
+    // 現在のバッファの手順のみを使うために、ナンバリングを取得
+    const numberingCornerOptions = {
+        url: `${config.apiRoot}/numbering/corner/${userName}`,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {},
+    };
+
+    const numberingEdgeMiddleOptions = {
+        url: `${config.apiRoot}/numbering/edgeMiddle/${userName}`,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {},
+    };
+
+    return rp(numberingCornerOptions)
+        .then((numberingCorner) => {
+            const cornerBufferSticker = numberingCorner.success.result.filter(a => a.letter === '@')[0].sticker;
+
+            return rp(numberingEdgeMiddleOptions)
+                .then((numberingEdgeMiddle) => {
+                    const edgeMiddleBufferSticker = numberingEdgeMiddle.success.result.filter(a => a.letter === '@')[0].sticker;
+
+                    return threeStyleUtils.getThreeStyles(userName, constant.partType.corner)
+                        .then((allThreeStylesCorner) => {
+                            const threeStylesCorner = allThreeStylesCorner.filter(a => a.buffer === cornerBufferSticker);
+
+                            return threeStyleUtils.getThreeStyles(userName, constant.partType.edgeMiddle)
+                                .then((allThreeStylesEdgeMiddle) => {
+                                    const threeStylesEdgeMiddle = allThreeStylesEdgeMiddle.filter(a => a.buffer === edgeMiddleBufferSticker);
+
+                                    return threeStyleUtils.getThreeStyleQuizList(userName, constant.partType.corner)
+                                        .then((allThreeStyleQuizListCorner) => {
+                                            const threeStyleQuizListCorner = allThreeStyleQuizListCorner.filter(a => a.buffer === cornerBufferSticker);
+
+                                            return threeStyleUtils.getThreeStyleQuizList(userName, constant.partType.edgeMiddle)
+                                                .then((allThreeStyleQuizListEdgeMiddle) => {
+                                                    const threeStyleQuizListEdgeMiddle =allThreeStyleQuizListCorner.filter(a => a.buffer === edgeMiddleBufferSticker);
+
+                                                    button.addEventListener('click', () => submit(threeStylesCorner, threeStylesEdgeMiddle, threeStyleQuizListCorner, threeStyleQuizListEdgeMiddle, appearOnce));
+                                                    button.disabled = false;
+                                                })
+                                                .catch((err) => {
+                                                    alert(`エラー:${err}`);
+                                                });
+                                        })
+                                        .catch((err) => {
+                                            alert(`エラー:${err}`);
+                                        });
                                 })
                                 .catch((err) => {
                                     alert(`エラー:${err}`);
