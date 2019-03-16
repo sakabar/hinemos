@@ -113,7 +113,9 @@ const loadEdgeNumbering = () => {
 const init = () => {
     loadEdgeNumbering()
         .then((numberings) => {
-            if (numberings.s2l['DF'] !== '@') {
+            if (Object.keys(numberings.s2l).length === 0) {
+                throw new Error('先にナンバリングを登録してください');
+            } else if (numberings.s2l['DF'] !== '@') {
                 throw new Error('バッファをDFステッカーに設定してください');
             }
             render(m2Methods, numberings);
