@@ -40,7 +40,20 @@ const render = (m2Methods, numberings) => {
         const m2Method = m2Methods[sticker];
 
         const stickerTdNode = document.createElement('td');
-        stickerTdNode.appendChild(document.createTextNode(sticker));
+        let t1 = sticker;
+        if (sticker === 'FU') {
+            t1 = 'FU←→BD';
+        }
+        if (sticker === 'BD') {
+            t1 = 'BD←→FU';
+        }
+        if (sticker === 'UF') {
+            t1 = 'UF←→DB';
+        }
+        if (sticker === 'DB') {
+            t1 = 'DB←→UF';
+        }
+        stickerTdNode.appendChild(document.createTextNode(t1));
 
         const numberingTdNode = document.createElement('td');
 
