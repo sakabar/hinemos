@@ -346,7 +346,7 @@ const init = () => {
 
                                             return threeStyleUtils.getThreeStyleQuizList(userName, constant.partType.edgeMiddle)
                                                 .then((allThreeStyleQuizListEdgeMiddle) => {
-                                                    const threeStyleQuizListEdgeMiddle =allThreeStyleQuizListCorner.filter(a => a.buffer === edgeMiddleBufferSticker);
+                                                    const threeStyleQuizListEdgeMiddle = allThreeStyleQuizListEdgeMiddle.filter(a => a.buffer === edgeMiddleBufferSticker);
 
                                                     button.addEventListener('click', () => submit(threeStylesCorner, threeStylesEdgeMiddle, threeStyleQuizListCorner, threeStyleQuizListEdgeMiddle, appearOnce));
                                                     button.disabled = false;
