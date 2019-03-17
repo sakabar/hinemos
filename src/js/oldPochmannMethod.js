@@ -166,7 +166,9 @@ const loadCornerNumbering = () => {
 const init = () => {
     loadCornerNumbering()
         .then((numberings) => {
-            if (numberings.s2l['UBL'] !== '@') {
+            if (Object.keys(numberings.s2l).length === 0) {
+                throw new Error('先にナンバリングを登録してください');
+            } else if (numberings.s2l['UBL'] !== '@') {
                 throw new Error('バッファをUBLステッカーに設定してください');
             }
             render(numberings);

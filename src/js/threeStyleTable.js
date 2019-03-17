@@ -59,6 +59,9 @@ const getThreeStyleLogs = (userName, part) => {
 // 余裕があったらテストを書こう FIXME
 const generateTableData = (userName, numberingIn, threeStyles) => {
     const numbering = numberingIn.filter(numbering => numbering.letter !== '@'); // 表の中にはバッファ('@')の文字は出現させない
+    if (numbering.length === 0) {
+        throw new Error('ナンバリングが空です');
+    }
 
     const buffer = numberingIn.filter(numbering => numbering.letter === '@')[0].sticker;
     const letters = numbering.map(a => a.letter);
@@ -291,17 +294,17 @@ const init = () => {
                             }
                         })
                         .catch((err) => {
-                            alert(`1: ${err}`);
+                            alert(`${err}`);
                             return [];
                         });
                 })
                 .catch((err) => {
-                    alert(`2: ${err}`);
+                    alert(`${err}`);
                     return [];
                 });
         })
         .catch((err) => {
-            alert(`3: ${err}`);
+            alert(`${err}`);
             return [];
         });
 };
