@@ -120,7 +120,9 @@
           <p>
             今見たスクランブルは、分析のループが1周で終わりました。次は、ループが続く場合をやってみましょう。
             <p>(M2),<br>(U' L' U M2 U' L U),<br>(M2),<br>(U R U' M2 U R' U')</p>
-            分析文字列は、途中で分岐するため4パターンあります。どれでも大丈夫ですが、ここでは最初の分析文字列を例に説明します。
+            分析文字列は、途中でまだ分析していないパーツを自由に選べるため、4パターンあります。どれでも大丈夫ですが、ここでは最初の分析文字列を例に説明します。
+          </p>
+
           <ul>
             <li>「<b>
                 <span class="emb__edgeMiddle--FR"></span><span class="emb__edgeMiddle--FL"></span><span class="emb__edgeMiddle--UB"></span><span class="emb__edgeMiddle--FL"></span>
@@ -148,6 +150,9 @@
           <li>FRを見る → <span class="emb__faceColor--D"></span>(と<span class="emb__faceColor--F"></span>)だ → これが本来あるべき位置はDF(バッファ)だ</li>
           <li>分析していないパーツは無いか？ あった！ UBのパーツとFLのパーツだ</li>
           <li>UBとFLの2つのパーツに属する4つのステッカーのうち、どれでもいいので1つ選ぼう</li>
+          <ul>
+            <li>※F面 > U面 > R面…など、ステッカーを選ぶ優先順位をおおまかに決めておくとよい</li>
+          </ul>
           例えば、FL(「<b><span class="emb__edgeMiddle--FL"></span></b>」)を選んだ場合
           <br>
           <li>FLを見る → <span class="emb__faceColor--U"></span>(と<span class="emb__faceColor--B"></span>)だ → これが本来あるべき位置はUB(「<b><span class="emb__edgeMiddle--UB"></span></b>」)だ</li>
