@@ -246,6 +246,20 @@ describe('utils.js', () => {
             assert.deepStrictEqual(actual, expected);
         });
 
+        it('正常系: 前後のスペースと複数のスペース削除、R2\'をR\'2に置換', () => {
+            const actual = utils.makeThreeStyle('UBL', 'URF', 'RDF', '  D R E\' R2\'  E R D  ', ' ', '  ');
+            const expected = {
+                buffer: 'UBL',
+                sticker1: 'UFR',
+                sticker2: 'RDF',
+                setup: 'D R E\' R\'2 E R D',
+                move1: '',
+                move2: '',
+            };
+
+            assert.deepStrictEqual(actual, expected);
+        });
+
         it('異常系: move1のみが空', () => {
             const actual = () => utils.makeThreeStyle('UBL', 'URF', 'RDF', 'Mw', '', 'R\' D\' R');
             assert.throws(actual, Error);
