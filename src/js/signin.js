@@ -66,7 +66,11 @@ const submit = () => {
             location.href = newUrl;
         })
         .catch((err) => {
-            alert('ユーザ名かパスワードが違います');
+            if (err.statusCode == 400) {
+                alert('ユーザ名かパスワードが違います');
+            } else {
+                alert('通信ができません。しばらく経ってから再度お試しください');
+            }
             return err;
         });
 };
