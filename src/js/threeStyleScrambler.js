@@ -332,11 +332,11 @@ const init = () => {
                 .then((numberingEdgeMiddle) => {
                     const edgeMiddleBufferSticker = numberingEdgeMiddle.success.result.filter(a => a.letter === '@')[0].sticker;
 
-                    return threeStyleUtils.getThreeStyles(userName, constant.partType.corner)
+                    return threeStyleUtils.getThreeStyles(userName, constant.partType.corner, cornerBufferSticker)
                         .then((allThreeStylesCorner) => {
                             const threeStylesCorner = allThreeStylesCorner.filter(a => a.buffer === cornerBufferSticker);
 
-                            return threeStyleUtils.getThreeStyles(userName, constant.partType.edgeMiddle)
+                            return threeStyleUtils.getThreeStyles(userName, constant.partType.edgeMiddle, edgeMiddleBufferSticker)
                                 .then((allThreeStylesEdgeMiddle) => {
                                     const threeStylesEdgeMiddle = allThreeStylesEdgeMiddle.filter(a => a.buffer === edgeMiddleBufferSticker);
 
