@@ -109,9 +109,9 @@ const init = () => {
         return;
     }
 
-    // クイズ履歴
-    const quizOptions = {
-        url: `${config.apiRoot}/threeStyleQuizLog/${part.name}/${userName}`,
+    // ナンバリング : バッファの取得
+    const numberingOptions = {
+        url: `${config.apiRoot}/numbering/${part.name}/${userName}`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -120,27 +120,52 @@ const init = () => {
         form: {},
     };
 
-    // 問題リスト
-    const problemListOptions = {
-        url: `${config.apiRoot}/threeStyleQuizList/${part.name}/${userName}`,
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        json: true,
-        form: {},
-    };
+    return rp(numberingOptions)
+        .then((ans) => {
+            const numberings = ans.success.result;
 
-    return threeStyleUtils.getThreeStyles(userName, part)
-        .then((threeStyles) => {
-            return rp(quizOptions)
-                .then((ans) => {
-                    const threeStyleQuizLog = ans.success.result;
+            if (numberings.length === 0) {
+                return;
+            }
 
-                    return rp(problemListOptions)
-                        .then((threeStyleQuizListAns) => {
-                            const problemList = threeStyleQuizListAns.success.result;
-                            return renderStats(part, threeStyles, threeStyleQuizLog, problemList);
+            const buffer = numberings.filter(numbering => numbering.letter === '@')[0].sticker;
+
+            // クイズ履歴
+            const quizOptions = {
+                url: `${config.apiRoot}/threeStyleQuizLog/${part.name}/${userName}&buffer=${buffer}`,
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                json: true,
+                form: {},
+            };
+
+            // 問題リスト
+            const problemListOptions = {
+                url: `${config.apiRoot}/threeStyleQuizList/${part.name}/${userName}&buffer=${buffer}`,
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                json: true,
+                form: {},
+            };
+
+            return threeStyleUtils.getThreeStyles(userName, part, buffer)
+                .then((threeStyles) => {
+                    return rp(quizOptions)
+                        .then((ans) => {
+                            const threeStyleQuizLog = ans.success.result;
+
+                            return rp(problemListOptions)
+                                .then((threeStyleQuizListAns) => {
+                                    const problemList = threeStyleQuizListAns.success.result;
+                                    return renderStats(part, threeStyles, threeStyleQuizLog, problemList);
+                                })
+                                .catch((err) => {
+                                    alert(`エラーが発生しました:${err}`);
+                                });
                         })
                         .catch((err) => {
                             alert(`エラーが発生しました:${err}`);

@@ -196,7 +196,7 @@ const submit = (part) => {
                 .then((ans) => {
                     const threeStyles = ans.success.result;
 
-                    return threeStyleUtils.getThreeStyleQuizLog(userName, part)
+                    return threeStyleUtils.getThreeStyleQuizLog(userName, part, buffer.sticker)
                         .then((quizLogRes) => {
                             // 何回も引くことになるのでハッシュ化
                             // quizLogHash[stickers].solved -> 正解数
