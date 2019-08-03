@@ -245,7 +245,7 @@ const submit = (part) => {
                                                 solved: 0,
                                                 tried: 0,
                                                 avgSec: 0.0,
-                                                numberOfMoves,
+                                                tps: undefined,
                                             };
 
                                             lineObjList.push(obj);
@@ -259,7 +259,7 @@ const submit = (part) => {
                                                 solved: quizLog.solved,
                                                 tried: quizLog.tried,
                                                 avgSec: quizLog.avgSec,
-                                                numberOfMoves,
+                                                tps: 1.0 * numberOfMoves / quizLog.avgSec,
                                             };
 
                                             lineObjList.push(obj);
@@ -276,7 +276,7 @@ const submit = (part) => {
                                         solved: undefined,
                                         tried: undefined,
                                         avgSec: undefined,
-                                        numberOfMoves: undefined,
+                                        tps: undefined,
                                     };
 
                                     lineObjList.push(obj);
@@ -292,6 +292,8 @@ const submit = (part) => {
                                 sortedLineObjList = lineObjList.sort((a, b) => ((a.registered ? 1 : 0) - (b.registered ? 1 : 0)) || -((a.solved === 0 && a.tried === 0 ? 1 : 0) - (b.solved === 0 && b.tried === 0 ? 1 : 0)) || (a.solved - b.solved) || -(a.tried - b.tried) || -(a.avgSec - b.avgSec));
                             } else if (order === '遅い順') {
                                 sortedLineObjList = lineObjList.sort((a, b) => ((a.registered ? 1 : 0) - (b.registered ? 1 : 0)) || -((a.solved === 0 && a.tried === 0 ? 1 : 0) - (b.solved === 0 && b.tried === 0 ? 1 : 0)) || -(a.avgSec - b.avgSec) || (a.solved - b.solved) || -(a.tried - b.tried));
+                            } else if (order === 'tpsが低い順') {
+                                sortedLineObjList = lineObjList.sort((a, b) => ((a.registered ? 1 : 0) - (b.registered ? 1 : 0)) || -((a.solved === 0 && a.tried === 0 ? 1 : 0) - (b.solved === 0 && b.tried === 0 ? 1 : 0)) || (a.tps - b.tps) ||  -(a.avgSec - b.avgSec) || (a.solved - b.solved) || -(a.tried - b.tried));
                             }
 
                             for (let i = 0; i < sortedLineObjList.length; i++) {
@@ -328,7 +330,7 @@ const submit = (part) => {
                                     const tdNodeTps = document.createElement('td');
                                     if ((obj.solved !== 0 || obj.tried !== 0) && obj.avgSec > 0.0) {
                                         tdNodeAvgSec.appendChild(document.createTextNode(`${obj.avgSec.toFixed(2)}秒`));
-                                        tdNodeTps.appendChild(document.createTextNode(`${(1.0 * obj.numberOfMoves / obj.avgSec).toFixed(2)}tps`));
+                                        tdNodeTps.appendChild(document.createTextNode(`${obj.tps.toFixed(2)}tps`));
 
                                     }
                                     trNode.appendChild(tdNodeAvgSec);
