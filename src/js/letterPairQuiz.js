@@ -222,6 +222,8 @@ const init = () => {
 
                         // 左右のキーのショートカット
                         document.onkeyup = keyUpAction(selectedLetterPairs);
+                    } else {
+                        alert('出題するレターペアがありませんでした');
                     }
                 });
         })

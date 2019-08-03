@@ -216,7 +216,9 @@ const init = () => {
 
     return getNumbering(userName, part)
         .then((numbering) => {
-            return threeStyleUtils.getThreeStyles(userName, part)
+            const bufferSticker = numbering.filter(numbering => numbering.letter === '@')[0].sticker;
+
+            return threeStyleUtils.getThreeStyles(userName, part, bufferSticker)
                 .then((threeStyle) => {
                     const tableData = generateTableData(userName, numbering, threeStyle);
 
@@ -224,6 +226,7 @@ const init = () => {
 
                     const hot = new Handsontable(container, {
                         data: tableData,
+                        licenseKey: 'non-commercial-and-evaluation',
                         rowHeaders: true,
                         colHeaders: true,
                         fixedColumnsLeft: 1,
@@ -245,7 +248,6 @@ const init = () => {
                     // クイズのタイムに応じて色を付ける
                     return getThreeStyleLogs(userName, part)
                         .then((threeStyleLogs) => {
-                            const bufferSticker = numbering.filter(a => a.letter === '@')[0].sticker;
                             const stickers = numbering.filter(numbering => numbering.letter !== '@').map(a => a.sticker);
 
                             // 0行目、0列目はヘッダ行/カラムなので、1から始まる

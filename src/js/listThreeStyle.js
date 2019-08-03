@@ -196,7 +196,7 @@ const submit = (part) => {
                 .then((ans) => {
                     const threeStyles = ans.success.result;
 
-                    return threeStyleUtils.getThreeStyleQuizLog(userName, part)
+                    return threeStyleUtils.getThreeStyleQuizLog(userName, part, buffer.sticker)
                         .then((quizLogRes) => {
                             // 何回も引くことになるのでハッシュ化
                             // quizLogHash[stickers].solved -> 正解数
@@ -229,6 +229,7 @@ const submit = (part) => {
                                         const move1 = result.move1;
                                         const move2 = result.move2;
                                         const moveStr = utils.showMove(setup, move1, move2);
+                                        const numberOfMoves = result.numberOfMoves;
 
                                         // 同じ文字に対して、複数の手順を登録してある場合には強調
                                         const dupMsg = lst.length > 1 ? '【重複】 ' : '';
@@ -244,6 +245,7 @@ const submit = (part) => {
                                                 solved: 0,
                                                 tried: 0,
                                                 avgSec: 0.0,
+                                                numberOfMoves,
                                             };
 
                                             lineObjList.push(obj);
@@ -257,6 +259,7 @@ const submit = (part) => {
                                                 solved: quizLog.solved,
                                                 tried: quizLog.tried,
                                                 avgSec: quizLog.avgSec,
+                                                numberOfMoves,
                                             };
 
                                             lineObjList.push(obj);
@@ -273,6 +276,7 @@ const submit = (part) => {
                                         solved: undefined,
                                         tried: undefined,
                                         avgSec: undefined,
+                                        numberOfMoves: undefined,
                                     };
 
                                     lineObjList.push(obj);
@@ -321,10 +325,14 @@ const submit = (part) => {
                                     trNode.appendChild(tdNodeAcc);
 
                                     const tdNodeAvgSec = document.createElement('td');
+                                    const tdNodeTps = document.createElement('td');
                                     if ((obj.solved !== 0 || obj.tried !== 0) && obj.avgSec > 0.0) {
                                         tdNodeAvgSec.appendChild(document.createTextNode(`${obj.avgSec.toFixed(2)}秒`));
+                                        tdNodeTps.appendChild(document.createTextNode(`${(1.0 * obj.numberOfMoves / obj.avgSec).toFixed(2)}tps`));
+
                                     }
                                     trNode.appendChild(tdNodeAvgSec);
+                                    trNode.appendChild(tdNodeTps);
 
                                     const btnNode = document.createElement('input');
                                     btnNode.type = 'button';
@@ -366,6 +374,10 @@ const submit = (part) => {
                                     const tdNodeAvgSec = document.createElement('td');
                                     tdNodeAvgSec.appendChild(document.createTextNode(''));
                                     trNode.appendChild(tdNodeAvgSec);
+
+                                    const tdNodeNumberOfMoves = document.createElement('td');
+                                    tdNodeNumberOfMoves.appendChild(document.createTextNode(''));
+                                    trNode.appendChild(tdNodeNumberOfMoves);
 
                                     const btnNode = document.createElement('input');
                                     btnNode.type = 'button';

@@ -138,6 +138,8 @@ const deleteCandStickers = (text) => {
 };
 
 const submit = (part) => {
+    const userName = localStorage.userName;
+
     // 追加候補になっているものをまとめて、POST
     const token = localStorage.token;
     const registeredLiNodes = document.querySelectorAll('.editQuizListForm__registeredArea .editQuizListForm__uList li');
@@ -209,23 +211,43 @@ const submit = (part) => {
         instances.push(instance);
     }
 
-    const options = {
-        url: `${config.apiRoot}/threeStyleQuizList/${part.name}`,
-        method: 'POST',
+    // ナンバリング
+    const numberingOptions = {
+        url: `${config.apiRoot}/numbering/${part.name}/${userName}`,
+        method: 'GET',
         headers: {
             'Content-Type': 'application/json',
         },
         json: true,
-        form: {
-            token,
-            threeStyleQuizList: instances,
-        },
+        form: {},
     };
 
-    return rp(options)
-        .then(() => {
-            alert('登録しました');
-            location.reload(false);
+    return rp(numberingOptions)
+        .then((ans) => {
+            const numberings = ans.success.result;
+            const buffer = numberings.filter(numbering => numbering.letter === '@')[0].sticker;
+
+            const options = {
+                url: `${config.apiRoot}/threeStyleQuizList/${part.name}/${buffer}`,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                json: true,
+                form: {
+                    token,
+                    threeStyleQuizList: instances,
+                },
+            };
+
+            return rp(options)
+                .then(() => {
+                    alert('登録しました');
+                    location.reload(false);
+                })
+                .catch((err) => {
+                    alert(`エラー: ${err}`);
+                });
         })
         .catch((err) => {
             alert(`エラー: ${err}`);
@@ -235,16 +257,6 @@ const submit = (part) => {
 // 登録済の問題リストを読み込んで表示
 const loadList = (part) => {
     const userName = localStorage.userName;
-
-    const problemListOptions = {
-        url: `${config.apiRoot}/threeStyleQuizList/${part.name}/${userName}`,
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        json: true,
-        form: {},
-    };
 
     // ナンバリング
     const numberingOptions = {
@@ -262,6 +274,17 @@ const loadList = (part) => {
     return rp(numberingOptions)
         .then((ans) => {
             const numberings = ans.success.result;
+            const buffer = numberings.filter(numbering => numbering.letter === '@')[0].sticker;
+
+            const problemListOptions = {
+                url: `${config.apiRoot}/threeStyleQuizList/${part.name}/${userName}?buffer=${buffer}`,
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                json: true,
+                form: {},
+            };
 
             return rp(problemListOptions)
                 .then((ans) => {
@@ -305,22 +328,41 @@ const deleteAllQuizzes = (userName, part) => {
         return;
     }
 
-    const options = {
-        url: `${config.apiRoot}/threeStyleQuizList/${part.name}`,
-        method: 'POST',
+    const numberingOptions = {
+        url: `${config.apiRoot}/numbering/${part.name}/${userName}`,
+        method: 'GET',
         headers: {
             'Content-Type': 'application/json',
         },
         json: true,
-        form: {
-            token,
-            threeStyleQuizList: [],
-        },
+        form: {},
     };
 
-    return rp(options)
-        .then(() => {
-            location.reload(false);
+    return rp(numberingOptions)
+        .then((ans) => {
+            const numberings = ans.success.result;
+            const buffer = numberings.filter(numbering => numbering.letter === '@')[0].sticker;
+
+            const options = {
+                url: `${config.apiRoot}/threeStyleQuizList/${part.name}/${buffer}`,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                json: true,
+                form: {
+                    token,
+                    threeStyleQuizList: [],
+                },
+            };
+
+            return rp(options)
+                .then(() => {
+                    location.reload(false);
+                })
+                .catch((err) => {
+                    alert(`エラー: ${err}`);
+                });
         })
         .catch((err) => {
             alert(`エラー: ${err}`);

@@ -102,6 +102,7 @@ const init = () => {
         .then((tableData) => {
             const hot = new Handsontable(container, {
                 data: tableData,
+                licenseKey: 'non-commercial-and-evaluation',
                 rowHeaders: true,
                 colHeaders: true,
                 cells: (row, col, prop) => {
