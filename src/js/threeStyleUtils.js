@@ -30,7 +30,7 @@ const getThreeStyles = (userName, part, buffer=undefined) => {
 const getThreeStyleQuizList = (userName, part, buffer=undefined) => {
     let url = `${config.apiRoot}/threeStyleQuizList/${part.name}/${userName}`;
     if (buffer) {
-        url = `${config.apiRoot}/threeStyleQuizList/${part.name}/${userName}&buffer=${buffer}`;
+        url = `${config.apiRoot}/threeStyleQuizList/${part.name}/${userName}?buffer=${buffer}`;
     }
 
     const options = {
