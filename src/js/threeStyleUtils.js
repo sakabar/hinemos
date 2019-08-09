@@ -4,7 +4,7 @@ const config = require('./config');
 const getThreeStyles = (userName, part, buffer=undefined) => {
     let url = `${config.apiRoot}/threeStyle/${part.name}?userName=${userName}`;
     if (typeof buffer !== 'undefined') {
-        url = `${config.apiRoot}/threeStyle/${part.name}?userName=${userName}&buffer={buffer}`;
+        url = `${config.apiRoot}/threeStyle/${part.name}?userName=${userName}&buffer=${buffer}`;
     }
 
     const options = {
@@ -30,7 +30,7 @@ const getThreeStyles = (userName, part, buffer=undefined) => {
 const getThreeStyleQuizList = (userName, part, buffer=undefined) => {
     let url = `${config.apiRoot}/threeStyleQuizList/${part.name}/${userName}`;
     if (buffer) {
-        url = `${config.apiRoot}/threeStyleQuizList/${part.name}/${userName}&buffer=${buffer}`;
+        url = `${config.apiRoot}/threeStyleQuizList/${part.name}/${userName}?buffer=${buffer}`;
     }
 
     const options = {
