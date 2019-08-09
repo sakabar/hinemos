@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <script type="text/javascript" src="./auth.bundle.js?version=v1.2.2"></script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-119101911-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      if (localStorage.userName) {
+        gtag('config', 'UA-119101911-1', {
+          'user_id': localStorage.userName
+        });
+      } else {
+        gtag('config', 'UA-119101911-1');
+      }
+    </script>
+
+    <title>3BLD入門 M2/OP法 甘やかし編 個人レッスン 記憶編</title>
+    <meta charset="UTF-8">
+    <meta name="robots" content="noindex,nofollow,noarchive">
+    <meta http-equiv="pragma" content="no-store">
+    <meta http-equiv="cache-control" content="no-store">
+    <meta name="expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="./icon_bw.png">
+    <link rel="stylesheet" type="text/css" href="normalize.css">
+    <link rel="stylesheet" type="text/css" href="common.css?version=v1.2.2">
+    <!-- <link rel="stylesheet" type="text/css" href="tutorialAnalysisForBeginner.css?version=v1.2.2"> -->
+  </head>
+
+  <body>
+    <header>
+      <div class="header__bar">
+        <ul>
+          <li><a href="faq.html">FAQ</a></li>
+          <li><a href="signout.html">サインアウト</a></li>
+        </ul>
+      </div>
+
+      <a href="mypage.html"><img class="logo__img--rectangle" src="./tw_header.jpg?version=v1.2.2" alt="ロゴ"></a>
+    </header>
+
+    <main>
+      <h1>3BLD M2/OP法 甘やかし編 個人レッスン 実行編</h1>
+      この記事は無くてもいいくらいなのですが、一応書いておきます。
+
+      <h2>実行順</h2>
+      分析記憶はコーナー→エッジ、実行はエッジ→コーナー(CEEC)の順に行いましょう。こうすると、後述のパリティ処理に都合がよいです。
+      <!-- <p>記憶編でも書きましたが、日本では分析記憶はコーナー→エッジ、実行はエッジ→コーナー(CEEC)の順に行う人が多いです。スピードを求めるならエッジを音記憶で行い、その記憶が消える前にすぐ実行してしまいます。音記憶を使うというだけならECCEの順でもいいですが、CEECだとコーナーを分析してパリティの有無が分かった場合で、エッジの分析に交換分析法を使うことができます。交換分析法の方法と効果については<a href="http://cubyy.blog.fc2.com/blog-entry-2.html">BLDにおけるパリティ処理にかかる手数の比較考察</a>(外部リンク)が詳しいですが、初成功を目指すレベルの方にとっては高度すぎると思います。</p> -->
+      <!-- 音記憶で12文字全てを覚えるのは実際厳しいため、最初と最後の2文字ずつをビジュアル記憶をするという人もいます。ビジュアル記憶はコーナーのほうが向きの自由度が多く難しいため、 -->
+      <!-- コーナーのほうがエッジより向きが複雑なためビジュアル記憶しにくいのでストーリーで覚える -->
+
+      <h2>実行のやり方</h2>
+      覚えた分析文字列を、<a href="./m2Mehtod.html">M2法手順表</a>と<a href="./oldPochmannMethod.html">Old Pochmann法手順表</a>を見て1文字ずつ実行してください。エッジのM列の一部の手順には「←→」という記号が付けてありますが、これは偶数番目にこの文字を実行する時には180度反対の手順を回してください。例えば、
+
+      <h3>パリティ処理</h3>
+     エッジとコーナーの分析文字列が奇数の場合、パリティという状態になります。これは、エッジの実行が終わった時にM2された状態になってしまい、このままコーナーを揃えても完成しない状態です。これを解消するには、エッジ実行後、またはコーナー実行後に以下の手順を回します。
+      <pre>
+        (D' L2 D) M2 (D' L2 D)
+      </pre>
+      回すタイミングはエッジ実行後とコーナー実行後のどちらでもいいですが、最後にすると焦ってパリティ処理せずにタイマーストップしてしまいそうなので私はエッジ実行後に行っています。
+    </main>
+    <script type="text/javascript" src="./tutorialAnalysisForBeginner.bundle.js?version=v1.5.0"></script>
+  </body>
+</html>
