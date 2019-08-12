@@ -132,7 +132,7 @@ const init = () => {
 
             // クイズ履歴
             const quizOptions = {
-                url: `${config.apiRoot}/threeStyleQuizLog/${part.name}/${userName}&buffer=${buffer}`,
+                url: `${config.apiRoot}/threeStyleQuizLog/${part.name}/${userName}?buffer=${buffer}`,
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -141,9 +141,10 @@ const init = () => {
                 form: {},
             };
 
+
             // 問題リスト
             const problemListOptions = {
-                url: `${config.apiRoot}/threeStyleQuizList/${part.name}/${userName}&buffer=${buffer}`,
+                url: `${config.apiRoot}/threeStyleQuizList/${part.name}/${userName}?buffer=${buffer}`,
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
