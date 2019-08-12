@@ -199,6 +199,8 @@ const init = () => {
 
     const urlObj = url.parse(location.href, true);
 
+    const visualType = urlObj.query.visualType;
+
     // URLのオプションでpart=(corner|edgeMiddle)という形式で、パートが渡される
     // それ以外の場合はエラー
     const partQuery = urlObj.query.part;
@@ -219,8 +221,8 @@ const init = () => {
             const bufferSticker = numbering.filter(numbering => numbering.letter === '@')[0].sticker;
 
             return threeStyleUtils.getThreeStyles(userName, part, bufferSticker)
-                .then((threeStyle) => {
-                    const tableData = generateTableData(userName, numbering, threeStyle);
+                .then((threeStyles) => {
+                    const tableData = generateTableData(userName, numbering, threeStyles);
 
                     const container = document.querySelector('.viewThreeStyleTable__table');
 
@@ -262,31 +264,60 @@ const init = () => {
 
                                     if (threeStyleLog && threeStyleLog.length !== 0) {
                                         // 秒数の記録があったら、その記録に応じて色を付ける
+                                        const threeStyle = threeStyles.filter(a => a.buffer === bufferSticker && a.sticker1 === sticker1 && a.sticker2 === sticker2)[0];
+                                        const numberOfMoves = threeStyle.numberOfMoves;
                                         const avgSec = threeStyleLog[0]['avg_sec'];
+                                        const tps = 1.0 * numberOfMoves / avgSec;
                                         const solved = threeStyleLog[0].solved;
                                         const tried = threeStyleLog[0].tried;
 
-                                        if (solved < tried) {
-                                            // 3回連続で正解していない場合
-                                            td.style.backgroundColor = '#ff0000'; // 赤
-                                        } else {
-                                            if (0 < avgSec && avgSec < 1.0) {
-                                                td.style.backgroundColor = '#00ff00'; // 緑
-                                            } else if (1.0 <= avgSec && avgSec < 1.5) {
-                                                td.style.backgroundColor = '#e0ffff'; // 水色
-                                            } else if (1.5 <= avgSec && avgSec < 2.0) {
-                                                td.style.backgroundColor = '#e0e0f8'; // 薄い青
-                                            } else if (2.0 <= avgSec && avgSec < 2.5) {
-                                                td.style.backgroundColor = '#a9d0f5'; // ちょっと濃い青
-                                            } else if (2.5 <= avgSec && avgSec < 3.0) {
-                                                td.style.backgroundColor = '#ffff00'; // 黄色
-                                            } else if (3.0 <= avgSec && avgSec < 4.0) {
-                                                td.style.backgroundColor = '#f7d358'; // 薄いオレンジ
-                                            } else if (4.0 <= avgSec && avgSec < 6.0) {
-                                                td.style.backgroundColor = '#ffa500'; // オレンジ
-                                            } else if (6.0 <= avgSec) {
+                                        if (visualType === 'sec') {
+                                            if (solved < tried) {
+                                                // 3回連続で正解していない場合
                                                 td.style.backgroundColor = '#ff0000'; // 赤
+                                            } else {
+                                                if (0 < avgSec && avgSec < 1.0) {
+                                                    td.style.backgroundColor = '#00ff00'; // 緑
+                                                } else if (1.0 <= avgSec && avgSec < 1.5) {
+                                                    td.style.backgroundColor = '#e0ffff'; // 水色
+                                                } else if (1.5 <= avgSec && avgSec < 2.0) {
+                                                    td.style.backgroundColor = '#e0e0f8'; // 薄い青
+                                                } else if (2.0 <= avgSec && avgSec < 2.5) {
+                                                    td.style.backgroundColor = '#a9d0f5'; // ちょっと濃い青
+                                                } else if (2.5 <= avgSec && avgSec < 3.0) {
+                                                    td.style.backgroundColor = '#ffff00'; // 黄色
+                                                } else if (3.0 <= avgSec && avgSec < 4.0) {
+                                                    td.style.backgroundColor = '#f7d358'; // 薄いオレンジ
+                                                } else if (4.0 <= avgSec && avgSec < 6.0) {
+                                                    td.style.backgroundColor = '#ffa500'; // オレンジ
+                                                } else if (6.0 <= avgSec) {
+                                                    td.style.backgroundColor = '#ff0000'; // 赤
+                                                }
                                             }
+                                        } else if (visualType === 'tps') {
+                                            if (0 < tps && tps < 2.0) {
+                                                td.style.backgroundColor = '#ff0000'; // 赤
+                                            } else if (2.0 <= tps && tps < 3.0) {
+                                                td.style.backgroundColor = '#ffa500'; // オレンジ
+                                            } else if (3.0 <= tps && tps < 4.0) {
+                                                td.style.backgroundColor = '#f7d358'; // 薄いオレンジ
+                                            } else if (4.0 <= tps && tps < 5.0) {
+                                                td.style.backgroundColor = '#ffff00'; // 黄色
+                                            } else if (5.0 <= tps && tps < 6.0) {
+                                                td.style.backgroundColor = '#a9d0f5'; // ちょっと濃い青
+                                            } else if (6.0 <= tps && tps < 7.0) {
+                                                td.style.backgroundColor = '#e0e0f8'; // 薄い青
+                                            } else if (7.0 <= tps && tps < 8.0) {
+                                                td.style.backgroundColor = '#e0ffff'; // 水色
+                                            } else if (8.0 <= tps && tps < 9.0) {
+                                                td.style.backgroundColor = '#98fb98'; // 薄い緑
+                                            } else if (9.0 <= tps && tps < 10.0) {
+                                                td.style.backgroundColor = '#00ff00'; // 緑
+                                            } else if (10.0 <= tps) {
+                                                td.style.backgroundColor = '#32cd32'; // 濃い緑
+                                            }
+                                        } else {
+                                            throw new Error('visualTypeの値がが不正です');
                                         }
                                     } else {
                                         // 秒数の記録が無かったら、灰色にする
