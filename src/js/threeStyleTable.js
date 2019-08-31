@@ -265,6 +265,13 @@ const init = () => {
                                     if (threeStyleLog && threeStyleLog.length !== 0) {
                                         // 秒数の記録があったら、その記録に応じて色を付ける
                                         const threeStyle = threeStyles.filter(a => a.buffer === bufferSticker && a.sticker1 === sticker1 && a.sticker2 === sticker2)[0];
+
+                                        if (!threeStyle) {
+                                            // クイズのログはあるが3-style手順は登録されていない場合は、灰色にする
+                                            td.style.backgroundColor = '#cccccc';
+                                            continue;
+                                        }
+
                                         const numberOfMoves = threeStyle.numberOfMoves;
                                         const avgSec = threeStyleLog[0]['avg_sec'];
                                         const tps = 1.0 * numberOfMoves / avgSec;
