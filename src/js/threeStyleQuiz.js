@@ -22,7 +22,7 @@ const renderSettings = (days, solved) => {
 
 // 入力された設定を反映
 // FIXME レターペアと実装が重複…いや、partが入っているからそうでもなかった
-const reloadWithOptions = (part, problemListType, quizOrder) => {
+const reloadWithOptions = (part, problemListType, quizOrder, onlyOnce) => {
     const daysText = document.querySelector('.settingForm__daysText');
 
     // daysは0以上の値であることを想定
@@ -30,7 +30,7 @@ const reloadWithOptions = (part, problemListType, quizOrder) => {
 
     const solved = document.querySelector('#settingForm__radio--solved').checked;
 
-    location.href = `${config.urlRoot}/threeStyle/quiz.html?&part=${part.name}&problemListType=${problemListType.name}&solved=${solved}&days=${days}&sort=${quizOrder}`;
+    location.href = `${config.urlRoot}/threeStyle/quiz.html?&part=${part.name}&problemListType=${problemListType.name}&solved=${solved}&days=${days}&sort=${quizOrder}&onlyOnce=${onlyOnce}`;
 };
 
 const getHint = (setup, move1, move2) => {
@@ -99,7 +99,7 @@ const getNextNextLettersAndWords = (nextInd, selectedThreeStyles, numberings, le
     return `(NEXT:「${nextLetters}」)`;
 };
 
-const submit = (part, letterPairs, numberings, selectedThreeStyles, isRecalled, quizLogRes) => {
+const submit = (part, letterPairs, numberings, selectedThreeStyles, isRecalled, quizLogRes, onlyOnce) => {
     const token = localStorage.token;
     const hintText = document.querySelector('.quizForm__hintText');
     const quizIndHidden = document.querySelector('.quizForm__quizIndHidden');
@@ -131,7 +131,8 @@ const submit = (part, letterPairs, numberings, selectedThreeStyles, isRecalled, 
         return;
     }
 
-    const sendSec = sec / 3.0; // 1回ぶん回すタイムに換算
+    // onlyOnceがtrueではない場合、1回ぶん回すタイムに換算
+    const sendSec = onlyOnce ? sec : sec / 3.0;
 
     const options = {
         url: `${config.apiRoot}/threeStyleQuizLog/${part.name}`,
@@ -161,7 +162,18 @@ const submit = (part, letterPairs, numberings, selectedThreeStyles, isRecalled, 
 
             // これまでの記録との差を計算
             const quizLog = quizLogRes.filter(x => x.stickers === selectedThreeStyles[ind].stickers);
-            const timeDiff = quizLog.length > 0 ? sec - quizLog[0]['avg_sec'] * 3 : 0;
+            const timeDiff = (() => {
+                if (quizLog.length === 0) {
+                    return 0.0;
+                }
+
+                if (onlyOnce) {
+                    return sendSec - quizLog[0]['avg_sec'];
+                } else {
+                    return (sendSec - quizLog[0]['avg_sec']) * 3.0;
+                }
+            })();
+
             let diffStr = '';
             if (isRecalled === 0) {
                 diffStr = '';
@@ -212,7 +224,7 @@ const ProblemListType = {
 
 // 右/左のボタンの挙動を設定
 // 画面での配置を変えた時にはこれも変えないといけない
-const keyUpAction = (part, letterPairs, numberings, selectedThreeStyles, quizLogRes) => {
+const keyUpAction = (part, letterPairs, numberings, selectedThreeStyles, quizLogRes, onlyOnce) => {
     return (evt) => {
         // 日数のテキストボックスにフォーカスしている間は、何もしない
         if (document.activeElement.className === 'settingForm__daysText') {
@@ -221,12 +233,12 @@ const keyUpAction = (part, letterPairs, numberings, selectedThreeStyles, quizLog
 
         if (evt.which === 37 || evt.which === 32) {
             // 左キー or Space
-            submit(part, letterPairs, numberings, selectedThreeStyles, 1, quizLogRes);
+            submit(part, letterPairs, numberings, selectedThreeStyles, 1, quizLogRes, onlyOnce);
         } else if (evt.which === 38) {
             // 上キー
         } else if (evt.which === 39 || evt.which === 8) {
             // 右キー or BackSpace
-            submit(part, letterPairs, numberings, selectedThreeStyles, 0, quizLogRes);
+            submit(part, letterPairs, numberings, selectedThreeStyles, 0, quizLogRes, onlyOnce);
         } else if (evt.which === 40 || evt.which === 13) {
             // 下キー or Enter
             showHint();
@@ -276,6 +288,12 @@ const init = () => {
     // 本来は、sort順とフィルタ条件は分けるべき FIXME
     const quizOrder = urlObj.query['sort'];
 
+    // 同じ3-style手順を3回回して復元するのではなく、1回ずつだけ回すモード
+    const onlyOnce = urlObj.query['onlyOnce'] === 'true';
+    if (onlyOnce) {
+        alert('onlyOnceモードです。3回ではなく1回回したら「わかった」を押してください');
+    }
+
     // ロード時に埋める
     renderSettings(days, solved);
 
@@ -285,7 +303,7 @@ const init = () => {
     // 設定読み込みボタン
     const reloadBtn = document.querySelector('.settingForm__reloadBtn');
     if (reloadBtn) {
-        reloadBtn.addEventListener('click', () => reloadWithOptions(part, problemListType, quizOrder));
+        reloadBtn.addEventListener('click', () => reloadWithOptions(part, problemListType, quizOrder, onlyOnce));
     }
 
     const quizUrlStr = days ? `${config.apiRoot}/threeStyleQuizLog/${part.name}/${userName}?days=${days}` : `${config.apiRoot}/threeStyleQuizLog/${part.name}/${userName}`;
@@ -415,12 +433,12 @@ const init = () => {
                                             hintText.value = hints.join('\nまたは\n');
 
                                             quizFormStartUnixTimeHidden.value = String(new Date().getTime());
-                                            okBtn.addEventListener('click', () => submit(part, letterPairs, numberings, selectedThreeStyles, 1, quizLogRes));
-                                            ngBtn.addEventListener('click', () => submit(part, letterPairs, numberings, selectedThreeStyles, 0, quizLogRes));
+                                            okBtn.addEventListener('click', () => submit(part, letterPairs, numberings, selectedThreeStyles, 1, quizLogRes, onlyOnce));
+                                            ngBtn.addEventListener('click', () => submit(part, letterPairs, numberings, selectedThreeStyles, 0, quizLogRes, onlyOnce));
                                             hintBtn.addEventListener('click', showHint);
 
                                             // 左右のキーのショートカット
-                                            document.onkeyup = keyUpAction(part, letterPairs, numberings, selectedThreeStyles, quizLogRes);
+                                            document.onkeyup = keyUpAction(part, letterPairs, numberings, selectedThreeStyles, quizLogRes, onlyOnce);
                                         })
                                         .catch((err) => {
                                             alert('1' + err);
