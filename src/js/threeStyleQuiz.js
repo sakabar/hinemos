@@ -7,9 +7,10 @@ const utils = require('./utils');
 
 // ページのロード時に、daysとsolvedの設定に応じてinput属性の値を変える
 // FIXME レターペアと実装が重複
-const renderSettings = (days, solved) => {
+const renderSettings = (days, solved, onlyOnce) => {
     const daysText = document.querySelector('.settingForm__daysText');
     const solvedRadio = document.querySelector('#settingForm__radio--solved');
+    const onlyOnceCheckBox = document.querySelector('.settingForm__checkBox');
 
     if (days && daysText) {
         daysText.value = days;
@@ -18,17 +19,23 @@ const renderSettings = (days, solved) => {
     if (solved) {
         solvedRadio.checked = true;
     }
+
+    if (onlyOnce) {
+        onlyOnceCheckBox.checked = true;
+    }
 };
 
 // 入力された設定を反映
 // FIXME レターペアと実装が重複…いや、partが入っているからそうでもなかった
-const reloadWithOptions = (part, problemListType, quizOrder, onlyOnce) => {
+const reloadWithOptions = (part, problemListType, quizOrder) => {
     const daysText = document.querySelector('.settingForm__daysText');
 
     // daysは0以上の値であることを想定
     const days = Math.max(parseFloat(daysText.value), 0);
 
     const solved = document.querySelector('#settingForm__radio--solved').checked;
+
+    const onlyOnce = document.querySelector('.settingForm__checkBox').checked;
 
     location.href = `${config.urlRoot}/threeStyle/quiz.html?&part=${part.name}&problemListType=${problemListType.name}&solved=${solved}&days=${days}&sort=${quizOrder}&onlyOnce=${onlyOnce}`;
 };
@@ -291,11 +298,11 @@ const init = () => {
     // 同じ3-style手順を3回回して復元するのではなく、1回ずつだけ回すモード
     const onlyOnce = urlObj.query['onlyOnce'] === 'true';
     if (onlyOnce) {
-        alert('onlyOnceモードです。3回ではなく1回回したら「わかった」を押してください');
+        alert('onlyOnceモードです。手順を3回ではなく1回回したら「わかった」を押してください\nより実際のソルブに近い形での練習ができ、しかも通常の1/3の時間で練習できますが、キューブが崩れたまま次の手順に進むので、手順が間違っているかどうか分からない点にご注意ください。');
     }
 
     // ロード時に埋める
-    renderSettings(days, solved);
+    renderSettings(days, solved, onlyOnce);
 
     // URLでproblemListType=manualが指定された場合、自分が設定した問題でやる
     const problemListType = urlObj.query.problemListType === ProblemListType.manual.name ? ProblemListType.manual : ProblemListType.all;
@@ -303,7 +310,7 @@ const init = () => {
     // 設定読み込みボタン
     const reloadBtn = document.querySelector('.settingForm__reloadBtn');
     if (reloadBtn) {
-        reloadBtn.addEventListener('click', () => reloadWithOptions(part, problemListType, quizOrder, onlyOnce));
+        reloadBtn.addEventListener('click', () => reloadWithOptions(part, problemListType, quizOrder));
     }
 
     const quizUrlStr = days ? `${config.apiRoot}/threeStyleQuizLog/${part.name}/${userName}?days=${days}` : `${config.apiRoot}/threeStyleQuizLog/${part.name}/${userName}`;
