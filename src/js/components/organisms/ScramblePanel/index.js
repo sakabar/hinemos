@@ -32,7 +32,7 @@ const ScramblePanel = ({
     prevScramble,
     nextScramble,
     updateFirstRotationStr,
-    ...rest
+    ...rest,
 }) => {
     const scrambleTxt = ( () => {
         if (scrambles.length === 0) {

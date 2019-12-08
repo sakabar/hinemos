@@ -2,7 +2,7 @@ import React from 'react';
 import {CardBody} from 'reactstrap';
 
 const MyCardBody = ({
-    ...rest
+    ...rest,
 }) => (
     <CardBody {...rest}/>
 );

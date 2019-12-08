@@ -4,7 +4,7 @@ import {Button} from 'reactstrap';
 const MyButton = ({
     type,
     value,
-    ...rest
+    ...rest,
 }) => (
     <Button {...rest}>{value}</Button>
 );
