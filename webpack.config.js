@@ -1,7 +1,9 @@
 const path = require('path');
 const ExtendedDefinePlugin = require('extended-define-webpack-plugin')
+var HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 
 module.exports = {
+    cache: true,
     context: path.join(__dirname, '/src/js'),
     entry: {
         auth: './auth.js',
@@ -59,7 +61,8 @@ module.exports = {
     plugins: [
         new ExtendedDefinePlugin({
             DEPLOY_ENV: process.env.DEPLOY_ENV ? JSON.stringify(process.env.DEPLOY_ENV) : 'stg',
-        })
+        }),
+        new HardSourceWebpackPlugin(),
     ],
     node: {
         fs: 'empty'
