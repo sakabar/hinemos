@@ -2,7 +2,7 @@ import React from 'react';
 import {Col} from 'reactstrap';
 
 const MyCol = ({
-    ...rest
+    ...rest,
 }) => (
     <Col {...rest}/>
 );
