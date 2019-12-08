@@ -6,7 +6,7 @@ import CardText from '../../atoms/CardText';
 
 const SectionResultPanel = ({
     sectionResult,
-    ...rest,
+    ...rest
 }) => {
     const recallSec = (sectionResult.recallMiliSec / 1000.0).toFixed(2);
     const execSec = (sectionResult.execMiliSec / 1000.0).toFixed(2);
