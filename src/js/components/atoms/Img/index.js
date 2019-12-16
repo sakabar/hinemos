@@ -6,4 +6,3 @@ const Img = ({ ...rest }) => (
 );
 
 export default Img;
-

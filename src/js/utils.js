@@ -112,7 +112,7 @@ const replaceMoves = (moveStr) => {
         .replace(/\s+/g, ' ')
         .replace(/2'/g, '\'2')
         .trim();
-}
+};
 
 // validationしつつ、3-styleのオブジェクトを生成
 // validationにエラーがあった場合は、値を返さずエラー

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Card} from 'reactstrap';
+import { Card, } from 'reactstrap';
 
 const MyCard = ({
     ...rest

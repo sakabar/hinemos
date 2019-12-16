@@ -14,13 +14,13 @@ const SectionResultPanel = ({
     const timeStr = `${recallSec} + ${execSec} = ${totalSec}`;
 
     return (
-    <Card body inverse color="info" {...rest}>
-        <CardBody>
-            <CardText>{sectionResult.movesStr}</CardText>
-            <CardText>{timeStr}</CardText>
-            <CardText>tps: {sectionResult.tps.toFixed(2)}</CardText>
-        </CardBody>
-    </Card>
+        <Card body inverse color="info" {...rest}>
+            <CardBody>
+                <CardText>{sectionResult.movesStr}</CardText>
+                <CardText>{timeStr}</CardText>
+                <CardText>tps: {sectionResult.tps.toFixed(2)}</CardText>
+            </CardBody>
+        </Card>
     );
 };
 

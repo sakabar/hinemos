@@ -29,7 +29,7 @@ const AppPage = () => (
                     routeKeys.map((p, i) => {
                         const path = `/${urlRoot}/${p}.html`;
                         const component = routeDict[p];
-                        return <Route key={i} path={path} component={component} />
+                        return <Route key={i} path={path} component={component} />;
                     })
                 }
             </Switch>
