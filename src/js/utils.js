@@ -20,6 +20,17 @@ const edges = [
     'UB', 'UF', 'UL', 'UR',
 ];
 
+const cornerParts = [
+    'DBL', 'DBR', 'DFL', 'DFR',
+    'UBL', 'UBR', 'UFL', 'UFR',
+];
+
+const edgeParts = [
+    'DB', 'DF', 'DL', 'DR',
+    'UB', 'UF', 'UL', 'UR',
+    'RB', 'RF', 'LB', 'LF',
+];
+
 const getHiraganas = () => {
     return 'あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん'.split(/(.{1})/).filter(x => x);
 };
@@ -302,6 +313,8 @@ const readThreeStyles = (s) => {
 
 exports.corners = corners;
 exports.edges = edges;
+exports.cornerParts = cornerParts;
+exports.edgeParts = edgeParts;
 exports.getHiraganas = getHiraganas;
 exports.showMove = showMove;
 exports.big2Small = big2Small;

@@ -5,7 +5,7 @@
   "main": "index.js",
   "private": true,
   "scripts": {
-    "eslint": "eslint src/js/**/*.js test/**/*.js",
+    "eslint": "eslint --fix src/js/**/*.js test/**/*.js",
     "test": "mocha-webpack --webpack-config webpack.config.js --require mock-local-storage --require jsdom-global/register test/**/*.js",
     "webpack": "webpack"
   },
@@ -43,6 +43,7 @@
     "mock-local-storage": "^1.1.8",
     "normalize.css": "8.0.1",
     "style-loader": "^0.23.1",
+    "url-loader": "^3.0.0",
     "webpack": "~3.9.0"
   },
   "dependencies": {

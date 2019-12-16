@@ -49,6 +49,10 @@ module.exports = {
                 loaders: ['style-loader',
                           {loader: 'css-loader', options: {importLoaders: 1}}],
             },
+            {
+                test: /\.(jpg|png)$/,
+                loaders: 'url-loader',
+            },
         ],
         noParse: [path.join(__dirname, 'node_modules/handsontable/dist/handsontable.full.js')]
     },

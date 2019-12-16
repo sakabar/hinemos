@@ -184,7 +184,7 @@ const suggestThreeStyles = (part) => {
         suggestionSelect.removeChild(suggestionSelect.firstChild);
     }
 
-    const evangelists = _.cloneDeep(constant.threeStyleEvangelists)
+    const evangelists = _.cloneDeep(constant.threeStyleEvangelists);
 
     // 比較しやすくするため、今の自分の手順も表示
     evangelists.push(userName);

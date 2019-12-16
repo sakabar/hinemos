@@ -6,6 +6,10 @@ import {
 } from 'react-router-dom';
 import BldTimerPage from '../BldTimerPage';
 import FaqPage from '../FaqPage';
+import MemoTrainingTrialPage from '../MemoTrainingTrialPage';
+import MemoTrainingMbldPage from '../MemoTrainingMbldPage';
+import MemoTrainingCardsPage from '../MemoTrainingCardsPage';
+const appPageUtils = require('../../../appPageUtils');
 const config = require('../../../config');
 const path = require('path');
 
@@ -14,10 +18,26 @@ const urlRoot = path.basename(config.urlRoot);
 const routeDict = {
     bldSmartTimer: BldTimerPage,
     faq: FaqPage,
+    memoTraining: {
+        index: MemoTrainingTrialPage,
+        cards: {
+            // index:
+            trial: MemoTrainingCardsPage,
+            // result:
+            // stats:
+        },
+        mbld: {
+            // index:
+            trial: MemoTrainingMbldPage,
+            // result:
+            // stats:
+        },
+    },
 };
-const routeKeys = Object.keys(routeDict);
 
-if (!routeKeys.map(p => `${config.urlRoot}/${p}.html`).includes(location.href)) {
+const flatRouteDict = appPageUtils.flattenRouteDict(routeDict);
+
+if (!Object.keys(flatRouteDict).map(path => `${config.urlRoot}/${path}`).includes(location.href)) {
     location.href = `${config.urlRoot}/top.html`;
 }
 
@@ -26,10 +46,10 @@ const AppPage = () => (
         <div>
             <Switch>
                 {
-                    routeKeys.map((p, i) => {
-                        const path = `/${urlRoot}/${p}.html`;
-                        const component = routeDict[p];
-                        return <Route key={i} path={path} component={component} />;
+                    Object.keys(flatRouteDict).map((path, i) => {
+                        const pathFromRoot = `/${urlRoot}/${path}`;
+                        const component = flatRouteDict[path];
+                        return <Route key={i} path={pathFromRoot} component={component} />;
                     })
                 }
             </Switch>

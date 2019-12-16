@@ -8,3 +8,6 @@ public
 # 下記コマンドを実行済
 # git update-index --assume-unchanged src/js/config_stg.js
 config_stg.js
+
+# カードの絵柄はイラストACからダウンロードしたものなので再配布禁止
+resource/cards/*.png
