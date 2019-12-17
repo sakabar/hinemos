@@ -2,7 +2,7 @@ import React from 'react';
 import {ModalBody} from 'reactstrap';
 
 const MyModalBody = ({
-    ...rest,
+    ...rest
 }) => (
     <ModalBody {...rest}/>
 );
