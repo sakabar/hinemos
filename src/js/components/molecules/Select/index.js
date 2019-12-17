@@ -5,7 +5,7 @@ const Select = ({
     onChange,
     ...rest
 }) => (
-        <select onChange={onChange} {...rest}>
+    <select onChange={onChange} {...rest}>
         {
             options.map((vt, i) => {
                 return (

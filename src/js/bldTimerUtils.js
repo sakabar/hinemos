@@ -1,4 +1,3 @@
-const config = require('./config');
 const Cube = require('cubejs');
 const normalize = require('cube-notation-normalizer');
 const _ = require('lodash');
@@ -14,7 +13,7 @@ export const WAIT_THRESHOLD_MILISEC = 1000;
 
 // 1手の回転と、それが完了したUnixtimestamp (ミリ秒)
 // export const MoveOps = (notation, miliUnixtime) => {
-export function MoveOps(notation, miliUnixtime) {
+export function MoveOps (notation, miliUnixtime) {
     // FIXME cubejsで使えるように置換するロジックが分散している気がする
     this.notation = notation.replace('2\'', '2').replace('\'2', '2'); // 回転記号
     this.miliUnixtime = miliUnixtime; // 手順を回し終えた時間(Int)
@@ -25,10 +24,10 @@ export const parseMoveHistoryStr = (inputStr) => {
         const lst = s.split(' ');
         return new MoveOps(lst[0], parseInt(lst[1]));
     });
-}
+};
 
 // 1ステッカーなどの部分回転列
-function SectionResult(startRecallMiliUnixtime, moveOpsList){
+function SectionResult (startRecallMiliUnixtime, moveOpsList) {
     // 植木算
     // 1手順でステッカーが埋まる場合(例:M2)にゼロ割りでNaNになってしまうので、
     // その場合は便宜的に 1.0 / (想起+実行) をtpsとする
@@ -49,7 +48,7 @@ function SectionResult(startRecallMiliUnixtime, moveOpsList){
     this.endExecMiliUnixtime = moveOpsList.slice(-1)[0].miliUnixtime;
 
     this.recallMiliSec = this.endRecallMiliUnixtime - this.startRecallMiliUnixtime;
-    this.execMiliSec = this.endExecMiliUnixtime - this.endRecallMiliUnixtime
+    this.execMiliSec = this.endExecMiliUnixtime - this.endRecallMiliUnixtime;
     this.totalMiliSec = this.endExecMiliUnixtime - this.startRecallMiliUnixtime;
 
     this.tps = tps;
@@ -85,10 +84,10 @@ const calcDiff = (prevStateJSON, newStateJSON) => {
 export const splitMoveOpsSeq = (moveOpsSeq) => {
     const cube = new Cube();
 
-    let prevStateJSON = undefined;
+    let prevStateJSON;
     let startMiliUnixtime = 0;
     const raps = [];
-    let tmp_rap = [];
+    let tmpRap = [];
 
     for (let i = 0; i < moveOpsSeq.length; i++) {
         const notation = moveOpsSeq[i].notation;
@@ -98,7 +97,7 @@ export const splitMoveOpsSeq = (moveOpsSeq) => {
             startMiliUnixtime = moveOpsSeq[i].miliUnixtime;
             prevStateJSON = _.cloneDeep(cube.toJSON());
             raps.length = 0;
-            tmp_rap.length = 0;
+            tmpRap.length = 0;
 
             continue;
         }
@@ -111,7 +110,7 @@ export const splitMoveOpsSeq = (moveOpsSeq) => {
         }
 
         const newStateJSON = _.cloneDeep(cube.toJSON());
-        tmp_rap.push(moveOpsSeq[i]);
+        tmpRap.push(moveOpsSeq[i]);
 
         // rotateを消した場合、x2不要
         // M2した状態からしていない状態に変えて比較するため
@@ -128,21 +127,21 @@ export const splitMoveOpsSeq = (moveOpsSeq) => {
                                                               (diffNoRotationJSON.edge <= 2 && diffNoRotationJSON.corner <= 3));
 
         // Advanced M2を認識させるため、M2単体で区間が切られないようにする
-        const judged = (sameCenterBool || differentCenterBool) && tmp_rap.length > 1;
+        const judged = (sameCenterBool || differentCenterBool) && tmpRap.length > 1;
 
         if (judged) {
             // ここまでで1区切りの手順とする
-            raps.push(tmp_rap);
+            raps.push(tmpRap);
             prevStateJSON = _.cloneDeep(cube.toJSON());
-            tmp_rap = [];
+            tmpRap = [];
         }
     }
 
-    // 最後にtmp_rapsを掃き出す
-    raps.push(tmp_rap);
+    // 最後にtmpRapsを掃き出す
+    raps.push(tmpRap);
 
     // 手順の塊ごとに整形
-    let startRecallMiliUnixtime = undefined;
+    let startRecallMiliUnixtime;
     const ans = raps.filter(rap => rap.length !== 0).map(rap => {
         // 最初、startRecallMiliUnixtimeがundefinedの場合はSectionResultの中でなんとかする
         const secRes = new SectionResult(startRecallMiliUnixtime, rap);
@@ -171,9 +170,9 @@ export const compareMovesAndScramble = (moves, scramble) => {
     const minLen = Math.min(normalizedMoves.length, normalizedScramble.length);
     for (let i = 0; i < minLen; i++) {
         if (normalizedMoves[i] !== normalizedScramble[i]) {
-            const tmpMatch = normalize(normalizedMoves.slice(0, i), { separator: ' ' });
-            const tmpOverdo = normalize(normalizedMoves.slice(i), { separator: ' ' });
-            const tmpRemain = normalize(normalizedScramble.slice(i), { separator: ' ' });
+            const tmpMatch = normalize(normalizedMoves.slice(0, i), { separator: ' ', });
+            const tmpOverdo = normalize(normalizedMoves.slice(i), { separator: ' ', });
+            const tmpRemain = normalize(normalizedScramble.slice(i), { separator: ' ', });
 
             return {
                 match: (tmpMatch === '') ? [] : tmpMatch.split(' '),
@@ -183,9 +182,9 @@ export const compareMovesAndScramble = (moves, scramble) => {
         }
     }
 
-    const tmpMatch = normalize(normalizedMoves.slice(0, minLen), { separator: ' ' });
-    const tmpOverdo = normalize(normalizedMoves.slice(minLen), { separator: ' ' });
-    const tmpRemain = normalize(normalizedScramble.slice(minLen), { separator: ' ' });
+    const tmpMatch = normalize(normalizedMoves.slice(0, minLen), { separator: ' ', });
+    const tmpOverdo = normalize(normalizedMoves.slice(minLen), { separator: ' ', });
+    const tmpRemain = normalize(normalizedScramble.slice(minLen), { separator: ' ', });
 
     return {
         match: (tmpMatch === '') ? [] : tmpMatch.split(' '),
@@ -195,7 +194,7 @@ export const compareMovesAndScramble = (moves, scramble) => {
 };
 
 export const modifyScramble = (moves, scramble) => {
-    const { match, overdo, remain, } = compareMovesAndScramble(moves, scramble);
+    const { _, overdo, remain, } = compareMovesAndScramble(moves, scramble);
     return (Cube.inverse(overdo.join(' ')) + ' ' + remain.join(' ')).trim();
 };
 
@@ -367,11 +366,10 @@ const getRemoveRotateNotationAfterSliceDict = () => {
     };
 };
 
-
 // transDictを抽出した
 const removeRotateNotation = (rotationsStr, moveOps, transDict) => {
     const notation = moveOps.notation;
-    const rotations = normalize(rotationsStr, { separator: ' ', useModifiers: false }).split(' ').filter(s => s !== '');
+    const rotations = normalize(rotationsStr, { separator: ' ', useModifiers: false, }).split(' ').filter(s => s !== '');
 
     const newNotation = _.reduce(rotations, (ans, rotation) => {
         // 先頭の文字だけ変換
@@ -411,7 +409,7 @@ const mergeRotationAfterSliceRec = (rotationsStr, acc, moveOpsList) => {
     }
 
     const newHd = removeRotateNotationAfterSlice(rotationsStr, hd);
-    return mergeRotationAfterSliceRec(rotationsStr, acc.concat([newHd]), tl);
+    return mergeRotationAfterSliceRec(rotationsStr, acc.concat([newHd, ]), tl);
 };
 
 export const mergeRotationAfterSlice = (moveOpsList) => {
@@ -431,7 +429,7 @@ const mergeRotationFirstRec = (rotationsStr, acc, moveOpsList) => {
     }
 
     const newHd = removeRotateNotationFirst(rotationsStr, hd);
-    return mergeRotationFirstRec(rotationsStr, acc.concat([newHd]), tl);
+    return mergeRotationFirstRec(rotationsStr, acc.concat([newHd, ]), tl);
 };
 
 export const mergeRotationFirst = (moveOpsList) => {

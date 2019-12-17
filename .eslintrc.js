@@ -5,11 +5,17 @@ module.exports = {
     ],
     "settings": {
         "react": {
-            "version": "16.5.0",
+            "version": "16.8.6",
         },
     },
     "env": {
         "browser": true,
+    },
+    "parser": "babel-eslint",
+    "parserOptions": {
+        "ecmaFeatures": {
+            "jsx": true,
+        },
     },
     "globals": {
         "DEPLOY_ENV": true,
