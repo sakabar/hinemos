@@ -46,9 +46,13 @@
     <main>
       <h1>M2法 手順表</h1>
       <div class="m2Method">
+        <p>まず<a href="numbering3.html">ナンバリング</a>を登録して下さい</p>
         <ul>
-          <li>まず<a href="numbering3.html">ナンバリング</a>を登録して下さい</li>
-          <li>M列のステッカーの一部は、奇数文字目と偶数文字目で回す手順が変わります</li>
+          <li>「←→」: M列のステッカーの一部は、奇数文字目と偶数文字目で回す手順が変わります</li>
+          <li>エッジの分析文字列が奇数文字の時は、エッジ実行が終わったらパリティ処理手順を回してM2の反転を戻します</li>
+          <ul>
+            <li>(D' L2 D) M2 (D' L2 D)</li>
+          </ul>
         </ul>
 
         <table class="m2Method__table" border="1">
