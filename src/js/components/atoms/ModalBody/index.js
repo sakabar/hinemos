@@ -1,5 +1,5 @@
 import React from 'react';
-import ModalBody from 'reactstrap';
+import { ModalBody, } from 'reactstrap';
 
 const MyModalBody = ({
     ...rest
