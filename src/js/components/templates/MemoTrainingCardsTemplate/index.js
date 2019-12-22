@@ -27,8 +27,7 @@ const MemoTrainingCardsTemplate = (
         setDeckSize,
         setPairSize,
 
-        sagaStartMemorizationMode,
-        sagaStartTransformationMode,
+        sagaStartMemorizationPhase,
         finishMemorizationPhase,
         sagaFinishRecallPhase,
 
@@ -46,7 +45,7 @@ const MemoTrainingCardsTemplate = (
             {
                 (() => {
                     if (phase === memoTrainingUtils.TrainingPhase.setting) {
-                        return (<MemoTrainingCardsSetting deckNum={deckNum} deckSize={deckSize} pairSize={pairSize} setDeckNum={setDeckNum} setDeckSize={setDeckSize} setPairSize={setPairSize} sagaStartMemorizationMode={sagaStartMemorizationMode} sagaStartTransformationMode={sagaStartTransformationMode}/>);
+                        return (<MemoTrainingCardsSetting deckNum={deckNum} deckSize={deckSize} pairSize={pairSize} setDeckNum={setDeckNum} setDeckSize={setDeckSize} setPairSize={setPairSize} sagaStartMemorizationPhase={sagaStartMemorizationPhase}/>);
                     } else if (phase === memoTrainingUtils.TrainingPhase.memorization) {
                         return (<MemoTrainingCardsMemorization decks={decks} deckInd={deckInd} pairInd={pairInd} finishMemorizationPhase={finishMemorizationPhase} sagaGoToNextPair={sagaGoToNextPair} sagaGoToPrevPair={sagaGoToPrevPair} sagaGoToDeckHead={sagaGoToDeckHead} sagaGoToNextDeck={sagaGoToNextDeck}/>);
                     } else if (phase === memoTrainingUtils.TrainingPhase.recall) {
@@ -85,8 +84,7 @@ MemoTrainingCardsTemplate.propTypes = {
     setDeckSize: PropTypes.func.isRequired,
     setPairSize: PropTypes.func.isRequired,
 
-    sagaStartMemorizationMode: PropTypes.func.isRequired,
-    sagaStartTransformationMode: PropTypes.func.isRequired,
+    sagaStartMemorizationPhase: PropTypes.func.isRequired,
     finishMemorizationPhase: PropTypes.func.isRequired,
     sagaFinishRecallPhase: PropTypes.func.isRequired,
 

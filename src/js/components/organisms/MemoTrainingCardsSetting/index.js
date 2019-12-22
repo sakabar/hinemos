@@ -5,7 +5,6 @@ import {
 import PropTypes from 'prop-types';
 import Br from '../../atoms/Br';
 import Select from '../../molecules/Select';
-import Txt from '../../atoms/Txt';
 import ModeDecisionButtons from '../../molecules/modeDecisionButtons';
 const config = require('../../../config');
 const path = require('path');
@@ -25,8 +24,7 @@ const MemoTrainingCardsSetting = ({
     setDeckSize,
     setPairSize,
 
-    sagaStartMemorizationMode,
-    sagaStartTransformationMode,
+    sagaStartMemorizationPhase,
 }) => {
     return (
         <div>
@@ -39,7 +37,7 @@ const MemoTrainingCardsSetting = ({
             同時に表示する枚数: <Select options={pairSizeList} onChange={(e) => setPairSize(parseInt(e.target.value))} />
             <Br/>
 
-            <ModeDecisionButtons deckNum={deckNum} deckSize={deckSize} pairSize={pairSize} sagaStartMemorizationMode={sagaStartMemorizationMode} sagaStartTransformationMode={sagaStartTransformationMode}/>
+            <ModeDecisionButtons deckNum={deckNum} deckSize={deckSize} pairSize={pairSize} sagaStartMemorizationPhase={sagaStartMemorizationPhase}/>
         </div>
     );
 };
@@ -53,8 +51,7 @@ MemoTrainingCardsSetting.propTypes = {
     setDeckSize: PropTypes.func,
     setPairSize: PropTypes.func,
 
-    sagaStartMemorizationMode: PropTypes.func,
-    sagaStartTransformationMode: PropTypes.func,
+    sagaStartMemorizationPhase: PropTypes.func,
 };
 
 export default MemoTrainingCardsSetting;

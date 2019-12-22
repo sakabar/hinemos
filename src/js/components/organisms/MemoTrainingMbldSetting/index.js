@@ -21,8 +21,7 @@ const MemoTrainingMbldSetting = ({
     setDeckNum,
     setPairSize,
 
-    sagaStartMemorizationMode,
-    sagaStartTransformationMode,
+    sagaStartMemorizationPhase,
 }) => {
     return (
         <div>
@@ -33,7 +32,7 @@ const MemoTrainingMbldSetting = ({
             同時に表示する単語数: <Select options={pairSizeList} onChange={(e) => setPairSize(parseInt(e.target.value))} />
             <Br/>
 
-            <ModeDecisionButtons deckNum={deckNum} deckSize={1} pairSize={pairSize} sagaStartMemorizationMode={sagaStartMemorizationMode} sagaStartTransformationMode={sagaStartTransformationMode}/>
+            <ModeDecisionButtons deckNum={deckNum} deckSize={1} pairSize={pairSize} sagaStartMemorizationPhase={sagaStartMemorizationPhase} />
         </div>
     );
 };
@@ -45,8 +44,7 @@ MemoTrainingMbldSetting.propTypes = {
     setDeckNum: PropTypes.func,
     setPairSize: PropTypes.func,
 
-    sagaStartMemorizationMode: PropTypes.func,
-    sagaStartTransformationMode: PropTypes.func,
+    sagaStartMemorizationPhase: PropTypes.func,
 };
 
 export default MemoTrainingMbldSetting;

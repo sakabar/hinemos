@@ -31,15 +31,15 @@ const MemoTrainingMbldMemorization = ({
 };
 
 MemoTrainingMbldMemorization.propTypes = {
-    decks: PropTypes.array.required,
-    deckInd: PropTypes.number.required,
-    pairInd: PropTypes.number.required,
+    decks: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.any)).isRequired,
+    deckInd: PropTypes.number.isRequired,
+    pairInd: PropTypes.number.isRequired,
 
-    finishMemorizationPhase: PropTypes.func,
-    sagaGoToNextPair: PropTypes.func,
-    sagaGoToPrevPair: PropTypes.func,
-    sagaGoToDeckHead: PropTypes.func,
-    sagaGoToNextDeck: PropTypes.func,
+    finishMemorizationPhase: PropTypes.func.isRequired,
+    sagaGoToNextPair: PropTypes.func.isRequired,
+    sagaGoToPrevPair: PropTypes.func.isRequired,
+    sagaGoToDeckHead: PropTypes.func.isRequired,
+    sagaGoToNextDeck: PropTypes.func.isRequired,
 };
 
 export default MemoTrainingMbldMemorization;

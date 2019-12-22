@@ -18,8 +18,7 @@ import {
     sagaGoToNextDeck,
     sagaGoToDeckHead,
 
-    sagaStartMemorizationMode,
-    sagaStartTransformationMode,
+    sagaStartMemorizationPhase,
     finishMemorizationPhase,
     sagaFinishRecallPhase,
 
@@ -78,11 +77,8 @@ const mapDispatchToProps = (dispatch) => {
         sagaGoToNextDeck: () => {
             dispatch(sagaGoToNextDeck());
         },
-        sagaStartMemorizationMode: (currentMiliUnixtime, deckNum, deckSize, pairSize) => {
-            dispatch(sagaStartMemorizationMode({ currentMiliUnixtime, deckNum, deckSize, pairSize, memoEvent: memoTrainingUtils.MemoEvent.mbld, }));
-        },
-        sagaStartTransformationMode: (currentMiliUnixtime, deckNum, deckSize, pairSize) => {
-            dispatch(sagaStartTransformationMode({ currentMiliUnixtime, deckNum, deckSize, pairSize, memoEvent: memoTrainingUtils.MemoEvent.mbld, }));
+        sagaStartMemorizationPhase: (currentMiliUnixtime, deckNum, deckSize, pairSize, mode) => {
+            dispatch(sagaStartMemorizationPhase({ currentMiliUnixtime, deckNum, deckSize, pairSize, memoEvent: memoTrainingUtils.MemoEvent.mbld, mode, }));
         },
         finishMemorizationPhase: () => {
             dispatch(finishMemorizationPhase());

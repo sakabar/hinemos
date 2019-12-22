@@ -26,19 +26,15 @@ export const setDeckSize = createAction(SET_DECK_SIZE);
 export const setPairSize = createAction(SET_PAIR_SIZE);
 
 // モード選択系のアクション
-const START_MEMORIZATION_MODE = 'START_MEMORIZATION_MODE';
-const START_TRANSFORMATION_MODE = 'START_TRANSFORMATION_MODE';
+const START_MEMORIZATION_PHASE = 'START_MEMORIZATION_PHASE';
 const FINISH_MEMORIZATION_PHASE = 'FINISH_MEMORIZATION_PHASE';
 
 // 外からはsaga-*アクションを動かすので、exportしない
-const startMemorizationMode = createAction(START_MEMORIZATION_MODE);
-const startTransformationMode = createAction(START_TRANSFORMATION_MODE);
+const startMemorizationPhase = createAction(START_MEMORIZATION_PHASE);
 export const finishMemorizationPhase = createAction(FINISH_MEMORIZATION_PHASE);
 
-const SAGA_START_MEMORIZATION_MODE = 'SAGA_START_MEMORIZATION_MODE';
-const SAGA_START_TRANSFORMATION_MODE = 'SAGA_START_TRANSFORMATION_MODE';
-export const sagaStartMemorizationMode = createAction(SAGA_START_MEMORIZATION_MODE);
-export const sagaStartTransformationMode = createAction(SAGA_START_TRANSFORMATION_MODE);
+const SAGA_START_MEMORIZATION_PHASE = 'SAGA_START_TRANSFORMATION_PHASE';
+export const sagaStartMemorizationPhase = createAction(SAGA_START_MEMORIZATION_PHASE);
 
 const SAGA_FINISH_RECALL_PHASE = 'SAGA_FINISH_RECALL_PHASE';
 export const sagaFinishRecallPhase = createAction(SAGA_FINISH_RECALL_PHASE);
@@ -82,15 +78,15 @@ const initialState = {
     memoEvent: undefined, // 'cards, numbers,'
     mode: undefined, // 'transformation, memorization'
     phase: memoTrainingUtils.TrainingPhase.setting,
-    decks: [],
-    solution: [],
+    decks: [ [], ],
+    solution: [ [], ],
     deckInd: 0,
     pairInd: 0,
 };
 
-function * handleStartMemorizationMode () {
+function * handleStartMemorizationPhase () {
     while (true) {
-        const action = yield take(sagaStartMemorizationMode);
+        const action = yield take(sagaStartMemorizationPhase);
 
         const memoEvent = action.payload.memoEvent;
         const deckNum = action.payload.deckNum;
@@ -157,81 +153,7 @@ function * handleStartMemorizationMode () {
             decks,
         };
 
-        yield put(startMemorizationMode(payload));
-    }
-};
-
-// handleStartMemorizationModeと共通している部分が多いのが気になる
-function * handleStartTransformationMode () {
-    while (true) {
-        const action = yield take(sagaStartTransformationMode);
-
-        const memoEvent = action.payload.memoEvent;
-        const deckNum = action.payload.deckNum;
-
-        // もしselectがデフォルトのままで渡されたdeckSizeがundefinedなら、種目ごとのデフォルト値を設定する
-        const deckSize = (() => {
-            if (action.payload.deckSize) {
-                return action.payload.deckSize;
-            }
-            if (memoEvent === memoTrainingUtils.MemoEvent.cards) {
-                return 52;
-            }
-            return 1;
-        })();
-
-        // もしselectがデフォルトのままで渡されたpairSizeがundefinedなら、1を設定する
-        console.dir(`${JSON.stringify(action.payload)}`);
-        const pairSize = action.payload.pairSize ? action.payload.pairSize : 1;
-        console.dir(`deckSize, pairSize = ${deckSize}, ${pairSize}`);
-
-        const userName = yield select(state => state.userName);
-
-        const numberingCorner = yield call(memoTrainingUtils.fetchNumberingCorner, userName);
-        const numberingEdge = yield call(memoTrainingUtils.fetchNumberingEdge, userName);
-
-        // 本来は複数人が同じスクランブルをやる時のために、
-        // 最初に[[element]] を生成してからその人のpairSizeごとに分割するべきだが、
-        // それはまだ構想段階なので今はやらない。
-        // 代わりに、その人のためのdecksを生成してからそれをaggしてpairを消してpostすることにした。
-        // これで、上の構想を実現する時にもテーブルに矛盾は起こらないはず
-
-        const decks = (() => {
-            if (memoEvent === memoTrainingUtils.MemoEvent.mbld) {
-                return memoTrainingUtils.generateMbldDecks(numberingCorner, numberingEdge, deckNum, pairSize);
-            } else if (memoEvent === memoTrainingUtils.MemoEvent.cards) {
-                console.dir(`${JSON.stringify({ deckNum, deckSize, pairSize, })}`);
-                return memoTrainingUtils.generateCardsDecks(deckNum, deckSize, pairSize);
-            } else {
-                throw new Error('Unexpected event');
-            }
-        })();
-
-        // console.dir(JSON.stringify(decks));
-
-        const elementsList = (() => {
-            if (memoEvent === memoTrainingUtils.MemoEvent.mbld) {
-                return memoTrainingUtils.mbldDecksToElementsList(decks);
-            } else if (memoEvent === memoTrainingUtils.MemoEvent.cards) {
-                return memoTrainingUtils.generateCardsDecks(deckNum, deckSize, pairSize);
-            } else {
-                throw new Error('Unexpected event');
-            }
-        })();
-
-        // attemptをPOSTする。何か返ってくる
-        const res = yield call(memoTrainingUtils.postTrial, elementsList);
-        // 一応表示しておく。
-        console.dir(JSON.stringify(res));
-
-        const payload = {
-            ...action.payload,
-            deckSize,
-            pairSize,
-            decks,
-        };
-
-        yield put(startTransformationMode(payload));
+        yield put(startMemorizationPhase(payload));
     }
 };
 
@@ -329,7 +251,7 @@ export const memoTrainingReducer = handleActions(
                 pairSize: action.payload.pairSize,
             };
         },
-        [startMemorizationMode]: (state, action) => {
+        [startMemorizationPhase]: (state, action) => {
             if (typeof state.mode === 'undefined') {
                 return {
                     ...state,
@@ -337,25 +259,7 @@ export const memoTrainingReducer = handleActions(
                     deckSize: action.payload.deckSize,
                     decks: action.payload.decks,
                     startMiliUnixtime: action.payload.currentMiliUnixtime,
-                    mode: memoTrainingUtils.TrainingMode.memorization,
-                    phase: memoTrainingUtils.TrainingPhase.memorization,
-                };
-            }
-
-            // Modeが既に決定しているのにまたModeを決定するのは意図していないので、何もしない
-            return {
-                ...state,
-            };
-        },
-        [startTransformationMode]: (state, action) => {
-            if (typeof state.mode === 'undefined') {
-                return {
-                    ...state,
-                    deckSize: action.payload.deckSize,
-                    decks: action.payload.decks,
-                    memoEvent: action.payload.memoEvent,
-                    startMiliUnixtime: action.payload.currentMiliUnixtime,
-                    mode: memoTrainingUtils.TrainingMode.transformation,
+                    mode: action.payload.mode,
                     phase: memoTrainingUtils.TrainingPhase.memorization,
                 };
             }
@@ -481,8 +385,7 @@ export const memoTrainingReducer = handleActions(
 // },
 
 export function * rootSaga () {
-    yield fork(handleStartMemorizationMode);
-    yield fork(handleStartTransformationMode);
+    yield fork(handleStartMemorizationPhase);
 
     yield fork(handleGoToNextPair);
     yield fork(handleGoToPrevPair);
