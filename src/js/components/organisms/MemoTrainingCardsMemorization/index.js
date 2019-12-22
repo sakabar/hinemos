@@ -4,8 +4,14 @@ import Br from '../../atoms/Br';
 import Txt from '../../atoms/Txt';
 import Button from '../../atoms/Button';
 import PlayingCard from '../../molecules/PlayingCard';
+import MemoTimer from '../../molecules/MemoTimer';
 
 const MemoTrainingCardsMemorization = ({
+    startMemoMiliUnixtime,
+    startRecallMiliUnixtime,
+    timerMiliUnixtime,
+    timeVisible,
+
     decks,
     deckInd,
     pairInd,
@@ -15,10 +21,13 @@ const MemoTrainingCardsMemorization = ({
     sagaGoToPrevPair,
     sagaGoToDeckHead,
     sagaGoToNextDeck,
+
+    sagaToggleTimer,
 }) => {
     return (
         <div>
             <Txt style={{ fontSize: '30px', }}>{`${deckInd + 1}-${pairInd + 1}`}</Txt>
+            <MemoTimer timeVisible={timeVisible} timerMiliUnixtime={timerMiliUnixtime} sagaToggleTimer={sagaToggleTimer}/>
 
             {
                 decks[deckInd][pairInd].map((element, i) => (<PlayingCard tag={element.tag} key={i}/>))
@@ -37,6 +46,11 @@ const MemoTrainingCardsMemorization = ({
 };
 
 MemoTrainingCardsMemorization.propTypes = {
+    startMemoMiliUnixtime: PropTypes.number.isRequired,
+    startRecallMiliUnixtime: PropTypes.number.isRequired,
+    timerMiliUnixtime: PropTypes.number.isRequired,
+    timeVisible: PropTypes.bool.isRequired,
+
     decks: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.any)).isRequired,
     deckInd: PropTypes.number.isRequired,
     pairInd: PropTypes.number.isRequired,
@@ -46,6 +60,8 @@ MemoTrainingCardsMemorization.propTypes = {
     sagaGoToPrevPair: PropTypes.func.isRequired,
     sagaGoToDeckHead: PropTypes.func.isRequired,
     sagaGoToNextDeck: PropTypes.func.isRequired,
+
+    sagaToggleTimer: PropTypes.func.isRequired,
 };
 
 export default MemoTrainingCardsMemorization;

@@ -9,11 +9,12 @@ import {
     take,
     select,
 } from 'redux-saga/effects';
-// import {
-//     delay,
-// } from 'redux-saga';
+import {
+    delay,
+} from 'redux-saga';
 // const moment = require('moment');
 const memoTrainingUtils = require('../memoTrainingUtils');
+const moment = require('moment');
 const _ = require('lodash');
 
 // Settingモード
@@ -62,8 +63,15 @@ export const sagaGoToPrevPair = createAction(SAGA_GO_TO_PREV_PAIR);
 export const sagaGoToNextDeck = createAction(SAGA_GO_TO_NEXT_DECK);
 export const sagaGoToDeckHead = createAction(SAGA_GO_TO_DECK_HEAD);
 
-// const SHOW_TIME = 'SHOW_TIME';
-// export const showTime = createAction(SHOW_TIME);
+const TOGGLE_TIMER = 'TOGGLE_TIMER';
+const SAGA_TOGGLE_TIMER = 'SAGA_TOGGLE_TIMER';
+const toggleTimer = createAction(TOGGLE_TIMER);
+export const sagaToggleTimer = createAction(SAGA_TOGGLE_TIMER);
+
+const UPDATE_TIMER = 'UPDATE_TIMER';
+const SAGA_UPDATE_TIMER = 'SAGA_UPDATE_TIMER';
+const updateTimer = createAction(UPDATE_TIMER);
+const sagaUpdateTimer = createAction(SAGA_UPDATE_TIMER);
 
 // 回答phaseでのアクション
 const UPDATE_SOLUTION = 'UPDATE_SOLUTION';
@@ -71,7 +79,11 @@ export const updateSolution = createAction(UPDATE_SOLUTION);
 
 const initialState = {
     userName: localStorage.userName, // ユーザ名
-    startMiliUnixtime: 0, // 記憶を開始したミリUnixtime
+    startMemoMiliUnixtime: 0, // 記憶を開始したミリUnixtime
+    startRecallMiliUnixtime: 0, // 記憶を開始したミリUnixtime
+    timerMiliUnixtime: 0,
+    timeVisible: false,
+
     deckNum: 1, // 束数
     deckSize: undefined, // 1束の枚数。UIで指定されなかった場合は記憶/分析の開始時に種目ごとのデフォルト値に設定する
     pairSize: 1, // 何イメージをペアにするか
@@ -87,6 +99,8 @@ const initialState = {
 function * handleStartMemorizationPhase () {
     while (true) {
         const action = yield take(sagaStartMemorizationPhase);
+
+        const currentMiliUnixtime = parseInt(moment().format('x'));
 
         const memoEvent = action.payload.memoEvent;
         const deckNum = action.payload.deckNum;
@@ -148,6 +162,7 @@ function * handleStartMemorizationPhase () {
 
         const payload = {
             ...action.payload,
+            currentMiliUnixtime,
             deckSize,
             pairSize,
             decks,
@@ -228,6 +243,50 @@ function * handleFinishRecallPhase () {
     }
 };
 
+function * handleToggleTimer () {
+    while (true) {
+        yield take(sagaToggleTimer);
+
+        yield put(sagaUpdateTimer());
+        yield put(toggleTimer());
+        // yield put(delayToggleTimer());
+
+        const sec = 3;
+        for (let i = 0; i < sec; i++) {
+            yield call(delay, 1000);
+            yield put(sagaUpdateTimer());
+        }
+        yield put(toggleTimer());
+    }
+};
+
+function * handleUpdateTimer () {
+    while (true) {
+        yield take(sagaUpdateTimer);
+
+        const currentMiliUnixtime = parseInt(moment().format('x'));
+        const phase = yield select(state => state.phase);
+        const startMemoMiliUnixtime = yield select(state => state.startMemoMiliUnixtime);
+        const startRecallMiliUnixtime = yield select(state => state.startRecallMiliUnixtime);
+
+        const timerMiliUnixtime = (() => {
+            if (phase === memoTrainingUtils.TrainingPhase.memorization) {
+                return currentMiliUnixtime - startMemoMiliUnixtime;
+            } else if (phase === memoTrainingUtils.TrainingPhase.recall) {
+                return currentMiliUnixtime - startRecallMiliUnixtime;
+            } else {
+                return 0;
+            }
+        })();
+
+        const payload = {
+            timerMiliUnixtime,
+        };
+
+        yield put(updateTimer(payload));
+    }
+};
+
 // FIXME
 // focusSolutionPairのアクションがいるかもね
 
@@ -258,7 +317,7 @@ export const memoTrainingReducer = handleActions(
                     memoEvent: action.payload.memoEvent,
                     deckSize: action.payload.deckSize,
                     decks: action.payload.decks,
-                    startMiliUnixtime: action.payload.currentMiliUnixtime,
+                    startMemoMiliUnixtime: action.payload.currentMiliUnixtime,
                     mode: action.payload.mode,
                     phase: memoTrainingUtils.TrainingPhase.memorization,
                 };
@@ -370,6 +429,18 @@ export const memoTrainingReducer = handleActions(
                 solution: newSolution,
             };
         },
+        [toggleTimer]: (state, action) => {
+            return {
+                ...state,
+                timeVisible: !state.timeVisible,
+            };
+        },
+        [updateTimer]: (state, action) => {
+            return {
+                ...state,
+                timerMiliUnixtime: action.payload.timerMiliUnixtime,
+            };
+        },
     },
     initialState
 );
@@ -393,4 +464,7 @@ export function * rootSaga () {
     yield fork(handleGoToDeckHead);
 
     yield fork(handleFinishRecallPhase);
+
+    yield fork(handleToggleTimer);
+    yield fork(handleUpdateTimer);
 };

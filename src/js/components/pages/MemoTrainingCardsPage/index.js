@@ -25,6 +25,8 @@ import {
 
     updateSolution,
 
+    sagaToggleTimer,
+
     memoTrainingReducer,
     rootSaga,
 } from '../../../modules/memoTraining';
@@ -32,7 +34,10 @@ const memoTrainingUtils = require('../../../memoTrainingUtils');
 
 const mapStateToProps = ({
     userName,
-    startMiliUnixtime,
+    startMemoMiliUnixtime,
+    startRecallMiliUnixtime,
+    timerMiliUnixtime,
+    timeVisible,
     deckNum,
     deckSize,
     pairSize,
@@ -46,7 +51,10 @@ const mapStateToProps = ({
 }) => {
     return {
         userName,
-        startMiliUnixtime,
+        startMemoMiliUnixtime,
+        startRecallMiliUnixtime,
+        timerMiliUnixtime,
+        timeVisible,
         deckNum,
         deckSize,
         pairSize,
@@ -83,8 +91,8 @@ const mapDispatchToProps = (dispatch) => {
         sagaGoToNextDeck: () => {
             dispatch(sagaGoToNextDeck());
         },
-        sagaStartMemorizationPhase: (currentMiliUnixtime, deckNum, deckSize, pairSize, mode) => {
-            dispatch(sagaStartMemorizationPhase({ currentMiliUnixtime, deckNum, deckSize, pairSize, memoEvent: memoTrainingUtils.MemoEvent.cards, mode, }));
+        sagaStartMemorizationPhase: (deckNum, deckSize, pairSize, mode) => {
+            dispatch(sagaStartMemorizationPhase({ deckNum, deckSize, pairSize, memoEvent: memoTrainingUtils.MemoEvent.cards, mode, }));
         },
         finishMemorizationPhase: () => {
             dispatch(finishMemorizationPhase());
@@ -99,6 +107,9 @@ const mapDispatchToProps = (dispatch) => {
                 input,
             };
             dispatch(updateSolution(payload));
+        },
+        sagaToggleTimer: () => {
+            dispatch(sagaToggleTimer());
         },
     };
 };

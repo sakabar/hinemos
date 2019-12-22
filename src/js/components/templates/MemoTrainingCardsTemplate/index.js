@@ -8,7 +8,11 @@ const memoTrainingUtils = require('../../../memoTrainingUtils');
 
 const MemoTrainingCardsTemplate = (
     {
-        startMiliUnixtime,
+        startMemoMiliUnixtime,
+        startRecallMiliUnixtime,
+        timerMiliUnixtime,
+        timeVisible,
+
         deckNum,
         deckSize,
         pairSize,
@@ -37,6 +41,8 @@ const MemoTrainingCardsTemplate = (
         sagaGoToNextDeck,
 
         updateSolution,
+
+        sagaToggleTimer,
     }
 ) => (
     <div>
@@ -47,7 +53,7 @@ const MemoTrainingCardsTemplate = (
                     if (phase === memoTrainingUtils.TrainingPhase.setting) {
                         return (<MemoTrainingCardsSetting deckNum={deckNum} deckSize={deckSize} pairSize={pairSize} setDeckNum={setDeckNum} setDeckSize={setDeckSize} setPairSize={setPairSize} sagaStartMemorizationPhase={sagaStartMemorizationPhase}/>);
                     } else if (phase === memoTrainingUtils.TrainingPhase.memorization) {
-                        return (<MemoTrainingCardsMemorization decks={decks} deckInd={deckInd} pairInd={pairInd} finishMemorizationPhase={finishMemorizationPhase} sagaGoToNextPair={sagaGoToNextPair} sagaGoToPrevPair={sagaGoToPrevPair} sagaGoToDeckHead={sagaGoToDeckHead} sagaGoToNextDeck={sagaGoToNextDeck}/>);
+                        return (<MemoTrainingCardsMemorization startMemoMiliUnixtime={startMemoMiliUnixtime} startRecallMiliUnixtime={startRecallMiliUnixtime} timerMiliUnixtime={timerMiliUnixtime} timeVisible={timeVisible} decks={decks} deckInd={deckInd} pairInd={pairInd} finishMemorizationPhase={finishMemorizationPhase} sagaGoToNextPair={sagaGoToNextPair} sagaGoToPrevPair={sagaGoToPrevPair} sagaGoToDeckHead={sagaGoToDeckHead} sagaGoToNextDeck={sagaGoToNextDeck} sagaToggleTimer={sagaToggleTimer}/>);
                     } else if (phase === memoTrainingUtils.TrainingPhase.recall) {
                         return <div/>;
                     } else {
@@ -64,7 +70,10 @@ const MemoTrainingCardsTemplate = (
 );
 
 MemoTrainingCardsTemplate.propTypes = {
-    startMiliUnixtime: PropTypes.number.isRequired,
+    startMemoMiliUnixtime: PropTypes.number.isRequired,
+    startRecallMiliUnixtime: PropTypes.number.isRequired,
+    timerMiliUnixtime: PropTypes.number.isRequired,
+    timeVisible: PropTypes.bool.isRequired,
 
     deckNum: PropTypes.number.isRequired,
     deckSize: PropTypes.number,
@@ -94,6 +103,8 @@ MemoTrainingCardsTemplate.propTypes = {
     sagaGoToNextDeck: PropTypes.func.isRequired,
 
     updateSolution: PropTypes.func.isRequired,
+
+    sagaToggleTimer: PropTypes.func.isRequired,
 };
 
 export default MemoTrainingCardsTemplate;
