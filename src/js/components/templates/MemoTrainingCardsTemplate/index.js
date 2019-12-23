@@ -43,11 +43,13 @@ const MemoTrainingCardsTemplate = (
         updateSolution,
 
         sagaToggleTimer,
+
+        sagaOnKeyDown,
     }
 ) => (
     <div>
         <Header title="MemoTraining Cards" />
-        <main>
+        <main tabIndex="-1" onKeyDown={ (e) => {sagaOnKeyDown(e)} }>
             {
                 (() => {
                     if (phase === memoTrainingUtils.TrainingPhase.setting) {

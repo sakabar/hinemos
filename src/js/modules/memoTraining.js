@@ -77,6 +77,9 @@ const sagaUpdateTimer = createAction(SAGA_UPDATE_TIMER);
 const UPDATE_SOLUTION = 'UPDATE_SOLUTION';
 export const updateSolution = createAction(UPDATE_SOLUTION);
 
+const SAGA_ON_KEY_DOWN = 'SAGA_ON_KEY_DOWN';
+export const sagaOnKeyDown = createAction(SAGA_ON_KEY_DOWN);
+
 const initialState = {
     userName: localStorage.userName, // ユーザ名
     startMemoMiliUnixtime: 0, // 記憶を開始したミリUnixtime
@@ -287,6 +290,38 @@ function * handleUpdateTimer () {
     }
 };
 
+const ENTER_KEYCODE = 13;
+const LEFT_KEYCODE = 37;
+const UP_KEYCODE = 38;
+const RIGHT_KEYCODE = 39;
+const DOWN_KEYCODE = 40;
+
+function * handleKeyDown () {
+    while (true) {
+        const action = yield take(sagaOnKeyDown);
+        const phase = yield select(state => state.phase);
+
+        if (phase === memoTrainingUtils.TrainingPhase.memorization) {
+            if (action.payload.keyCode === LEFT_KEYCODE) {
+                yield put(sagaGoToPrevPair());
+                continue;
+            } else if (action.payload.keyCode === RIGHT_KEYCODE) {
+                yield put(sagaGoToNextPair());
+                continue;
+            } else if (action.payload.keyCode === UP_KEYCODE) {
+                yield put(sagaGoToDeckHead());
+                continue;
+            } else if (action.payload.keyCode === DOWN_KEYCODE) {
+                yield put(sagaGoToNextDeck());
+                continue;
+            } else if (action.payload.keyCode === ENTER_KEYCODE) {
+                yield put(finishMemorizationPhase());
+                continue;
+            }
+        }
+    }
+};
+
 // FIXME
 // focusSolutionPairのアクションがいるかもね
 
@@ -467,4 +502,6 @@ export function * rootSaga () {
 
     yield fork(handleToggleTimer);
     yield fork(handleUpdateTimer);
+
+    yield fork(handleKeyDown);
 };

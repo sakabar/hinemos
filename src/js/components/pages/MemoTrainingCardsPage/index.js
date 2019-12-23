@@ -27,6 +27,8 @@ import {
 
     sagaToggleTimer,
 
+    sagaOnKeyDown,
+
     memoTrainingReducer,
     rootSaga,
 } from '../../../modules/memoTraining';
@@ -110,6 +112,9 @@ const mapDispatchToProps = (dispatch) => {
         },
         sagaToggleTimer: () => {
             dispatch(sagaToggleTimer());
+        },
+        sagaOnKeyDown: (e) => {
+            dispatch(sagaOnKeyDown(e));
         },
     };
 };
