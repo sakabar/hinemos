@@ -15,7 +15,7 @@ const MemoTrainingMbldMemorization = ({
     deckInd,
     pairInd,
 
-    finishMemorizationPhase,
+    sagaFinishMemorizationPhase,
     sagaGoToNextPair,
     sagaGoToPrevPair,
     sagaGoToDeckHead,
@@ -34,7 +34,7 @@ const MemoTrainingMbldMemorization = ({
             <Button value="→" onClick={(e) => sagaGoToNextPair()} disabled={deckInd === decks.length - 1 && pairInd === decks[deckInd].length - 1}/>
             <Button value="→→" onClick={(e) => sagaGoToNextDeck()} disabled={deckInd === decks.length - 1}/>
             <Br/>
-            <Button value="記憶終了" onClick={(e) => finishMemorizationPhase()}/>
+            <Button value="記憶終了" onClick={(e) => sagaFinishMemorizationPhase()}/>
         </div>
     );
 };
@@ -49,7 +49,7 @@ MemoTrainingMbldMemorization.propTypes = {
     deckInd: PropTypes.number.isRequired,
     pairInd: PropTypes.number.isRequired,
 
-    finishMemorizationPhase: PropTypes.func.isRequired,
+    sagaFinishMemorizationPhase: PropTypes.func.isRequired,
     sagaGoToNextPair: PropTypes.func.isRequired,
     sagaGoToPrevPair: PropTypes.func.isRequired,
     sagaGoToDeckHead: PropTypes.func.isRequired,

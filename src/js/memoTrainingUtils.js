@@ -63,27 +63,32 @@ export function CardElement (suit, num) {
     return new Element(type, size, tag);
 };
 
-export const postTrial = (elementDecks) => {
-    console.dir(`post trial mock ${JSON.stringify(elementDecks)}`);
+export const postTrial = (mode, elementsList) => {
+    console.dir(`post trial mock ${JSON.stringify(mode)} ${JSON.stringify(elementsList)}`);
+
+    // 1. 引数として与えられたelementsListをdeck, deckElementテーブルに登録
+    // 2. trialを生成
+    // 3. trialDeckを生成
 
     const ans = {
-        attemptId: 1,
-        deckElements: [
-            [ 1, 2, 3, 4, ],
-            [ 5, 6, 7, 8, ],
-        ],
+        trialId: 1,
+        deckElementIdsList: elementsList.map(elements => {
+            return elements.map(element => {
+                return _.random(0, 10000);
+            });
+        }),
     };
 
-    console.dir(`post trial mock response ${ans}`);
+    console.dir(`post trial mock response ${JSON.stringify(ans)}`);
     return new Promise((resolve) => resolve(ans));
 };
 
-export const postMemoLog = (s) => {
-    console.dir(`memo log mock ${s}`);
+export const postMemoLog = (arg) => {
+    console.dir(`memo log mock ${JSON.stringify(arg)}`);
 };
 
-export const postRecallLog = (s) => {
-    console.dir(`recall log mock ${s}`);
+export const postRecallLog = (arg) => {
+    console.dir(`recall log mock ${JSON.stringify(arg)}`);
 };
 
 export const numberingCornerMock = [
@@ -188,7 +193,7 @@ export const generateRandomAnalysisDict = (numberingCorner, numberingEdge) => {
     };
 };
 
-export const mbldDecksToElementsList = (decks) => {
+export const decksToElementsList = (decks) => {
     return decks.map(deck => {
         let ans = [];
 

@@ -13,7 +13,7 @@ describe('memoTrainingUtils.js', () => {
         });
     });
 
-    describe('mbldDecksToElementsList()', () => {
+    describe('decksToElementsList()', () => {
         it('正常系', () => {
             const decks = [
                 [
@@ -27,7 +27,7 @@ describe('memoTrainingUtils.js', () => {
                 ],
             ];
 
-            const actual = memoTrainingUtils.mbldDecksToElementsList(decks);
+            const actual = memoTrainingUtils.decksToElementsList(decks);
             const expected = [
                 [
                     new memoTrainingUtils.MbldElement('あい'),

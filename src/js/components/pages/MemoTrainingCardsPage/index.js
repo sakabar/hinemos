@@ -20,7 +20,7 @@ import {
     sagaGoToDeckHead,
 
     sagaStartMemorizationPhase,
-    finishMemorizationPhase,
+    sagaFinishMemorizationPhase,
     sagaFinishRecallPhase,
 
     updateSolution,
@@ -40,6 +40,11 @@ const mapStateToProps = ({
     startRecallMiliUnixtime,
     timerMiliUnixtime,
     timeVisible,
+
+    trialId,
+    deckElementList,
+    switchedPairMiliUnixtime,
+
     deckNum,
     deckSize,
     pairSize,
@@ -57,6 +62,11 @@ const mapStateToProps = ({
         startRecallMiliUnixtime,
         timerMiliUnixtime,
         timeVisible,
+
+    trialId,
+    deckElementList,
+    switchedPairMiliUnixtime,
+
         deckNum,
         deckSize,
         pairSize,
@@ -96,8 +106,8 @@ const mapDispatchToProps = (dispatch) => {
         sagaStartMemorizationPhase: (deckNum, deckSize, pairSize, mode) => {
             dispatch(sagaStartMemorizationPhase({ deckNum, deckSize, pairSize, memoEvent: memoTrainingUtils.MemoEvent.cards, mode, }));
         },
-        finishMemorizationPhase: () => {
-            dispatch(finishMemorizationPhase());
+        sagaFinishMemorizationPhase: () => {
+            dispatch(sagaFinishMemorizationPhase());
         },
         sagaFinishRecallPhase: () => {
             dispatch(sagaFinishRecallPhase());

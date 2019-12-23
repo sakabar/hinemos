@@ -32,7 +32,7 @@ const MemoTrainingCardsTemplate = (
         setPairSize,
 
         sagaStartMemorizationPhase,
-        finishMemorizationPhase,
+        sagaFinishMemorizationPhase,
         sagaFinishRecallPhase,
 
         sagaGoToNextPair,
@@ -55,7 +55,7 @@ const MemoTrainingCardsTemplate = (
                     if (phase === memoTrainingUtils.TrainingPhase.setting) {
                         return (<MemoTrainingCardsSetting deckNum={deckNum} deckSize={deckSize} pairSize={pairSize} setDeckNum={setDeckNum} setDeckSize={setDeckSize} setPairSize={setPairSize} sagaStartMemorizationPhase={sagaStartMemorizationPhase}/>);
                     } else if (phase === memoTrainingUtils.TrainingPhase.memorization) {
-                        return (<MemoTrainingCardsMemorization startMemoMiliUnixtime={startMemoMiliUnixtime} startRecallMiliUnixtime={startRecallMiliUnixtime} timerMiliUnixtime={timerMiliUnixtime} timeVisible={timeVisible} decks={decks} deckInd={deckInd} pairInd={pairInd} finishMemorizationPhase={finishMemorizationPhase} sagaGoToNextPair={sagaGoToNextPair} sagaGoToPrevPair={sagaGoToPrevPair} sagaGoToDeckHead={sagaGoToDeckHead} sagaGoToNextDeck={sagaGoToNextDeck} sagaToggleTimer={sagaToggleTimer}/>);
+                        return (<MemoTrainingCardsMemorization startMemoMiliUnixtime={startMemoMiliUnixtime} startRecallMiliUnixtime={startRecallMiliUnixtime} timerMiliUnixtime={timerMiliUnixtime} timeVisible={timeVisible} decks={decks} deckInd={deckInd} pairInd={pairInd} sagaFinishMemorizationPhase={sagaFinishMemorizationPhase} sagaGoToNextPair={sagaGoToNextPair} sagaGoToPrevPair={sagaGoToPrevPair} sagaGoToDeckHead={sagaGoToDeckHead} sagaGoToNextDeck={sagaGoToNextDeck} sagaToggleTimer={sagaToggleTimer}/>);
                     } else if (phase === memoTrainingUtils.TrainingPhase.recall) {
                         return <div/>;
                     } else {
@@ -96,7 +96,7 @@ MemoTrainingCardsTemplate.propTypes = {
     setPairSize: PropTypes.func.isRequired,
 
     sagaStartMemorizationPhase: PropTypes.func.isRequired,
-    finishMemorizationPhase: PropTypes.func.isRequired,
+    sagaFinishMemorizationPhase: PropTypes.func.isRequired,
     sagaFinishRecallPhase: PropTypes.func.isRequired,
 
     sagaGoToNextPair: PropTypes.func.isRequired,

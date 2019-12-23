@@ -19,7 +19,7 @@ import {
     sagaGoToDeckHead,
 
     sagaStartMemorizationPhase,
-    finishMemorizationPhase,
+    sagaFinishMemorizationPhase,
     sagaFinishRecallPhase,
 
     updateSolution,
@@ -88,8 +88,8 @@ const mapDispatchToProps = (dispatch) => {
         sagaStartMemorizationPhase: (deckNum, deckSize, pairSize, mode) => {
             dispatch(sagaStartMemorizationPhase({ deckNum, deckSize, pairSize, memoEvent: memoTrainingUtils.MemoEvent.mbld, mode, }));
         },
-        finishMemorizationPhase: () => {
-            dispatch(finishMemorizationPhase());
+        sagaFinishMemorizationPhase: () => {
+            dispatch(sagaFinishMemorizationPhase());
         },
         sagaFinishRecallPhase: () => {
             dispatch(sagaFinishRecallPhase());

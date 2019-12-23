@@ -28,11 +28,14 @@ export const setPairSize = createAction(SET_PAIR_SIZE);
 
 // モード選択系のアクション
 const START_MEMORIZATION_PHASE = 'START_MEMORIZATION_PHASE';
-const FINISH_MEMORIZATION_PHASE = 'FINISH_MEMORIZATION_PHASE';
-
 // 外からはsaga-*アクションを動かすので、exportしない
 const startMemorizationPhase = createAction(START_MEMORIZATION_PHASE);
-export const finishMemorizationPhase = createAction(FINISH_MEMORIZATION_PHASE);
+
+const FINISH_MEMORIZATION_PHASE = 'FINISH_MEMORIZATION_PHASE';
+const finishMemorizationPhase = createAction(FINISH_MEMORIZATION_PHASE);
+
+const SAGA_FINISH_MEMORIZATION_PHASE = 'SAGA_FINISH_MEMORIZATION_PHASE';
+export const sagaFinishMemorizationPhase = createAction(SAGA_FINISH_MEMORIZATION_PHASE);
 
 const SAGA_START_MEMORIZATION_PHASE = 'SAGA_START_TRANSFORMATION_PHASE';
 export const sagaStartMemorizationPhase = createAction(SAGA_START_MEMORIZATION_PHASE);
@@ -69,9 +72,7 @@ const toggleTimer = createAction(TOGGLE_TIMER);
 export const sagaToggleTimer = createAction(SAGA_TOGGLE_TIMER);
 
 const UPDATE_TIMER = 'UPDATE_TIMER';
-const SAGA_UPDATE_TIMER = 'SAGA_UPDATE_TIMER';
 const updateTimer = createAction(UPDATE_TIMER);
-const sagaUpdateTimer = createAction(SAGA_UPDATE_TIMER);
 
 // 回答phaseでのアクション
 const UPDATE_SOLUTION = 'UPDATE_SOLUTION';
@@ -86,6 +87,10 @@ const initialState = {
     startRecallMiliUnixtime: 0, // 記憶を開始したミリUnixtime
     timerMiliUnixtime: 0,
     timeVisible: false,
+
+    trialId: 0,
+    deckElementIdPairsLists: [ [], ],
+    switchedPairMiliUnixtime: 0,
 
     deckNum: 1, // 束数
     deckSize: undefined, // 1束の枚数。UIで指定されなかった場合は記憶/分析の開始時に種目ごとのデフォルト値に設定する
@@ -120,9 +125,7 @@ function * handleStartMemorizationPhase () {
         })();
 
         // もしselectがデフォルトのままで渡されたpairSizeがundefinedなら、1を設定する
-        console.dir(`${JSON.stringify(action.payload)}`);
         const pairSize = action.payload.pairSize ? action.payload.pairSize : 1;
-        console.dir(`deckSize, pairSize = ${deckSize}, ${pairSize}`);
 
         const userName = yield select(state => state.userName);
 
@@ -139,32 +142,29 @@ function * handleStartMemorizationPhase () {
             if (memoEvent === memoTrainingUtils.MemoEvent.mbld) {
                 return memoTrainingUtils.generateMbldDecks(numberingCorner, numberingEdge, deckNum, pairSize);
             } else if (memoEvent === memoTrainingUtils.MemoEvent.cards) {
-                console.dir(`${JSON.stringify({ deckNum, deckSize, pairSize, })}`);
                 return memoTrainingUtils.generateCardsDecks(deckNum, deckSize, pairSize);
             } else {
                 throw new Error('Unexpected event');
             }
         })();
 
-        // console.dir(JSON.stringify(decks));
+        const elementsList = memoTrainingUtils.decksToElementsList(decks);
 
-        const elementsList = (() => {
-            if (memoEvent === memoTrainingUtils.MemoEvent.mbld) {
-                return memoTrainingUtils.mbldDecksToElementsList(decks);
-            } else if (memoEvent === memoTrainingUtils.MemoEvent.cards) {
-                return memoTrainingUtils.generateCardsDecks(deckNum, deckSize, pairSize);
-            } else {
-                throw new Error('Unexpected event');
-            }
-        })();
+        // trialをPOSTする。何か返ってくる
+        const mode = action.payload.mode;
+        const res = yield call(memoTrainingUtils.postTrial, mode, elementsList);
 
-        // attemptをPOSTする。何か返ってくる
-        const res = yield call(memoTrainingUtils.postTrial, elementsList);
         // 一応表示しておく。
         console.dir(JSON.stringify(res));
 
+        const trialId = res.trialId;
+        const deckElementIdPairsLists = res.deckElementIdsList
+            .map(deckElementIds => _.chunk(deckElementIds, pairSize));
+
         const payload = {
             ...action.payload,
+            trialId,
+            deckElementIdPairsLists,
             currentMiliUnixtime,
             deckSize,
             pairSize,
@@ -175,37 +175,91 @@ function * handleStartMemorizationPhase () {
     }
 };
 
+function * handleSwitchPair (currentMiliUnixtime) {
+    const switchedPairMiliUnixtime = yield select(state => state.switchedPairMiliUnixtime);
+    const sec = (currentMiliUnixtime - switchedPairMiliUnixtime) / 1000.0;
+
+    // const decks = yield select(state => state.decks);
+    // const pair = decks[deckInd][pairInd];
+
+    const deckInd = yield select(state => state.deckInd);
+    const pairInd = yield select(state => state.pairInd);
+    const deckElementIdPairsLists = yield select(state => state.deckElementIdPairsLists);
+    const deckElementIdPair = deckElementIdPairsLists[deckInd][pairInd];
+
+    // DBに登録する秒数の和が実際の消費時間になるようにするために平均する
+    const avgSec = 1.0 * sec / deckElementIdPair.length;
+
+    const trialId = yield select(state => state.trialId);
+    for (let posInd = 0; posInd < deckElementIdPair.length; posInd++) {
+        // const element = pair[posInd];
+        const deckElementId = deckElementIdPair[posInd];
+        const arg = {
+            trialId,
+            deckInd,
+            pairInd,
+            posInd,
+            deckElementId,
+            sec: avgSec,
+        };
+        memoTrainingUtils.postMemoLog(arg);
+    }
+};
+
 function * handleGoToNextPair () {
     while (true) {
         yield take(sagaGoToNextPair);
-        memoTrainingUtils.postMemoLog();
-        yield put(goToNextPair());
+
+        const currentMiliUnixtime = parseInt(moment().format('x'));
+        yield fork(handleSwitchPair, currentMiliUnixtime);
+
+        yield put(goToNextPair({ currentMiliUnixtime, }));
     }
 };
 
 function * handleGoToPrevPair () {
     while (true) {
         yield take(sagaGoToPrevPair);
-        memoTrainingUtils.postMemoLog();
-        yield put(goToPrevPair());
+
+        const currentMiliUnixtime = parseInt(moment().format('x'));
+        yield fork(handleSwitchPair, currentMiliUnixtime);
+
+        yield put(goToPrevPair({ currentMiliUnixtime, }));
     }
 };
 
 function * handleGoToNextDeck () {
     while (true) {
         yield take(sagaGoToNextDeck);
-        memoTrainingUtils.postMemoLog();
-        yield put(goToNextDeck());
+
+        const currentMiliUnixtime = parseInt(moment().format('x'));
+        yield fork(handleSwitchPair, currentMiliUnixtime);
+
+        yield put(goToNextDeck({ currentMiliUnixtime, }));
     }
 };
 
 function * handleGoToDeckHead () {
     while (true) {
         yield take(sagaGoToDeckHead);
-        memoTrainingUtils.postMemoLog();
-        yield put(goToDeckHead());
+
+        const currentMiliUnixtime = parseInt(moment().format('x'));
+        yield fork(handleSwitchPair, currentMiliUnixtime);
+
+        yield put(goToDeckHead({ currentMiliUnixtime, }));
     }
 };
+
+function * handleFinishMemorizationPhase () {
+    while (true) {
+        yield take(sagaFinishMemorizationPhase);
+
+        const currentMiliUnixtime = parseInt(moment().format('x'));
+        yield fork(handleSwitchPair, currentMiliUnixtime);
+
+        yield put(finishMemorizationPhase({ currentMiliUnixtime, }));
+    }
+}
 
 function * handleFinishRecallPhase () {
     while (true) {
@@ -250,44 +304,40 @@ function * handleToggleTimer () {
     while (true) {
         yield take(sagaToggleTimer);
 
-        yield put(sagaUpdateTimer());
+        yield fork(handleUpdateTimer);
         yield put(toggleTimer());
         // yield put(delayToggleTimer());
 
         const sec = 3;
         for (let i = 0; i < sec; i++) {
             yield call(delay, 1000);
-            yield put(sagaUpdateTimer());
+            yield fork(handleUpdateTimer);
         }
         yield put(toggleTimer());
     }
 };
 
 function * handleUpdateTimer () {
-    while (true) {
-        yield take(sagaUpdateTimer);
+    const currentMiliUnixtime = parseInt(moment().format('x'));
+    const phase = yield select(state => state.phase);
+    const startMemoMiliUnixtime = yield select(state => state.startMemoMiliUnixtime);
+    const startRecallMiliUnixtime = yield select(state => state.startRecallMiliUnixtime);
 
-        const currentMiliUnixtime = parseInt(moment().format('x'));
-        const phase = yield select(state => state.phase);
-        const startMemoMiliUnixtime = yield select(state => state.startMemoMiliUnixtime);
-        const startRecallMiliUnixtime = yield select(state => state.startRecallMiliUnixtime);
+    const timerMiliUnixtime = (() => {
+        if (phase === memoTrainingUtils.TrainingPhase.memorization) {
+            return currentMiliUnixtime - startMemoMiliUnixtime;
+        } else if (phase === memoTrainingUtils.TrainingPhase.recall) {
+            return currentMiliUnixtime - startRecallMiliUnixtime;
+        } else {
+            return 0;
+        }
+    })();
 
-        const timerMiliUnixtime = (() => {
-            if (phase === memoTrainingUtils.TrainingPhase.memorization) {
-                return currentMiliUnixtime - startMemoMiliUnixtime;
-            } else if (phase === memoTrainingUtils.TrainingPhase.recall) {
-                return currentMiliUnixtime - startRecallMiliUnixtime;
-            } else {
-                return 0;
-            }
-        })();
+    const payload = {
+        timerMiliUnixtime,
+    };
 
-        const payload = {
-            timerMiliUnixtime,
-        };
-
-        yield put(updateTimer(payload));
-    }
+    yield put(updateTimer(payload));
 };
 
 const ENTER_KEYCODE = 13;
@@ -315,7 +365,7 @@ function * handleKeyDown () {
                 yield put(sagaGoToNextDeck());
                 continue;
             } else if (action.payload.keyCode === ENTER_KEYCODE) {
-                yield put(finishMemorizationPhase());
+                yield put(sagaFinishMemorizationPhase());
                 continue;
             }
         }
@@ -349,6 +399,10 @@ export const memoTrainingReducer = handleActions(
             if (typeof state.mode === 'undefined') {
                 return {
                     ...state,
+                    trialId: action.payload.trialId,
+                    deckElementIdPairsLists: action.payload.deckElementIdPairsLists,
+                    switchedPairMiliUnixtime: action.payload.currentMiliUnixtime,
+
                     memoEvent: action.payload.memoEvent,
                     deckSize: action.payload.deckSize,
                     decks: action.payload.decks,
@@ -367,6 +421,7 @@ export const memoTrainingReducer = handleActions(
             return {
                 ...state,
                 phase: memoTrainingUtils.TrainingPhase.recall,
+                startRecallMiliUnixtime: action.payload.currentMiliUnixtime,
                 deckInd: 0,
                 pairInd: 0,
             };
@@ -376,13 +431,16 @@ export const memoTrainingReducer = handleActions(
                 // 右端
                 if (state.deckInd === state.decks.length - 1) {
                     // ペアもデッキも右端なので何もしない
+                    // saga-*のイベントは起こるので、タイムは更新しておく
                     return {
                         ...state,
+                        switchedPairMiliUnixtime: action.payload.currentMiliUnixtime,
                     };
                 } else {
                     // 次のデッキに進む
                     return {
                         ...state,
+                        switchedPairMiliUnixtime: action.payload.currentMiliUnixtime,
                         deckInd: state.deckInd + 1,
                         pairInd: 0,
                     };
@@ -391,6 +449,7 @@ export const memoTrainingReducer = handleActions(
                 // 右端じゃないので1つ進むだけ
                 return {
                     ...state,
+                    switchedPairMiliUnixtime: action.payload.currentMiliUnixtime,
                     pairInd: state.pairInd + 1,
                 };
             }
@@ -400,14 +459,17 @@ export const memoTrainingReducer = handleActions(
                 // 左端
                 if (state.deckInd === 0) {
                     // ペアもデッキも左端なので何もしない
+                    // saga-*のイベントは起こるので、タイムは更新しておく
                     return {
                         ...state,
+                        switchedPairMiliUnixtime: action.payload.currentMiliUnixtime,
                     };
                 } else {
                     // 前のデッキに戻る
                     const newDeckInd = state.deckInd - 1;
                     return {
                         ...state,
+                        switchedPairMiliUnixtime: action.payload.currentMiliUnixtime,
                         deckInd: newDeckInd,
                         pairInd: state.decks[newDeckInd].length - 1,
                     };
@@ -416,6 +478,7 @@ export const memoTrainingReducer = handleActions(
                 // 左端じゃないので1つ戻るだけ
                 return {
                     ...state,
+                    switchedPairMiliUnixtime: action.payload.currentMiliUnixtime,
                     pairInd: state.pairInd - 1,
                 };
             }
@@ -424,6 +487,7 @@ export const memoTrainingReducer = handleActions(
             // もし先頭のペアを見ている時は、前のデッキに戻る
             return {
                 ...state,
+                switchedPairMiliUnixtime: action.payload.currentMiliUnixtime,
                 deckInd: state.pairInd === 0 && state.deckInd > 0 ? state.deckInd - 1 : state.deckInd,
                 pairInd: 0,
 
@@ -432,13 +496,16 @@ export const memoTrainingReducer = handleActions(
         [goToNextDeck]: (state, action) => {
             if (state.deckInd === state.decks.length - 1) {
                 // デッキが右端なので何もしない
+                // saga-*のイベントは起こるので、タイムは更新しておく
                 return {
                     ...state,
+                    switchedPairMiliUnixtime: action.payload.currentMiliUnixtime,
                 };
             } else {
                 // 次のデッキに進む
                 return {
                     ...state,
+                    switchedPairMiliUnixtime: action.payload.currentMiliUnixtime,
                     deckInd: state.deckInd + 1,
                     pairInd: 0,
                 };
@@ -492,13 +559,13 @@ export const memoTrainingReducer = handleActions(
 
 export function * rootSaga () {
     yield fork(handleStartMemorizationPhase);
+    yield fork(handleFinishMemorizationPhase);
+    yield fork(handleFinishRecallPhase);
 
     yield fork(handleGoToNextPair);
     yield fork(handleGoToPrevPair);
     yield fork(handleGoToNextDeck);
     yield fork(handleGoToDeckHead);
-
-    yield fork(handleFinishRecallPhase);
 
     yield fork(handleToggleTimer);
     yield fork(handleUpdateTimer);
