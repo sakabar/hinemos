@@ -126,4 +126,34 @@ describe('memoTrainingUtils.js', () => {
             assert.deepStrictEqual(actual, expected);
         });
     });
+
+    describe('cardTagToMarkStr()', () => {
+        it('正常系 C-01', () => {
+            const tag = 'C-01';
+            const actual = memoTrainingUtils.cardTagToMarkStr(tag);
+            const expected = String.fromCharCode(parseInt('2663', 16)) + 'A';
+            assert.deepStrictEqual(actual, expected);
+        });
+
+        it('正常系 D-10', () => {
+            const tag = 'D-10';
+            const actual = memoTrainingUtils.cardTagToMarkStr(tag);
+            const expected = String.fromCharCode(parseInt('2666', 16)) + '10';
+            assert.deepStrictEqual(actual, expected);
+        });
+
+        it('正常系 H-11', () => {
+            const tag = 'H-11';
+            const actual = memoTrainingUtils.cardTagToMarkStr(tag);
+            const expected = String.fromCharCode(parseInt('2665', 16)) + 'J';
+            assert.deepStrictEqual(actual, expected);
+        });
+
+        it('正常系 S-03', () => {
+            const tag = 'S-03';
+            const actual = memoTrainingUtils.cardTagToMarkStr(tag);
+            const expected = String.fromCharCode(parseInt('2660', 16)) + '3';
+            assert.deepStrictEqual(actual, expected);
+        });
+    });
 });

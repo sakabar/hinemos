@@ -275,15 +275,39 @@ export const generateCardsDecks = (deckNum, deckSize, pairSize) => {
     const ans = [];
 
     for (let i = 0; i < deckNum; i++) {
-        // const allNums = _.range(1, 52 + 1).filter(i => i <= 14 || (27 <= i && i <= 39));
         const allNums = _.range(1, 52 + 1);
         const shuffled = _.shuffle(allNums);
         const nums = _.take(shuffled, deckSize);
         const deck = generateCardsDeck(nums, pairSize);
-        console.dir(pairSize);
-        console.dir(JSON.stringify(deck));
         ans.push(deck);
     }
 
     return ans;
+};
+
+export const cardTagToMarkStr = (tag) => {
+    const suitMarkDict = {
+        C: String.fromCharCode(parseInt('2663', 16)),
+        D: String.fromCharCode(parseInt('2666', 16)),
+        H: String.fromCharCode(parseInt('2665', 16)),
+        S: String.fromCharCode(parseInt('2660', 16)),
+    };
+
+    const num = parseInt(`${tag[2]}${tag[3]}`);
+    const numStr = (() => {
+        if (num === 1) {
+            return 'A';
+        } else if (2 <= num && num <= 10) {
+            return `${num}`;
+        } else if (num === 11) {
+            return 'J';
+        } else if (num === 12) {
+            return 'Q';
+        } else if (num === 13) {
+            return 'K';
+        } else {
+            throw new Error(`Unexpected tag: ${tag}`);
+        }
+    })();
+    return `${suitMarkDict[tag[0]]}${numStr}`;
 };

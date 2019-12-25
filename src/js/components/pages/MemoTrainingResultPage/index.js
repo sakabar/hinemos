@@ -9,37 +9,38 @@ import {
 } from 'redux';
 import createSagaMiddleware from 'redux-saga';
 import MemoTrainingResultTemplate from '../../templates/MemoTrainingResultTemplate';
-// import {
-//     // rootSaga,
-// } from '../../../modules/memoTraining';
+import {
+    memoTrainingResultReducer,
+    rootSaga,
+} from '../../../modules/memoTrainingResult';
+const memoTrainingUtils = require('../../../memoTrainingUtils');
 
-// const mapStateToProps = ({
-//     dummy
-// }) => {
-//     return {
-//         dummy
-//     };
-// };
+const mapStateToProps = ({
+dummy
+}) => {
+    return {
+dummy
+    };
+};
 
-// const mapDispatchToProps = (dispatch) => {
-//     return {
-//     };
-// }
+const mapDispatchToProps = (dispatch) => {
+    return {
+    aaaaAction: () => {
+            dispatch(aaaaAction());
+        },
+    };
+};
 
-// const sagaMiddleware = createSagaMiddleware();
-// const store = createStore(memoTrainingReducer, applyMiddleware(sagaMiddleware));
-// sagaMiddleware.run(rootSaga);
+const sagaMiddleware = createSagaMiddleware();
+const store = createStore(memoTrainingResultReducer, applyMiddleware(sagaMiddleware));
+sagaMiddleware.run(rootSaga);
 
-// const Conn = connect(mapStateToProps, mapDispatchToProps)(MemoTrainingResultTemplate);
-
-// const MemoTrainingResultPage = () => (
-//     <Provider store={store}>
-//         <Conn/>
-//     </Provider>
-// );
+const Conn = connect(mapStateToProps, mapDispatchToProps)(MemoTrainingResultTemplate);
 
 const MemoTrainingResultPage = () => (
-    <MemoTrainingResultTemplate />
+    <Provider store={store}>
+        <Conn/>
+    </Provider>
 );
 
 export default MemoTrainingResultPage;

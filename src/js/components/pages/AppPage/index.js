@@ -9,6 +9,7 @@ import FaqPage from '../FaqPage';
 import MemoTrainingTrialPage from '../MemoTrainingTrialPage';
 import MemoTrainingMbldPage from '../MemoTrainingMbldPage';
 import MemoTrainingCardsPage from '../MemoTrainingCardsPage';
+import MemoTrainingResultPage from '../MemoTrainingResultPage';
 const appPageUtils = require('../../../appPageUtils');
 const config = require('../../../config');
 const path = require('path');
@@ -32,6 +33,7 @@ const routeDict = {
             // result:
             // stats:
         },
+        result: MemoTrainingResultPage,
     },
 };
 
