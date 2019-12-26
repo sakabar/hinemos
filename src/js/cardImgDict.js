@@ -1,5 +1,5 @@
 // forループとかで効率的に書きたいけど、import()を動的に使うと
-// Promiseが帰ってきてうまくいかなかった
+// Promiseが返ってきてうまくいかなかった
 import c01 from '../../resource/cards/C-01.png';
 import c02 from '../../resource/cards/C-02.png';
 import c03 from '../../resource/cards/C-03.png';
@@ -55,6 +55,9 @@ import s10 from '../../resource/cards/S-10.png';
 import s11 from '../../resource/cards/S-11.png';
 import s12 from '../../resource/cards/S-12.png';
 import s13 from '../../resource/cards/S-13.png';
+
+// 普通のカードじゃないもの
+import gray from '../../resource/cards/gray.png';
 
 const srcDict = {};
 srcDict['C-01'] = c01;
@@ -112,5 +115,6 @@ srcDict['S-10'] = s10;
 srcDict['S-11'] = s11;
 srcDict['S-12'] = s12;
 srcDict['S-13'] = s13;
+srcDict['gray'] = gray;
 
 export default srcDict;

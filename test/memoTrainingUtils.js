@@ -156,4 +156,42 @@ describe('memoTrainingUtils.js', () => {
             assert.deepStrictEqual(actual, expected);
         });
     });
+
+    describe('getHandElements()', () => {
+        it('正常系 DC', () => {
+            const suits = [ memoTrainingUtils.Suit.diamond, memoTrainingUtils.Suit.club, ];
+
+            const actual = memoTrainingUtils.getHandElements(suits);
+            const expected = [
+                new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.diamond, 1),
+                new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.diamond, 2),
+                new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.diamond, 3),
+                new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.diamond, 4),
+                new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.diamond, 5),
+                new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.diamond, 6),
+                new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.diamond, 7),
+                new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.diamond, 8),
+                new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.diamond, 9),
+                new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.diamond, 10),
+                new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.diamond, 11),
+                new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.diamond, 12),
+                new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.diamond, 13),
+                new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 1),
+                new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 2),
+                new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 3),
+                new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 4),
+                new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 5),
+                new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 6),
+                new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 7),
+                new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 8),
+                new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 9),
+                new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 10),
+                new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 11),
+                new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 12),
+                new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 13),
+            ];
+
+            assert.deepStrictEqual(actual, expected);
+        });
+    });
 });

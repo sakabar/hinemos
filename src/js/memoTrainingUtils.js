@@ -311,3 +311,23 @@ export const cardTagToMarkStr = (tag) => {
     })();
     return `${suitMarkDict[tag[0]]}${numStr}`;
 };
+
+export const cardsDefaultHand = () => {
+    const ans = {};
+    const elements = _.range(1, 52 + 1).map(num => numToCardElement(num));
+
+    for (let i = 0; i < elements.length; i++) {
+        ans[elements[i].tag] = true;
+    }
+
+    return ans;
+};
+
+export const getSameSuitCards = (suit) => {
+    return _.range(1, 13 + 1).map(num => new CardElement(suit, num));
+};
+
+export const getHandElements = (suits) => {
+    const cards = suits.map(suit => getSameSuitCards(suit));
+    return _.flatten(cards);
+};

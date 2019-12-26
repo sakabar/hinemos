@@ -102,6 +102,14 @@ const initialState = {
     solution: [ [], ],
     deckInd: 0,
     pairInd: 0,
+
+    handDict: memoTrainingUtils.cardsDefaultHand(), // Cardsで手元に残っているカードを表す辞書。tag => bool
+    handSuits: [
+        memoTrainingUtils.Suit.heart,
+        memoTrainingUtils.Suit.spade,
+        memoTrainingUtils.Suit.diamond,
+        memoTrainingUtils.Suit.club,
+    ],
 };
 
 function * handleStartMemorizationPhase () {

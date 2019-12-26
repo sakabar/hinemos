@@ -23,8 +23,6 @@ import {
     sagaFinishMemorizationPhase,
     sagaFinishRecallPhase,
 
-    updateSolution,
-
     sagaToggleTimer,
 
     sagaOnKeyDown,
@@ -55,6 +53,9 @@ const mapStateToProps = ({
     solution,
     deckInd,
     pairInd,
+
+    handDict,
+    handSuits,
 }) => {
     return {
         userName,
@@ -63,9 +64,9 @@ const mapStateToProps = ({
         timerMiliUnixtime,
         timeVisible,
 
-    trialId,
-    deckElementList,
-    switchedPairMiliUnixtime,
+        trialId,
+        deckElementList,
+        switchedPairMiliUnixtime,
 
         deckNum,
         deckSize,
@@ -77,6 +78,9 @@ const mapStateToProps = ({
         solution,
         deckInd,
         pairInd,
+
+        handDict,
+        handSuits,
     };
 };
 
@@ -112,14 +116,14 @@ const mapDispatchToProps = (dispatch) => {
         sagaFinishRecallPhase: () => {
             dispatch(sagaFinishRecallPhase());
         },
-        updateSolution: (deckInd, pairInd, input) => {
-            const payload = {
-                deckInd,
-                pairInd,
-                input,
-            };
-            dispatch(updateSolution(payload));
-        },
+        // updateSolution: (deckInd, pairInd, input) => {
+        //     const payload = {
+        //         deckInd,
+        //         pairInd,
+        //         input,
+        //     };
+        //     dispatch(updateSolution(payload));
+        // },
         sagaToggleTimer: () => {
             dispatch(sagaToggleTimer());
         },

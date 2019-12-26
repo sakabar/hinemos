@@ -4,6 +4,7 @@ import Txt from '../../atoms/Txt';
 import Header from '../../organisms/Header';
 import MemoTrainingCardsSetting from '../../organisms/MemoTrainingCardsSetting';
 import MemoTrainingCardsMemorization from '../../organisms/MemoTrainingCardsMemorization';
+import MemoTrainingCardsRecall from '../../organisms/MemoTrainingCardsRecall';
 const memoTrainingUtils = require('../../../memoTrainingUtils');
 
 const MemoTrainingCardsTemplate = (
@@ -27,6 +28,9 @@ const MemoTrainingCardsTemplate = (
         deckInd,
         pairInd,
 
+        handDict,
+        handSuits,
+
         setDeckNum,
         setDeckSize,
         setPairSize,
@@ -40,7 +44,7 @@ const MemoTrainingCardsTemplate = (
         sagaGoToDeckHead,
         sagaGoToNextDeck,
 
-        updateSolution,
+        // updateSolution,
 
         sagaToggleTimer,
 
@@ -49,7 +53,7 @@ const MemoTrainingCardsTemplate = (
 ) => (
     <div>
         <Header title="MemoTraining Cards" />
-        <main tabIndex="-1" onKeyDown={ (e) => {sagaOnKeyDown(e)} }>
+        <main tabIndex="-1" onKeyDown={ (e) => { sagaOnKeyDown(e); } }>
             {
                 (() => {
                     if (phase === memoTrainingUtils.TrainingPhase.setting) {
@@ -57,7 +61,7 @@ const MemoTrainingCardsTemplate = (
                     } else if (phase === memoTrainingUtils.TrainingPhase.memorization) {
                         return (<MemoTrainingCardsMemorization startMemoMiliUnixtime={startMemoMiliUnixtime} startRecallMiliUnixtime={startRecallMiliUnixtime} timerMiliUnixtime={timerMiliUnixtime} timeVisible={timeVisible} decks={decks} deckInd={deckInd} pairInd={pairInd} sagaFinishMemorizationPhase={sagaFinishMemorizationPhase} sagaGoToNextPair={sagaGoToNextPair} sagaGoToPrevPair={sagaGoToPrevPair} sagaGoToDeckHead={sagaGoToDeckHead} sagaGoToNextDeck={sagaGoToNextDeck} sagaToggleTimer={sagaToggleTimer}/>);
                     } else if (phase === memoTrainingUtils.TrainingPhase.recall) {
-                        return <div/>;
+                        return (<MemoTrainingCardsRecall decks={decks} deckInd={deckInd} pairInd={pairInd} handDict={handDict} handSuits={handSuits} sagaGoToNextPair={sagaGoToNextPair} sagaGoToPrevPair={sagaGoToPrevPair} sagaGoToDeckHead={sagaGoToDeckHead} sagaGoToNextDeck={sagaGoToNextDeck} sagaFinishRecallPhase={sagaFinishRecallPhase}/>);
                     } else {
                         return (
                             <div>
@@ -91,6 +95,9 @@ MemoTrainingCardsTemplate.propTypes = {
     deckInd: PropTypes.number.isRequired,
     pairInd: PropTypes.number.isRequired,
 
+    handDict: PropTypes.object.isRequired,
+    handSuits: PropTypes.array.isRequired,
+
     setDeckNum: PropTypes.func.isRequired,
     setDeckSize: PropTypes.func.isRequired,
     setPairSize: PropTypes.func.isRequired,
@@ -104,7 +111,9 @@ MemoTrainingCardsTemplate.propTypes = {
     sagaGoToDeckHead: PropTypes.func.isRequired,
     sagaGoToNextDeck: PropTypes.func.isRequired,
 
-    updateSolution: PropTypes.func.isRequired,
+    sagaOnKeyDown: PropTypes.func.isRequired,
+
+    // updateSolution: PropTypes.func.isRequired,
 
     sagaToggleTimer: PropTypes.func.isRequired,
 };
