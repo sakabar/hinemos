@@ -5,13 +5,13 @@ import Textbox from '../../atoms/Textbox';
 const SolutionPair = ({
     deckInd,
     pairInd,
-    solution,
+    pairSize,
 
-    updateSolution,
+    updateMbldSolution,
     ...rest
 }) => (
     <div>
-        <Span>{`${deckInd + 1}-${pairInd + 1}`}</Span><Textbox onChange={(e) => updateSolution(deckInd, pairInd, e.target.value)}/>
+        <Span>{`${deckInd + 1}-${pairInd + 1}`}</Span><Textbox onChange={(e) => updateMbldSolution(deckInd, pairInd, pairSize, e.target.value)}/>
     </div>
 );
 

@@ -75,8 +75,8 @@ const UPDATE_TIMER = 'UPDATE_TIMER';
 const updateTimer = createAction(UPDATE_TIMER);
 
 // 回答phaseでのアクション
-const UPDATE_SOLUTION = 'UPDATE_SOLUTION';
-export const updateSolution = createAction(UPDATE_SOLUTION);
+const UPDATE_MBLD_SOLUTION = 'UPDATE_MBLD_SOLUTION';
+export const updateMbldSolution = createAction(UPDATE_MBLD_SOLUTION);
 
 const SAGA_ON_KEY_DOWN = 'SAGA_ON_KEY_DOWN';
 export const sagaOnKeyDown = createAction(SAGA_ON_KEY_DOWN);
@@ -511,20 +511,17 @@ export const memoTrainingReducer = handleActions(
                 };
             }
         },
-        [updateSolution]: (state, action) => {
+        [updateMbldSolution]: (state, action) => {
+            const pairSize = action.payload.pairSize;
+            // pair = [ "あい", "う", ]
+            const pair = _.chunk(action.payload.pairStr, pairSize).map(chars => chars.join(''));
+            const elementPair = pair.map(letters => new memoTrainingUtils.MbldElement(letters));
+
             const newSolution = _.cloneDeep(state.solution);
-            // FIXME ここでsplitしていいのか?
-            // なんか切り方が雑~
-            const pair = action.payload.input.split(/(.{1})/).filter(s => s !== '' && s !== ' ').map(letter => {
-                return {
-                    elementType: 'letter',
-                    element: letter,
-                };
-            });
             if (typeof newSolution[action.payload.deckInd] === 'undefined') {
                 newSolution[action.payload.deckInd] = [];
             }
-            newSolution[action.payload.deckInd][action.payload.pairInd] = pair;
+            newSolution[action.payload.deckInd][action.payload.pairInd] = elementPair;
 
             return {
                 ...state,

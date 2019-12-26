@@ -6,10 +6,11 @@ import SolutionPair from '../../molecules/SolutionPair';
 
 const MemoTrainingMbldRecall = ({
     decks,
+    pairSize,
     solution,
 
     sagaFinishRecallPhase,
-    updateSolution,
+    updateMbldSolution,
 }) => {
     return (
         <div>
@@ -21,7 +22,7 @@ const MemoTrainingMbldRecall = ({
             {
                 decks.map((deck, deckKey) => {
                     return deck.map((pair, pairKey) => {
-                        return (<SolutionPair key={String(deckKey) + '-' + String(pairKey)} deckInd={deckKey} pairInd={pairKey} solution={solution} updateSolution={updateSolution}/>);
+                        return (<SolutionPair key={String(deckKey) + '-' + String(pairKey)} deckInd={deckKey} pairInd={pairKey} pairSize={pairSize} updateMbldSolution={updateMbldSolution}/>);
                     });
                 })
             }

@@ -22,7 +22,7 @@ import {
     sagaFinishMemorizationPhase,
     sagaFinishRecallPhase,
 
-    updateSolution,
+    updateMbldSolution,
 
     sagaToggleTimer,
 
@@ -94,13 +94,14 @@ const mapDispatchToProps = (dispatch) => {
         sagaFinishRecallPhase: () => {
             dispatch(sagaFinishRecallPhase());
         },
-        updateSolution: (deckInd, pairInd, input) => {
+        updateMbldSolution: (deckInd, pairInd, pairSize, pairStr) => {
             const payload = {
                 deckInd,
                 pairInd,
-                input,
+                pairSize,
+                pairStr,
             };
-            dispatch(updateSolution(payload));
+            dispatch(updateMbldSolution(payload));
         },
         sagaToggleTimer: () => {
             dispatch(sagaToggleTimer());
