@@ -27,7 +27,7 @@ const MemoTrainingCardsMemorization = ({
     return (
         <div>
             <Txt style={{ fontSize: '30px', }}>{`${deckInd + 1}-${pairInd + 1}`}</Txt>
-            <MemoTimer timeVisible={timeVisible} timerMiliUnixtime={timerMiliUnixtime} sagaToggleTimer={sagaToggleTimer}/>
+<Br/>
 
             {
                 decks[deckInd][pairInd].map((element, i) => (<PlayingCard tag={element.tag} key={i}/>))
@@ -38,6 +38,7 @@ const MemoTrainingCardsMemorization = ({
                 <Button value="←" onClick={(e) => sagaGoToPrevPair()} disabled={deckInd === 0 && pairInd === 0}/>
                 <Button value="→" onClick={(e) => sagaGoToNextPair()} disabled={deckInd === decks.length - 1 && pairInd === decks[deckInd].length - 1}/>
                 <Button value="→→" onClick={(e) => sagaGoToNextDeck()} disabled={deckInd === decks.length - 1}/>
+            <MemoTimer timeVisible={timeVisible} timerMiliUnixtime={timerMiliUnixtime} sagaToggleTimer={sagaToggleTimer}/>
                 <Br/>
                 <Button value="記憶終了" onClick={(e) => sagaFinishMemorizationPhase()}/>
             <p>※<a href="https://www.ac-illust.com/">イラストAC</a>にてダウンロードした<a href="https://www.ac-illust.com/main/profile.php?id=OLC8qIlx&amp;area=1">johan</a>さんのイラストを利用規約に則って利用しています。</p>

@@ -9,8 +9,8 @@ const PlayingCard = ({
     tag,
 }) => (
     <Span>
-        <Img src={cardImgDict[tag]} style={{ width: '15%', height: '15%', marginTop: '-5%', }} alt={tag} />
-        <Img src={cardImg} style={{ width: '15%', height: '15%', zIndex: 2, marginLeft: '-15%', marginTop: '-5%', }} />
+        <Img src={cardImgDict[tag]} style={{ width: '25%', height: '25%', marginTop: '-5%', }} alt={tag} />
+        <Img src={cardImg} style={{ width: '25%', height: '25%', zIndex: 2, marginLeft: '-25%', marginTop: '-5%', }} />
     </Span>
 );
 
