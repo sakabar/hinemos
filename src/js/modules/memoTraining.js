@@ -81,6 +81,12 @@ export const updateMbldSolution = createAction(UPDATE_MBLD_SOLUTION);
 const SAGA_ON_KEY_DOWN = 'SAGA_ON_KEY_DOWN';
 export const sagaOnKeyDown = createAction(SAGA_ON_KEY_DOWN);
 
+// 最初に動かして色々ロードする
+// const INIT_LOAD = 'INIT_LOAD';
+// const SAGA_INIT_LOAD = 'SAGA_INIT_LOAD';
+// const initLoad = createAction(INIT_LOAD);
+// export const sagaInitLoad = createAction(SAGA_INIT_LOAD);
+
 const initialState = {
     userName: localStorage.userName, // ユーザ名
     startMemoMiliUnixtime: 0, // 記憶を開始したミリUnixtime
@@ -110,6 +116,8 @@ const initialState = {
         memoTrainingUtils.Suit.diamond,
         memoTrainingUtils.Suit.club,
     ],
+
+    elementIdsDict: {},
 };
 
 function * handleStartMemorizationPhase () {
@@ -157,17 +165,37 @@ function * handleStartMemorizationPhase () {
         })();
 
         const elementsList = memoTrainingUtils.decksToElementsList(decks);
+        const elementIdsDict = yield call(memoTrainingUtils.loadElementIdsDict);
+        if (Object.keys(elementIdsDict).length === 0) {
+            throw new Error('load failed : elementIdsDict');
+        }
+
+        const elementIdsList = elementsList.map(elements => {
+            return elements.map(element => {
+                return elementIdsDict[element.type][element.tag];
+            });
+        });
+
+        // elementListをPOSTする
+        // deckElementとdeckのテーブルにレコードが追加される
+        // 返ってくるのはdeckIdのリストとdeckElementId
+        const resPostDeck = yield call(memoTrainingUtils.postDeck, elementIdsList);
+        if (!resPostDeck.success) {
+            throw new Error('deck post failed');
+        }
+
+        const deckIds = resPostDeck.success.result.deckIds;
+        const deckElementIdsDict = resPostDeck.success.result.deckElementIdsDict;
+        const deckElementIdsList = deckIds.map(deckId => {
+            return deckElementIdsDict[deckId];
+        });
+        const deckElementIdPairsLists = deckElementIdsList
+            .map(deckElementIds => _.chunk(deckElementIds, pairSize));
 
         // trialをPOSTする。何か返ってくる
         const mode = action.payload.mode;
-        const res = yield call(memoTrainingUtils.postTrial, mode, elementsList);
-
-        // 一応表示しておく。
-        console.dir(JSON.stringify(res));
-
-        const trialId = res.trialId;
-        const deckElementIdPairsLists = res.deckElementIdsList
-            .map(deckElementIds => _.chunk(deckElementIds, pairSize));
+        const resPostTrial = yield call(memoTrainingUtils.postTrial, userName, mode, deckIds);
+        const trialId = resPostTrial.success.result.trialId;
 
         const payload = {
             ...action.payload,
@@ -177,6 +205,7 @@ function * handleStartMemorizationPhase () {
             deckSize,
             pairSize,
             decks,
+            elementIdsDict,
         };
 
         yield put(startMemorizationPhase(payload));
@@ -380,6 +409,20 @@ function * handleKeyDown () {
     }
 };
 
+// function * handleInitLoad () {
+//     while (true) {
+//         yield take(sagaInitLoad);
+//         console.dir('LOADEDDDDDD');
+//         const elementIdsDict = call(memoTrainingUtils.loadElementIdsDict);
+
+//         const payload = {
+//             elementIdsDict,
+//         };
+
+//         yield put(initLoad(payload));
+//     }
+// };
+
 // FIXME
 // focusSolutionPairのアクションがいるかもね
 
@@ -417,6 +460,7 @@ export const memoTrainingReducer = handleActions(
                     startMemoMiliUnixtime: action.payload.currentMiliUnixtime,
                     mode: action.payload.mode,
                     phase: memoTrainingUtils.TrainingPhase.memorization,
+                    elementIdsDict: action.payload.elementIdsDict,
                 };
             }
 
@@ -548,6 +592,12 @@ export const memoTrainingReducer = handleActions(
                 timerMiliUnixtime: action.payload.timerMiliUnixtime,
             };
         },
+        // [initLoad]: (state, action) => {
+        //     return {
+        //         ...state,
+        //         elementIdsDict: action.payload.elementIdsDict,
+        //     };
+        // },
     },
     initialState
 );
@@ -576,4 +626,6 @@ export function * rootSaga () {
     yield fork(handleUpdateTimer);
 
     yield fork(handleKeyDown);
+
+    // yield fork(handleInitLoad);
 };

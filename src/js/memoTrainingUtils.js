@@ -1,28 +1,30 @@
-const _ = require('lodash');
-const utils = require('./utils');
-const numbering3 = require('./numbering3');
-const shuffle = require('shuffle-array');
+const config = require('./config');
 const constant = require('./constant');
+const numbering3 = require('./numbering3');
+const utils = require('./utils');
+const _ = require('lodash');
+const shuffle = require('shuffle-array');
+const rp = require('request-promise');
 
 export const MemoEvent = {
-    mbld: 0,
-    cards: 1,
+    mbld: 'mbld',
+    cards: 'cards',
 };
 
 export const ElementType = {
-    letter: 0,
-    card: 1,
+    letter: 'letter',
+    card: 'card',
 };
 
 export const TrainingMode = {
-    memorization: 0,
-    transformation: 1,
+    memorization: 'memorization',
+    transformation: 'transformation',
 };
 
 export const TrainingPhase = {
-    setting: 0,
-    memorization: 1,
-    recall: 2,
+    setting: 'setting',
+    memorization: 'memorization',
+    recall: 'recall',
 };
 
 export const Suit = {
@@ -63,24 +65,66 @@ export function CardElement (suit, num) {
     return new Element(type, size, tag);
 };
 
-export const postTrial = (mode, elementsList) => {
-    console.dir(`post trial mock ${JSON.stringify(mode)} ${JSON.stringify(elementsList)}`);
-
-    // 1. 引数として与えられたelementsListをdeck, deckElementテーブルに登録
-    // 2. trialを生成
-    // 3. trialDeckを生成
-
-    const ans = {
-        trialId: 1,
-        deckElementIdsList: elementsList.map(elements => {
-            return elements.map(element => {
-                return _.random(0, 10000);
-            });
-        }),
+export async function loadElementIdsDict () {
+    const options = {
+        url: `${config.apiRoot}/memoElement`,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {},
     };
 
-    console.dir(`post trial mock response ${JSON.stringify(ans)}`);
-    return new Promise((resolve) => resolve(ans));
+    const res = await rp(options)
+        .catch(() => {
+            return {};
+        });
+
+    const ans = {};
+    res.success.result.map(element => {
+        if (!(element.type in ans)) {
+            ans[element.type] = {};
+        }
+
+        ans[element.type][element.tag] = element.elementId;
+    });
+
+    return ans;
+}
+
+export const postDeck = (elementIdsList) => {
+    const options = {
+        url: `${config.apiRoot}/memoDeck`,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {
+            elementIdsList,
+        },
+    };
+
+    return rp(options);
+};
+
+export const postTrial = (userName, mode, deckIds) => {
+    const options = {
+        url: `${config.apiRoot}/memoTrial`,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {
+            userName,
+            mode,
+            deckIds,
+        },
+    };
+
+    return rp(options);
 };
 
 export const postMemoLog = (arg) => {
