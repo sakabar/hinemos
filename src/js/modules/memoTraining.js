@@ -5,6 +5,7 @@ import {
 import {
     call,
     fork,
+    join,
     put,
     take,
     select,
@@ -81,6 +82,14 @@ export const updateMbldSolution = createAction(UPDATE_MBLD_SOLUTION);
 const SAGA_ON_KEY_DOWN = 'SAGA_ON_KEY_DOWN';
 export const sagaOnKeyDown = createAction(SAGA_ON_KEY_DOWN);
 
+// 今のところコンポーネントからはdispatchしないなので、exportしないでおく
+const PUSH_MEMO_LOGS = 'PUSH_MEMO_LOGS';
+const pushMemoLogs = createAction(PUSH_MEMO_LOGS);
+
+// 今のところコンポーネントからはdispatchしないなので、exportしないでおく
+// const PUSH_RECALL_LOG = 'PUSH_RECALL_LOG';
+// const pushRecallLog = createAction(PUSH_RECALL_LOG);
+
 // 最初に動かして色々ロードする
 // const INIT_LOAD = 'INIT_LOAD';
 // const SAGA_INIT_LOAD = 'SAGA_INIT_LOAD';
@@ -95,6 +104,8 @@ const initialState = {
     timeVisible: false,
 
     trialId: 0,
+    trialDeckIds: [],
+
     deckElementIdPairsLists: [ [], ],
     switchedPairMiliUnixtime: 0,
 
@@ -118,6 +129,8 @@ const initialState = {
     ],
 
     elementIdsDict: {},
+
+    memoLogs: [], // 記憶時間が終わったらpostする。indパラメータはpostする直前に付与
 };
 
 function * handleStartMemorizationPhase () {
@@ -192,14 +205,16 @@ function * handleStartMemorizationPhase () {
         const deckElementIdPairsLists = deckElementIdsList
             .map(deckElementIds => _.chunk(deckElementIds, pairSize));
 
-        // trialをPOSTする。何か返ってくる
+        // trialをPOSTする
         const mode = action.payload.mode;
         const resPostTrial = yield call(memoTrainingUtils.postTrial, userName, mode, deckIds);
         const trialId = resPostTrial.success.result.trialId;
+        const trialDeckIds = resPostTrial.success.result.trialDeckIds;
 
         const payload = {
             ...action.payload,
             trialId,
+            trialDeckIds,
             deckElementIdPairsLists,
             currentMiliUnixtime,
             deckSize,
@@ -227,20 +242,24 @@ function * handleSwitchPair (currentMiliUnixtime) {
     // DBに登録する秒数の和が実際の消費時間になるようにするために平均する
     const avgSec = 1.0 * sec / deckElementIdPair.length;
 
-    const trialId = yield select(state => state.trialId);
-    for (let posInd = 0; posInd < deckElementIdPair.length; posInd++) {
-        // const element = pair[posInd];
-        const deckElementId = deckElementIdPair[posInd];
-        const arg = {
-            trialId,
+    const trialDeckIds = yield select(state => state.trialDeckIds);
+    const trialDeckId = trialDeckIds[deckInd];
+    const userName = yield select(state => state.userName);
+
+    const memoLogs = deckElementIdPair.map((deckElementId, posInd) => {
+        return {
+            trialDeckId,
+            userName,
+            // ind: 後でつけ足す
             deckInd,
             pairInd,
             posInd,
             deckElementId,
-            sec: avgSec,
+            memoSec: avgSec,
         };
-        memoTrainingUtils.postMemoLog(arg);
-    }
+    });
+
+    yield put(pushMemoLogs({ memoLogs, }));
 };
 
 function * handleGoToNextPair () {
@@ -292,7 +311,19 @@ function * handleFinishMemorizationPhase () {
         yield take(sagaFinishMemorizationPhase);
 
         const currentMiliUnixtime = parseInt(moment().format('x'));
-        yield fork(handleSwitchPair, currentMiliUnixtime);
+
+        // join()を使うことで、最後のmemoLogがstateにpushされるのを
+        // 待ってからAPIへPOSTすることができる
+        const task = yield fork(handleSwitchPair, currentMiliUnixtime);
+        yield join(task);
+
+        // 記憶時間をpost
+        const memoLogs = yield select(state => state.memoLogs);
+
+        const resPostMemoLogs = yield call(memoTrainingUtils.postMemoLogs, memoLogs);
+        if (!resPostMemoLogs.success) {
+            throw new Error('memo logs post failed');
+        }
 
         yield put(finishMemorizationPhase({ currentMiliUnixtime, }));
     }
@@ -451,6 +482,7 @@ export const memoTrainingReducer = handleActions(
                 return {
                     ...state,
                     trialId: action.payload.trialId,
+                    trialDeckIds: action.payload.trialDeckIds,
                     deckElementIdPairsLists: action.payload.deckElementIdPairsLists,
                     switchedPairMiliUnixtime: action.payload.currentMiliUnixtime,
 
@@ -590,6 +622,12 @@ export const memoTrainingReducer = handleActions(
             return {
                 ...state,
                 timerMiliUnixtime: action.payload.timerMiliUnixtime,
+            };
+        },
+        [pushMemoLogs]: (state, action) => {
+            return {
+                ...state,
+                memoLogs: state.memoLogs.concat(action.payload.memoLogs),
             };
         },
         // [initLoad]: (state, action) => {

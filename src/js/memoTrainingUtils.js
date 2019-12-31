@@ -127,11 +127,30 @@ export const postTrial = (userName, mode, deckIds) => {
     return rp(options);
 };
 
-export const postMemoLog = (arg) => {
-    console.dir(`memo log mock ${JSON.stringify(arg)}`);
+export const postMemoLogs = (memoLogs) => {
+    const logs = memoLogs.map((memoLog, i) => {
+        return {
+            ...memoLog,
+            ind: i,
+        };
+    });
+
+    const options = {
+        url: `${config.apiRoot}/memoLogMemorization`,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {
+            logs,
+        },
+    };
+
+    return rp(options);
 };
 
-export const postRecallLog = (arg) => {
+export const postRecallLogs = (arg) => {
     console.dir(`recall log mock ${JSON.stringify(arg)}`);
 };
 
