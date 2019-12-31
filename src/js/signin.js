@@ -66,7 +66,7 @@ const submit = () => {
             location.href = newUrl;
         })
         .catch((err) => {
-            if (err.statusCode == 400) {
+            if (err.statusCode === 400) {
                 alert('ユーザ名かパスワードが違います');
             } else {
                 alert('サーバと通信ができません。しばらく経ってから再度お試しください');

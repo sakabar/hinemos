@@ -1,8 +1,8 @@
 import React from 'react';
-import {Row} from 'reactstrap';
+import { Row, } from 'reactstrap';
 
 const MyRow = ({
-    ...rest,
+    ...rest
 }) => (
     <Row {...rest}/>
 );

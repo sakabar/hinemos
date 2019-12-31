@@ -1,8 +1,8 @@
 import React from 'react';
-import {ModalHeader} from 'reactstrap';
+import { ModalHeader, } from 'reactstrap';
 
 const MyModalHeader = ({
-    ...rest,
+    ...rest
 }) => (
     <ModalHeader {...rest}/>
 );

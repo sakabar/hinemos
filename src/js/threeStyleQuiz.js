@@ -262,6 +262,7 @@ const init = () => {
     const hintText = document.querySelector('.quizForm__hintText');
     const quizFormStartUnixTimeHidden = document.querySelector('.quizForm__startUnixTimeHidden');
     const h2Part = document.querySelector('.h2__part');
+    const onlyOnceCheckBox = document.querySelector('.settingForm__checkBox');
 
     // テスト時などは以降の処理をスキップ
     if (!quizFormLettersText) {
@@ -311,6 +312,7 @@ const init = () => {
     const reloadBtn = document.querySelector('.settingForm__reloadBtn');
     if (reloadBtn) {
         reloadBtn.addEventListener('click', () => reloadWithOptions(part, problemListType, quizOrder));
+        onlyOnceCheckBox.addEventListener('change', () => reloadWithOptions(part, problemListType, quizOrder));
     }
 
     const quizUrlStr = days ? `${config.apiRoot}/threeStyleQuizLog/${part.name}/${userName}?days=${days}` : `${config.apiRoot}/threeStyleQuizLog/${part.name}/${userName}`;

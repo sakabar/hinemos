@@ -1,8 +1,8 @@
 import React from 'react';
-import {Modal} from 'reactstrap';
+import { Modal, } from 'reactstrap';
 
 const MyModal = ({
-    ...rest,
+    ...rest
 }) => (
     <Modal {...rest}/>
 );

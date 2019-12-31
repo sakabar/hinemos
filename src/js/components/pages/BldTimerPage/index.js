@@ -11,10 +11,8 @@ import createSagaMiddleware from 'redux-saga';
 import BldTimerTemplate from '../../templates/BldTimerTemplate';
 import {
     analyzeMoveHistory,
-    // moveCube,
     requestConnectCube,
     updateMoveHistory,
-    startSolve,
     keyDown,
     keyUp,
     toggleScrambleModal,
@@ -68,10 +66,7 @@ const mapStateToProps = ({
 const mapDispatchToProps = (dispatch) => {
     return {
         markAsSolved: (miliUnixtime) => {
-            dispatch(updateMoveHistory({value: '', miliUnixtime, }));
-        },
-        moveCube: () => {
-            dispatch(moveCube());
+            dispatch(updateMoveHistory({ value: '', miliUnixtime, }));
         },
         requestConnectCube: () => {
             dispatch(requestConnectCube());

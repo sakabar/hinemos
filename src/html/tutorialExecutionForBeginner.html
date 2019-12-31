@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <script type="text/javascript" src="./auth.bundle.js?version=v1.6.0"></script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-119101911-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      if (localStorage.userName) {
+        gtag('config', 'UA-119101911-1', {
+          'user_id': localStorage.userName
+        });
+      } else {
+        gtag('config', 'UA-119101911-1');
+      }
+    </script>
+
+    <title>3BLD入門 M2/OP法 甘やかし編 個人レッスン 記憶編</title>
+    <meta charset="UTF-8">
+    <meta name="robots" content="noindex,nofollow,noarchive">
+    <meta http-equiv="pragma" content="no-store">
+    <meta http-equiv="cache-control" content="no-store">
+    <meta name="expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="./icon_bw.png">
+    <link rel="stylesheet" type="text/css" href="normalize.css">
+    <link rel="stylesheet" type="text/css" href="common.css?version=v1.6.0">
+    <link rel="stylesheet" type="text/css" href="tutorialExecutionForBeginner.css?version=v1.6.0">
+  </head>
+
+  <body>
+    <header>
+      <div class="header__bar">
+        <ul>
+          <li><a href="faq.html">FAQ</a></li>
+          <li><a href="signout.html">サインアウト</a></li>
+        </ul>
+      </div>
+
+      <a href="mypage.html"><img class="logo__img--rectangle" src="./tw_header.jpg?version=v1.6.0" alt="ロゴ"></a>
+    </header>
+
+    <main>
+      <h1>3BLD M2/OP法 甘やかし編 個人レッスン 実行編</h1>
+      <p>
+        こんにちは、hinemos管理人です。このページでは3BLDでのソルブに必要になる「実行」のやり方をご説明します。3BLD M2/OP法の記事は<a href="http://sak-cube.hatenablog.jp/entry/2018/05/12/221500">概論</a>、<a href="./tutorialAnalysisForBeginner.html">分析編</a>、<a href="./tutorialMemorizationForBeginner.html">記憶編</a>と続いてきましたが、今回の記事でようやく終わりになります。ここまで読んでくださってありがとうございます。
+      </p>
+
+      <p>
+        BLDの3つの要素のうちの1つが残っているので一見まだまだ大変なように見えますが、実際には分析と記憶ができていれば実行は難しくありません。いくつかの注意点を押さえつつ、焦らずゆっくり回しましょう。
+        </p>
+
+      <br/><!-- FIXME CSSを使おう -->
+      <br/><!-- FIXME CSSを使おう -->
+      <h2>準備・覚えておくこと</h2>
+      <h3>分析記憶コーナー→エッジ・実行エッジ→コーナー</h3>
+      分析記憶はコーナー→エッジ、実行はエッジ→コーナーの順に行いましょう。こうすると、後述のパリティ処理の都合がよいです。
+      <!-- (エッジコーナーコーナーエッジの頭文字を取って、CEECと略すことがあります) -->
+      <!-- <p>記憶編でも書きましたが、日本では分析記憶はコーナー→エッジ、実行はエッジ→コーナー(CEEC)の順に行う人が多いです。スピードを求めるならエッジを音記憶で行い、その記憶が消える前にすぐ実行してしまいます。音記憶を使うというだけならECCEの順でもいいですが、CEECだとコーナーを分析してパリティの有無が分かった場合で、エッジの分析に交換分析法を使うことができます。交換分析法の方法と効果については<a href="http://cubyy.blog.fc2.com/blog-entry-2.html">BLDにおけるパリティ処理にかかる手数の比較考察</a>(外部リンク)が詳しいですが、初成功を目指すレベルの方にとっては高度すぎると思います。</p> -->
+      <!-- 音記憶で12文字全てを覚えるのは実際厳しいため、最初と最後の2文字ずつをビジュアル記憶をするという人もいます。ビジュアル記憶はコーナーのほうが向きの自由度が多く難しいため、 -->
+      <!-- コーナーのほうがエッジより向きが複雑なためビジュアル記憶しにくいのでストーリーで覚える -->
+
+      <h3>実行のための手順</h3>
+      覚えた分析文字列を、<a href="./m2Mehtod.html">M2法手順表</a>と<a href="./oldPochmannMethod.html">Old Pochmann法手順表</a>を見て1文字ずつ実行してください。エッジのM列の一部の手順には「←→」という記号が付けてありますが、<strong>偶数番目にこの文字を実行する時には180度反対の手順を回してください</strong>。例えば、「<span class="emb__edgeMiddle--FU"></span>」(FUステッカー)の文字が偶数番目に出てきた時は「<span class="emb__edgeMiddle--BD"></span>」(BDステッカー)の手順を実行する必要があります。ただし、この反転現象はM2法特有のものであるため、反転後の文字列で覚えてしまう癖がつくと他の解法に移る際に困ります。<strong>元々の分析文字列を覚えて、実行する時だけ頭の中で反転させるようにしましょう</strong>。
+
+      <h3>パリティ処理</h3>
+     コーナーの分析文字列が奇数の場合(=エッジの分析文字列が奇数の場合)をパリティと呼びます。パリティのときにただ単にエッジの手順を回すと、エッジの実行が終わった時にM2された状態になってしまい、このままコーナーを揃えても完成しない状態になってしまいます。これを解消するには、エッジ実行後、またはコーナー実行後に以下の手順を回します。
+      <pre>
+        (D' L2 D) M2 (D' L2 D)
+      </pre>
+      回すタイミングはエッジ実行後とコーナー実行後のどちらでもいいのですが、最後まで残しておくと焦ってパリティ処理せずにタイマーストップしてしまいそうなので私はエッジ実行後に行っています。
+
+      <h3>M回転の方向</h3>
+      <p>手順の中でM列の回転記号が出てきますが、これは回転方向を間違えやすいです。Mが手前に倒す回転、M'が奥に倒す回転です。L回転と同じ方向として覚えましょう。</p>
+
+      <br/><!-- FIXME CSSを使おう -->
+      <br/><!-- FIXME CSSを使おう -->
+      <h2>Example solve</h2>
+      <h3>1ループ</h3>
+      自分の基準面でスクランブルしてください。
+      <pre>B2 L2 F2 D2 F2 R2 D' U2 R2 U2 F' U' R' F D' L F2 D' R</pre>
+      <h4>分析文字列</h4>
+      分析はコーナー→エッジ
+      <p>
+        コーナー:
+        <span class="emb__corner--UFR"></span>
+        <span class="emb__corner--RBD"></span>
+        <span class="emb__corner--LDF"></span>
+        <span class="emb__corner--DFR"></span>
+        <span class="emb__corner--LFU"></span>
+        <span class="emb__corner--BDL"></span>
+        <span class="emb__corner--UBR"></span>
+      </p>
+
+      <p>
+        コーナー7文字で奇数なのでパリティ処理あり
+      </p>
+
+      <p>
+        エッジ:
+        <span class="emb__edgeMiddle--DR"></span>
+        <span class="emb__edgeMiddle--DL"></span>
+        <span class="emb__edgeMiddle--UB"></span>
+        <span class="emb__edgeMiddle--UL"></span>
+        <span class="emb__edgeMiddle--FL"></span>
+        <span class="emb__edgeMiddle--FU"></span>
+        <span class="emb__edgeMiddle--UR"></span>
+        <span class="emb__edgeMiddle--DB"></span>
+        <span class="emb__edgeMiddle--BR"></span>
+        <span class="emb__edgeMiddle--BL"></span>
+        <span class="emb__edgeMiddle--FR"></span>
+      </p>
+
+      ※エッジで
+      「
+      <span class="emb__edgeMiddle--FL"></span>
+      <span class="emb__edgeMiddle--FU"></span>
+      」
+      を回す時は、偶数文字目M列手順なので180度反対の文字と入れ換わって、
+      「<span class="emb__edgeMiddle--FL"></span>
+      <span class="emb__edgeMiddle--BD"></span>」
+      となります。同様に、
+      「
+        <span class="emb__edgeMiddle--UR"></span>
+        <span class="emb__edgeMiddle--DB"></span>
+      」を回す時は、
+        「
+        <span class="emb__edgeMiddle--UR"></span>
+        <span class="emb__edgeMiddle--UF"></span>
+        」の手順を回しましょう。
+
+        <h4>実行する際の手順</h4>
+        実行はエッジ→コーナー
+      <p>
+        エッジ:
+        <ul>
+          <li><span class="emb__edgeMiddle--DR"></span> : <pre>(U R2 U') M2 (U R2 U')</pre></li>
+          <li><span class="emb__edgeMiddle--DL"></span> : <pre>(U' L2 U) M2 (U' L2 U)</pre></li>
+          <li><span class="emb__edgeMiddle--UB"></span> : <pre>M2</pre></li>
+          <li><span class="emb__edgeMiddle--UL"></span> : <pre>(L' U' L U) M2 (U' L' U L)</pre></li>
+          <li><span class="emb__edgeMiddle--FL"></span> : <pre>(U' L' U) M2 (U' L U)</pre></li>
+          <li><span class="emb__edgeMiddle--BD"></span> : <pre>M2 D (U R2 U') M' (U R2 U') M D'</pre></li>
+          <li><span class="emb__edgeMiddle--UR"></span> : <pre>(R U R' U') M2 (U R U' R')</pre></li>
+          <li><span class="emb__edgeMiddle--UF"></span> : <pre>U2 M' U2 M'</pre></li>
+          <li><span class="emb__edgeMiddle--BR"></span> : <pre>(U R' U') M2 (U R U')</pre></li>
+          <li><span class="emb__edgeMiddle--BL"></span> : <pre>(U' L U) M2 (U' L' U)</pre></li>
+          <li><span class="emb__edgeMiddle--FR"></span> : <pre>(U R U') M2 (U R' U')</pre></li>
+        </ul>
+      </p>
+      <p>
+        <ul>
+          <li>パリティ処理: <pre>(D' L2 D) M2 (D' L2 D)</pre></li>
+        </ul>
+      </p>
+
+      <p>
+        コーナー:
+        <ul>
+          <li><span class="emb__corner--UFR"></span> : <pre>F (R (U' R' U' R U R' F' R U R' U' R' F) R) F'</pre></li>
+          <li><span class="emb__corner--RBD"></span> : <pre>R2 (U' R' U' R U R' F' R U R' U' R' F)</pre></li>
+          <li><span class="emb__corner--LDF"></span> : <pre>D2 (R2 (U' R' U' R U R' F' R U R' U' R' F)) D2</pre></li>
+          <li><span class="emb__corner--DFR"></span> : <pre>F' ((U' R' U' R U R' F' R U R' U' R' F) R2) F</pre></li>
+          <li><span class="emb__corner--LFU"></span> : <pre>F2 (R (U' R' U' R U R' F' R U R' U' R' F) R) F2</pre></li>
+          <li><span class="emb__corner--BDL"></span> : <pre>D (R2 (U' R' U' R U R' F' R U R' U' R' F)) D'</pre></li>
+          <li><span class="emb__corner--UBR"></span> : <pre>R D' (R (U' R' U' R U R' F' R U R' U' R' F) R) D R'</pre></li>
+        </ul>
+      </p>
+
+
+      <h3>2ループ</h3>
+      <p>
+        同様に分析文字列と実行手順の一例を載せておくので、1文字ぶんずつ回してみて理解を深めてください。ループを始める時のステッカーを変えてやってみることで、理解度を確かめることができると思います。
+      </p>
+
+      自分の基準面でスクランブルしてください。
+      <pre>D' B2 F2 D2 B2 U' B2 F2 R2 B' D2 F' L' R U' B U F L2</pre>
+
+      <h4>分析文字列</h4>
+      <p>
+        コーナー:
+        <span class="emb__corner--RBD"></span>
+        <span class="emb__corner--FDR"></span>
+        <span class="emb__corner--LBD"></span>
+        <span class="emb__corner--LDF"></span>
+        <span class="emb__corner--UFL"></span>
+        (ループ切れ)
+        <span class="emb__corner--UBR"></span>
+        <span class="emb__corner--UFR"></span>
+        <span class="emb__corner--UBR"></span>
+      </p>
+
+
+      <p>
+        コーナー8文字で偶数文字なのでパリティ処理なし
+      </p>
+
+      <p>
+        エッジ:
+        <span class="emb__edgeMiddle--BD"></span>
+        <span class="emb__edgeMiddle--UF"></span>
+        <span class="emb__edgeMiddle--RD"></span>
+        <span class="emb__edgeMiddle--DL"></span>
+        <span class="emb__edgeMiddle--BU"></span>
+        <span class="emb__edgeMiddle--BR"></span>
+        <span class="emb__edgeMiddle--LU"></span>
+        <span class="emb__edgeMiddle--UR"></span>
+        (ループ切れ)
+        <span class="emb__edgeMiddle--FR"></span>
+        <span class="emb__edgeMiddle--BL"></span>
+        <span class="emb__edgeMiddle--FL"></span>
+        <span class="emb__edgeMiddle--RF"></span>
+      </p>
+
+        <h4>実行する際の手順</h4>
+      <p>
+        エッジ:
+        <ul>
+        <li><span class="emb__edgeMiddle--BD"></span> : <pre>M2 D (U R2 U') M' (U R2 U') M D'</pre></li>
+        <li><span class="emb__edgeMiddle--UF"></span> : <pre>M U2 M U2</pre></li>
+        <li><span class="emb__edgeMiddle--RD"></span> : <pre>(B' R' B) M2 (B' R B)</pre></li>
+        <li><span class="emb__edgeMiddle--DL"></span> : <pre>(U' L2 U) M2 (U' L2 U)</pre></li>
+        <li><span class="emb__edgeMiddle--BU"></span> : <pre>(U' M' U' M' U' M') U' M (U' M' U' M' U' M' U' M')</pre></li>
+        <li><span class="emb__edgeMiddle--BR"></span> : <pre>(U R' U') M2 (U R U')</pre></li>
+        <li><span class="emb__edgeMiddle--LU"></span> : <pre>(B L' B') M2 (B L B')</pre></li>
+        <li><span class="emb__edgeMiddle--UR"></span> : <pre>(R U R' U') M2 (U R U' R')</pre></li>
+        <strong>(ループが切れたので好きなステッカーから再開)</strong>
+        <li><span class="emb__edgeMiddle--FR"></span> : <pre>(U R U') M2 (U R' U')</pre></li>
+        <li><span class="emb__edgeMiddle--BL"></span> : <pre>(U' L U) M2 (U' L' U)</pre></li>
+        <li><span class="emb__edgeMiddle--FL"></span> : <pre>(U' L' U) M2 (U' L U)</pre></li>
+        <li><span class="emb__edgeMiddle--RF"></span> : <pre>(B' R2 B) M2 (B' R2 B)</pre></li>
+        </ul>
+      </p>
+
+      <p>
+        パリティ処理なし
+      </p>
+
+      <p>
+        コーナー:
+        <ul>
+        <li><span class="emb__corner--RBD"></span> : <pre>R2 (U' R' U' R U R' F' R U R' U' R' F)</pre></li>
+        <li><span class="emb__corner--FDR"></span> : <pre>D (R2 (U' R' U' R U R' F' R U R' U' R' F)) D'</pre></li>
+        <li><span class="emb__corner--LBD"></span> : <pre>D2 (R (U' R' U' R U R' F' R U R' U' R' F) R) D2</pre></li>
+        <li><span class="emb__corner--LDF"></span> : <pre>D2 (R2 (U' R' U' R U R' F' R U R' U' R' F)) D2</pre></li>
+        <li><span class="emb__corner--UFL"></span> : <pre>F ((U' R' U' R U R' F' R U R' U' R' F) R2) F'</pre></li>
+        <strong>(ループが切れたので好きなステッカーから再開)</strong>
+        <li><span class="emb__corner--UBR"></span> : <pre>R D' (R (U' R' U' R U R' F' R U R' U' R' F) R) D R'</pre></li>
+        <li><span class="emb__corner--UFR"></span> : <pre>F (R (U' R' U' R U R' F' R U R' U' R' F) R) F'</pre></li>
+        <li><span class="emb__corner--UBR"></span> : <pre>R D' (R (U' R' U' R U R' F' R U R' U' R' F) R) D R'</pre></li>
+        </ul>
+      </p>
+
+      <!-- <h3>EO・CO</h3> -->
+
+
+      <h2>終わりに</h2>
+      <p>
+        ここまでお読みいただきありがとうございました。大会で自分の力を試すもよし、一発芸に使うもよし。目的は人それぞれ何でも良いので、それに向かってぜひ3BLDが自力でできるように練習してみてください。hinemosはあなたを応援します。
+
+        なお、分かりにくい点や誤りなどを見つけたらご連絡ください。
+        <!-- 3BLDができるようになると4BLD, 5BLD, MBLDなど別の競技への道が開けます。いち競技者として3BLD頑張って! -->
+        </p>
+      <br/><!-- FIXME CSSを使おう -->
+
+    </main>
+    <script type="text/javascript" src="./tutorialAnalysisForBeginner.bundle.js?version=v1.6.0"></script>
+
+  </body>
+</html>

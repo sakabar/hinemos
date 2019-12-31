@@ -1,8 +1,8 @@
 import React from 'react';
-import {Container} from 'reactstrap';
+import { Container, } from 'reactstrap';
 
 const MyContainer = ({
-    ...rest,
+    ...rest
 }) => (
     <Container {...rest}/>
 );

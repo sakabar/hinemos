@@ -9,7 +9,6 @@ import {
 import Br from '../../atoms/Br';
 import Button from '../../atoms/Button';
 import Textarea from '../../atoms/Textarea';
-import Textbox from '../../atoms/Textbox';
 import Txt from '../../atoms/Txt';
 import TimerCount from '../../molecules/TimerCount';
 import Header from '../../organisms/Header';
@@ -59,7 +58,7 @@ const BldTimerTemplate = (
     <div>
         <Header title="BLD Smart Timer"/>
 
-        <main className="bldTimerTemplateMain" tabIndex="0" onKeyDown={(e) => { if (!isOpenScrambleModal && !isOpenFirstRotationModal) { keyDown(e); } if (!isOpenScrambleModal && !isOpenFirstRotationModal && e.keyCode === 32) { e.preventDefault(); }}} onKeyUp={(e) => { if (!isOpenScrambleModal && !isOpenFirstRotationModal) { keyUp(e); } if (!isOpenScrambleModal && !isOpenFirstRotationModal && e.keyCode === 32) { e.preventDefault(); }}} >
+        <main className="bldTimerTemplateMain" tabIndex="0" onKeyDown={(e) => { if (!isOpenScrambleModal && !isOpenFirstRotationModal) { keyDown(e); } if (!isOpenScrambleModal && !isOpenFirstRotationModal && e.keyCode === 32) { e.preventDefault(); } }} onKeyUp={(e) => { if (!isOpenScrambleModal && !isOpenFirstRotationModal) { keyUp(e); } if (!isOpenScrambleModal && !isOpenFirstRotationModal && e.keyCode === 32) { e.preventDefault(); } }} >
             <Txt>既知のバグや仕様については<Link to={`/${urlRoot}/faq.html`}>FAQ</Link>をご覧ください。</Txt>
             <Txt>もし必要なら、<Link to={`/${urlRoot}/threeStyle/scrambler.html`}>登録済の3-styleだけが出現するスクランブルを生成する</Link>機能も併せてご利用ください。</Txt>
             <ButtonToolbar>
@@ -80,7 +79,8 @@ const BldTimerTemplate = (
                     updateMoveHistory({
                         value: e.target.value,
                         miliUnixtime: parseInt(moment().format('x')),
-                    })}}
+                    });
+                }}
                 className="moveSeqTextbox"
                 value={moveHistoryStr}
             />

@@ -1,9 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Br from '../../atoms/Br';
 import Txt from '../../atoms/Txt';
-import Textbox from '../../atoms/Textbox';
-const moment = require('moment');
 const bldTimerUtils = require('../../../bldTimerUtils');
 
 const TimerCount = ({
@@ -15,10 +12,10 @@ const TimerCount = ({
 }) => {
     let memoSecStr = '0.00?';
     if (solveStartMiliUnixtime && memorizeDoneMiliUnixtime) {
-        memoSecStr = ((memorizeDoneMiliUnixtime - solveStartMiliUnixtime) / 1000.0).toFixed(2)
+        memoSecStr = ((memorizeDoneMiliUnixtime - solveStartMiliUnixtime) / 1000.0).toFixed(2);
     }
     if (solveStartMiliUnixtime && !memorizeDoneMiliUnixtime) {
-          memoSecStr = `${timerCount.toFixed(2)}?`;
+        memoSecStr = `${timerCount.toFixed(2)}?`;
     }
 
     let execSecStr = '0.00?';
@@ -41,12 +38,11 @@ const TimerCount = ({
 
     const timerCountDisp = `${memoSecStr} + ${execSecStr} = ${totalSecStr}`;
 
-
     // waitingかつ100ミリ秒以上 →緑
     // waiting 赤
     // それ以外: 黒
     let colorStyle = {
-        color: "black",
+        color: 'black',
     };
 
     if (timerState === bldTimerUtils.TimerState.holding) {

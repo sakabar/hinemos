@@ -293,7 +293,7 @@ const submit = (part) => {
                             } else if (order === '遅い順') {
                                 sortedLineObjList = lineObjList.sort((a, b) => ((a.registered ? 1 : 0) - (b.registered ? 1 : 0)) || -((a.solved === 0 && a.tried === 0 ? 1 : 0) - (b.solved === 0 && b.tried === 0 ? 1 : 0)) || -(a.avgSec - b.avgSec) || (a.solved - b.solved) || -(a.tried - b.tried));
                             } else if (order === 'tpsが低い順') {
-                                sortedLineObjList = lineObjList.sort((a, b) => ((a.registered ? 1 : 0) - (b.registered ? 1 : 0)) || -((a.solved === 0 && a.tried === 0 ? 1 : 0) - (b.solved === 0 && b.tried === 0 ? 1 : 0)) || (a.tps - b.tps) ||  -(a.avgSec - b.avgSec) || (a.solved - b.solved) || -(a.tried - b.tried));
+                                sortedLineObjList = lineObjList.sort((a, b) => ((a.registered ? 1 : 0) - (b.registered ? 1 : 0)) || -((a.solved === 0 && a.tried === 0 ? 1 : 0) - (b.solved === 0 && b.tried === 0 ? 1 : 0)) || (a.tps - b.tps) || -(a.avgSec - b.avgSec) || (a.solved - b.solved) || -(a.tried - b.tried));
                             }
 
                             for (let i = 0; i < sortedLineObjList.length; i++) {
@@ -331,7 +331,6 @@ const submit = (part) => {
                                     if ((obj.solved !== 0 || obj.tried !== 0) && obj.avgSec > 0.0) {
                                         tdNodeAvgSec.appendChild(document.createTextNode(`${obj.avgSec.toFixed(2)}秒`));
                                         tdNodeTps.appendChild(document.createTextNode(`${obj.tps.toFixed(2)}tps`));
-
                                     }
                                     trNode.appendChild(tdNodeAvgSec);
                                     trNode.appendChild(tdNodeTps);

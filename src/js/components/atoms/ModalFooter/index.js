@@ -1,8 +1,8 @@
 import React from 'react';
-import {ModalFooter} from 'reactstrap';
+import { ModalFooter, } from 'reactstrap';
 
 const MyModalFooter = ({
-    ...rest,
+    ...rest
 }) => (
     <ModalFooter {...rest}/>
 );

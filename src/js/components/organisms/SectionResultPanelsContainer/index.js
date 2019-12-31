@@ -22,23 +22,23 @@ const SectionResultPanelsContainer = ({
     const sumInfo = (solveDoneMiliUnixtime && sectionResults.length > 0) ? `想起合計: ${recallSecSum.toFixed(2)} / 実行合計: ${execSecSum.toFixed(2)} / タイマーストップ: ${timerStopSec.toFixed(2)}` : '想起合計:     / 実行合計:    / タイマーストップ:     ';
 
     return (
-    <div>
-        <Heading2>解析結果</Heading2>
-        <Txt>{sumInfo}</Txt>
-        <Container>
-            <Row>
-            {
-                sectionResults.map((secRes, ind) =>
-                    <Col key={ind} xs="3">
-                        <SectionResultPanel sectionResult={secRes} className="h-100"/>
-                    </Col>
-                )
-            }
-            </Row>
-        </Container>
-    </div>
+        <div>
+            <Heading2>解析結果</Heading2>
+            <Txt>{sumInfo}</Txt>
+            <Container>
+                <Row>
+                    {
+                        sectionResults.map((secRes, ind) =>
+                            <Col key={ind} xs="3">
+                                <SectionResultPanel sectionResult={secRes} className="h-100"/>
+                            </Col>
+                        )
+                    }
+                </Row>
+            </Container>
+        </div>
     );
-}
+};
 
 SectionResultPanelsContainer.propTypes = {
     sectionResults: PropTypes.array,

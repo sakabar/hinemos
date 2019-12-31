@@ -14,6 +14,14 @@ const defaultColor = {
     D: '黄',
 };
 
+const threeStyleEvangelists = [
+    'Ishaan_DF_UBL',
+    'Graham_DF_UBL',
+    'Graham_UF_UFR',
+    'Jack_UF_UFR',
+];
+
 exports.partType = partType;
 exports.faces = faces;
 exports.defaultColor = defaultColor;
+exports.threeStyleEvangelists = threeStyleEvangelists;
