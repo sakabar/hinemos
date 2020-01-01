@@ -103,6 +103,7 @@ export const postDeck = (elementIdsList) => {
         json: true,
         form: {
             elementIdsList,
+            token: localStorage.token,
         },
     };
 
@@ -121,6 +122,7 @@ export const postTrial = (userName, mode, deckIds) => {
             userName,
             mode,
             deckIds,
+            token: localStorage.token,
         },
     };
 
@@ -144,6 +146,7 @@ export const postMemoLogs = (memoLogs) => {
         json: true,
         form: {
             logs,
+            token: localStorage.token,
         },
     };
 
@@ -164,6 +167,7 @@ export const postMemoScore = (arg) => {
         json: true,
         form: {
             ...arg,
+            token: localStorage.token,
         },
     };
 
