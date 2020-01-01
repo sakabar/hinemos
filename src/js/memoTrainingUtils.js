@@ -154,6 +154,33 @@ export const postRecallLogs = (arg) => {
     console.dir(`recall log mock ${JSON.stringify(arg)}`);
 };
 
+export const postMemoScore = (arg) => {
+    // const options = {
+    //     url: `${config.apiRoot}/memoScore`,
+    //     method: 'POST',
+    //     headers: {
+    //         'Content-Type': 'application/json',
+    //     },
+    //     json: true,
+    //     form: {
+    //         ...arg
+    //     },
+    // };
+
+    // return rp(options);
+
+    const res = {
+        success: {
+            code: 200,
+            result: [],
+            arg,
+        },
+    };
+
+    console.dir(JSON.stringify(res));
+    return Promise.resolve(res);
+};
+
 export const numberingCornerMock = [
     { userName: 'tsakakib', sticker: 'UBL', letter: '@', },
     { userName: 'tsakakib', sticker: 'UBR', letter: 'さ', },

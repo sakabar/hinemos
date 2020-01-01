@@ -319,10 +319,45 @@ function * handleFinishMemorizationPhase () {
 
         // 記憶時間をpost
         const memoLogs = yield select(state => state.memoLogs);
-
         const resPostMemoLogs = yield call(memoTrainingUtils.postMemoLogs, memoLogs);
         if (!resPostMemoLogs.success) {
             throw new Error('memo logs post failed');
+        }
+
+        // 変換練習の場合はここでScoreをPOSTする
+        const mode = yield select(state => state.mode);
+        if (mode === memoTrainingUtils.TrainingMode.transformation) {
+            const trialId = yield select(state => state.trialId);
+            const deckNum = yield select(state => state.deckNum);
+            const decks = yield select(state => state.decks);
+            const allElements = _.sum(decks.map(deck => {
+                return _.sum(deck.map(pair => pair.length));
+            }));
+
+            const startMemoMiliUnixtime = yield select(state => state.startMemoMiliUnixtime);
+            const sec = (currentMiliUnixtime - startMemoMiliUnixtime) / 1000.0;
+
+            const triedDecks = new Set(memoLogs.map(log => log.trialDeckId)).size;
+            const triedElements = new Set(memoLogs.map(log => log.deckElementId)).size;
+
+            const arg = {
+                trialId,
+
+                successDecks: null,
+                triedDecks,
+                allDecks: deckNum,
+
+                successElements: null,
+                triedElements,
+                allElements,
+
+                sec,
+            };
+
+            const resPostMemoScore = yield call(memoTrainingUtils.postMemoScore, arg);
+            if (!resPostMemoScore.success) {
+                throw new Error('Error postMemoScore()');
+            }
         }
 
         yield put(finishMemorizationPhase({ currentMiliUnixtime, }));
