@@ -502,13 +502,21 @@ export const memoTrainingReducer = handleActions(
             };
         },
         [finishMemorizationPhase]: (state, action) => {
-            return {
-                ...state,
-                phase: memoTrainingUtils.TrainingPhase.recall,
-                startRecallMiliUnixtime: action.payload.currentMiliUnixtime,
-                deckInd: 0,
-                pairInd: 0,
-            };
+            // 変換練習だったら、記憶時間の終了 = 練習の終了なので初期状態に戻す
+            // 記録ページができたらそっちに飛んだほうがいいかも? FIXME
+            if (state.mode === memoTrainingUtils.TrainingMode.transformation) {
+                return _.cloneDeep(initialState);
+            } else if (state.mode === memoTrainingUtils.TrainingMode.memorization) {
+                return {
+                    ...state,
+                    phase: memoTrainingUtils.TrainingPhase.recall,
+                    startRecallMiliUnixtime: action.payload.currentMiliUnixtime,
+                    deckInd: 0,
+                    pairInd: 0,
+                };
+            } else {
+                throw new Error(`unexpected mode : ${state.mode}`);
+            }
         },
         [goToNextPair]: (state, action) => {
             if (state.pairInd === state.decks[state.deckInd].length - 1) {
