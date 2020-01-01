@@ -155,30 +155,19 @@ export const postRecallLogs = (arg) => {
 };
 
 export const postMemoScore = (arg) => {
-    // const options = {
-    //     url: `${config.apiRoot}/memoScore`,
-    //     method: 'POST',
-    //     headers: {
-    //         'Content-Type': 'application/json',
-    //     },
-    //     json: true,
-    //     form: {
-    //         ...arg
-    //     },
-    // };
-
-    // return rp(options);
-
-    const res = {
-        success: {
-            code: 200,
-            result: [],
-            arg,
+    const options = {
+        url: `${config.apiRoot}/memoScore`,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {
+            ...arg,
         },
     };
 
-    console.dir(JSON.stringify(res));
-    return Promise.resolve(res);
+    return rp(options);
 };
 
 export const numberingCornerMock = [
