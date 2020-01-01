@@ -18,8 +18,8 @@ const PlayingCard = ({
         const aRowInd = rowInd || 0;
         return (
             <Span>
-                <Img src={cardImgDict[tag]} style={{ width: '25%', height: '25%', zIndex: `${2 * aColInd}`, margin: 0, marginLeft: `${aColInd === 0 ? 0 : -25 + 4}%`, marginTop: `${aRowInd === 0 ? 0 : -25 + 5}%`, }} alt={tag} />
-                <Img src={cardImg} onClick={onClick} style={{ width: '25%', height: '25%', zIndex: `${2 * aColInd + 1}`, margin: 0, marginLeft: '-25%', marginTop: `${aRowInd === 0 ? 0 : -25 + 5}%`, }} />
+                <Img src={cardImgDict[tag]} style={{ width: '150px', zIndex: `${2 * aColInd}`, margin: 0, marginLeft: `${aColInd === 0 ? 0 : (-150 + 150 * 0.17)}px`, }} alt={tag} />
+                <Img src={cardImg} onClick={onClick} style={{ width: '150px', zIndex: `${2 * aColInd + 1}`, margin: 0, marginLeft: '-150px', }} />
             </Span>
         );
     })()
