@@ -1,10 +1,11 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 // import {
 //     Link,
 // } from 'react-router-dom';
 import Br from '../../atoms/Br';
 // import Button from '../../atoms/Button';
-import Txt from '../../atoms/Txt';
+// import Txt from '../../atoms/Txt';
 import Header from '../../organisms/Header';
 import Select from '../../molecules/Select';
 import SortableTbl from 'react-sort-search-table';
@@ -12,6 +13,7 @@ import SortableTbl from 'react-sort-search-table';
 // const path = require('path');
 const memoTrainingUtils = require('../../../memoTrainingUtils');
 const _ = require('lodash');
+const moment = require('moment');
 
 // const urlRoot = path.basename(config.urlRoot);
 
@@ -20,72 +22,90 @@ const eventOptions = [
     [ 'cards', 'Cards', ],
 ];
 
-const trialOptions = [
+const modeOptions = [
+    [ '', '', ],
     [ 'memorization', '記憶練習', ],
     [ 'transformation', '変換練習', ],
 ];
 
-const MemoTrainingResultTemplate = () => (
+const formatAcc = (n, d, acc) => {
+    if (n === null || acc === null) {
+        return `${d}`;
+    }
+
+    return `${n}/${d} (${Math.floor(acc * 100)}%)`;
+};
+
+const formatTime = (sec) => {
+    if (sec === null) {
+        return '';
+    }
+
+    const hour = String(Math.floor(sec / 3600.0)).padStart(2, '0');
+    const minute = String(Math.floor((sec - 3600 * hour) / 60.0)).padStart(2, '0');
+    const remainSec = String(Math.floor(sec - 3600 * hour - 60 * minute)).padStart(2, '0');
+
+    return `${hour}:${minute}:${remainSec}`;
+};
+
+const MemoTrainingResultTemplate = (
+    {
+        event,
+        mode,
+        scores,
+
+        sagaFetchScores,
+    }
+) => (
     <div>
         <Header title="MemoTraining Result" />
 
         <main>
-            <Select options={eventOptions} />
+            <Select options={eventOptions} defaultValue={eventOptions[0][0]} onChange={(e) => { sagaFetchScores(e.target.value, mode); }}/>
             <Br/>
-            <Select options={trialOptions} />
+            <Select options={modeOptions} defaultValue={modeOptions[0][0]} onChange={(e) => { sagaFetchScores(event, e.target.value); }}/>
 
             <Br/>
 
             {
 
                 (() => {
-                    const MyData = [
-                        {
-                            datetime: '2019/12/18 16:00',
-                            successDeckNum: 19,
-                            triedDeckNum: 25,
-                            deckAcc: 0.76,
-                            successElementNum: 450,
-                            triedElementNum: 500,
-                            elementAcc: 0.90,
-                            memoTime: '40:20',
-                            recallTime: '20:10',
-                        },
-                        {
-                            datetime: '2019/12/18 18:00',
-                            successDeckNum: 19,
-                            triedDeckNum: 25,
-                            deckAcc: 0.76,
-                            successElementNum: 450,
-                            triedElementNum: 500,
-                            elementAcc: 0.90,
-                            memoTime: '20:00',
-                            recallTime: '10:00',
-                        },
-                    ];
+                    const MyData = scores.map(score => {
+                        return {
+                            createdAt: moment(score.createdAt).format('YYYY-MM-DD HH:mm:ss'),
+                            totalMemoTime: formatTime(score.totalMemoSec),
+                            totalRecallTime: formatTime(score.totalRecallSec),
+
+                            triedDecks: formatAcc(score.successDeckNum, score.triedDeckNum, score.triedDeckAcc),
+                            allDecks: formatAcc(score.successDeckNum, score.allDeckNum, score.allDeckAcc),
+
+                            triedElements: formatAcc(score.successElementNum, score.triedElementNum, score.triedElementAcc),
+                            allElements: formatAcc(score.successElementNum, score.allElementNum, score.allElementAcc),
+                        };
+                    });
 
                     const tHead = [
                         '日時',
-                        '成功(束)',
+                        '記憶時間',
+                        '回答時間',
+
                         '挑戦(束)',
-                        '成功率(束)',
-                        '成功(札)',
+                        '全体(束)',
+
                         '挑戦(札)',
-                        '成功率(束)',
-                        '記憶時間',
-                        '記憶時間',
+                        '全体(札)',
                     ];
 
                     const col = [
-                        'datetime',
-                        'successDeckNum',
-                        'triedDeckNum',
-                        'deckAcc',
-                        'successElementNum',
-                        'triedElementNum',
-                        'deckAcc',
-                        'memoTime',
-                        'recallTime',
+                        'createdAt',
+                        'totalMemoTime',
+                        'totalRecallTime',
+
+                        'triedDecks',
+                        'allDecks',
+
+                        'triedElements',
+                        'allElements',
                     ];
 
                     return (<SortableTbl tblData={MyData}
@@ -190,5 +210,13 @@ const MemoTrainingResultTemplate = () => (
 
     </div>
 );
+
+MemoTrainingResultTemplate.propTypes = {
+    event: PropTypes.string.isRequired,
+    mode: PropTypes.string.isRequired,
+    scores: PropTypes.array.isRequired,
+
+    sagaFetchScores: PropTypes.func.isRequired,
+};
 
 export default MemoTrainingResultTemplate;

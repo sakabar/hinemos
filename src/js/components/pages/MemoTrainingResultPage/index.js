@@ -10,23 +10,29 @@ import {
 import createSagaMiddleware from 'redux-saga';
 import MemoTrainingResultTemplate from '../../templates/MemoTrainingResultTemplate';
 import {
+    sagaFetchScores,
+
     memoTrainingResultReducer,
     rootSaga,
 } from '../../../modules/memoTrainingResult';
-const memoTrainingUtils = require('../../../memoTrainingUtils');
+// const memoTrainingUtils = require('../../../memoTrainingUtils');
 
 const mapStateToProps = ({
-dummy
+    event,
+    mode,
+    scores,
 }) => {
     return {
-dummy
+        event,
+        mode,
+        scores,
     };
 };
 
 const mapDispatchToProps = (dispatch) => {
     return {
-    aaaaAction: () => {
-            dispatch(aaaaAction());
+        sagaFetchScores: (event, mode) => {
+            dispatch(sagaFetchScores({ event, mode, }));
         },
     };
 };
