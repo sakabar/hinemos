@@ -110,7 +110,7 @@ export const postDeck = (elementIdsList) => {
     return rp(options);
 };
 
-export const postTrial = (userName, mode, deckIds) => {
+export const postTrial = (userName, event, mode, deckIds) => {
     const options = {
         url: `${config.apiRoot}/memoTrial`,
         method: 'POST',
@@ -120,6 +120,7 @@ export const postTrial = (userName, mode, deckIds) => {
         json: true,
         form: {
             userName,
+            event,
             mode,
             deckIds,
             token: localStorage.token,

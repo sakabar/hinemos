@@ -207,7 +207,7 @@ function * handleStartMemorizationPhase () {
 
         // trialをPOSTする
         const mode = action.payload.mode;
-        const resPostTrial = yield call(memoTrainingUtils.postTrial, userName, mode, deckIds);
+        const resPostTrial = yield call(memoTrainingUtils.postTrial, userName, memoEvent, mode, deckIds);
         const trialId = resPostTrial.success.result.trialId;
         const trialDeckIds = resPostTrial.success.result.trialDeckIds;
 
