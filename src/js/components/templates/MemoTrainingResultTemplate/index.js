@@ -4,7 +4,7 @@ import {
     Link,
 } from 'react-router-dom';
 import Br from '../../atoms/Br';
-// import Button from '../../atoms/Button';
+import Button from '../../atoms/Button';
 import Txt from '../../atoms/Txt';
 import Header from '../../organisms/Header';
 import Select from '../../molecules/Select';
@@ -69,10 +69,13 @@ const MemoTrainingResultTemplate = (
         <main>
             <Link to={`/${urlRoot}/memoTraining/index.html`}>記憶トレーニング トップ</Link>
             <Br/>
-
-            <Select options={eventOptions} defaultValue={eventOptions[0][0]} onChange={(e) => { sagaFetchScores(e.target.value, mode); }}/>
-            <Br/>
-            <Select options={modeOptions} defaultValue={modeOptions[0][0]} onChange={(e) => { sagaFetchScores(event, e.target.value); }}/>
+            <div>
+                <Select options={eventOptions} defaultValue={eventOptions[0][0]} onChange={(e) => { sagaFetchScores(e.target.value, mode); }}/>
+                <Br/>
+                <Select options={modeOptions} defaultValue={modeOptions[0][0]} onChange={(e) => { sagaFetchScores(event, e.target.value); }}/>
+                <Br/>
+                <Button value="リロード" onClick={(e) => { sagaFetchScores(event, mode); }}/>
+            </div>
 
             <Br/>
 
