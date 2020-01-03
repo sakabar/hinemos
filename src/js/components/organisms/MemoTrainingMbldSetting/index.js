@@ -5,7 +5,7 @@ import {
 import PropTypes from 'prop-types';
 import Br from '../../atoms/Br';
 import Select from '../../molecules/Select';
-import ModeDecisionButtons from '../../molecules/modeDecisionButtons';
+import ModeDecisionButtons from '../../molecules/ModeDecisionButtons';
 const config = require('../../../config');
 const path = require('path');
 
