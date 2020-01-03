@@ -160,7 +160,7 @@ export const postRecallLogs = (arg) => {
 
 export const postMemoScore = (arg) => {
     const options = {
-        url: `${config.apiRoot}/memoScore`,
+        url: `${config.apiRoot}/postMemoScore`,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

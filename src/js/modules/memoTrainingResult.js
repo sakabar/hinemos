@@ -30,13 +30,18 @@ const initialState = {
 
 const fetchScore = (userName, event, mode) => {
     const options = {
-        url: `${config.apiRoot}/memoScore?userName=${userName}&event=${event}&mode=${mode}`,
-        method: 'GET',
+        url: `${config.apiRoot}/getMemoScore`,
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         json: true,
-        form: {},
+        form: {
+            userName,
+            event,
+            mode,
+            token: localStorage.token,
+        },
     };
 
     return rp(options);
