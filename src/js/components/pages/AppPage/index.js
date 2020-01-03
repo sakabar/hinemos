@@ -39,7 +39,9 @@ const routeDict = {
 
 const flatRouteDict = appPageUtils.flattenRouteDict(routeDict);
 
-if (!Object.keys(flatRouteDict).map(path => `${config.urlRoot}/${path}`).includes(location.href)) {
+// オプション(?以降)は考慮せずに比較
+const pathname = `${location.protocol}//${location.host}${location.pathname}`;
+if (!Object.keys(flatRouteDict).map(path => `${config.urlRoot}/${path}`).includes(pathname)) {
     location.href = `${config.urlRoot}/top.html`;
 }
 
