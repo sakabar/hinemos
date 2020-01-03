@@ -54,7 +54,7 @@ const MemoTrainingMbldTemplate = (
     <div>
         <Header title="MemoTraining MBLD" />
 
-        <main tabIndex="-1" onKeyDown={ (e) => { sagaOnKeyDown(e); } } >
+        <main className="memoTraining__main" tabIndex="-1" onKeyDown={ (e) => { sagaOnKeyDown(e); } } >
             {
                 (() => {
                     if (phase === memoTrainingUtils.TrainingPhase.setting) {

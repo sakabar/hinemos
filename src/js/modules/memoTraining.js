@@ -223,6 +223,9 @@ function * handleStartMemorizationPhase () {
             elementIdsDict,
         };
 
+        // <main>にフォーカスすることで、ショートカットキーをすぐに使えるようにする
+        document.querySelector('.memoTraining__main').focus();
+
         yield put(startMemorizationPhase(payload));
     }
 };
