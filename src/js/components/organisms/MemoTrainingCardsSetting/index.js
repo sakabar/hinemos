@@ -38,6 +38,18 @@ const MemoTrainingCardsSetting = ({
             <Br/>
 
             <ModeDecisionButtons deckNum={deckNum} deckSize={deckSize} pairSize={pairSize} sagaStartMemorizationPhase={sagaStartMemorizationPhase}/>
+
+            <div>
+                {
+                    (() => {
+                        // 設定画面で充分に下スクロールできるように空白を設けた
+                        // FIXME レイアウトのためのbrはバッドノウハウ
+                        return [ ...Array(20).keys(), ].map(i => {
+                            return (<Br key={i} />);
+                        });
+                    })()
+                }
+            </div>
         </div>
     );
 };
