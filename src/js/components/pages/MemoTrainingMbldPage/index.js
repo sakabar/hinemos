@@ -11,6 +11,7 @@ import createSagaMiddleware from 'redux-saga';
 import MemoTrainingMbldTemplate from '../../templates/MemoTrainingMbldTemplate';
 import {
     setDeckNum,
+    // setDeckSize,
     setPairSize,
 
     sagaGoToNextPair,
@@ -25,6 +26,8 @@ import {
     updateMbldSolution,
 
     sagaToggleTimer,
+
+    sagaOnKeyDown,
 
     memoTrainingReducer,
     rootSaga,
@@ -70,6 +73,9 @@ const mapDispatchToProps = (dispatch) => {
         setDeckNum: (deckNum) => {
             dispatch(setDeckNum({ deckNum, }));
         },
+        // setDeckSize: (deckSize) => {
+        //     dispatch(setDeckSize({ deckSize, }));
+        // },
         setPairSize: (pairSize) => {
             dispatch(setPairSize({ pairSize, }));
         },
@@ -105,6 +111,9 @@ const mapDispatchToProps = (dispatch) => {
         },
         sagaToggleTimer: () => {
             dispatch(sagaToggleTimer());
+        },
+        sagaOnKeyDown: (e) => {
+            dispatch(sagaOnKeyDown(e));
         },
     };
 };

@@ -19,12 +19,13 @@ const moment = require('moment');
 const urlRoot = path.basename(config.urlRoot);
 
 const eventOptions = [
+    [ '', '種目', ],
     [ 'mbld', 'MBLD', ],
     [ 'cards', 'Cards', ],
 ];
 
 const modeOptions = [
-    [ '', '', ],
+    [ '', 'モード', ],
     [ 'memorization', '記憶練習', ],
     [ 'transformation', '変換練習', ],
 ];
@@ -241,7 +242,7 @@ const MemoTrainingResultTemplate = (
                             deckInd: `deck=${log.deckInd + 1}`,
                             pairInd: `pair=${log.pairInd + 1}`,
                             posInd: `pos=${log.posInd + 1}`,
-                            tag: `${log.tag} (${memoTrainingUtils.cardTagToMarkStr(log.tag)})`,
+                            tag: event === memoTrainingUtils.MemoEvent.cards ? `${log.tag} (${memoTrainingUtils.cardTagToMarkStr(log.tag)})` : log.tag,
                             memoSec: log.memoSec.toFixed(2),
                             memoLosingSec: log.memoLosingSec.toFixed(1),
                         };
@@ -277,7 +278,7 @@ const MemoTrainingResultTemplate = (
                         <div>
                             <h2>要素ごとの結果</h2>
                             <Txt>記憶時間平均: {`${meanMemoSec.toFixed(2)}`}</Txt>
-                            <Txt>標準偏差: {`${sd}`}</Txt>
+                            <Txt>標準偏差: {`${sd.toFixed(2)}`}</Txt>
                             <SortableTbl
                                 tblData={showData}
                                 tHead={tHead}

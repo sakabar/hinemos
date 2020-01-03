@@ -127,6 +127,7 @@ export const memoTrainingResultReducer = handleActions(
                 scores: action.payload.scores ? action.payload.scores : state.scores,
                 memoLogs: action.payload.memoLogs ? action.payload.memoLogs : state.memoLogs,
                 recallLogs: action.payload.recallLogs ? action.payload.recallLogs : state.recallLogs,
+                trialId: undefined,
             };
         },
         [decideTrial]: (state, action) => {

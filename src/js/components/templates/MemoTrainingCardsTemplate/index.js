@@ -44,7 +44,7 @@ const MemoTrainingCardsTemplate = (
         sagaGoToDeckHead,
         sagaGoToNextDeck,
 
-        // updateSolution,
+        // updateMbldSolution,
 
         sagaToggleTimer,
 
@@ -111,11 +111,11 @@ MemoTrainingCardsTemplate.propTypes = {
     sagaGoToDeckHead: PropTypes.func.isRequired,
     sagaGoToNextDeck: PropTypes.func.isRequired,
 
-    sagaOnKeyDown: PropTypes.func.isRequired,
-
-    // updateSolution: PropTypes.func.isRequired,
+    // updateMbldSolution: PropTypes.func.isRequired,
 
     sagaToggleTimer: PropTypes.func.isRequired,
+
+    sagaOnKeyDown: PropTypes.func.isRequired,
 };
 
 export default MemoTrainingCardsTemplate;

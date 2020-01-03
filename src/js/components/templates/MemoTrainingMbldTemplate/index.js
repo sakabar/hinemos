@@ -15,9 +15,12 @@ const MemoTrainingMbldTemplate = (
         timeVisible,
 
         deckNum,
+        // deckSize,
         pairSize,
+
         memoEvent,
         mode,
+
         phase,
         decks,
         solution,
@@ -25,7 +28,11 @@ const MemoTrainingMbldTemplate = (
         deckInd,
         pairInd,
 
+        // handDict,
+        // handSuits,
+
         setDeckNum,
+        // setDeckSize,
         setPairSize,
 
         sagaStartMemorizationPhase,
@@ -40,12 +47,14 @@ const MemoTrainingMbldTemplate = (
         updateMbldSolution,
 
         sagaToggleTimer,
+
+        sagaOnKeyDown,
     }
 ) => (
     <div>
         <Header title="MemoTraining MBLD" />
 
-        <main>
+        <main tabIndex="-1" onKeyDown={ (e) => { sagaOnKeyDown(e); } } >
             {
                 (() => {
                     if (phase === memoTrainingUtils.TrainingPhase.setting) {
@@ -82,7 +91,7 @@ MemoTrainingMbldTemplate.propTypes = {
     timeVisible: PropTypes.bool.isRequired,
 
     deckNum: PropTypes.number.isRequired,
-    deckSize: PropTypes.number,
+    // deckSize: PropTypes.number,
     pairSize: PropTypes.number.isRequired,
 
     memoEvent: PropTypes.oneOf(Object.values(memoTrainingUtils.MemoEvent)),
@@ -95,7 +104,11 @@ MemoTrainingMbldTemplate.propTypes = {
     deckInd: PropTypes.number.isRequired,
     pairInd: PropTypes.number.isRequired,
 
+    // handDict: PropTypes.object.isRequired,
+    // handSuits: PropTypes.array.isRequired,
+
     setDeckNum: PropTypes.func.isRequired,
+    // setDeckSize: PropTypes.func.isRequired,
     setPairSize: PropTypes.func.isRequired,
 
     sagaStartMemorizationPhase: PropTypes.func.isRequired,
@@ -110,6 +123,8 @@ MemoTrainingMbldTemplate.propTypes = {
     updateMbldSolution: PropTypes.func.isRequired,
 
     sagaToggleTimer: PropTypes.func.isRequired,
+
+    sagaOnKeyDown: PropTypes.func.isRequired,
 };
 
 export default MemoTrainingMbldTemplate;
