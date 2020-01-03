@@ -30,11 +30,11 @@ const MemoTrainingCardsSetting = ({
         <div>
             <Link to={`/${urlRoot}/memoTraining/index.html`}>種目選択に戻る</Link>
             <Br/>
-            挑戦する束数: <Select options={deckNumOptions} onChange={(e) => setDeckNum(parseInt(e.target.value))} />
+            挑戦する束数: <Select options={deckNumOptions} defaultValue={deckNum || '1' }onChange={(e) => setDeckNum(parseInt(e.target.value))} />
             <Br/>
-            1束あたりの枚数: <Select options={deckSizeOptions} defaultValue={'52'} onChange={(e) => setDeckSize(parseInt(e.target.value))}/>
+            1束あたりの枚数: <Select options={deckSizeOptions} defaultValue={deckSize || '52'} onChange={(e) => setDeckSize(parseInt(e.target.value))}/>
             <Br/>
-            同時に表示する枚数: <Select options={pairSizeList} onChange={(e) => setPairSize(parseInt(e.target.value))} />
+            同時に表示する枚数: <Select options={pairSizeList} defaultValue={pairSize || '1'} onChange={(e) => setPairSize(parseInt(e.target.value))} />
             <Br/>
 
             <ModeDecisionButtons deckNum={deckNum} deckSize={deckSize} pairSize={pairSize} sagaStartMemorizationPhase={sagaStartMemorizationPhase}/>

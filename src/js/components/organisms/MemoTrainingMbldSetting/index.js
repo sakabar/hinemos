@@ -27,9 +27,9 @@ const MemoTrainingMbldSetting = ({
         <div>
             <Link to={`/${urlRoot}/memoTraining/index.html`}>種目選択に戻る</Link>
             <Br/>
-            キューブ個数: <Select options={deckNumOptions} onChange={(e) => setDeckNum(parseInt(e.target.value))} />
+            キューブ個数: <Select options={deckNumOptions} defaultValue={deckNum || '1'} onChange={(e) => setDeckNum(parseInt(e.target.value))} />
             <Br/>
-            同時に表示する単語数: <Select options={pairSizeList} onChange={(e) => setPairSize(parseInt(e.target.value))} />
+            同時に表示する単語数: <Select options={pairSizeList} defaultValue={pairSize || '1'} onChange={(e) => setPairSize(parseInt(e.target.value))} />
             <Br/>
 
             <ModeDecisionButtons deckNum={deckNum} deckSize={1} pairSize={pairSize} sagaStartMemorizationPhase={sagaStartMemorizationPhase} />

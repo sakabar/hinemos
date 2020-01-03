@@ -546,7 +546,13 @@ export const memoTrainingReducer = handleActions(
             // 変換練習だったら、記憶時間の終了 = 練習の終了なので初期状態に戻す
             // 記録ページができたらそっちに飛んだほうがいいかも? FIXME
             if (state.mode === memoTrainingUtils.TrainingMode.transformation) {
-                return _.cloneDeep(initialState);
+                return {
+                    ...initialState,
+                    // 一部の設定は引き継ぐ
+                    deckNum: state.deckNum,
+                    deckSize: state.deckSize,
+                    pairSize: state.pairSize,
+                };
             } else if (state.mode === memoTrainingUtils.TrainingMode.memorization) {
                 return {
                     ...state,
