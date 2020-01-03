@@ -227,7 +227,12 @@ const MemoTrainingResultTemplate = (
                             MyData[i].speedInd = indToSpeedIndDict[MyData[i].ind];
                         }
 
-                        return MyData;
+                        // やっぱり、デフォルトは出てきた順ではなく遅い順とする
+                        const slowOrder = _.sortBy(MyData, [ (o) => {
+                            return o.speedInd;
+                        }, ]);
+
+                        return slowOrder;
                     })();
 
                     const meanMemoSec = _.meanBy(MyData, 'memoSec');
