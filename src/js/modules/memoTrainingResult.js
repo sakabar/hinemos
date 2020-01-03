@@ -21,6 +21,9 @@ const fetchScores = createAction(FETCH_SCORES);
 const SAGA_FETCH_SCORES = 'SAGA_FETCH_SCORES';
 export const sagaFetchScores = createAction(SAGA_FETCH_SCORES);
 
+const DECIDE_TRIAL = 'DECIDE_TRIAL';
+export const decideTrial = createAction(DECIDE_TRIAL);
+
 const initialState = {
     userName: localStorage.userName,
     event: '',
@@ -28,6 +31,7 @@ const initialState = {
     scores: [],
     memoLogs: [],
     recallLogs: [],
+    trialId: undefined,
 };
 
 const fetchScore = (userName, event, mode) => {
@@ -123,6 +127,12 @@ export const memoTrainingResultReducer = handleActions(
                 scores: action.payload.scores ? action.payload.scores : state.scores,
                 memoLogs: action.payload.memoLogs ? action.payload.memoLogs : state.memoLogs,
                 recallLogs: action.payload.recallLogs ? action.payload.recallLogs : state.recallLogs,
+            };
+        },
+        [decideTrial]: (state, action) => {
+            return {
+                ...state,
+                trialId: action.payload.trialId,
             };
         },
     },

@@ -11,6 +11,7 @@ import createSagaMiddleware from 'redux-saga';
 import MemoTrainingResultTemplate from '../../templates/MemoTrainingResultTemplate';
 import {
     sagaFetchScores,
+    decideTrial,
 
     memoTrainingResultReducer,
     rootSaga,
@@ -21,11 +22,17 @@ const mapStateToProps = ({
     event,
     mode,
     scores,
+    memoLogs,
+    recallLogs,
+    trialId,
 }) => {
     return {
         event,
         mode,
         scores,
+        memoLogs,
+        recallLogs,
+        trialId,
     };
 };
 
@@ -33,6 +40,9 @@ const mapDispatchToProps = (dispatch) => {
     return {
         sagaFetchScores: (event, mode) => {
             dispatch(sagaFetchScores({ event, mode, }));
+        },
+        decideTrial: (trialId) => {
+            dispatch(decideTrial({ trialId, }));
         },
     };
 };

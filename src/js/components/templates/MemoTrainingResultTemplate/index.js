@@ -5,9 +5,10 @@ import {
 } from 'react-router-dom';
 import Br from '../../atoms/Br';
 // import Button from '../../atoms/Button';
-// import Txt from '../../atoms/Txt';
+import Txt from '../../atoms/Txt';
 import Header from '../../organisms/Header';
 import Select from '../../molecules/Select';
+import DecideTrialButtonTdFactory from '../../molecules/DecideTrialButtonTd';
 import SortableTbl from 'react-sort-search-table';
 const config = require('../../../config');
 const path = require('path');
@@ -53,8 +54,12 @@ const MemoTrainingResultTemplate = (
         event,
         mode,
         scores,
+        memoLogs,
+        recallLogs,
+        trialId,
 
         sagaFetchScores,
+        decideTrial,
     }
 ) => (
     <div>
@@ -76,6 +81,7 @@ const MemoTrainingResultTemplate = (
                     const MyData = scores.map(score => {
                         return {
                             createdAt: moment(score.createdAt).format('YYYY-MM-DD HH:mm:ss'),
+                            trialId: score.trialId,
                             totalMemoTime: formatTime(score.totalMemoSec),
                             totalRecallTime: formatTime(score.totalRecallSec),
 
@@ -97,6 +103,7 @@ const MemoTrainingResultTemplate = (
 
                         '挑戦(札)',
                         '全体(札)',
+                        '',
                     ];
 
                     const col = [
@@ -109,75 +116,140 @@ const MemoTrainingResultTemplate = (
 
                         'triedElements',
                         'allElements',
+
+                        'decideTrial',
                     ];
 
-                    return (<SortableTbl tblData={MyData}
-                        tHead={tHead}
-                        customTd={[]}
-                        dKey={col}
-                        search={true}
-                        defaultCSS={true}
-                    />);
+                    return (
+                        <div>
+                            <h2>全体の結果</h2>
+                            <SortableTbl tblData={MyData}
+                                tHead={tHead}
+                                customTd={[
+                                    { custd: DecideTrialButtonTdFactory(decideTrial), keyItem: 'decideTrial', },
+                                ]}
+                                dKey={col}
+                                search={true}
+                                defaultCSS={true}
+                            />
+                        </div>
+                    );
                 })()
             }
 
             {
                 (() => {
-                    const deckNum = 2;
-                    const deckSize = 52;
-                    const pairSize = 2;
-
-                    const decks = memoTrainingUtils.generateCardsDecks(deckNum, deckSize, pairSize);
-
-                    const MyData = [];
-
-                    let ind = 1;
-                    for (let deckInd = 0; deckInd < deckNum; deckInd++) {
-                        const deck = decks[deckInd];
-                        for (let pairInd = 0; pairInd < deck.length; pairInd++) {
-                            const pair = deck[pairInd];
-                            for (let posInd = 0; posInd < pair.length; posInd++) {
-                                const element = pair[posInd];
-
-                                const data = {
-                                    ind,
-                                    deckInd: deckInd + 1,
-                                    pairInd: pairInd + 1,
-                                    posInd: posInd + 1,
-                                    tag: `${element.tag} (${memoTrainingUtils.cardTagToMarkStr(element.tag)})`,
-                                    memoSec: _.random(0.5, 3.5).toFixed(2),
-                                    memoLosingSec: _.random(1, 100.5).toFixed(2),
-                                    isCorrect: [ 'O', 'X', ][_.random(0, 1)],
-                                };
-                                MyData.push(data);
-                                ind += 1;
-                            }
+                    const MyData = (() => {
+                        if (!trialId) {
+                            return [];
                         }
-                    }
-                    const tmp = MyData.map(data => {
+
+                        // FIXME ここをcamlCaseにする方法を求む
+                        // FIXME 結果をelementごとにaggする
+                        const tmpMyData = memoLogs
+                            .filter(log => log['memo_trial_deck'].trialId === trialId)
+                            .map(log => {
+                                return {
+                                    ind: log.ind,
+                                    deckInd: log.deckInd,
+                                    pairInd: log.pairInd,
+                                    posInd: log.posInd,
+                                    tag: log['memo_element'].tag,
+                                    memoSec: log.memoSec,
+                                };
+                            });
+
+                        // select keys, sum(memoSec) as memoSec group by keys する
+                        const grouped = _.groupBy(tmpMyData, (log) => {
+                            const key = {
+                                deckInd: log.deckInd,
+                                pairInd: log.pairInd,
+                                posInd: log.posInd,
+                                tag: log.tag,
+                            };
+                            return JSON.stringify(key);
+                        });
+
+                        const agged = Object.values(grouped).map(group => {
+                            const memoSec = _.sum(group.map(log => log.memoSec));
+                            const reviewCnt = group.length - 1;
+
+                            return {
+                                ind: undefined,
+                                reviewCnt,
+                                deckInd: group[0].deckInd,
+                                pairInd: group[0].pairInd,
+                                posInd: group[0].posInd,
+                                tag: group[0].tag,
+                                memoSec,
+                            };
+                        });
+
+                        // indでソートした後、indを振り直す
+                        const groupedMyData = _.sortBy(agged, [ (o) => {
+                            return o.ind;
+                        }, ]).map((log, ind) => {
+                            return {
+                                ...log,
+                                ind,
+                            };
+                        });
+
+                        // memoLosingSecとisCorrentを付与
+                        const MyData = groupedMyData.map(log => {
+                            return {
+                                ...log,
+                                // memoLosingSec: _.random(1, 100.5).toFixed(2),
+                                memoLosingSec: 0.0,
+                                // isCorrect: [ 'O', 'X', ][_.random(0, 1)],
+                                isCorrect: undefined,
+                            };
+                        });
+
+                        const tmp = MyData.map(data => {
+                            return {
+                                ind: data.ind,
+                                memoSec: data.memoSec,
+                            };
+                        });
+
+                        const secOrder = _.sortBy(tmp, [ (o) => {
+                            return -o.memoSec;
+                        }, ]);
+                        const indToSpeedIndDict = {};
+                        for (let speedInd = 0; speedInd < secOrder.length; speedInd++) {
+                            const ind = secOrder[speedInd].ind;
+                            indToSpeedIndDict[ind] = speedInd;
+                        }
+
+                        for (let i = 0; i < MyData.length; i++) {
+                            MyData[i].speedInd = indToSpeedIndDict[MyData[i].ind];
+                        }
+
+                        return MyData;
+                    })();
+
+                    const meanMemoSec = _.meanBy(MyData, 'memoSec');
+                    const sd = Math.sqrt(_.mean(MyData.map(data => (data.memoSec - meanMemoSec) * (data.memoSec - meanMemoSec))));
+
+                    const showData = MyData.map(log => {
                         return {
-                            ind: data.ind,
-                            memoSec: data.memoSec,
+                            ...log,
+
+                            ind: log.ind + 1,
+                            speedInd: log.speedInd + 1,
+                            deckInd: `deck=${log.deckInd + 1}`,
+                            pairInd: `pair=${log.pairInd + 1}`,
+                            posInd: `pos=${log.posInd + 1}`,
+                            tag: `${log.tag} (${memoTrainingUtils.cardTagToMarkStr(log.tag)})`,
+                            memoSec: log.memoSec.toFixed(2),
+                            memoLosingSec: log.memoLosingSec.toFixed(1),
                         };
                     });
 
-                    const secOrder = _.sortBy(tmp, [ (o) => {
-                        return o.memoSec;
-                    }, ]);
-                    const dicc = {};
-                    for (let speedInd = 0; speedInd < secOrder.length; speedInd++) {
-                        const ind = secOrder[speedInd].ind;
-                        dicc[ind] = speedInd;
-                    }
-
-                    for (let i = 0; i < MyData.length; i++) {
-                        let data = MyData[i];
-                        data.speedInd = dicc[data.ind] + 1;
-                    }
-
                     const tHead = [
                         '出てきた順',
-                        '速い順',
+                        '遅い順',
                         '束',
                         '組',
                         '位置',
@@ -185,6 +257,7 @@ const MemoTrainingResultTemplate = (
                         '記憶時間',
                         '忘却時間',
                         '正解?',
+                        '復習回数',
                     ];
 
                     const col = [
@@ -197,15 +270,25 @@ const MemoTrainingResultTemplate = (
                         'memoSec',
                         'memoLosingSec',
                         'isCorrect',
+                        'reviewCnt',
                     ];
 
-                    return (<SortableTbl tblData={MyData}
-                        tHead={tHead}
-                        customTd={[]}
-                        dKey={col}
-                        search={true}
-                        defaultCSS={true}
-                    />);
+                    return (
+                        <div>
+                            <h2>要素ごとの結果</h2>
+                            <Txt>記憶時間平均: {`${meanMemoSec.toFixed(2)}`}</Txt>
+                            <Txt>標準偏差: {`${sd}`}</Txt>
+                            <SortableTbl
+                                tblData={showData}
+                                tHead={tHead}
+                                paging={false}
+                                search={true}
+                                defaultCSS={true}
+                                customTd={[]}
+                                dKey={col}
+                            />
+                        </div>
+                    );
                 })()
             }
 
@@ -218,8 +301,12 @@ MemoTrainingResultTemplate.propTypes = {
     event: PropTypes.string.isRequired,
     mode: PropTypes.string.isRequired,
     scores: PropTypes.array.isRequired,
+    memoLogs: PropTypes.array.isRequired,
+    recallLogs: PropTypes.array.isRequired,
+    trialId: PropTypes.number,
 
     sagaFetchScores: PropTypes.func.isRequired,
+    decideTrial: PropTypes.func.isRequired,
 };
 
 export default MemoTrainingResultTemplate;
