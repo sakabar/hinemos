@@ -139,7 +139,7 @@ export const postMemoLogs = (memoLogs) => {
     });
 
     const options = {
-        url: `${config.apiRoot}/memoLogMemorization`,
+        url: `${config.apiRoot}/postMemoLog`,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

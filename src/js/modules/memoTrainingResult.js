@@ -26,6 +26,8 @@ const initialState = {
     event: '',
     mode: '',
     scores: [],
+    memoLogs: [],
+    recallLogs: [],
 };
 
 const fetchScore = (userName, event, mode) => {
@@ -47,6 +49,23 @@ const fetchScore = (userName, event, mode) => {
     return rp(options);
 };
 
+const fetchMemoLog = (userName) => {
+    const options = {
+        url: `${config.apiRoot}/getMemoLog`,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {
+            userName,
+            token: localStorage.token,
+        },
+    };
+
+    return rp(options);
+};
+
 function * handleFetchScores () {
     while (true) {
         const action = yield take(sagaFetchScores);
@@ -60,21 +79,34 @@ function * handleFetchScores () {
                 event,
                 mode,
                 scores: undefined,
+                memoLogs: undefined,
+                recallLogs: undefined,
             };
             yield put(fetchScores(payload));
             continue;
         }
 
-        const res = yield call(fetchScore, userName, event, mode);
-        if (!res.success) {
+        const resFetchScore = yield call(fetchScore, userName, event, mode);
+        if (!resFetchScore.success) {
             throw new Error('Error fetchScores()');
         }
+        const scores = resFetchScore.success.result.scores;
 
-        const scores = res.success.result.scores;
+        const resFetchMemoLog = yield call(fetchMemoLog, userName);
+        if (!resFetchMemoLog.success) {
+            throw new Error('Error fetchScores()');
+        }
+        const memoLogs = resFetchMemoLog.success.result.logs;
+
+        // FIXME 後でやる
+        const recallLogs = [];
+
         const payload = {
             event,
             mode,
             scores,
+            memoLogs,
+            recallLogs,
         };
 
         yield put(fetchScores(payload));
@@ -89,6 +121,8 @@ export const memoTrainingResultReducer = handleActions(
                 event: action.payload.event,
                 mode: action.payload.mode,
                 scores: action.payload.scores ? action.payload.scores : state.scores,
+                memoLogs: action.payload.memoLogs ? action.payload.memoLogs : state.memoLogs,
+                recallLogs: action.payload.recallLogs ? action.payload.recallLogs : state.recallLogs,
             };
         },
     },

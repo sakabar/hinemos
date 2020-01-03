@@ -1,21 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-// import {
-//     Link,
-// } from 'react-router-dom';
+import {
+    Link,
+} from 'react-router-dom';
 import Br from '../../atoms/Br';
 // import Button from '../../atoms/Button';
 // import Txt from '../../atoms/Txt';
 import Header from '../../organisms/Header';
 import Select from '../../molecules/Select';
 import SortableTbl from 'react-sort-search-table';
-// const config = require('../../../config');
-// const path = require('path');
+const config = require('../../../config');
+const path = require('path');
 const memoTrainingUtils = require('../../../memoTrainingUtils');
 const _ = require('lodash');
 const moment = require('moment');
 
-// const urlRoot = path.basename(config.urlRoot);
+const urlRoot = path.basename(config.urlRoot);
 
 const eventOptions = [
     [ 'mbld', 'MBLD', ],
@@ -61,6 +61,9 @@ const MemoTrainingResultTemplate = (
         <Header title="MemoTraining Result" />
 
         <main>
+            <Link to={`/${urlRoot}/memoTraining/index.html`}>記憶トレーニング トップ</Link>
+            <Br/>
+
             <Select options={eventOptions} defaultValue={eventOptions[0][0]} onChange={(e) => { sagaFetchScores(e.target.value, mode); }}/>
             <Br/>
             <Select options={modeOptions} defaultValue={modeOptions[0][0]} onChange={(e) => { sagaFetchScores(event, e.target.value); }}/>
