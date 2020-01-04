@@ -70,9 +70,9 @@ const MemoTrainingResultTemplate = (
             <Link to={`/${urlRoot}/memoTraining/index.html`}>記憶トレーニング トップ</Link>
             <Br/>
             <div>
-                <Select options={eventOptions} defaultValue={eventOptions[0][0]} onChange={(e) => { sagaFetchScores(e.target.value, mode); }}/>
+                <Select options={eventOptions} defaultValue={event || ''} onChange={(e) => { sagaFetchScores(e.target.value, mode); }}/>
                 <Br/>
-                <Select options={modeOptions} defaultValue={modeOptions[0][0]} onChange={(e) => { sagaFetchScores(event, e.target.value); }}/>
+                <Select options={modeOptions} defaultValue={mode || ''} onChange={(e) => { sagaFetchScores(event, e.target.value); }}/>
                 <Br/>
                 <Button value="リロード" onClick={(e) => { sagaFetchScores(event, mode); }}/>
             </div>
