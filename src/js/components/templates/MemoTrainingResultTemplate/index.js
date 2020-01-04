@@ -240,6 +240,23 @@ const MemoTrainingResultTemplate = (
 
                     const meanMemoSec = _.meanBy(MyData, 'memoSec');
                     const sd = Math.sqrt(_.mean(MyData.map(data => (data.memoSec - meanMemoSec) * (data.memoSec - meanMemoSec))));
+                    // 遅い順にソートされている前提
+                    const medianMemoSec = (() => {
+                        if (MyData.length === 0) {
+                            return NaN;
+                        }
+
+                        if (MyData.length % 2 === 0) {
+                            // 要素が偶数個の場合は中央に近い2つの値の平均を取る
+                            const ind1 = MyData.length / 2 - 1;
+                            const ind2 = MyData.length / 2;
+                            return (MyData[ind1].memoSec + MyData[ind2].memoSec) / 2.0;
+                        } else {
+                            // 要素が奇数個の場合はそのまま中央の順位の値
+                            const ind = (MyData.length - 1) / 2;
+                            return MyData[ind].memoSec;
+                        }
+                    })();
 
                     const showData = MyData.map(log => {
                         return {
@@ -287,6 +304,7 @@ const MemoTrainingResultTemplate = (
                             <h2>要素ごとの結果</h2>
                             <Txt>記憶時間平均: {`${meanMemoSec.toFixed(2)}`}</Txt>
                             <Txt>標準偏差: {`${sd.toFixed(2)}`}</Txt>
+                            <Txt>記憶時間中央値: {`${medianMemoSec.toFixed(2)}`}</Txt>
                             <SortableTbl
                                 tblData={showData}
                                 tHead={tHead}
