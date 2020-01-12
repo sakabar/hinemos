@@ -328,9 +328,12 @@ function * handleFinishMemorizationPhase () {
         }
 
         // 変換練習の場合はここでScoreをPOSTする
-        const postScoreTask = yield fork(handlePostScore, currentMiliUnixtime);
-        // wait
-        yield join(postScoreTask);
+        const mode = yield select(state => state.mode);
+        if (mode === memoTrainingUtils.TrainingMode.transformation) {
+            const postScoreTask = yield fork(handlePostScore, currentMiliUnixtime);
+            // wait
+            yield join(postScoreTask);
+        }
 
         yield put(finishMemorizationPhase({ currentMiliUnixtime, }));
     }
@@ -545,13 +548,25 @@ export const memoTrainingReducer = handleActions(
         [finishMemorizationPhase]: (state, action) => {
             // 変換練習だったら、記憶時間の終了 = 練習の終了なので初期状態に戻す
             // 記録ページができたらそっちに飛んだほうがいいかも? FIXME
-            return {
-                ...initialState,
-                // 一部の設定は引き継ぐ
-                deckNum: state.deckNum,
-                deckSize: state.deckSize,
-                pairSize: state.pairSize,
-            };
+            if (state.mode === memoTrainingUtils.TrainingMode.transformation) {
+                return {
+                    ...initialState,
+                    // 一部の設定は引き継ぐ
+                    deckNum: state.deckNum,
+                    deckSize: state.deckSize,
+                    pairSize: state.pairSize,
+                };
+            } else if (state.mode === memoTrainingUtils.TrainingMode.memorization) {
+                return {
+                    ...state,
+                    phase: memoTrainingUtils.TrainingPhase.recall,
+                    startRecallMiliUnixtime: action.payload.currentMiliUnixtime,
+                    deckInd: 0,
+                    pairInd: 0,
+                };
+            } else {
+                throw new Error(`unexpected mode : ${state.mode}`);
+            }
         },
         [goToNextPair]: (state, action) => {
             if (state.pairInd === state.decks[state.deckInd].length - 1) {
