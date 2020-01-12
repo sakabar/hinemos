@@ -268,8 +268,8 @@ const MemoTrainingResultTemplate = (
                             pairInd: `pair=${log.pairInd + 1}`,
                             posInd: `pos=${log.posInd + 1}`,
                             tag: event === memoTrainingUtils.MemoEvent.cards ? `${log.tag} (${memoTrainingUtils.cardTagToMarkStr(log.tag)})` : log.tag,
-                            memoSec: log.memoSec.toFixed(2),
-                            memoLosingSec: log.memoLosingSec.toFixed(1),
+                            memoSec: parseFloat(log.memoSec.toFixed(2)),
+                            memoLosingSec: parseFloat(log.memoLosingSec.toFixed(1)),
                         };
                     });
 
