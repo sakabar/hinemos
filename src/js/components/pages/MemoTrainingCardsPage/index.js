@@ -29,6 +29,10 @@ import {
 
     sagaOnKeyDown,
 
+    selectHole,
+    goToPrevDeckRecall,
+    goToNextDeckRecall,
+
     memoTrainingReducer,
     rootSaga,
 } from '../../../modules/memoTraining';
@@ -55,6 +59,7 @@ const mapStateToProps = ({
     solution,
     deckInd,
     pairInd,
+    posInd,
 
     handDict,
     handSuits,
@@ -80,6 +85,7 @@ const mapStateToProps = ({
         solution,
         deckInd,
         pairInd,
+        posInd,
 
         handDict,
         handSuits,
@@ -131,6 +137,15 @@ const mapDispatchToProps = (dispatch) => {
         },
         sagaOnKeyDown: (e) => {
             dispatch(sagaOnKeyDown(e));
+        },
+        selectHole: (holeDeckInd, holePairInd, holePosInd) => {
+            dispatch(selectHole({ holeDeckInd, holePairInd, holePosInd, }));
+        },
+        goToPrevDeckRecall: () => {
+            dispatch(goToPrevDeckRecall());
+        },
+        goToNextDeckRecall: () => {
+            dispatch(goToNextDeckRecall());
         },
     };
 };

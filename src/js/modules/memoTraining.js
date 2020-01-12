@@ -96,6 +96,15 @@ const pushMemoLogs = createAction(PUSH_MEMO_LOGS);
 // const initLoad = createAction(INIT_LOAD);
 // export const sagaInitLoad = createAction(SAGA_INIT_LOAD);
 
+const SELECT_HOLE = 'SELECT_HOLE';
+export const selectHole = createAction(SELECT_HOLE);
+
+const GO_TO_PREV_DECK_RECALL = 'GO_TO_PREV_DECK_RECALL';
+export const goToPrevDeckRecall = createAction(GO_TO_PREV_DECK_RECALL);
+
+const GO_TO_NEXT_DECK_RECALL = 'GO_TO_NEXT_DECK_RECALL';
+export const goToNextDeckRecall = createAction(GO_TO_NEXT_DECK_RECALL);
+
 const initialState = {
     userName: localStorage.userName, // ユーザ名
     startMemoMiliUnixtime: 0, // 記憶を開始したミリUnixtime
@@ -119,6 +128,7 @@ const initialState = {
     solution: [ [], ],
     deckInd: 0,
     pairInd: 0,
+    posInd: 0,
 
     handDict: memoTrainingUtils.cardsDefaultHand(), // Cardsで手元に残っているカードを表す辞書。tag => bool
     handSuits: [
@@ -401,10 +411,10 @@ function * handleFinishRecallPhase () {
 
                     if (_.isEqual(pair[m], solutionElement)) {
                         // 正解をpostする
-                        memoTrainingUtils.postRecallLog(`OK: ${JSON.stringify(pair[m])}`);
+                        memoTrainingUtils.postRecallLogs(`OK: ${JSON.stringify(pair[m])}`);
                     } else {
                         // 不正解をpostする?
-                        memoTrainingUtils.postRecallLog(`NG: ${JSON.stringify(pair[m])} !== ${JSON.stringify(solutionElement)}`);
+                        memoTrainingUtils.postRecallLogs(`NG: ${JSON.stringify(pair[m])} !== ${JSON.stringify(solutionElement)}`);
                     }
                 }
             }
@@ -694,6 +704,42 @@ export const memoTrainingReducer = handleActions(
         //         elementIdsDict: action.payload.elementIdsDict,
         //     };
         // },
+        [selectHole]: (state, action) => {
+            const holeDeckInd = action.payload.holeDeckInd;
+            const holePairInd = action.payload.holePairInd;
+            const holePosInd = action.payload.holePosInd;
+
+            const newSolution = _.cloneDeep(state.solution);
+            const newHandDict = _.cloneDeep(state.handDict);
+            if (newSolution[holeDeckInd] && newSolution[holeDeckInd][holePairInd] && newSolution[holeDeckInd][holePairInd][holePosInd]) {
+                // 既に穴にelementが入っている場合は外す
+                const element = newSolution[holeDeckInd][holePairInd][holePosInd];
+                const tag = element.tag;
+                newHandDict[tag] = true;
+                newSolution[holeDeckInd][holePairInd][holePosInd] = null;
+            }
+
+            return {
+                ...state,
+                deckInd: holeDeckInd,
+                pairInd: holePairInd,
+                posInd: holePosInd,
+                solution: newSolution,
+                handDict: newHandDict,
+            };
+        },
+        [goToPrevDeckRecall]: (state, action) => {
+            return {
+                ...state,
+                deckInd: state.deckInd === 0 ? 0 : state.deckInd - 1,
+            };
+        },
+        [goToNextDeckRecall]: (state, action) => {
+            return {
+                ...state,
+                deckInd: state.deckInd === state.decks.length - 1 ? state.deckInd : state.deckInd + 1,
+            };
+        },
     },
     initialState
 );

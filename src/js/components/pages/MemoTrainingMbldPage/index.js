@@ -49,6 +49,7 @@ const mapStateToProps = ({
     solution,
     deckInd,
     pairInd,
+    // posInd,
 }) => {
     return {
         userName,
@@ -65,6 +66,7 @@ const mapStateToProps = ({
         solution,
         deckInd,
         pairInd,
+        // posInd,
     };
 };
 

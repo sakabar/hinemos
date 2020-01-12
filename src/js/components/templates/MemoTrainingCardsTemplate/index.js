@@ -27,6 +27,7 @@ const MemoTrainingCardsTemplate = (
 
         deckInd,
         pairInd,
+        posInd,
 
         handDict,
         handSuits,
@@ -49,6 +50,10 @@ const MemoTrainingCardsTemplate = (
         sagaToggleTimer,
 
         sagaOnKeyDown,
+
+        selectHole,
+        goToPrevDeckRecall,
+        goToNextDeckRecall,
     }
 ) => (
     <div>
@@ -61,7 +66,7 @@ const MemoTrainingCardsTemplate = (
                     } else if (phase === memoTrainingUtils.TrainingPhase.memorization) {
                         return (<MemoTrainingCardsMemorization startMemoMiliUnixtime={startMemoMiliUnixtime} startRecallMiliUnixtime={startRecallMiliUnixtime} timerMiliUnixtime={timerMiliUnixtime} timeVisible={timeVisible} decks={decks} deckInd={deckInd} pairInd={pairInd} sagaFinishMemorizationPhase={sagaFinishMemorizationPhase} sagaGoToNextPair={sagaGoToNextPair} sagaGoToPrevPair={sagaGoToPrevPair} sagaGoToDeckHead={sagaGoToDeckHead} sagaGoToNextDeck={sagaGoToNextDeck} sagaToggleTimer={sagaToggleTimer}/>);
                     } else if (phase === memoTrainingUtils.TrainingPhase.recall) {
-                        return (<MemoTrainingCardsRecall decks={decks} deckInd={deckInd} pairInd={pairInd} handDict={handDict} handSuits={handSuits} sagaGoToNextPair={sagaGoToNextPair} sagaGoToPrevPair={sagaGoToPrevPair} sagaGoToDeckHead={sagaGoToDeckHead} sagaGoToNextDeck={sagaGoToNextDeck} sagaFinishRecallPhase={sagaFinishRecallPhase}/>);
+                        return (<MemoTrainingCardsRecall decks={decks} deckInd={deckInd} pairInd={pairInd} posInd={posInd} solution={solution} handDict={handDict} handSuits={handSuits} sagaFinishRecallPhase={sagaFinishRecallPhase} selectHole={selectHole} goToPrevDeckRecall={goToPrevDeckRecall} goToNextDeckRecall={goToNextDeckRecall}/>);
                     } else {
                         return (
                             <div>
@@ -94,6 +99,7 @@ MemoTrainingCardsTemplate.propTypes = {
 
     deckInd: PropTypes.number.isRequired,
     pairInd: PropTypes.number.isRequired,
+    posInd: PropTypes.number.isRequired,
 
     handDict: PropTypes.object.isRequired,
     handSuits: PropTypes.array.isRequired,
@@ -116,6 +122,10 @@ MemoTrainingCardsTemplate.propTypes = {
     sagaToggleTimer: PropTypes.func.isRequired,
 
     sagaOnKeyDown: PropTypes.func.isRequired,
+
+    selectHole: PropTypes.func.isRequired,
+    goToPrevDeckRecall: PropTypes.func.isRequired,
+    goToNextDeckRecall: PropTypes.func.isRequired,
 };
 
 export default MemoTrainingCardsTemplate;

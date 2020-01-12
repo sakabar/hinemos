@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Br from '../../atoms/Br';
 import Txt from '../../atoms/Txt';
 import Button from '../../atoms/Button';
-import PlayingCard from '../../molecules/PlayingCard';
+// import PlayingCard from '../../molecules/PlayingCard';
 const memoTrainingUtils = require('../../../memoTrainingUtils');
 const _ = require('lodash');
 
@@ -16,35 +16,46 @@ const MemoTrainingCardsRecall = ({
     decks,
     deckInd,
     pairInd,
+    posInd,
+
+    solution,
 
     handDict,
     handSuits, // 手札を並べる順番
 
-    sagaGoToNextPair,
-    sagaGoToPrevPair,
-    sagaGoToDeckHead,
-    sagaGoToNextDeck,
-
     sagaFinishRecallPhase,
 
     // sagaToggleTimer,
+    selectHole,
+    goToPrevDeckRecall,
+    goToNextDeckRecall,
 }) => {
     return (
         <div>
             <Txt>回答フェーズだよ。上のほうに</Txt>
+            <Txt>{deckInd + 1}束目の{pairInd}-{posInd}</Txt>
             <Br/>
             {
                 (() => {
+                    const components = decks[deckInd].map((pair, holePairInd) => {
+                        return pair.map((elem, holePosInd) => {
+                            const val = (() => {
+                                if (solution[deckInd] && solution[deckInd][holePairInd] && solution[deckInd][holePairInd][holePosInd]) {
+                                    return solution[deckInd][holePairInd][holePosInd].tag;
+                                }
+
+                                return '[]';
+                            })();
+
+                            return (<Button value={val} style={ { fontFamily: [ 'Courier New', 'monospace', ], }} key={`${deckInd}-${holePairInd}-${holePosInd}`} onClick={ () => { selectHole(deckInd, holePairInd, holePosInd); }}/>);
+                        });
+                    });
+
                     const chunkSize = 12;
-                    return _.chunk(_.flattenDeep(decks), chunkSize).map((bulk, bulkInd) => {
+                    return _.chunk(_.flattenDeep(components), chunkSize).map((bulk, bulkInd) => {
                         return (
                             <div key={bulkInd}>
-                                {
-                                    bulk.map((element, colInd) => {
-                                        const val = colInd + 1 + bulkInd * chunkSize;
-                                        return (<Button value={`${val}`.padStart(2, '0')} style={ { fontFamily: [ 'Courier New', 'monospace', ], }} key={`${bulkInd}-${colInd}`}/>);
-                                    })
-                                }
+                                {bulk}
                             </div>
                         );
                     });
@@ -52,8 +63,8 @@ const MemoTrainingCardsRecall = ({
             }
             <Br/>
 
-            <Button value="←←" onClick={(e) => sagaGoToDeckHead()} disabled={deckInd === 0 && pairInd === 0} />
-            <Button value="→→" onClick={(e) => sagaGoToNextDeck()} disabled={deckInd === decks.length - 1}/>
+            <Button value="←←" onClick={(e) => goToPrevDeckRecall()} disabled={deckInd === 0} />
+            <Button value="→→" onClick={(e) => goToNextDeckRecall()} disabled={deckInd === decks.length - 1}/>
 
             <Br/>
             {
@@ -61,18 +72,14 @@ const MemoTrainingCardsRecall = ({
                     return handSuits.map((suit, suitInd) => {
                         const cards = memoTrainingUtils.getSameSuitCards(suit);
                         return (
-                                <div key={suitInd}>
+                            <div key={suitInd}>
                                 {
-                        cards.map((element, cardInd) => {
-                            if (handDict[element.tag]) {
-                                // 手札に残っている
-                                return (<PlayingCard tag={element.tag} rowInd={suitInd} colInd={cardInd} onClick={() => alert(`${element.tag}`)} key={`${suitInd}-${cardInd}`}/>);
-                            } else {
-                                return (<PlayingCard tag='gray' rowInd={suitInd} colInd={cardInd} onClick={() => alert(`(${element.tag})`)} key={`${suitInd}-${cardInd}`}/>);
-                            }
-                        })
+                                    cards.map((element, cardInd) => {
+                                        // 手礼に残っているカードだけ選択できるようにしている
+                                        return (<Button value={memoTrainingUtils.cardTagToMarkStr(element.tag)} style={ { fontFamily: [ 'Courier New', 'monospace', ], }} key={`${cardInd}`} disabled={!handDict[element.tag]}/>);
+                                    })
                                 }
-                                  </div>
+                            </div>
                         );
                     });
                 })()
@@ -86,16 +93,19 @@ MemoTrainingCardsRecall.propTypes = {
     decks: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.any)).isRequired,
     deckInd: PropTypes.number.isRequired,
     pairInd: PropTypes.number.isRequired,
+    posInd: PropTypes.number.isRequired,
 
     handDict: PropTypes.object.isRequired,
     handSuits: PropTypes.array.isRequired,
 
-    sagaGoToNextPair: PropTypes.func.isRequired,
-    sagaGoToPrevPair: PropTypes.func.isRequired,
-    sagaGoToDeckHead: PropTypes.func.isRequired,
-    sagaGoToNextDeck: PropTypes.func.isRequired,
+    solution: PropTypes.array.isRequired,
 
     sagaFinishRecallPhase: PropTypes.func.isRequired,
+
+    selectHole: PropTypes.func.isRequired,
+
+    goToPrevDeckRecall: PropTypes.func.isRequired,
+    goToNextDeckRecall: PropTypes.func.isRequired,
 };
 
 export default MemoTrainingCardsRecall;
