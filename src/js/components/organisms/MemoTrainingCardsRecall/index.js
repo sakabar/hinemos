@@ -29,11 +29,13 @@ const MemoTrainingCardsRecall = ({
     selectHole,
     goToPrevDeckRecall,
     goToNextDeckRecall,
+    selectHand,
 }) => {
     return (
         <div>
             <Txt>回答フェーズだよ。上のほうに</Txt>
-            <Txt>{deckInd + 1}束目の{pairInd}-{posInd}</Txt>
+            {/* <Txt>{deckInd + 1}束目の{pairInd}-{posInd}</Txt> */}
+            <Txt>{deckInd + 1}束目</Txt>
             <Br/>
             {
                 (() => {
@@ -41,7 +43,8 @@ const MemoTrainingCardsRecall = ({
                         return pair.map((elem, holePosInd) => {
                             const val = (() => {
                                 if (solution[deckInd] && solution[deckInd][holePairInd] && solution[deckInd][holePairInd][holePosInd]) {
-                                    return solution[deckInd][holePairInd][holePosInd].tag;
+                                    const tag = solution[deckInd][holePairInd][holePosInd].tag;
+                                    return memoTrainingUtils.cardTagToMarkStr(tag);
                                 }
 
                                 return '[]';
@@ -76,7 +79,7 @@ const MemoTrainingCardsRecall = ({
                                 {
                                     cards.map((element, cardInd) => {
                                         // 手礼に残っているカードだけ選択できるようにしている
-                                        return (<Button value={memoTrainingUtils.cardTagToMarkStr(element.tag)} style={ { fontFamily: [ 'Courier New', 'monospace', ], }} key={`${cardInd}`} disabled={!handDict[element.tag]}/>);
+                                        return (<Button value={memoTrainingUtils.cardTagToMarkStr(element.tag)} style={ { fontFamily: [ 'Courier New', 'monospace', ], }} key={`${cardInd}`} disabled={!handDict[deckInd][element.tag]} onClick={ () => { selectHand(element); }}/>);
                                     })
                                 }
                             </div>
@@ -103,9 +106,9 @@ MemoTrainingCardsRecall.propTypes = {
     sagaFinishRecallPhase: PropTypes.func.isRequired,
 
     selectHole: PropTypes.func.isRequired,
-
     goToPrevDeckRecall: PropTypes.func.isRequired,
     goToNextDeckRecall: PropTypes.func.isRequired,
+    selectHand: PropTypes.func.isRequired,
 };
 
 export default MemoTrainingCardsRecall;

@@ -105,6 +105,9 @@ export const goToPrevDeckRecall = createAction(GO_TO_PREV_DECK_RECALL);
 const GO_TO_NEXT_DECK_RECALL = 'GO_TO_NEXT_DECK_RECALL';
 export const goToNextDeckRecall = createAction(GO_TO_NEXT_DECK_RECALL);
 
+const SELECT_HAND = 'SELECT_HAND';
+export const selectHand = createAction(SELECT_HAND);
+
 const initialState = {
     userName: localStorage.userName, // ユーザ名
     startMemoMiliUnixtime: 0, // 記憶を開始したミリUnixtime
@@ -130,7 +133,7 @@ const initialState = {
     pairInd: 0,
     posInd: 0,
 
-    handDict: memoTrainingUtils.cardsDefaultHand(), // Cardsで手元に残っているカードを表す辞書。tag => bool
+    handDict: {}, // Cardsで手元に残っているカードを表す辞書。deckInd => tag => bool
     handSuits: [
         memoTrainingUtils.Suit.heart,
         memoTrainingUtils.Suit.spade,
@@ -571,6 +574,7 @@ export const memoTrainingReducer = handleActions(
                     ...state,
                     phase: memoTrainingUtils.TrainingPhase.recall,
                     startRecallMiliUnixtime: action.payload.currentMiliUnixtime,
+                    handDict: memoTrainingUtils.cardsDefaultHand(state.deckNum),
                     deckInd: 0,
                     pairInd: 0,
                 };
@@ -711,11 +715,11 @@ export const memoTrainingReducer = handleActions(
 
             const newSolution = _.cloneDeep(state.solution);
             const newHandDict = _.cloneDeep(state.handDict);
+            // 既に穴にelementが入っている場合は外す
             if (newSolution[holeDeckInd] && newSolution[holeDeckInd][holePairInd] && newSolution[holeDeckInd][holePairInd][holePosInd]) {
-                // 既に穴にelementが入っている場合は外す
                 const element = newSolution[holeDeckInd][holePairInd][holePosInd];
                 const tag = element.tag;
-                newHandDict[tag] = true;
+                newHandDict[holeDeckInd][tag] = true;
                 newSolution[holeDeckInd][holePairInd][holePosInd] = null;
             }
 
@@ -738,6 +742,35 @@ export const memoTrainingReducer = handleActions(
             return {
                 ...state,
                 deckInd: state.deckInd === state.decks.length - 1 ? state.deckInd : state.deckInd + 1,
+            };
+        },
+        [selectHand]: (state, action) => {
+            const element = action.payload.element;
+            const deckInd = state.deckInd;
+            const pairInd = state.pairInd;
+            const posInd = state.posInd;
+
+            const newSolution = _.cloneDeep(state.solution);
+            const newHandDict = _.cloneDeep(state.handDict);
+
+            // 選択している回答欄が空いていたらそこに埋める
+
+            if (!newSolution[deckInd]) {
+                newSolution[deckInd] = [];
+            }
+            if (!newSolution[deckInd][pairInd]) {
+                newSolution[deckInd][pairInd] = [];
+            }
+
+            if (!newSolution[deckInd][pairInd][posInd]) {
+                newSolution[deckInd][pairInd][posInd] = element;
+                newHandDict[deckInd][element.tag] = false;
+            }
+
+            return {
+                ...state,
+                solution: newSolution,
+                handDict: newHandDict,
             };
         },
     },

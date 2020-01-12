@@ -32,6 +32,7 @@ import {
     selectHole,
     goToPrevDeckRecall,
     goToNextDeckRecall,
+    selectHand,
 
     memoTrainingReducer,
     rootSaga,
@@ -146,6 +147,9 @@ const mapDispatchToProps = (dispatch) => {
         },
         goToNextDeckRecall: () => {
             dispatch(goToNextDeckRecall());
+        },
+        selectHand: (element) => {
+            dispatch(selectHand({ element, }));
         },
     };
 };

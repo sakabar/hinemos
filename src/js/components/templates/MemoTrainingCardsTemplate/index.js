@@ -54,6 +54,7 @@ const MemoTrainingCardsTemplate = (
         selectHole,
         goToPrevDeckRecall,
         goToNextDeckRecall,
+        selectHand,
     }
 ) => (
     <div>
@@ -66,7 +67,7 @@ const MemoTrainingCardsTemplate = (
                     } else if (phase === memoTrainingUtils.TrainingPhase.memorization) {
                         return (<MemoTrainingCardsMemorization startMemoMiliUnixtime={startMemoMiliUnixtime} startRecallMiliUnixtime={startRecallMiliUnixtime} timerMiliUnixtime={timerMiliUnixtime} timeVisible={timeVisible} decks={decks} deckInd={deckInd} pairInd={pairInd} sagaFinishMemorizationPhase={sagaFinishMemorizationPhase} sagaGoToNextPair={sagaGoToNextPair} sagaGoToPrevPair={sagaGoToPrevPair} sagaGoToDeckHead={sagaGoToDeckHead} sagaGoToNextDeck={sagaGoToNextDeck} sagaToggleTimer={sagaToggleTimer}/>);
                     } else if (phase === memoTrainingUtils.TrainingPhase.recall) {
-                        return (<MemoTrainingCardsRecall decks={decks} deckInd={deckInd} pairInd={pairInd} posInd={posInd} solution={solution} handDict={handDict} handSuits={handSuits} sagaFinishRecallPhase={sagaFinishRecallPhase} selectHole={selectHole} goToPrevDeckRecall={goToPrevDeckRecall} goToNextDeckRecall={goToNextDeckRecall}/>);
+                        return (<MemoTrainingCardsRecall decks={decks} deckInd={deckInd} pairInd={pairInd} posInd={posInd} solution={solution} handDict={handDict} handSuits={handSuits} sagaFinishRecallPhase={sagaFinishRecallPhase} selectHole={selectHole} goToPrevDeckRecall={goToPrevDeckRecall} goToNextDeckRecall={goToNextDeckRecall} selectHand={selectHand} />);
                     } else {
                         return (
                             <div>
@@ -126,6 +127,7 @@ MemoTrainingCardsTemplate.propTypes = {
     selectHole: PropTypes.func.isRequired,
     goToPrevDeckRecall: PropTypes.func.isRequired,
     goToNextDeckRecall: PropTypes.func.isRequired,
+    selectHand: PropTypes.func.isRequired,
 };
 
 export default MemoTrainingCardsTemplate;

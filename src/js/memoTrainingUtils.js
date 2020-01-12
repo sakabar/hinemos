@@ -396,12 +396,17 @@ export const cardTagToMarkStr = (tag) => {
     return `${suitMarkDict[tag[0]]}${numStr}`;
 };
 
-export const cardsDefaultHand = () => {
+export const cardsDefaultHand = (deckNum) => {
     const ans = {};
     const elements = _.range(1, 52 + 1).map(num => numToCardElement(num));
 
-    for (let i = 0; i < elements.length; i++) {
-        ans[elements[i].tag] = true;
+    for (let deckInd = 0; deckInd < deckNum; deckInd++) {
+        if (!ans[deckInd]) {
+            ans[deckInd] = {};
+        }
+        for (let i = 0; i < elements.length; i++) {
+            ans[deckInd][elements[i].tag] = true;
+        }
     }
 
     return ans;
