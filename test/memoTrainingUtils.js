@@ -194,4 +194,155 @@ describe('memoTrainingUtils.js', () => {
             assert.deepStrictEqual(actual, expected);
         });
     });
+
+    describe('getDeckNextCoordinate()', () => {
+        const c1 = new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 1);
+        const c2 = new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 2);
+        const c3 = new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 3);
+        const c4 = new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 4);
+        const c5 = new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 5);
+        const c6 = new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 6);
+
+        const decks = [
+            // デッキ0
+            [
+                // ペア
+                [ c1, c2, ],
+                [ c3, c4, ],
+            ],
+            // デッキ1
+            [
+                // ペア
+                [ c5, c6, ],
+            ],
+        ];
+
+        it('正常系: 次のposがある', () => {
+            const actual = memoTrainingUtils.getDeckNextCoordinate(decks, 0, 0, 0);
+            const expected = {
+                deckInd: 0,
+                pairInd: 0,
+                posInd: 1,
+            };
+            assert.deepStrictEqual(actual, expected);
+        });
+
+        it('正常系: posが終わりで繰り上がり', () => {
+            const actual = memoTrainingUtils.getDeckNextCoordinate(decks, 0, 0, 1);
+            const expected = {
+                deckInd: 0,
+                pairInd: 1,
+                posInd: 0,
+            };
+            assert.deepStrictEqual(actual, expected);
+        });
+
+        it('正常系: pairが終わりで繰り上がり', () => {
+            const actual = memoTrainingUtils.getDeckNextCoordinate(decks, 0, 1, 1);
+            const expected = {
+                deckInd: 1,
+                pairInd: 0,
+                posInd: 0,
+            };
+            assert.deepStrictEqual(actual, expected);
+        });
+
+        it('正常系: デッキの終端に達した場合は入力と同じ座標を返す', () => {
+            const actual = memoTrainingUtils.getDeckNextCoordinate(decks, 1, 0, 1);
+            const expected = {
+                deckInd: 1,
+                pairInd: 0,
+                posInd: 1,
+            };
+            assert.deepStrictEqual(actual, expected);
+        });
+    });
+
+    describe('getHoleNextCoordinate()', () => {
+        const c1 = new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 1);
+        const c2 = new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 2);
+        const c3 = new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 3);
+        const c4 = new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 4);
+        const c5 = new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 5);
+        const c6 = new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 6);
+
+        const decks = [
+            // デッキ0
+            [
+                // ペア
+                [ c1, c2, ],
+                [ c3, c4, ],
+            ],
+            // デッキ1
+            [
+                // ペア
+                [ c5, c6, ],
+            ],
+        ];
+
+        const solution = [
+            // デッキ0
+            [
+                // ペア
+                [ null, null, ],
+                [ null, c4, ],
+            ],
+            // デッキ1
+            [
+                // ペア
+                [ null, c6, ],
+            ],
+        ];
+
+        it('正常系: 次のHoleが埋まっていない', () => {
+            const actual = memoTrainingUtils.getHoleNextCoordinate(decks, 0, 0, 0, solution);
+            const expected = {
+                deckInd: 0,
+                pairInd: 0,
+                posInd: 1,
+            };
+            assert.deepStrictEqual(actual, expected);
+        });
+
+        it('正常系: 次のHoleが埋まっている', () => {
+            const actual = memoTrainingUtils.getHoleNextCoordinate(decks, 0, 1, 0, solution);
+            const expected = {
+                deckInd: 1,
+                pairInd: 0,
+                posInd: 0,
+            };
+            assert.deepStrictEqual(actual, expected);
+        });
+
+        it('正常系: 終端', () => {
+            const actual = memoTrainingUtils.getHoleNextCoordinate(decks, 1, 0, 1, solution);
+            const expected = {
+                deckInd: 1,
+                pairInd: 0,
+                posInd: 1,
+            };
+            assert.deepStrictEqual(actual, expected);
+        });
+
+        it('正常系: 空きを探して終端にたどり着いた', () => {
+            const actual = memoTrainingUtils.getHoleNextCoordinate(decks, 1, 0, 0, solution);
+            const expected = {
+                deckInd: 1,
+                pairInd: 0,
+                posInd: 1,
+            };
+            assert.deepStrictEqual(actual, expected);
+        });
+
+        it('異常系: solutionが空', () => {
+            const emptySolution = [ [], ];
+            const actual = memoTrainingUtils.getHoleNextCoordinate(decks, 1, 0, 0, emptySolution);
+            const expected = {
+                deckInd: 1,
+                pairInd: 0,
+                posInd: 1,
+            };
+            assert.deepStrictEqual(actual, expected);
+        });
+    });
 });

@@ -420,3 +420,68 @@ export const getHandElements = (suits) => {
     const cards = suits.map(suit => getSameSuitCards(suit));
     return _.flatten(cards);
 };
+
+// 今見ている deckInd, pairInd, posIndの次の座標を返す。
+// デッキの終端に達した場合は同じ座標を返す
+export const getDeckNextCoordinate = (decks, deckInd, pairInd, posInd) => {
+    // posからpairへの繰り上がりが発生しない場合
+    if (posInd < decks[deckInd][pairInd].length - 1) {
+        return {
+            deckInd,
+            pairInd,
+            posInd: posInd + 1,
+        };
+    }
+
+    // 以下、posからpairへの繰り上がりが発生する場合
+
+    // pairからdeckへの繰り上がりが発生しない場合
+    if (pairInd < decks[deckInd].length - 1) {
+        return {
+            deckInd,
+            pairInd: pairInd + 1,
+            posInd: 0,
+        };
+    }
+
+    // pairからdeckへの繰り上がりが発生し、次のデッキがある場合
+    if (deckInd < decks.length - 1) {
+        return {
+            deckInd: deckInd + 1,
+            pairInd: 0,
+            posInd: 0,
+        };
+    }
+
+    // 終端に達した場合は入力と同じ座標を返す
+    return {
+        deckInd,
+        pairInd,
+        posInd,
+    };
+};
+
+// 次に空いているHoleの座標を返す
+// デッキの終端に達した場合は同じ座標を返す
+// そこから後ろが終端まで全て埋まっていた場合は終端の座標を返す
+export const getHoleNextCoordinate = (decks, deckInd, pairInd, posInd, solution) => {
+    const nextDeckCoordinate = getDeckNextCoordinate(decks, deckInd, pairInd, posInd);
+
+    const nextDeckInd = nextDeckCoordinate.deckInd;
+    const nextPairInd = nextDeckCoordinate.pairInd;
+    const nextPosInd = nextDeckCoordinate.posInd;
+
+    // getDeckNextCoordinateはデッキの終端に達した場合は同じ座標を返すので、
+    // それを利用して条件判定し、デッキの終端に達した場合は同じ座標を返す
+    if (nextDeckInd === deckInd && nextPairInd === pairInd && nextPosInd === posInd) {
+        return nextDeckCoordinate;
+    }
+
+    // 次のholeが空いている場合はそれを返す
+    if (!solution[nextDeckInd] || !solution[nextDeckInd][nextPairInd] || !solution[nextDeckInd][nextPairInd][nextPosInd]) {
+        return nextDeckCoordinate;
+    }
+
+    // 次のholeが空いていない場合は、再帰でさらに次を探す
+    return getDeckNextCoordinate(decks, nextDeckInd, nextPairInd, nextPosInd);
+};

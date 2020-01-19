@@ -746,6 +746,7 @@ export const memoTrainingReducer = handleActions(
         },
         [selectHand]: (state, action) => {
             const element = action.payload.element;
+            const decks = state.decks;
             const deckInd = state.deckInd;
             const pairInd = state.pairInd;
             const posInd = state.posInd;
@@ -767,8 +768,17 @@ export const memoTrainingReducer = handleActions(
                 newHandDict[deckInd][element.tag] = false;
             }
 
+            // カーソルを進める
+            const nextCoordinate = memoTrainingUtils.getHoleNextCoordinate(decks, deckInd, pairInd, posInd, newSolution);
+            const nextDeckInd = nextCoordinate.deckInd;
+            const nextPairInd = nextCoordinate.pairInd;
+            const nextPosInd = nextCoordinate.posInd;
+
             return {
                 ...state,
+                deckInd: nextDeckInd,
+                pairInd: nextPairInd,
+                posInd: nextPosInd,
                 solution: newSolution,
                 handDict: newHandDict,
             };
