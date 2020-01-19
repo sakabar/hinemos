@@ -29,12 +29,14 @@ const MemoTrainingCardsRecall = ({
     selectHole,
     goToPrevDeckRecall,
     goToNextDeckRecall,
-    selectHand,
+    sagaSelectHand,
 }) => {
     return (
         <div>
-            <Txt>回答フェーズだよ。上のほうに</Txt>
             {/* <Txt>{deckInd + 1}束目の{pairInd}-{posInd}</Txt> */}
+            <Button value="回答終了" onClick={(e) => sagaFinishRecallPhase()}/>
+            <Br/>
+
             <Txt>{deckInd + 1}束目</Txt>
             <Br/>
             {
@@ -79,7 +81,7 @@ const MemoTrainingCardsRecall = ({
                                 {
                                     cards.map((element, cardInd) => {
                                         // 手礼に残っているカードだけ選択できるようにしている
-                                        return (<Button value={memoTrainingUtils.cardTagToMarkStr(element.tag)} style={ { fontFamily: [ 'Courier New', 'monospace', ], }} key={`${cardInd}`} disabled={!handDict[deckInd][element.tag]} onClick={ () => { selectHand(element); }}/>);
+                                        return (<Button value={memoTrainingUtils.cardTagToMarkStr(element.tag)} style={ { fontFamily: [ 'Courier New', 'monospace', ], }} key={`${cardInd}`} disabled={!handDict[deckInd][element.tag]} onClick={ () => { sagaSelectHand(element); }}/>);
                                     })
                                 }
                             </div>
@@ -108,7 +110,7 @@ MemoTrainingCardsRecall.propTypes = {
     selectHole: PropTypes.func.isRequired,
     goToPrevDeckRecall: PropTypes.func.isRequired,
     goToNextDeckRecall: PropTypes.func.isRequired,
-    selectHand: PropTypes.func.isRequired,
+    sagaSelectHand: PropTypes.func.isRequired,
 };
 
 export default MemoTrainingCardsRecall;

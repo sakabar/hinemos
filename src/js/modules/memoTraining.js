@@ -13,7 +13,6 @@ import {
 import {
     delay,
 } from 'redux-saga';
-// const moment = require('moment');
 const memoTrainingUtils = require('../memoTrainingUtils');
 const moment = require('moment');
 const _ = require('lodash');
@@ -43,6 +42,9 @@ export const sagaStartMemorizationPhase = createAction(SAGA_START_MEMORIZATION_P
 
 const SAGA_FINISH_RECALL_PHASE = 'SAGA_FINISH_RECALL_PHASE';
 export const sagaFinishRecallPhase = createAction(SAGA_FINISH_RECALL_PHASE);
+
+const FINISH_RECALL_PHASE = 'FINISH_RECALL_PHASE';
+const finishRecallPhase = createAction(FINISH_RECALL_PHASE);
 
 // 移動する系のアクション
 const GO_TO_NEXT_PAIR = 'GO_TO_NEXT_PAIR';
@@ -77,7 +79,10 @@ const updateTimer = createAction(UPDATE_TIMER);
 
 // 回答phaseでのアクション
 const UPDATE_MBLD_SOLUTION = 'UPDATE_MBLD_SOLUTION';
-export const updateMbldSolution = createAction(UPDATE_MBLD_SOLUTION);
+const updateMbldSolution = createAction(UPDATE_MBLD_SOLUTION);
+
+const SAGA_UPDATE_MBLD_SOLUTION = 'SAGA_UPDATE_MBLD_SOLUTION';
+export const sagaUpdateMbldSolution = createAction(SAGA_UPDATE_MBLD_SOLUTION);
 
 const SAGA_ON_KEY_DOWN = 'SAGA_ON_KEY_DOWN';
 export const sagaOnKeyDown = createAction(SAGA_ON_KEY_DOWN);
@@ -105,8 +110,11 @@ export const goToPrevDeckRecall = createAction(GO_TO_PREV_DECK_RECALL);
 const GO_TO_NEXT_DECK_RECALL = 'GO_TO_NEXT_DECK_RECALL';
 export const goToNextDeckRecall = createAction(GO_TO_NEXT_DECK_RECALL);
 
+const SAGA_SELECT_HAND = 'SAGA_SELECT_HAND';
+export const sagaSelectHand = createAction(SAGA_SELECT_HAND);
+
 const SELECT_HAND = 'SELECT_HAND';
-export const selectHand = createAction(SELECT_HAND);
+const selectHand = createAction(SELECT_HAND);
 
 const initialState = {
     userName: localStorage.userName, // ユーザ名
@@ -118,7 +126,7 @@ const initialState = {
     trialId: 0,
     trialDeckIds: [],
 
-    deckElementIdPairsLists: [ [], ],
+    deckElementIdPairsList: [ [], ],
     switchedPairMiliUnixtime: 0,
 
     deckNum: 1, // 束数
@@ -134,6 +142,7 @@ const initialState = {
     posInd: 0,
 
     handDict: {}, // Cardsで手元に残っているカードを表す辞書。deckInd => tag => bool
+    // 手札のスート順。将来はこれを自由に設定できるようにする予定 FIXME
     handSuits: [
         memoTrainingUtils.Suit.heart,
         memoTrainingUtils.Suit.spade,
@@ -141,9 +150,13 @@ const initialState = {
         memoTrainingUtils.Suit.club,
     ],
 
+    // elementType => elementTag => elementId の辞書
     elementIdsDict: {},
 
     memoLogs: [], // 記憶時間が終わったらpostする。indパラメータはpostする直前に付与
+
+    lastMemoMiliUnixtimePairsList: [ [], ], // そのelementを最後に覚えたミリunixtimestamp
+    lastRecallMiliUnixtimePairsList: [ [], ], // そのelementを最後に思い出したミリunixtimestamp
 };
 
 function * handleStartMemorizationPhase () {
@@ -215,7 +228,7 @@ function * handleStartMemorizationPhase () {
         const deckElementIdsList = deckIds.map(deckId => {
             return deckElementIdsDict[deckId];
         });
-        const deckElementIdPairsLists = deckElementIdsList
+        const deckElementIdPairsList = deckElementIdsList
             .map(deckElementIds => _.chunk(deckElementIds, pairSize));
 
         // trialをPOSTする
@@ -228,7 +241,7 @@ function * handleStartMemorizationPhase () {
             ...action.payload,
             trialId,
             trialDeckIds,
-            deckElementIdPairsLists,
+            deckElementIdPairsList,
             currentMiliUnixtime,
             deckSize,
             pairSize,
@@ -252,8 +265,8 @@ function * handleSwitchPair (currentMiliUnixtime) {
 
     const deckInd = yield select(state => state.deckInd);
     const pairInd = yield select(state => state.pairInd);
-    const deckElementIdPairsLists = yield select(state => state.deckElementIdPairsLists);
-    const deckElementIdPair = deckElementIdPairsLists[deckInd][pairInd];
+    const deckElementIdPairsList = yield select(state => state.deckElementIdPairsList);
+    const deckElementIdPair = deckElementIdPairsList[deckInd][pairInd];
 
     // DBに登録する秒数の和が実際の消費時間になるようにするために平均する
     const avgSec = 1.0 * sec / deckElementIdPair.length;
@@ -343,7 +356,9 @@ function * handleFinishMemorizationPhase () {
         // 変換練習の場合はここでScoreをPOSTする
         const mode = yield select(state => state.mode);
         if (mode === memoTrainingUtils.TrainingMode.transformation) {
-            const postScoreTask = yield fork(handlePostScore, currentMiliUnixtime);
+            // 変換練習なのでrecallLogsは空
+            const recallLogs = [];
+            const postScoreTask = yield fork(handlePostScore, currentMiliUnixtime, recallLogs);
             // wait
             yield join(postScoreTask);
         }
@@ -352,30 +367,77 @@ function * handleFinishMemorizationPhase () {
     }
 }
 
-function * handlePostScore (currentMiliUnixtime) {
+function * handlePostScore (currentMiliUnixtime, recallLogs) {
     const trialId = yield select(state => state.trialId);
     const deckNum = yield select(state => state.deckNum);
     const decks = yield select(state => state.decks);
+    const elementIdsDict = yield select(state => state.elementIdsDict);
+
     const allElementNum = _.sum(decks.map(deck => {
         return _.sum(deck.map(pair => pair.length));
     }));
 
     const startMemoMiliUnixtime = yield select(state => state.startMemoMiliUnixtime);
-    const totalMemoSec = (currentMiliUnixtime - startMemoMiliUnixtime) / 1000.0;
+    const startRecallMiliUnixtime = yield select(state => state.startRecallMiliUnixtime);
+
+    const mode = yield select(state => state.mode);
+
+    let totalMemoSec = null;
+    let totalRecallSec = null;
+    if (mode === memoTrainingUtils.TrainingMode.transformation) {
+        totalMemoSec = (currentMiliUnixtime - startMemoMiliUnixtime) / 1000.0;
+        // totalRecallSecはnullのまま
+    } else if (mode === memoTrainingUtils.TrainingMode.memorization) {
+        totalMemoSec = (startRecallMiliUnixtime - startMemoMiliUnixtime) / 1000.0;
+        totalRecallSec = (currentMiliUnixtime - startRecallMiliUnixtime) / 1000.0;
+    } else {
+        throw new Error(`Unexpected mode: ${mode}`);
+    }
 
     const memoLogs = yield select(state => state.memoLogs);
     const triedDeckNum = new Set(memoLogs.map(log => log.trialDeckId)).size;
     const triedElementNum = new Set(memoLogs.map(log => log.deckElementId)).size;
 
+    const successDeckNum = (() => {
+        if (mode === memoTrainingUtils.TrainingMode.transformation) {
+            return null;
+        }
+
+        let ans = 0;
+        for (let deckInd = 0; deckInd < deckNum; deckInd++) {
+            const failureLogs = recallLogs.filter(log => {
+                const element = decks[log.deckInd][log.pairInd][log.posInd];
+                return log.deckInd === deckInd && elementIdsDict[element.type][element.tag] !== log.solutionElementId;
+            });
+
+            if (failureLogs.length === 0) {
+                ans += 1;
+            }
+        }
+        return ans;
+    })();
+
+    const successElementNum = (() => {
+        if (mode === memoTrainingUtils.TrainingMode.transformation) {
+            return null;
+        }
+
+        return recallLogs.filter(log => {
+            const element = decks[log.deckInd][log.pairInd][log.posInd];
+            return elementIdsDict[element.type][element.tag] === log.solutionElementId;
+        }).length;
+    })();
+
     const arg = {
         trialId,
         totalMemoSec,
+        totalRecallSec,
 
-        successDeckNum: null,
+        successDeckNum,
         triedDeckNum,
         allDeckNum: deckNum,
 
-        successElementNum: null,
+        successElementNum,
         triedElementNum,
         allElementNum,
     };
@@ -390,38 +452,114 @@ function * handleFinishRecallPhase () {
     while (true) {
         yield take(sagaFinishRecallPhase);
 
+        const currentMiliUnixtime = parseInt(moment().format('x'));
+
         const decks = yield select(state => state.decks);
         const solution = yield select(state => state.solution);
 
-        for (let i = 0; i < decks.length; i++) {
-            const deck = decks[i];
+        const trialDeckIds = yield select(state => state.trialDeckIds);
+        const userName = yield select(state => state.userName);
+        const deckElementIdPairsList = yield select(state => state.deckElementIdPairsList);
+        const elementIdsDict = yield select(state => state.elementIdsDict);
+        const lastMemoMiliUnixtimePairsList = yield select(state => state.lastMemoMiliUnixtimePairsList);
+        const lastRecallMiliUnixtimePairsList = yield select(state => state.lastRecallMiliUnixtimePairsList);
 
-            for (let k = 0; k < deck.length; k++) {
-                const pair = deck[k];
+        // nullじゃない値の中で最も大きい(新しい)値
+        // 全てnullの場合はundefinedとなるので、nullに変える
+        const tmpMax = _.max(_.flattenDeep(lastRecallMiliUnixtimePairsList));
+        const newestRecallMiliUnixtime = tmpMax || null;
 
-                for (let m = 0; m < pair.length; m++) {
-                    let solutionElement = {
-                        elementType: 'letter',
-                        element: '',
-                    };
-                    if (typeof solution[i] !== 'undefined') {
-                        if (typeof solution[i][k] !== 'undefined') {
-                            if (typeof solution[i][k][m] !== 'undefined') {
-                                solutionElement = solution[i][k][m];
+        const recallLogs = [];
+
+        for (let deckInd = 0; deckInd < decks.length; deckInd++) {
+            const deck = decks[deckInd];
+            const trialDeckId = trialDeckIds[deckInd];
+
+            for (let pairInd = 0; pairInd < deck.length; pairInd++) {
+                const pair = deck[pairInd];
+                const deckElementIdPair = deckElementIdPairsList[deckInd][pairInd];
+
+                for (let posInd = 0; posInd < pair.length; posInd++) {
+                    const deckElementId = deckElementIdPair[posInd];
+
+                    let solutionElement = null;
+                    if (solution[deckInd]) {
+                        if (solution[deckInd][pairInd]) {
+                            if (solution[deckInd][pairInd][posInd]) {
+                                solutionElement = solution[deckInd][pairInd][posInd];
                             }
                         }
                     }
 
-                    if (_.isEqual(pair[m], solutionElement)) {
-                        // 正解をpostする
-                        memoTrainingUtils.postRecallLogs(`OK: ${JSON.stringify(pair[m])}`);
-                    } else {
-                        // 不正解をpostする?
-                        memoTrainingUtils.postRecallLogs(`NG: ${JSON.stringify(pair[m])} !== ${JSON.stringify(solutionElement)}`);
+                    const solutionElementId = solutionElement ? elementIdsDict[solutionElement.type][solutionElement.tag] : null;
+
+                    let lastMemoMiliUnixtime = null;
+                    if (lastMemoMiliUnixtimePairsList[deckInd]) {
+                        if (lastMemoMiliUnixtimePairsList[deckInd][pairInd]) {
+                            if (lastMemoMiliUnixtimePairsList[deckInd][pairInd][posInd]) {
+                                lastMemoMiliUnixtime = lastMemoMiliUnixtimePairsList[deckInd][pairInd][posInd];
+                            }
+                        }
                     }
+
+                    let lastRecallMiliUnixtime = null;
+                    if (lastRecallMiliUnixtimePairsList[deckInd]) {
+                        if (lastRecallMiliUnixtimePairsList[deckInd][pairInd]) {
+                            if (lastRecallMiliUnixtimePairsList[deckInd][pairInd][posInd]) {
+                                lastRecallMiliUnixtime = lastRecallMiliUnixtimePairsList[deckInd][pairInd][posInd];
+                            }
+                        }
+                    }
+
+                    // 回答null - 記憶null = null
+                    // 回答 - 記憶null = null
+                    // 回答null - 記憶 = 回答タイミングは全体で最も新しい回答タイミングとして計算
+                    // 回答 - 記憶 = (そのまま計算)
+                    const losingMemorySec = (() => {
+                        if (lastMemoMiliUnixtime === null) {
+                            console.dir('A');
+                            return null;
+                        }
+
+                        if (lastRecallMiliUnixtime !== null) {
+                            return (lastRecallMiliUnixtime - lastMemoMiliUnixtime) / 1000.0;
+                        }
+
+                        if (newestRecallMiliUnixtime === null) {
+                            console.dir('B');
+                            return null;
+                        } else {
+                            return (newestRecallMiliUnixtime - lastMemoMiliUnixtime) / 1000.0;
+                        }
+                    })();
+
+                    const log = {
+                        trialDeckId,
+                        userName,
+                        deckInd,
+                        pairInd,
+                        posInd,
+                        deckElementId,
+                        solutionElementId,
+                        losingMemorySec,
+                    };
+
+                    recallLogs.push(log);
                 }
             }
         }
+
+        const resPostRecallLogs = yield call(memoTrainingUtils.postRecallLogs, recallLogs);
+        if (!resPostRecallLogs.success) {
+            throw new Error('recall logs post failed');
+        }
+
+        // 記憶練習のはずなので、ここでScoreをPOSTする
+        const postScoreTask = yield fork(handlePostScore, currentMiliUnixtime, recallLogs);
+        // wait
+        yield join(postScoreTask);
+
+        yield put(finishRecallPhase({ currentMiliUnixtime, }));
     }
 };
 
@@ -497,6 +635,36 @@ function * handleKeyDown () {
     }
 };
 
+function * handleUpdateMbldSolution () {
+    while (true) {
+        const action = yield take(sagaUpdateMbldSolution);
+
+        const currentMiliUnixtime = parseInt(moment().format('x'));
+
+        const payload = {
+            ...action.payload,
+            currentMiliUnixtime,
+        };
+
+        yield put(updateMbldSolution(payload));
+    }
+}
+
+function * handleSelectHand () {
+    while (true) {
+        const action = yield take(sagaSelectHand);
+
+        const currentMiliUnixtime = parseInt(moment().format('x'));
+
+        const payload = {
+            ...action.payload,
+            currentMiliUnixtime,
+        };
+
+        yield put(selectHand(payload));
+    }
+}
+
 // function * handleInitLoad () {
 //     while (true) {
 //         yield take(sagaInitLoad);
@@ -540,7 +708,7 @@ export const memoTrainingReducer = handleActions(
                     ...state,
                     trialId: action.payload.trialId,
                     trialDeckIds: action.payload.trialDeckIds,
-                    deckElementIdPairsLists: action.payload.deckElementIdPairsLists,
+                    deckElementIdPairsList: action.payload.deckElementIdPairsList,
                     switchedPairMiliUnixtime: action.payload.currentMiliUnixtime,
 
                     memoEvent: action.payload.memoEvent,
@@ -561,6 +729,26 @@ export const memoTrainingReducer = handleActions(
         [finishMemorizationPhase]: (state, action) => {
             // 変換練習だったら、記憶時間の終了 = 練習の終了なので初期状態に戻す
             // 記録ページができたらそっちに飛んだほうがいいかも? FIXME
+
+            const currentMiliUnixtime = action.payload.currentMiliUnixtime;
+            const decks = state.decks;
+            const deckInd = state.deckInd;
+            const pairInd = state.pairInd;
+
+            const newLastMemoMiliUnixtimePairsList = _.cloneDeep(state.lastMemoMiliUnixtimePairsList);
+            if (!newLastMemoMiliUnixtimePairsList[deckInd]) {
+                newLastMemoMiliUnixtimePairsList[deckInd] = [];
+            }
+
+            if (!newLastMemoMiliUnixtimePairsList[deckInd][pairInd]) {
+                newLastMemoMiliUnixtimePairsList[deckInd][pairInd] = [];
+            }
+
+            // ここはdecksでforを回すので注意
+            for (let posInd = 0; posInd < decks[deckInd][pairInd].length; posInd++) {
+                newLastMemoMiliUnixtimePairsList[deckInd][pairInd][posInd] = currentMiliUnixtime;
+            }
+
             if (state.mode === memoTrainingUtils.TrainingMode.transformation) {
                 return {
                     ...initialState,
@@ -573,31 +761,63 @@ export const memoTrainingReducer = handleActions(
                 return {
                     ...state,
                     phase: memoTrainingUtils.TrainingPhase.recall,
-                    startRecallMiliUnixtime: action.payload.currentMiliUnixtime,
+                    startRecallMiliUnixtime: currentMiliUnixtime,
                     handDict: memoTrainingUtils.cardsDefaultHand(state.deckNum),
                     deckInd: 0,
                     pairInd: 0,
+                    lastMemoMiliUnixtimePairsList: newLastMemoMiliUnixtimePairsList,
                 };
             } else {
                 throw new Error(`unexpected mode : ${state.mode}`);
             }
         },
+        [finishRecallPhase]: (state, action) => {
+            // 記録ページができたらそっちに飛んだほうがいいかも? FIXME
+            return {
+                ...initialState,
+                // 一部の設定は引き継ぐ
+                deckNum: state.deckNum,
+                deckSize: state.deckSize,
+                pairSize: state.pairSize,
+            };
+        },
         [goToNextPair]: (state, action) => {
-            if (state.pairInd === state.decks[state.deckInd].length - 1) {
+            const switchedPairMiliUnixtime = action.payload.currentMiliUnixtime;
+            const newLastMemoMiliUnixtimePairsList = _.cloneDeep(state.lastMemoMiliUnixtimePairsList);
+            const decks = state.decks;
+            const deckInd = state.deckInd;
+            const pairInd = state.pairInd;
+
+            if (!newLastMemoMiliUnixtimePairsList[deckInd]) {
+                newLastMemoMiliUnixtimePairsList[deckInd] = [];
+            }
+
+            if (!newLastMemoMiliUnixtimePairsList[deckInd][pairInd]) {
+                newLastMemoMiliUnixtimePairsList[deckInd][pairInd] = [];
+            }
+
+            // ここはdecksでforを回すので注意
+            for (let posInd = 0; posInd < decks[deckInd][pairInd].length; posInd++) {
+                newLastMemoMiliUnixtimePairsList[deckInd][pairInd][posInd] = switchedPairMiliUnixtime;
+            }
+
+            if (pairInd === state.decks[deckInd].length - 1) {
                 // 右端
-                if (state.deckInd === state.decks.length - 1) {
+                if (deckInd === state.decks.length - 1) {
                     // ペアもデッキも右端なので何もしない
                     // saga-*のイベントは起こるので、タイムは更新しておく
                     return {
                         ...state,
-                        switchedPairMiliUnixtime: action.payload.currentMiliUnixtime,
+                        switchedPairMiliUnixtime,
+                        lastMemoMiliUnixtimePairsList: newLastMemoMiliUnixtimePairsList,
                     };
                 } else {
                     // 次のデッキに進む
                     return {
                         ...state,
-                        switchedPairMiliUnixtime: action.payload.currentMiliUnixtime,
-                        deckInd: state.deckInd + 1,
+                        switchedPairMiliUnixtime,
+                        lastMemoMiliUnixtimePairsList: newLastMemoMiliUnixtimePairsList,
+                        deckInd: deckInd + 1,
                         pairInd: 0,
                     };
                 }
@@ -605,27 +825,49 @@ export const memoTrainingReducer = handleActions(
                 // 右端じゃないので1つ進むだけ
                 return {
                     ...state,
-                    switchedPairMiliUnixtime: action.payload.currentMiliUnixtime,
-                    pairInd: state.pairInd + 1,
+                    switchedPairMiliUnixtime,
+                    lastMemoMiliUnixtimePairsList: newLastMemoMiliUnixtimePairsList,
+                    pairInd: pairInd + 1,
                 };
             }
         },
         [goToPrevPair]: (state, action) => {
-            if (state.pairInd === 0) {
+            const switchedPairMiliUnixtime = action.payload.currentMiliUnixtime;
+            const newLastMemoMiliUnixtimePairsList = _.cloneDeep(state.lastMemoMiliUnixtimePairsList);
+            const decks = state.decks;
+            const deckInd = state.deckInd;
+            const pairInd = state.pairInd;
+
+            if (!newLastMemoMiliUnixtimePairsList[deckInd]) {
+                newLastMemoMiliUnixtimePairsList[deckInd] = [];
+            }
+
+            if (!newLastMemoMiliUnixtimePairsList[deckInd][pairInd]) {
+                newLastMemoMiliUnixtimePairsList[deckInd][pairInd] = [];
+            }
+
+            // ここはdecksでforを回すので注意
+            for (let posInd = 0; posInd < decks[deckInd][pairInd].length; posInd++) {
+                newLastMemoMiliUnixtimePairsList[deckInd][pairInd][posInd] = switchedPairMiliUnixtime;
+            }
+
+            if (pairInd === 0) {
                 // 左端
-                if (state.deckInd === 0) {
+                if (deckInd === 0) {
                     // ペアもデッキも左端なので何もしない
                     // saga-*のイベントは起こるので、タイムは更新しておく
                     return {
                         ...state,
-                        switchedPairMiliUnixtime: action.payload.currentMiliUnixtime,
+                        switchedPairMiliUnixtime,
+                        lastMemoMiliUnixtimePairsList: newLastMemoMiliUnixtimePairsList,
                     };
                 } else {
                     // 前のデッキに戻る
-                    const newDeckInd = state.deckInd - 1;
+                    const newDeckInd = deckInd - 1;
                     return {
                         ...state,
-                        switchedPairMiliUnixtime: action.payload.currentMiliUnixtime,
+                        switchedPairMiliUnixtime,
+                        lastMemoMiliUnixtimePairsList: newLastMemoMiliUnixtimePairsList,
                         deckInd: newDeckInd,
                         pairInd: state.decks[newDeckInd].length - 1,
                     };
@@ -634,54 +876,136 @@ export const memoTrainingReducer = handleActions(
                 // 左端じゃないので1つ戻るだけ
                 return {
                     ...state,
-                    switchedPairMiliUnixtime: action.payload.currentMiliUnixtime,
-                    pairInd: state.pairInd - 1,
+                    switchedPairMiliUnixtime,
+                    lastMemoMiliUnixtimePairsList: newLastMemoMiliUnixtimePairsList,
+                    pairInd: pairInd - 1,
                 };
             }
         },
         [goToDeckHead]: (state, action) => {
+            const switchedPairMiliUnixtime = action.payload.currentMiliUnixtime;
+            const newLastMemoMiliUnixtimePairsList = _.cloneDeep(state.lastMemoMiliUnixtimePairsList);
+            const decks = state.decks;
+            const deckInd = state.deckInd;
+            const pairInd = state.pairInd;
+
+            if (!newLastMemoMiliUnixtimePairsList[deckInd]) {
+                newLastMemoMiliUnixtimePairsList[deckInd] = [];
+            }
+
+            if (!newLastMemoMiliUnixtimePairsList[deckInd][pairInd]) {
+                newLastMemoMiliUnixtimePairsList[deckInd][pairInd] = [];
+            }
+
+            // ここはdecksでforを回すので注意
+            for (let posInd = 0; posInd < decks[deckInd][pairInd].length; posInd++) {
+                newLastMemoMiliUnixtimePairsList[deckInd][pairInd][posInd] = switchedPairMiliUnixtime;
+            }
+
             // もし先頭のペアを見ている時は、前のデッキに戻る
             return {
                 ...state,
-                switchedPairMiliUnixtime: action.payload.currentMiliUnixtime,
-                deckInd: state.pairInd === 0 && state.deckInd > 0 ? state.deckInd - 1 : state.deckInd,
+                switchedPairMiliUnixtime,
+                lastMemoMiliUnixtimePairsList: newLastMemoMiliUnixtimePairsList,
+                deckInd: pairInd === 0 && deckInd > 0 ? deckInd - 1 : deckInd,
                 pairInd: 0,
 
             };
         },
         [goToNextDeck]: (state, action) => {
-            if (state.deckInd === state.decks.length - 1) {
+            const switchedPairMiliUnixtime = action.payload.currentMiliUnixtime;
+            const newLastMemoMiliUnixtimePairsList = _.cloneDeep(state.lastMemoMiliUnixtimePairsList);
+            const decks = state.decks;
+            const deckInd = state.deckInd;
+            const pairInd = state.pairInd;
+
+            if (!newLastMemoMiliUnixtimePairsList[deckInd]) {
+                newLastMemoMiliUnixtimePairsList[deckInd] = [];
+            }
+
+            if (!newLastMemoMiliUnixtimePairsList[deckInd][pairInd]) {
+                newLastMemoMiliUnixtimePairsList[deckInd][pairInd] = [];
+            }
+
+            // ここはdecksでforを回すので注意
+            for (let posInd = 0; posInd < decks[deckInd][pairInd].length; posInd++) {
+                newLastMemoMiliUnixtimePairsList[deckInd][pairInd][posInd] = switchedPairMiliUnixtime;
+            }
+
+            if (deckInd === state.decks.length - 1) {
                 // デッキが右端なので何もしない
                 // saga-*のイベントは起こるので、タイムは更新しておく
                 return {
                     ...state,
-                    switchedPairMiliUnixtime: action.payload.currentMiliUnixtime,
+                    switchedPairMiliUnixtime,
+                    lastMemoMiliUnixtimePairsList: newLastMemoMiliUnixtimePairsList,
                 };
             } else {
                 // 次のデッキに進む
                 return {
                     ...state,
-                    switchedPairMiliUnixtime: action.payload.currentMiliUnixtime,
-                    deckInd: state.deckInd + 1,
+                    switchedPairMiliUnixtime,
+                    lastMemoMiliUnixtimePairsList: newLastMemoMiliUnixtimePairsList,
+                    deckInd: deckInd + 1,
                     pairInd: 0,
                 };
             }
         },
         [updateMbldSolution]: (state, action) => {
-            const pairSize = action.payload.pairSize;
-            // pair = [ "あい", "う", ]
-            const pair = _.chunk(action.payload.pairStr, pairSize).map(chars => chars.join(''));
-            const elementPair = pair.map(letters => new memoTrainingUtils.MbldElement(letters));
+            const decks = state.decks;
+
+            const currentMiliUnixtime = action.payload.currentMiliUnixtime;
+            const deckInd = action.payload.deckInd;
+            const pairInd = action.payload.pairInd;
+
+            // 設定したpairSizeと実際に生成されたpairのsizeが異なる場合がある
+            const actualPairSize = decks[deckInd][pairInd].length;
+
+            // tagPair = [ "あい", "う", ]
+            // MBLDなのでchunkする幅は2文字ずつで固定としている
+            const tmpTagPair = _.chunk(action.payload.pairStr, 2).map(chars => chars.join(''));
+
+            // 出題されたpairより多く入力された場合は切り捨てる
+            const tagPair = _.take(tmpTagPair, actualPairSize);
+            const elementPair = tagPair.map(letters => new memoTrainingUtils.MbldElement(letters));
 
             const newSolution = _.cloneDeep(state.solution);
-            if (typeof newSolution[action.payload.deckInd] === 'undefined') {
-                newSolution[action.payload.deckInd] = [];
+            if (typeof newSolution[deckInd] === 'undefined') {
+                newSolution[deckInd] = [];
             }
-            newSolution[action.payload.deckInd][action.payload.pairInd] = elementPair;
+            newSolution[deckInd][pairInd] = elementPair;
+
+            const newLastRecallMiliUnixtimePairsList = _.cloneDeep(state.lastRecallMiliUnixtimePairsList);
+
+            // 初めて回答したならlastRecallMiliUnixtimeをを更新
+            if (!newLastRecallMiliUnixtimePairsList[deckInd] ||
+                !newLastRecallMiliUnixtimePairsList[deckInd][pairInd] ||
+                newLastRecallMiliUnixtimePairsList[deckInd][pairInd].length === 0) {
+                if (!newLastRecallMiliUnixtimePairsList[deckInd]) {
+                    newLastRecallMiliUnixtimePairsList[deckInd] = [];
+                }
+
+                if (!newLastRecallMiliUnixtimePairsList[deckInd][pairInd]) {
+                    newLastRecallMiliUnixtimePairsList[deckInd][pairInd] = [];
+                }
+
+                for (let posInd = 0; posInd < actualPairSize; posInd++) {
+                    newLastRecallMiliUnixtimePairsList[deckInd][pairInd][posInd] = currentMiliUnixtime;
+                }
+            } else {
+                // 入れた答えが合っている場合はlastRecallMiliUnixtimePairsListを更新
+                for (let posInd = 0; posInd < tagPair.length; posInd++) {
+                    const elementTag = tagPair[posInd];
+                    if (elementTag === decks[deckInd][pairInd][posInd].tag) {
+                        newLastRecallMiliUnixtimePairsList[deckInd][pairInd][posInd] = currentMiliUnixtime;
+                    }
+                }
+            }
 
             return {
                 ...state,
                 solution: newSolution,
+                lastRecallMiliUnixtimePairsList: newLastRecallMiliUnixtimePairsList,
             };
         },
         [toggleTimer]: (state, action) => {
@@ -733,18 +1057,21 @@ export const memoTrainingReducer = handleActions(
             };
         },
         [goToPrevDeckRecall]: (state, action) => {
+            const deckInd = state.deckInd;
             return {
                 ...state,
-                deckInd: state.deckInd === 0 ? 0 : state.deckInd - 1,
+                deckInd: deckInd === 0 ? 0 : deckInd - 1,
             };
         },
         [goToNextDeckRecall]: (state, action) => {
+            const deckInd = state.deckInd;
             return {
                 ...state,
-                deckInd: state.deckInd === state.decks.length - 1 ? state.deckInd : state.deckInd + 1,
+                deckInd: deckInd === state.decks.length - 1 ? state.deckInd : state.deckInd + 1,
             };
         },
         [selectHand]: (state, action) => {
+            const currentMiliUnixtime = action.payload.currentMiliUnixtime;
             const element = action.payload.element;
             const decks = state.decks;
             const deckInd = state.deckInd;
@@ -768,6 +1095,27 @@ export const memoTrainingReducer = handleActions(
                 newHandDict[deckInd][element.tag] = false;
             }
 
+            // 初めて回答したならlastRecallMiliUnixtimeをを更新
+            const newLastRecallMiliUnixtimePairsList = _.cloneDeep(state.lastRecallMiliUnixtimePairsList);
+            if (!newLastRecallMiliUnixtimePairsList[deckInd] ||
+                !newLastRecallMiliUnixtimePairsList[deckInd][pairInd] ||
+                newLastRecallMiliUnixtimePairsList[deckInd][pairInd].length === 0) {
+                if (!newLastRecallMiliUnixtimePairsList[deckInd]) {
+                    newLastRecallMiliUnixtimePairsList[deckInd] = [];
+                }
+
+                if (!newLastRecallMiliUnixtimePairsList[deckInd][pairInd]) {
+                    newLastRecallMiliUnixtimePairsList[deckInd][pairInd] = [];
+                }
+
+                newLastRecallMiliUnixtimePairsList[deckInd][pairInd][posInd] = currentMiliUnixtime;
+            } else {
+                // 入れた答えが合っている場合はlastRecallMiliUnixtimePairsListを更新
+                if (_.isEqual(decks[deckInd][pairInd][posInd], element)) {
+                    newLastRecallMiliUnixtimePairsList[deckInd][pairInd][posInd] = currentMiliUnixtime;
+                }
+            }
+
             // カーソルを進める
             const nextCoordinate = memoTrainingUtils.getHoleNextCoordinate(decks, deckInd, pairInd, posInd, newSolution);
             const nextDeckInd = nextCoordinate.deckInd;
@@ -781,21 +1129,12 @@ export const memoTrainingReducer = handleActions(
                 posInd: nextPosInd,
                 solution: newSolution,
                 handDict: newHandDict,
+                lastRecallMiliUnixtimePairsList: newLastRecallMiliUnixtimePairsList,
             };
         },
     },
     initialState
 );
-
-// FIXME
-// finishRecallPhaseしたら、結果をDBにPOSTして結果画面に遷移
-// postが終わったらReducerを初期化して次に遷移してきた時は最初からスタート
-// [finishRecallPhase]: (state, action) => {
-//     return {
-//         ...state,
-//         phase: memoTrainingUtils.TrainingPhase.result,
-//     };
-// },
 
 export function * rootSaga () {
     yield fork(handleStartMemorizationPhase);
@@ -811,6 +1150,9 @@ export function * rootSaga () {
     yield fork(handleUpdateTimer);
 
     yield fork(handleKeyDown);
+
+    yield fork(handleUpdateMbldSolution);
+    yield fork(handleSelectHand);
 
     // yield fork(handleInitLoad);
 };

@@ -1,16 +1,16 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import Button from '../../atoms/Button';
 import Txt from '../../atoms/Txt';
-import Textbox from '../../atoms/Textbox';
+// import Textbox from '../../atoms/Textbox';
 import SolutionPair from '../../molecules/SolutionPair';
 
 const MemoTrainingMbldRecall = ({
     decks,
-    pairSize,
     solution,
 
     sagaFinishRecallPhase,
-    updateMbldSolution,
+    sagaUpdateMbldSolution,
 }) => {
     return (
         <div>
@@ -22,13 +22,21 @@ const MemoTrainingMbldRecall = ({
             {
                 decks.map((deck, deckKey) => {
                     return deck.map((pair, pairKey) => {
-                        return (<SolutionPair key={String(deckKey) + '-' + String(pairKey)} deckInd={deckKey} pairInd={pairKey} pairSize={pairSize} updateMbldSolution={updateMbldSolution}/>);
+                        return (<SolutionPair key={String(deckKey) + '-' + String(pairKey)} deckInd={deckKey} pairInd={pairKey} sagaUpdateMbldSolution={sagaUpdateMbldSolution}/>);
                     });
                 })
             }
 
         </div>
     );
+};
+
+MemoTrainingMbldRecall.propTypes = {
+    decks: PropTypes.array.isRequired,
+    solution: PropTypes.array.isRequired,
+
+    sagaFinishRecallPhase: PropTypes.func.isRequired,
+    sagaUpdateMbldSolution: PropTypes.func.isRequired,
 };
 
 export default MemoTrainingMbldRecall;

@@ -44,7 +44,7 @@ const MemoTrainingMbldTemplate = (
         sagaGoToDeckHead,
         sagaGoToNextDeck,
 
-        updateMbldSolution,
+        sagaUpdateMbldSolution,
 
         sagaToggleTimer,
 
@@ -62,7 +62,7 @@ const MemoTrainingMbldTemplate = (
                     } else if (phase === memoTrainingUtils.TrainingPhase.memorization) {
                         return (<MemoTrainingMbldMemorization startMemoMiliUnixtime={startMemoMiliUnixtime} startRecallMiliUnixtime={startRecallMiliUnixtime} timerMiliUnixtime={timerMiliUnixtime} timeVisible={timeVisible} decks={decks} deckInd={deckInd} pairInd={pairInd} sagaFinishMemorizationPhase={sagaFinishMemorizationPhase} sagaGoToNextPair={sagaGoToNextPair} sagaGoToPrevPair={sagaGoToPrevPair} sagaGoToDeckHead={sagaGoToDeckHead} sagaGoToNextDeck={sagaGoToNextDeck} sagaToggleTimer={sagaToggleTimer}/>);
                     } else if (phase === memoTrainingUtils.TrainingPhase.recall) {
-                        return (<MemoTrainingMbldRecall decks={decks} pairSize={pairSize} solution={solution} sagaFinishRecallPhase={sagaFinishRecallPhase} updateMbldSolution={updateMbldSolution}/>);
+                        return (<MemoTrainingMbldRecall decks={decks} pairSize={pairSize} solution={solution} sagaFinishRecallPhase={sagaFinishRecallPhase} sagaUpdateMbldSolution={sagaUpdateMbldSolution}/>);
                     } else if (phase === memoTrainingUtils.TrainingPhase.result) {
                         return (
                             <div>
@@ -120,7 +120,7 @@ MemoTrainingMbldTemplate.propTypes = {
     sagaGoToDeckHead: PropTypes.func.isRequired,
     sagaGoToNextDeck: PropTypes.func.isRequired,
 
-    updateMbldSolution: PropTypes.func.isRequired,
+    sagaUpdateMbldSolution: PropTypes.func.isRequired,
 
     sagaToggleTimer: PropTypes.func.isRequired,
 

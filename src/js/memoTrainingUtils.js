@@ -154,8 +154,28 @@ export const postMemoLogs = (memoLogs) => {
     return rp(options);
 };
 
-export const postRecallLogs = (arg) => {
-    console.dir(`recall log mock ${JSON.stringify(arg)}`);
+export const postRecallLogs = (recallLogs) => {
+    const logs = recallLogs.map((recallLog, i) => {
+        return {
+            ...recallLog,
+            ind: i,
+        };
+    });
+
+    const options = {
+        url: `${config.apiRoot}/postRecallLog`,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {
+            logs,
+            token: localStorage.token,
+        },
+    };
+
+    return rp(options);
 };
 
 export const postMemoScore = (arg) => {
