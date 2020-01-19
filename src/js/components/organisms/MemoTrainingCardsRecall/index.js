@@ -50,7 +50,7 @@ const MemoTrainingCardsRecall = ({
                                 return '[]';
                             })();
 
-                            return (<Button value={val} style={ { fontFamily: [ 'Courier New', 'monospace', ], }} key={`${deckInd}-${holePairInd}-${holePosInd}`} onClick={ () => { selectHole(deckInd, holePairInd, holePosInd); }}/>);
+                            return (<Button value={val} style={ { width: '3em', fontFamily: [ 'Courier New', 'monospace', ], }} key={`${deckInd}-${holePairInd}-${holePosInd}`} onClick={ () => { selectHole(deckInd, holePairInd, holePosInd); }}/>);
                         });
                     });
 
