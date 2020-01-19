@@ -70,6 +70,23 @@ const fetchMemoLog = (userName) => {
     return rp(options);
 };
 
+const fetchRecallLog = (userName) => {
+    const options = {
+        url: `${config.apiRoot}/getRecallLog`,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {
+            userName,
+            token: localStorage.token,
+        },
+    };
+
+    return rp(options);
+};
+
 function * handleFetchScores () {
     while (true) {
         const action = yield take(sagaFetchScores);
@@ -98,12 +115,15 @@ function * handleFetchScores () {
 
         const resFetchMemoLog = yield call(fetchMemoLog, userName);
         if (!resFetchMemoLog.success) {
-            throw new Error('Error fetchScores()');
+            throw new Error('Error fetchMemoLog()');
         }
         const memoLogs = resFetchMemoLog.success.result.logs;
 
-        // FIXME 後でやる
-        const recallLogs = [];
+        const resFetchRecallLog = yield call(fetchRecallLog, userName);
+        if (!resFetchRecallLog.success) {
+            throw new Error('Error fetchRecallLog()');
+        }
+        const recallLogs = resFetchRecallLog.success.result.logs;
 
         const payload = {
             event,

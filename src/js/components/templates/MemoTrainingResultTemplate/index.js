@@ -199,14 +199,31 @@ const MemoTrainingResultTemplate = (
                             };
                         });
 
-                        // memoLosingSecとisCorrentを付与
+                        // [deckInd][pairInd][posInd] => { losingMemorySec, isCorrect, }
+                        const recallLogHash = {};
+                        recallLogs
+                            .filter(log => log['memo_trial_deck'].trialId === trialId)
+                            .map(log => {
+                                if (!recallLogHash[log.deckInd]) {
+                                    recallLogHash[log.deckInd] = {};
+                                }
+
+                                if (!recallLogHash[log.deckInd][log.pairInd]) {
+                                    recallLogHash[log.deckInd][log.pairInd] = {};
+                                }
+
+                                recallLogHash[log.deckInd][log.pairInd][log.posInd] = {
+                                    losingMemorySec: log.losingMemorySec,
+                                    isCorrect: log.isCorrect,
+                                };
+                            });
+
+                        // losingMemorySecとisCorrentを付与
                         const MyData = groupedMyData.map(log => {
                             return {
                                 ...log,
-                                // memoLosingSec: _.random(1, 100.5).toFixed(2),
-                                memoLosingSec: 0.0,
-                                // isCorrect: [ 'O', 'X', ][_.random(0, 1)],
-                                isCorrect: undefined,
+                                losingMemorySec: recallLogHash[log.deckInd][log.pairInd][log.posInd].losingMemorySec,
+                                isCorrect: recallLogHash[log.deckInd][log.pairInd][log.posInd].isCorrect,
                             };
                         });
 
@@ -269,7 +286,8 @@ const MemoTrainingResultTemplate = (
                             posInd: `pos=${log.posInd + 1}`,
                             tag: event === memoTrainingUtils.MemoEvent.cards ? `${log.tag} (${memoTrainingUtils.cardTagToMarkStr(log.tag)})` : log.tag,
                             memoSec: parseFloat(log.memoSec.toFixed(2)),
-                            memoLosingSec: parseFloat(log.memoLosingSec.toFixed(1)),
+                            losingMemorySec: parseFloat(log.losingMemorySec.toFixed(1)),
+                            isCorrect: [ 'X', 'O', ][log.isCorrect],
                         };
                     });
 
@@ -294,7 +312,7 @@ const MemoTrainingResultTemplate = (
                         'posInd',
                         'tag',
                         'memoSec',
-                        'memoLosingSec',
+                        'losingMemorySec',
                         'isCorrect',
                         'reviewCnt',
                     ];
