@@ -20,4 +20,26 @@ describe('numbering3.js', () => {
             assert.throws(actual, Error);
         });
     });
+
+    describe('isBufferPart()', () => {
+        it('正常系: コーナー true', () => {
+            const actual = numbering3.isBufferPart('BLU', 'UBL');
+            assert.deepStrictEqual(actual, true);
+        });
+
+        it('正常系: コーナー false', () => {
+            const actual = numbering3.isBufferPart('UBL', 'UFR');
+            assert.deepStrictEqual(actual, false);
+        });
+
+        it('正常系: エッジ true', () => {
+            const actual = numbering3.isBufferPart('DF', 'DF');
+            assert.deepStrictEqual(actual, true);
+        });
+
+        it('正常系: エッジ', () => {
+            const actual = numbering3.isBufferPart('DF', 'FR');
+            assert.deepStrictEqual(actual, false);
+        });
+    });
 });

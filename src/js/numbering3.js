@@ -3,6 +3,15 @@ const url = require('url');
 const config = require('./config');
 const utils = require('./utils');
 
+// あるパーツがバッファのあるパーツかどうかを判定する
+const isBufferPart = (bufferSticker, cornerPart) => {
+    if (bufferSticker.length !== cornerPart.length) {
+        throw new Error(`length differs: ${bufferSticker} ${cornerPart}`);
+    }
+
+    return (bufferSticker === cornerPart) || getBlankStickers(bufferSticker).includes(cornerPart);
+};
+
 // バッファ 'UBL' -> ['BLU','LBU']
 const getBlankStickers = (bufferSticker) => {
     if (!utils.corners.includes(bufferSticker) && !utils.edges.includes(bufferSticker)) {
@@ -376,6 +385,7 @@ const init = () => {
 
 init();
 
+module.exports.isBufferPart = isBufferPart;
 module.exports.getBlankStickers = getBlankStickers;
 module.exports.getEdgeNumbering = getEdgeNumbering;
 module.exports.getCornerNumbering = getCornerNumbering;
