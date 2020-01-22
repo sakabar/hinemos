@@ -456,6 +456,12 @@ function * handleFinishRecallPhase () {
         yield take(sagaFinishRecallPhase);
 
         const currentMiliUnixtime = parseInt(moment().format('x'));
+        const startRecallMiliUnixtime = yield select(state => state.startRecallMiliUnixtime);
+        const threshold = 2000;
+        // 誤打防止のため、回答モードに入ってしばらくの間は無効化
+        if (currentMiliUnixtime - startRecallMiliUnixtime < threshold) {
+            continue;
+        }
 
         const decks = yield select(state => state.decks);
         const solution = yield select(state => state.solution);
