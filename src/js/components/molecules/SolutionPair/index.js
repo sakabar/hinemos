@@ -9,11 +9,16 @@ const SolutionPair = ({
 
     sagaUpdateMbldSolution,
     ...rest
-}) => (
-    <div>
-        <Span>{`${deckInd + 1}-${pairInd + 1}`}</Span><Textbox onChange={(e) => sagaUpdateMbldSolution(deckInd, pairInd, e.target.value)}/>
-    </div>
-);
+}) => {
+    const deckIndStr = `${deckInd + 1}`.padStart(2, '0');
+    const pairIndStr = `${pairInd + 1}`.padStart(2, '0');
+
+    return (
+        <div>
+            <Span style={ { fontFamily: [ 'Courier New', 'monospace', ], } } >{`${deckIndStr}-${pairIndStr} `}</Span><Textbox onChange={(e) => sagaUpdateMbldSolution(deckInd, pairInd, e.target.value)}/>
+        </div>
+    );
+};
 
 SolutionPair.propTypes = {
     deckInd: PropTypes.number.isRequired,

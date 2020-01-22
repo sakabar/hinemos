@@ -1,8 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Button from '../../atoms/Button';
-import Txt from '../../atoms/Txt';
-// import Textbox from '../../atoms/Textbox';
+import Br from '../../atoms/Br';
 import SolutionPair from '../../molecules/SolutionPair';
 
 const MemoTrainingMbldRecall = ({
@@ -14,11 +13,8 @@ const MemoTrainingMbldRecall = ({
 }) => {
     return (
         <div>
-            <Txt>recall phase</Txt>
-            <Txt>{'@' + JSON.stringify(solution) + '@'}</Txt>
-
             <Button value="回答終了" onClick={(e) => sagaFinishRecallPhase()}/>
-
+            <Br/>
             {
                 decks.map((deck, deckKey) => {
                     return deck.map((pair, pairKey) => {

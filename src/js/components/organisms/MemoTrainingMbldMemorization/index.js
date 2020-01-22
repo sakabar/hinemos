@@ -25,6 +25,9 @@ const MemoTrainingMbldMemorization = ({
 }) => {
     return (
         <div>
+            <Button value="記憶終了" onClick={(e) => sagaFinishMemorizationPhase()}/>
+            <Br/>
+
             <Txt style={{ fontSize: '30px', }}>{`${deckInd + 1}-${pairInd + 1}`}</Txt>
             <div>
                 <Txt style={{ fontSize: '30px', }}>{`${decks[deckInd][pairInd].map(e => e.tag).join(',')}`}</Txt>
@@ -37,7 +40,6 @@ const MemoTrainingMbldMemorization = ({
                 <Button value="→→" onClick={(e) => sagaGoToNextDeck()} disabled={deckInd === decks.length - 1}/>
                 <MemoTimer timeVisible={timeVisible} timerMiliUnixtime={timerMiliUnixtime} sagaToggleTimer={sagaToggleTimer}/>
                 <Br/>
-                <Button value="記憶終了" onClick={(e) => sagaFinishMemorizationPhase()}/>
             </div>
         </div>
     );
