@@ -1,9 +1,9 @@
 const rp = require('request-promise');
-const math = require('mathjs');
 const url = require('url');
 const config = require('./config');
 const constant = require('./constant');
 const threeStyleUtils = require('./threeStyleUtils');
+const _ = require('lodash');
 
 const renderStats = (part, threeStyles, threeStyleQuizLog, problemList) => {
     const msgArea = document.querySelector('.msgArea');
@@ -13,18 +13,18 @@ const renderStats = (part, threeStyles, threeStyleQuizLog, problemList) => {
     const avgSecs = threeStyleQuizLog.map(x => x.avg_sec);
     // FIXME 3がマジックナンバー
     const over5Secs = threeStyleQuizLog.filter(x => x.solved < 3).map(x => x.avg_sec);
-    const sum = math.sum(avgSecs);
+    const sum = _.sum(avgSecs);
     const avgSecsWithoutZero = threeStyleQuizLog.filter(x => x.avg_sec > 0).map(x => x.avg_sec);
-    const mean = avgSecsWithoutZero.length === 0 ? 0 : math.mean(avgSecsWithoutZero);
+    const mean = avgSecsWithoutZero.length === 0 ? 0 : _.mean(avgSecsWithoutZero);
     const avgSecsIn6 = threeStyleQuizLog.filter(x => x.solved >= 3).map(x => x.avg_sec);
-    const meanIn6 = avgSecsIn6.length === 0 ? 0 : math.mean(avgSecsIn6);
+    const meanIn6 = avgSecsIn6.length === 0 ? 0 : _.mean(avgSecsIn6);
     const newnessList = threeStyleQuizLog.map(x => x.newness);
     const worstNewness = newnessList.length === 0 ? 0 : Math.min(...newnessList);
-    const avgNewness = newnessList.length === 0 ? 0 : math.mean(newnessList);
+    const avgNewness = newnessList.length === 0 ? 0 : _.mean(newnessList);
     const problemListStickers = problemList.map(x => x.stickers);
     const threeStylesInProblemList = threeStyleQuizLog.filter(x => problemListStickers.includes(x.stickers));
     const avgSecInThreeStylesInProblemListWithoutZero = threeStylesInProblemList.filter(x => x.avg_sec > 0).map(x => x.avg_sec);
-    const meanInProblemList = avgSecInThreeStylesInProblemListWithoutZero.length === 0 ? 0 : math.mean(avgSecInThreeStylesInProblemListWithoutZero);
+    const meanInProblemList = avgSecInThreeStylesInProblemListWithoutZero.length === 0 ? 0 : _.mean(avgSecInThreeStylesInProblemListWithoutZero);
 
     const p1 = document.createElement('p');
     const sumThreeTimes = sum * 3;
