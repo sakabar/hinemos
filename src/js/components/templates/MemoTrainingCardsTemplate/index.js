@@ -17,6 +17,7 @@ const MemoTrainingCardsTemplate = (
         deckNum,
         deckSize,
         pairSize,
+        isLefty,
 
         memoEvent,
         mode,
@@ -35,6 +36,7 @@ const MemoTrainingCardsTemplate = (
         setDeckNum,
         setDeckSize,
         setPairSize,
+        setIsLefty,
 
         sagaStartMemorizationPhase,
         sagaFinishMemorizationPhase,
@@ -63,11 +65,11 @@ const MemoTrainingCardsTemplate = (
             {
                 (() => {
                     if (phase === memoTrainingUtils.TrainingPhase.setting) {
-                        return (<MemoTrainingCardsSetting deckNum={deckNum} deckSize={deckSize} pairSize={pairSize} setDeckNum={setDeckNum} setDeckSize={setDeckSize} setPairSize={setPairSize} sagaStartMemorizationPhase={sagaStartMemorizationPhase}/>);
+                        return (<MemoTrainingCardsSetting deckNum={deckNum} deckSize={deckSize} pairSize={pairSize} isLefty={isLefty} setDeckNum={setDeckNum} setDeckSize={setDeckSize} setPairSize={setPairSize} setIsLefty={setIsLefty} sagaStartMemorizationPhase={sagaStartMemorizationPhase}/>);
                     } else if (phase === memoTrainingUtils.TrainingPhase.memorization) {
-                        return (<MemoTrainingCardsMemorization startMemoMiliUnixtime={startMemoMiliUnixtime} startRecallMiliUnixtime={startRecallMiliUnixtime} timerMiliUnixtime={timerMiliUnixtime} timeVisible={timeVisible} decks={decks} deckInd={deckInd} pairInd={pairInd} sagaFinishMemorizationPhase={sagaFinishMemorizationPhase} sagaGoToNextPair={sagaGoToNextPair} sagaGoToPrevPair={sagaGoToPrevPair} sagaGoToDeckHead={sagaGoToDeckHead} sagaGoToNextDeck={sagaGoToNextDeck} sagaToggleTimer={sagaToggleTimer}/>);
+                        return (<MemoTrainingCardsMemorization startMemoMiliUnixtime={startMemoMiliUnixtime} startRecallMiliUnixtime={startRecallMiliUnixtime} timerMiliUnixtime={timerMiliUnixtime} timeVisible={timeVisible} isLefty={isLefty} decks={decks} deckInd={deckInd} pairInd={pairInd} sagaFinishMemorizationPhase={sagaFinishMemorizationPhase} sagaGoToNextPair={sagaGoToNextPair} sagaGoToPrevPair={sagaGoToPrevPair} sagaGoToDeckHead={sagaGoToDeckHead} sagaGoToNextDeck={sagaGoToNextDeck} sagaToggleTimer={sagaToggleTimer}/>);
                     } else if (phase === memoTrainingUtils.TrainingPhase.recall) {
-                        return (<MemoTrainingCardsRecall timerMiliUnixtime={timerMiliUnixtime} timeVisible={timeVisible} decks={decks} deckInd={deckInd} pairInd={pairInd} posInd={posInd} solution={solution} handDict={handDict} handSuits={handSuits} sagaFinishRecallPhase={sagaFinishRecallPhase} selectHole={selectHole} goToPrevDeckRecall={goToPrevDeckRecall} goToNextDeckRecall={goToNextDeckRecall} sagaSelectHand={sagaSelectHand} sagaToggleTimer={sagaToggleTimer} />);
+                        return (<MemoTrainingCardsRecall timerMiliUnixtime={timerMiliUnixtime} timeVisible={timeVisible} isLefty={isLefty} decks={decks} deckInd={deckInd} pairInd={pairInd} posInd={posInd} solution={solution} handDict={handDict} handSuits={handSuits} sagaFinishRecallPhase={sagaFinishRecallPhase} selectHole={selectHole} goToPrevDeckRecall={goToPrevDeckRecall} goToNextDeckRecall={goToNextDeckRecall} sagaSelectHand={sagaSelectHand} sagaToggleTimer={sagaToggleTimer} />);
                     } else {
                         return (
                             <div>
@@ -86,6 +88,8 @@ MemoTrainingCardsTemplate.propTypes = {
     startRecallMiliUnixtime: PropTypes.number.isRequired,
     timerMiliUnixtime: PropTypes.number.isRequired,
     timeVisible: PropTypes.bool.isRequired,
+
+    isLefty: PropTypes.bool.isRequired,
 
     deckNum: PropTypes.number.isRequired,
     deckSize: PropTypes.number,
@@ -108,6 +112,7 @@ MemoTrainingCardsTemplate.propTypes = {
     setDeckNum: PropTypes.func.isRequired,
     setDeckSize: PropTypes.func.isRequired,
     setPairSize: PropTypes.func.isRequired,
+    setIsLefty: PropTypes.func.isRequired,
 
     sagaStartMemorizationPhase: PropTypes.func.isRequired,
     sagaFinishMemorizationPhase: PropTypes.func.isRequired,

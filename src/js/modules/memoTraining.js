@@ -21,10 +21,12 @@ const _ = require('lodash');
 const SET_DECK_NUM = 'SET_DECK_NUM';
 const SET_DECK_SIZE = 'SET_DECK_SIZE';
 const SET_PAIR_SIZE = 'SET_PAIR_SIZE';
+const SET_IS_LEFTY = 'SET_IS_LEFTY';
 
 export const setDeckNum = createAction(SET_DECK_NUM);
 export const setDeckSize = createAction(SET_DECK_SIZE);
 export const setPairSize = createAction(SET_PAIR_SIZE);
+export const setIsLefty = createAction(SET_IS_LEFTY);
 
 // モード選択系のアクション
 const START_MEMORIZATION_PHASE = 'START_MEMORIZATION_PHASE';
@@ -122,6 +124,7 @@ const initialState = {
     startRecallMiliUnixtime: 0, // 記憶を開始したミリUnixtime
     timerMiliUnixtime: 0,
     timeVisible: false,
+    isLefty: true,
 
     trialId: 0,
     trialDeckIds: [],
@@ -703,6 +706,12 @@ export const memoTrainingReducer = handleActions(
                 pairSize: action.payload.pairSize,
             };
         },
+        [setIsLefty]: (state, action) => {
+            return {
+                ...state,
+                isLefty: action.payload.isLefty,
+            };
+        },
         [startMemorizationPhase]: (state, action) => {
             if (typeof state.mode === 'undefined') {
                 return {
@@ -757,6 +766,7 @@ export const memoTrainingReducer = handleActions(
                     deckNum: state.deckNum,
                     deckSize: state.deckSize,
                     pairSize: state.pairSize,
+                    isLefty: state.isLefty,
                 };
             } else if (state.mode === memoTrainingUtils.TrainingMode.memorization) {
                 return {
@@ -781,6 +791,7 @@ export const memoTrainingReducer = handleActions(
                 deckNum: state.deckNum,
                 deckSize: state.deckSize,
                 pairSize: state.pairSize,
+                isLefty: state.isLefty,
             };
         },
         [goToNextPair]: (state, action) => {

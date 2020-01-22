@@ -14,15 +14,20 @@ const urlRoot = path.basename(config.urlRoot);
 const deckNumOptions = [ ...Array(5).keys(), ].map(ind => [ String(ind + 1), String(ind + 1), ]);
 const deckSizeOptions = [ ...Array(52).keys(), ].map(ind => [ String(ind + 1), String(ind + 1), ]);
 const pairSizeList = [ ...Array(4).keys(), ].map(ind => [ String(ind + 1), String(ind + 1) + '枚', ]);
+const isLeftyOptions = [ [ 'true', '→', ],
+    [ 'false', '←', ],
+];
 
 const MemoTrainingCardsSetting = ({
     deckSize,
     deckNum,
     pairSize,
+    isLefty,
 
     setDeckNum,
     setDeckSize,
     setPairSize,
+    setIsLefty,
 
     sagaStartMemorizationPhase,
 }) => {
@@ -35,6 +40,8 @@ const MemoTrainingCardsSetting = ({
             1束あたりの枚数: <Select options={deckSizeOptions} defaultValue={deckSize || '52'} onChange={(e) => setDeckSize(parseInt(e.target.value))}/>
             <Br/>
             同時に表示する枚数: <Select options={pairSizeList} defaultValue={pairSize || '1'} onChange={(e) => setPairSize(parseInt(e.target.value))} />
+            <Br/>
+            方向: <Select options={isLeftyOptions} defaultValue={typeof isLefty === 'undefined' ? 'true' : String(isLefty)} onChange={(e) => setIsLefty(e.target.value === 'true')} />
             <Br/>
 
             <ModeDecisionButtons deckNum={deckNum} deckSize={deckSize} pairSize={pairSize} sagaStartMemorizationPhase={sagaStartMemorizationPhase}/>
@@ -58,10 +65,12 @@ MemoTrainingCardsSetting.propTypes = {
     deckNum: PropTypes.number,
     deckSize: PropTypes.number,
     pairSize: PropTypes.number,
+    isLefty: PropTypes.bool,
 
     setDeckNum: PropTypes.func,
     setDeckSize: PropTypes.func,
     setPairSize: PropTypes.func,
+    setIsLefty: PropTypes.func,
 
     sagaStartMemorizationPhase: PropTypes.func,
 };

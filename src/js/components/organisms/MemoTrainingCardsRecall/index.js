@@ -27,6 +27,7 @@ const MemoTrainingCardsRecall = ({
     // startRecallMiliUnixtime,
     timerMiliUnixtime,
     timeVisible,
+    isLefty,
 
     decks,
     deckInd,
@@ -75,8 +76,10 @@ const MemoTrainingCardsRecall = ({
                         });
                     });
 
+                    const flatten = isLefty ? _.flattenDeep(components) : _.reverse(_.cloneDeep(_.flattenDeep(components)));
+
                     const chunkSize = 12;
-                    return _.chunk(_.flattenDeep(components), chunkSize).map((bulk, bulkInd) => {
+                    return _.chunk(flatten, chunkSize).map((bulk, bulkInd) => {
                         return (
                             <div key={bulkInd}>
                                 {bulk}
@@ -121,6 +124,8 @@ const MemoTrainingCardsRecall = ({
 MemoTrainingCardsRecall.propTypes = {
     timerMiliUnixtime: PropTypes.number.isRequired,
     timeVisible: PropTypes.bool.isRequired,
+
+    isLefty: PropTypes.bool.isRequired,
 
     decks: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.any)).isRequired,
     deckInd: PropTypes.number.isRequired,

@@ -13,6 +13,7 @@ import {
     setDeckNum,
     setDeckSize,
     setPairSize,
+    setIsLefty,
 
     sagaGoToNextPair,
     sagaGoToPrevPair,
@@ -45,6 +46,7 @@ const mapStateToProps = ({
     startRecallMiliUnixtime,
     timerMiliUnixtime,
     timeVisible,
+    isLefty,
 
     trialId,
     deckElementList,
@@ -71,6 +73,7 @@ const mapStateToProps = ({
         startRecallMiliUnixtime,
         timerMiliUnixtime,
         timeVisible,
+        isLefty,
 
         trialId,
         deckElementList,
@@ -103,6 +106,9 @@ const mapDispatchToProps = (dispatch) => {
         },
         setPairSize: (pairSize) => {
             dispatch(setPairSize({ pairSize, }));
+        },
+        setIsLefty: (isLefty) => {
+            dispatch(setIsLefty({ isLefty, }));
         },
         sagaGoToNextPair: () => {
             dispatch(sagaGoToNextPair());

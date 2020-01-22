@@ -5,12 +5,14 @@ import Txt from '../../atoms/Txt';
 import Button from '../../atoms/Button';
 import PlayingCard from '../../molecules/PlayingCard';
 import MemoTimer from '../../molecules/MemoTimer';
+const _ = require('lodash');
 
 const MemoTrainingCardsMemorization = ({
     startMemoMiliUnixtime,
     startRecallMiliUnixtime,
     timerMiliUnixtime,
     timeVisible,
+    isLefty,
 
     decks,
     deckInd,
@@ -32,7 +34,10 @@ const MemoTrainingCardsMemorization = ({
             <Br/>
 
             {
-                decks[deckInd][pairInd].map((element, i) => (<PlayingCard tag={element.tag} colInd={i} key={i}/>))
+                (() => {
+                    const cards = isLefty ? decks[deckInd][pairInd] : _.reverse(_.cloneDeep(decks[deckInd][pairInd]));
+                    return cards.map((element, i) => (<PlayingCard tag={element.tag} colInd={i} key={i}/>));
+                })()
             }
 
             <div>
@@ -56,6 +61,8 @@ MemoTrainingCardsMemorization.propTypes = {
     startRecallMiliUnixtime: PropTypes.number.isRequired,
     timerMiliUnixtime: PropTypes.number.isRequired,
     timeVisible: PropTypes.bool.isRequired,
+
+    isLefty: PropTypes.bool.isRequired,
 
     decks: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.any)).isRequired,
     deckInd: PropTypes.number.isRequired,
