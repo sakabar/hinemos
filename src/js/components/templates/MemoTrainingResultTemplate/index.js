@@ -220,8 +220,8 @@ const MemoTrainingResultTemplate = (
 
                         // losingMemorySecとisCorrentを付与
                         const MyData = groupedMyData.map(log => {
-                            const losingMemorySec = _.get(recallLogHash, '[log.deckInd][log.pairInd][log.posInd].losingMemorySec', null);
-                            const isCorrect = _.get(recallLogHash, '[log.deckInd][log.pairInd][log.posInd].isCorrect', null);
+                            const losingMemorySec = _.get(recallLogHash, `[${log.deckInd}][${log.pairInd}][${log.posInd}].losingMemorySec`, null);
+                            const isCorrect = _.get(recallLogHash, `[${log.deckInd}][${log.pairInd}][${log.posInd}].isCorrect`, null);
 
                             return {
                                 ...log,
@@ -290,7 +290,7 @@ const MemoTrainingResultTemplate = (
                             tag: event === memoTrainingUtils.MemoEvent.cards ? `${log.tag} (${memoTrainingUtils.cardTagToMarkStr(log.tag)})` : log.tag,
                             memoSec: parseFloat(log.memoSec.toFixed(2)),
                             losingMemorySec: log.losingMemorySec ? parseFloat(log.losingMemorySec.toFixed(1)) : '',
-                            isCorrect: log.isCorrect ? [ 'X', 'O', ][log.isCorrect] : '',
+                            isCorrect: log.isCorrect !== null ? [ 'X', 'O', ][log.isCorrect] : '',
                         };
                     });
 
