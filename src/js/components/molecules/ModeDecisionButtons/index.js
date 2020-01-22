@@ -12,8 +12,8 @@ const ModeDecisionButtons = ({
     ...rest
 }) => (
     <div>
-        <Button value="記憶練習" onClick={(e) => { sagaStartMemorizationPhase(deckNum, deckSize, pairSize, memoTrainingUtils.TrainingMode.memorization); }}/>
-        <Button value="変換練習" onClick={(e) => { sagaStartMemorizationPhase(deckNum, deckSize, pairSize, memoTrainingUtils.TrainingMode.transformation); }}/>
+        <Button color="primary" value="記憶練習" onClick={(e) => { sagaStartMemorizationPhase(deckNum, deckSize, pairSize, memoTrainingUtils.TrainingMode.memorization); }}/>
+        <Button color="primary" value="変換練習" onClick={(e) => { sagaStartMemorizationPhase(deckNum, deckSize, pairSize, memoTrainingUtils.TrainingMode.transformation); }}/>
     </div>
 );
 

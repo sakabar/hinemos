@@ -13,7 +13,7 @@ const MemoTrainingMbldRecall = ({
 }) => {
     return (
         <div>
-            <Button value="回答終了" onClick={(e) => sagaFinishRecallPhase()}/>
+            <Button color="primary" value="回答終了" onClick={(e) => sagaFinishRecallPhase()}/>
             <Br/>
             {
                 decks.map((deck, deckKey) => {

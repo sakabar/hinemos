@@ -566,17 +566,18 @@ function * handleFinishRecallPhase () {
 function * handleToggleTimer () {
     while (true) {
         yield take(sagaToggleTimer);
+        const timeVisible = yield select(state => state.timeVisible);
+        const newTimeVisible = !timeVisible;
 
         yield fork(handleUpdateTimer);
-        yield put(toggleTimer());
-        // yield put(delayToggleTimer());
+        yield put(toggleTimer({ newTimeVisible, }));
 
         const sec = 3;
         for (let i = 0; i < sec; i++) {
             yield call(delay, 1000);
             yield fork(handleUpdateTimer);
         }
-        yield put(toggleTimer());
+        yield put(toggleTimer({ newTimeVisible: !newTimeVisible, }));
     }
 };
 
@@ -762,6 +763,7 @@ export const memoTrainingReducer = handleActions(
                     ...state,
                     phase: memoTrainingUtils.TrainingPhase.recall,
                     startRecallMiliUnixtime: currentMiliUnixtime,
+                    timeVisible: false,
                     handDict: memoTrainingUtils.cardsDefaultHand(state.deckNum),
                     deckInd: 0,
                     pairInd: 0,
@@ -1009,9 +1011,11 @@ export const memoTrainingReducer = handleActions(
             };
         },
         [toggleTimer]: (state, action) => {
+            const newTimeVisible = (typeof action.payload.newTimeVisible !== 'undefined') ? action.payload.newTimeVisible : !state.timeVisible;
+
             return {
                 ...state,
-                timeVisible: !state.timeVisible,
+                timeVisible: newTimeVisible,
             };
         },
         [updateTimer]: (state, action) => {

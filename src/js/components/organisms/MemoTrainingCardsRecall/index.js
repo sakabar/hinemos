@@ -3,15 +3,30 @@ import PropTypes from 'prop-types';
 import Br from '../../atoms/Br';
 import Txt from '../../atoms/Txt';
 import Button from '../../atoms/Button';
-// import PlayingCard from '../../molecules/PlayingCard';
+import MemoTimer from '../../molecules/MemoTimer';
 const memoTrainingUtils = require('../../../memoTrainingUtils');
+
 const _ = require('lodash');
+
+const getColor = (tag) => {
+    if (!tag) {
+        return 'black';
+    }
+
+    if ([ 'C', 'S', ].includes(tag[0])) {
+        return 'black';
+    } else if ([ 'D', 'H', ].includes(tag[0])) {
+        return 'red';
+    } else {
+        return 'black';
+    }
+};
 
 const MemoTrainingCardsRecall = ({
     // startMemoMiliUnixtime,
     // startRecallMiliUnixtime,
-    // timerMiliUnixtime,
-    // timeVisible,
+    timerMiliUnixtime,
+    timeVisible,
 
     decks,
     deckInd,
@@ -25,7 +40,7 @@ const MemoTrainingCardsRecall = ({
 
     sagaFinishRecallPhase,
 
-    // sagaToggleTimer,
+    sagaToggleTimer,
     selectHole,
     goToPrevDeckRecall,
     goToNextDeckRecall,
@@ -34,25 +49,29 @@ const MemoTrainingCardsRecall = ({
     return (
         <div>
             {/* <Txt>{deckInd + 1}束目の{pairInd}-{posInd}</Txt> */}
-            <Button value="回答終了" onClick={(e) => sagaFinishRecallPhase()}/>
+            <Button color="primary" value="回答終了" onClick={(e) => sagaFinishRecallPhase()}/>
             <Br/>
 
             <Txt>{deckInd + 1}束目</Txt>
             <Br/>
             {
                 (() => {
+                    let cnt = 1;
                     const components = decks[deckInd].map((pair, holePairInd) => {
                         return pair.map((elem, holePosInd) => {
-                            const val = (() => {
+                            const tag = (() => {
                                 if (solution[deckInd] && solution[deckInd][holePairInd] && solution[deckInd][holePairInd][holePosInd]) {
-                                    const tag = solution[deckInd][holePairInd][holePosInd].tag;
-                                    return memoTrainingUtils.cardTagToMarkStr(tag);
+                                    return solution[deckInd][holePairInd][holePosInd].tag;
                                 }
 
-                                return '[]';
+                                return null;
                             })();
 
-                            return (<Button value={val} style={ { width: '3em', fontFamily: [ 'Courier New', 'monospace', ], }} key={`${deckInd}-${holePairInd}-${holePosInd}`} onClick={ () => { selectHole(deckInd, holePairInd, holePosInd); }}/>);
+                            const val = tag ? memoTrainingUtils.cardTagToMarkStr(tag) : `[${cnt}]`;
+                            const color = getColor(tag);
+                            cnt += 1;
+
+                            return (<Button color="light" value={val} style={ { color, width: '4em', height: '3em', fontFamily: [ 'Courier New', 'monospace', ], }} key={`${deckInd}-${holePairInd}-${holePosInd}`} onClick={ () => { selectHole(deckInd, holePairInd, holePosInd); }}/>);
                         });
                     });
 
@@ -68,8 +87,9 @@ const MemoTrainingCardsRecall = ({
             }
             <Br/>
 
-            <Button value="←←" onClick={(e) => goToPrevDeckRecall()} disabled={deckInd === 0} />
-            <Button value="→→" onClick={(e) => goToNextDeckRecall()} disabled={deckInd === decks.length - 1}/>
+            <Button color="primary" value="←←" onClick={(e) => goToPrevDeckRecall()} disabled={deckInd === 0} />
+            <Button color="primary" value="→→" onClick={(e) => goToNextDeckRecall()} disabled={deckInd === decks.length - 1}/>
+            <MemoTimer timeVisible={timeVisible} timerMiliUnixtime={timerMiliUnixtime} sagaToggleTimer={sagaToggleTimer}/>
 
             <Br/>
             {
@@ -80,8 +100,12 @@ const MemoTrainingCardsRecall = ({
                             <div key={suitInd}>
                                 {
                                     cards.map((element, cardInd) => {
+                                        const color = getColor(element.tag);
+                                        const disabled = !handDict[deckInd][element.tag];
+                                        const value = disabled ? '' : memoTrainingUtils.cardTagToMarkStr(element.tag);
+
                                         // 手礼に残っているカードだけ選択できるようにしている
-                                        return (<Button value={memoTrainingUtils.cardTagToMarkStr(element.tag)} style={ { fontFamily: [ 'Courier New', 'monospace', ], }} key={`${cardInd}`} disabled={!handDict[deckInd][element.tag]} onClick={ () => { sagaSelectHand(element); }}/>);
+                                        return (<Button color="light" value={value} style={ { color, width: '4em', height: '3em', fontFamily: [ 'Courier New', 'monospace', ], }} key={`${cardInd}`} disabled={disabled} onClick={ () => { sagaSelectHand(element); }}/>);
                                     })
                                 }
                             </div>
@@ -89,12 +113,15 @@ const MemoTrainingCardsRecall = ({
                     });
                 })()
             }
-
+            <Br/>
         </div>
     );
 };
 
 MemoTrainingCardsRecall.propTypes = {
+    timerMiliUnixtime: PropTypes.number.isRequired,
+    timeVisible: PropTypes.bool.isRequired,
+
     decks: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.any)).isRequired,
     deckInd: PropTypes.number.isRequired,
     pairInd: PropTypes.number.isRequired,
@@ -104,6 +131,8 @@ MemoTrainingCardsRecall.propTypes = {
     handSuits: PropTypes.array.isRequired,
 
     solution: PropTypes.array.isRequired,
+
+    sagaToggleTimer: PropTypes.func.isRequired,
 
     sagaFinishRecallPhase: PropTypes.func.isRequired,
 

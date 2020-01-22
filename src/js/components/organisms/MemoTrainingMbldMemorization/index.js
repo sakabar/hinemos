@@ -25,7 +25,7 @@ const MemoTrainingMbldMemorization = ({
 }) => {
     return (
         <div>
-            <Button value="記憶終了" onClick={(e) => sagaFinishMemorizationPhase()}/>
+            <Button color="primary" value="記憶終了" onClick={(e) => sagaFinishMemorizationPhase()}/>
             <Br/>
 
             <Txt style={{ fontSize: '30px', }}>{`${deckInd + 1}-${pairInd + 1}`}</Txt>
@@ -34,10 +34,10 @@ const MemoTrainingMbldMemorization = ({
             </div>
 
             <div>
-                <Button value="←←" onClick={(e) => sagaGoToDeckHead()} disabled={deckInd === 0 && pairInd === 0} />
-                <Button value="←" onClick={(e) => sagaGoToPrevPair()} disabled={deckInd === 0 && pairInd === 0}/>
-                <Button value="→" onClick={(e) => sagaGoToNextPair()} disabled={deckInd === decks.length - 1 && pairInd === decks[deckInd].length - 1}/>
-                <Button value="→→" onClick={(e) => sagaGoToNextDeck()} disabled={deckInd === decks.length - 1}/>
+                <Button color="primary" value="←←" onClick={(e) => sagaGoToDeckHead()} disabled={deckInd === 0 && pairInd === 0} />
+                <Button color="primary" value="←" onClick={(e) => sagaGoToPrevPair()} disabled={deckInd === 0 && pairInd === 0}/>
+                <Button color="primary" value="→" onClick={(e) => sagaGoToNextPair()} disabled={deckInd === decks.length - 1 && pairInd === decks[deckInd].length - 1}/>
+                <Button color="primary" value="→→" onClick={(e) => sagaGoToNextDeck()} disabled={deckInd === decks.length - 1}/>
                 <MemoTimer timeVisible={timeVisible} timerMiliUnixtime={timerMiliUnixtime} sagaToggleTimer={sagaToggleTimer}/>
                 <Br/>
             </div>
