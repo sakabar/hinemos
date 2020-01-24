@@ -35,7 +35,7 @@ const formatAcc = (n, d, acc) => {
         return `${d}`;
     }
 
-    return `${n}/${d} (${Math.floor(acc * 100)}%)`;
+    return `${acc.toFixed(2)} (${n}/${d})`;
 };
 
 const formatTime = (sec) => {
@@ -279,6 +279,9 @@ const MemoTrainingResultTemplate = (
                     })();
 
                     const showData = MyData.map(log => {
+                        const ok = String.fromCharCode(parseInt('25EF', 16));
+                        const ng = String.fromCharCode(parseInt('274C', 16));
+
                         return {
                             ...log,
 
@@ -290,7 +293,7 @@ const MemoTrainingResultTemplate = (
                             tag: event === memoTrainingUtils.MemoEvent.cards ? `${log.tag} (${memoTrainingUtils.cardTagToMarkStr(log.tag)})` : log.tag,
                             memoSec: parseFloat(log.memoSec.toFixed(2)),
                             losingMemorySec: log.losingMemorySec ? parseFloat(log.losingMemorySec.toFixed(1)) : '',
-                            isCorrect: log.isCorrect !== null ? [ 'X', 'O', ][log.isCorrect] : '',
+                            isCorrect: log.isCorrect !== null ? [ ng, ok, ][log.isCorrect] : '',
                         };
                     });
 
