@@ -221,8 +221,20 @@ export const numberingCornerMock = [
 ];
 
 export const fetchNumberingCorner = (userName) => {
-    // mock
-    return new Promise((resolve) => resolve(numberingCornerMock));
+    const numberingCornerOptions = {
+        url: `${config.apiRoot}/numbering/corner/${userName}`,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {},
+    };
+
+    return rp(numberingCornerOptions)
+        .then(ans => {
+            return ans.success.result;
+        });
 };
 
 export const numberingEdgeMock = [
@@ -251,9 +263,21 @@ export const numberingEdgeMock = [
     { userName: 'john', sticker: 'DB', letter: 'ん', },
 ];
 
-export const fetchNumberingEdge = () => {
-    // mock
-    return new Promise((resolve) => resolve(numberingEdgeMock));
+export const fetchNumberingEdge = (userName) => {
+    const numberingEdgeOptions = {
+        url: `${config.apiRoot}/numbering/edgeMiddle/${userName}`,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {},
+    };
+
+    return rp(numberingEdgeOptions)
+        .then(ans => {
+            return ans.success.result;
+        });
 };
 
 const generateRandomAnalysisStrOfPart = (numberings, partType) => {
