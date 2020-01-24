@@ -196,64 +196,88 @@ export const postMemoScore = (arg) => {
 };
 
 export const numberingCornerMock = [
-    { userName: 'tsakakib', sticker: 'UBL', letter: '@', },
-    { userName: 'tsakakib', sticker: 'UBR', letter: 'さ', },
-    { userName: 'tsakakib', sticker: 'UFR', letter: 'あ', },
-    { userName: 'tsakakib', sticker: 'UFL', letter: 'た', },
-    { userName: 'tsakakib', sticker: 'RFU', letter: 'い', },
-    { userName: 'tsakakib', sticker: 'RBU', letter: 'し', },
-    { userName: 'tsakakib', sticker: 'RDF', letter: 'き', },
-    { userName: 'tsakakib', sticker: 'RBD', letter: 'ひ', },
-    { userName: 'tsakakib', sticker: 'LFU', letter: 'ち', },
-    { userName: 'tsakakib', sticker: 'LBD', letter: 'み', },
-    { userName: 'tsakakib', sticker: 'LDF', letter: 'に', },
-    { userName: 'tsakakib', sticker: 'FLU', letter: 'つ', },
-    { userName: 'tsakakib', sticker: 'FRU', letter: 'う', },
-    { userName: 'tsakakib', sticker: 'FDL', letter: 'ぬ', },
-    { userName: 'tsakakib', sticker: 'FDR', letter: 'く', },
-    { userName: 'tsakakib', sticker: 'BRU', letter: 'す', },
-    { userName: 'tsakakib', sticker: 'BDR', letter: 'ふ', },
-    { userName: 'tsakakib', sticker: 'BDL', letter: 'む', },
-    { userName: 'tsakakib', sticker: 'DFR', letter: 'か', },
-    { userName: 'tsakakib', sticker: 'DFL', letter: 'な', },
-    { userName: 'tsakakib', sticker: 'DBR', letter: 'は', },
-    { userName: 'tsakakib', sticker: 'DBL', letter: 'ま', },
+    { userName: 'john', sticker: 'UBL', letter: '@', },
+    { userName: 'john', sticker: 'UBR', letter: 'さ', },
+    { userName: 'john', sticker: 'UFR', letter: 'あ', },
+    { userName: 'john', sticker: 'UFL', letter: 'た', },
+    { userName: 'john', sticker: 'RFU', letter: 'い', },
+    { userName: 'john', sticker: 'RBU', letter: 'し', },
+    { userName: 'john', sticker: 'RDF', letter: 'き', },
+    { userName: 'john', sticker: 'RBD', letter: 'ひ', },
+    { userName: 'john', sticker: 'LFU', letter: 'ち', },
+    { userName: 'john', sticker: 'LBD', letter: 'み', },
+    { userName: 'john', sticker: 'LDF', letter: 'に', },
+    { userName: 'john', sticker: 'FLU', letter: 'つ', },
+    { userName: 'john', sticker: 'FRU', letter: 'う', },
+    { userName: 'john', sticker: 'FDL', letter: 'ぬ', },
+    { userName: 'john', sticker: 'FDR', letter: 'く', },
+    { userName: 'john', sticker: 'BRU', letter: 'す', },
+    { userName: 'john', sticker: 'BDR', letter: 'ふ', },
+    { userName: 'john', sticker: 'BDL', letter: 'む', },
+    { userName: 'john', sticker: 'DFR', letter: 'か', },
+    { userName: 'john', sticker: 'DFL', letter: 'な', },
+    { userName: 'john', sticker: 'DBR', letter: 'は', },
+    { userName: 'john', sticker: 'DBL', letter: 'ま', },
 ];
 
 export const fetchNumberingCorner = (userName) => {
-    // mock
-    return new Promise((resolve) => resolve(numberingCornerMock));
+    const numberingCornerOptions = {
+        url: `${config.apiRoot}/numbering/corner/${userName}`,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {},
+    };
+
+    return rp(numberingCornerOptions)
+        .then(ans => {
+            return ans.success.result;
+        });
 };
 
 export const numberingEdgeMock = [
-    { userName: 'tsakakib', sticker: 'UR', letter: 'き', },
-    { userName: 'tsakakib', sticker: 'UB', letter: 'す', },
-    { userName: 'tsakakib', sticker: 'UL', letter: 'ち', },
-    { userName: 'tsakakib', sticker: 'UF', letter: 'し', },
-    { userName: 'tsakakib', sticker: 'RF', letter: 'あ', },
-    { userName: 'tsakakib', sticker: 'RU', letter: 'い', },
-    { userName: 'tsakakib', sticker: 'RB', letter: 'う', },
-    { userName: 'tsakakib', sticker: 'RD', letter: 'え', },
-    { userName: 'tsakakib', sticker: 'LF', letter: 'な', },
-    { userName: 'tsakakib', sticker: 'LU', letter: 'に', },
-    { userName: 'tsakakib', sticker: 'LB', letter: 'ぬ', },
-    { userName: 'tsakakib', sticker: 'LD', letter: 'ね', },
-    { userName: 'tsakakib', sticker: 'FU', letter: 'さ', },
-    { userName: 'tsakakib', sticker: 'FR', letter: 'か', },
-    { userName: 'tsakakib', sticker: 'FL', letter: 'た', },
-    { userName: 'tsakakib', sticker: 'BR', letter: 'く', },
-    { userName: 'tsakakib', sticker: 'BU', letter: 'せ', },
-    { userName: 'tsakakib', sticker: 'BL', letter: 'つ', },
-    { userName: 'tsakakib', sticker: 'BD', letter: 'そ', },
-    { userName: 'tsakakib', sticker: 'DR', letter: 'け', },
-    { userName: 'tsakakib', sticker: 'DF', letter: '@', },
-    { userName: 'tsakakib', sticker: 'DL', letter: 'て', },
-    { userName: 'tsakakib', sticker: 'DB', letter: 'ん', },
+    { userName: 'john', sticker: 'UR', letter: 'き', },
+    { userName: 'john', sticker: 'UB', letter: 'す', },
+    { userName: 'john', sticker: 'UL', letter: 'ち', },
+    { userName: 'john', sticker: 'UF', letter: 'し', },
+    { userName: 'john', sticker: 'RF', letter: 'あ', },
+    { userName: 'john', sticker: 'RU', letter: 'い', },
+    { userName: 'john', sticker: 'RB', letter: 'う', },
+    { userName: 'john', sticker: 'RD', letter: 'え', },
+    { userName: 'john', sticker: 'LF', letter: 'な', },
+    { userName: 'john', sticker: 'LU', letter: 'に', },
+    { userName: 'john', sticker: 'LB', letter: 'ぬ', },
+    { userName: 'john', sticker: 'LD', letter: 'ね', },
+    { userName: 'john', sticker: 'FU', letter: 'さ', },
+    { userName: 'john', sticker: 'FR', letter: 'か', },
+    { userName: 'john', sticker: 'FL', letter: 'た', },
+    { userName: 'john', sticker: 'BR', letter: 'く', },
+    { userName: 'john', sticker: 'BU', letter: 'せ', },
+    { userName: 'john', sticker: 'BL', letter: 'つ', },
+    { userName: 'john', sticker: 'BD', letter: 'そ', },
+    { userName: 'john', sticker: 'DR', letter: 'け', },
+    { userName: 'john', sticker: 'DF', letter: '@', },
+    { userName: 'john', sticker: 'DL', letter: 'て', },
+    { userName: 'john', sticker: 'DB', letter: 'ん', },
 ];
 
-export const fetchNumberingEdge = () => {
-    // mock
-    return new Promise((resolve) => resolve(numberingEdgeMock));
+export const fetchNumberingEdge = (userName) => {
+    const numberingEdgeOptions = {
+        url: `${config.apiRoot}/numbering/edgeMiddle/${userName}`,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {},
+    };
+
+    return rp(numberingEdgeOptions)
+        .then(ans => {
+            return ans.success.result;
+        });
 };
 
 const generateRandomAnalysisStrOfPart = (numberings, partType) => {
