@@ -526,7 +526,6 @@ function * handleFinishRecallPhase () {
                     // 回答 - 記憶 = (そのまま計算)
                     const losingMemorySec = (() => {
                         if (lastMemoMiliUnixtime === null) {
-                            console.dir('A');
                             return null;
                         }
 
@@ -535,7 +534,6 @@ function * handleFinishRecallPhase () {
                         }
 
                         if (newestRecallMiliUnixtime === null) {
-                            console.dir('B');
                             return null;
                         } else {
                             return (newestRecallMiliUnixtime - lastMemoMiliUnixtime) / 1000.0;
