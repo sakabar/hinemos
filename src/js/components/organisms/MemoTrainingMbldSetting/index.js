@@ -4,8 +4,10 @@ import {
 } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Br from '../../atoms/Br';
+import Button from '../../atoms/Button';
 import Select from '../../molecules/Select';
 import ModeDecisionButtons from '../../molecules/ModeDecisionButtons';
+import MemoShortcutModal from '../../molecules/MemoShortcutModal';
 const config = require('../../../config');
 const path = require('path');
 
@@ -17,15 +19,21 @@ const pairSizeList = [ ...Array(2).keys(), ].map(ind => [ String(ind + 1), `${in
 const MemoTrainingMbldSetting = ({
     deckNum,
     pairSize,
+    isOpenMemoShortcutModal,
 
     setDeckNum,
     setPairSize,
 
     sagaStartMemorizationPhase,
+
+    toggleShortcutModal,
 }) => {
     return (
         <div>
             <Link to={`/${urlRoot}/memoTraining/index.html`}>種目選択に戻る</Link>
+            <Br/>
+            <MemoShortcutModal isOpenMemoShortcutModal={isOpenMemoShortcutModal} toggleShortcutModal={toggleShortcutModal}/>
+            <Button value="操作説明" onClick={ () => { toggleShortcutModal(true); } }/>
             <Br/>
             キューブ個数: <Select options={deckNumOptions} defaultValue={deckNum || '1'} onChange={(e) => setDeckNum(parseInt(e.target.value))} />
             <Br/>
@@ -40,11 +48,14 @@ const MemoTrainingMbldSetting = ({
 MemoTrainingMbldSetting.propTypes = {
     deckNum: PropTypes.number,
     pairSize: PropTypes.number,
+    isOpenMemoShortcutModal: PropTypes.bool.isRequired,
 
-    setDeckNum: PropTypes.func,
-    setPairSize: PropTypes.func,
+    setDeckNum: PropTypes.func.isRequired,
+    setPairSize: PropTypes.func.isRequired,
 
-    sagaStartMemorizationPhase: PropTypes.func,
+    sagaStartMemorizationPhase: PropTypes.func.isRequired,
+
+    toggleShortcutModal: PropTypes.func.isRequired,
 };
 
 export default MemoTrainingMbldSetting;

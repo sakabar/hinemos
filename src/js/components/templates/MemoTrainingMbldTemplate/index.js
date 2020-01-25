@@ -17,6 +17,8 @@ const MemoTrainingMbldTemplate = (
         deckNum,
         // deckSize,
         pairSize,
+        // isLefty,
+        isOpenMemoShortcutModal,
 
         memoEvent,
         mode,
@@ -49,6 +51,8 @@ const MemoTrainingMbldTemplate = (
         sagaToggleTimer,
 
         sagaOnKeyDown,
+
+        toggleShortcutModal,
     }
 ) => (
     <div>
@@ -58,7 +62,7 @@ const MemoTrainingMbldTemplate = (
             {
                 (() => {
                     if (phase === memoTrainingUtils.TrainingPhase.setting) {
-                        return (<MemoTrainingMbldSetting deckNum={deckNum} pairSize={pairSize} setDeckNum={setDeckNum} setPairSize={setPairSize} sagaStartMemorizationPhase={sagaStartMemorizationPhase}/>);
+                        return (<MemoTrainingMbldSetting deckNum={deckNum} pairSize={pairSize} isOpenMemoShortcutModal={isOpenMemoShortcutModal} setDeckNum={setDeckNum} setPairSize={setPairSize} sagaStartMemorizationPhase={sagaStartMemorizationPhase} toggleShortcutModal={toggleShortcutModal}/>);
                     } else if (phase === memoTrainingUtils.TrainingPhase.memorization) {
                         return (<MemoTrainingMbldMemorization startMemoMiliUnixtime={startMemoMiliUnixtime} startRecallMiliUnixtime={startRecallMiliUnixtime} timerMiliUnixtime={timerMiliUnixtime} timeVisible={timeVisible} decks={decks} deckInd={deckInd} pairInd={pairInd} sagaFinishMemorizationPhase={sagaFinishMemorizationPhase} sagaGoToNextPair={sagaGoToNextPair} sagaGoToPrevPair={sagaGoToPrevPair} sagaGoToDeckHead={sagaGoToDeckHead} sagaGoToNextDeck={sagaGoToNextDeck} sagaToggleTimer={sagaToggleTimer}/>);
                     } else if (phase === memoTrainingUtils.TrainingPhase.recall) {
@@ -82,8 +86,6 @@ const MemoTrainingMbldTemplate = (
     </div>
 );
 
-// <a href="https://www.ac-illust.com/main/profile.php?id=OLC8qIlx&amp;area=1">johan</a>さんによる<a href="https://www.ac-illust.com/">イラストAC</a>からのイラスト
-
 MemoTrainingMbldTemplate.propTypes = {
     startMemoMiliUnixtime: PropTypes.number.isRequired,
     startRecallMiliUnixtime: PropTypes.number.isRequired,
@@ -93,6 +95,8 @@ MemoTrainingMbldTemplate.propTypes = {
     deckNum: PropTypes.number.isRequired,
     // deckSize: PropTypes.number,
     pairSize: PropTypes.number.isRequired,
+    // isLefty: PropTypes.bool.isRequired,
+    isOpenMemoShortcutModal: PropTypes.bool.isRequired,
 
     memoEvent: PropTypes.oneOf(Object.values(memoTrainingUtils.MemoEvent)),
     mode: PropTypes.oneOf(Object.values(memoTrainingUtils.TrainingMode)),
@@ -125,6 +129,8 @@ MemoTrainingMbldTemplate.propTypes = {
     sagaToggleTimer: PropTypes.func.isRequired,
 
     sagaOnKeyDown: PropTypes.func.isRequired,
+
+    toggleShortcutModal: PropTypes.func.isRequired,
 };
 
 export default MemoTrainingMbldTemplate;
