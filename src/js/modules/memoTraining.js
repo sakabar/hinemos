@@ -79,6 +79,9 @@ export const sagaToggleTimer = createAction(SAGA_TOGGLE_TIMER);
 const UPDATE_TIMER = 'UPDATE_TIMER';
 const updateTimer = createAction(UPDATE_TIMER);
 
+const TOGGLE_SHORTCUT_MODAL = 'TOGGLE_SHORTCUT_MODAL';
+export const toggleShortcutModal = createAction(TOGGLE_SHORTCUT_MODAL);
+
 // 回答phaseでのアクション
 const UPDATE_MBLD_SOLUTION = 'UPDATE_MBLD_SOLUTION';
 const updateMbldSolution = createAction(UPDATE_MBLD_SOLUTION);
@@ -125,6 +128,8 @@ const initialState = {
     timerMiliUnixtime: 0,
     timeVisible: false,
     isLefty: true,
+
+    isOpenMemoShortcutModal: false,
 
     trialId: 0,
     trialDeckIds: [],
@@ -290,6 +295,11 @@ function * handleSwitchPair (currentMiliUnixtime) {
             memoSec: avgSec,
         };
     });
+
+    // <main>にフォーカスすることで、ショートカットキーをすぐに使えるようにする
+    // デッキの端にたどり着いた時にボタンがdisableした場合、フォーカスを失ってしまうので、
+    // このタイミングで明示的にフォーカスをmainに当てる
+    document.querySelector('.memoTraining__main').focus();
 
     yield put(pushMemoLogs({ memoLogs, }));
 };
@@ -573,6 +583,12 @@ function * handleFinishRecallPhase () {
 function * handleToggleTimer () {
     while (true) {
         yield take(sagaToggleTimer);
+
+        // <main>にフォーカスすることで、ショートカットキーをすぐに使えるようにする
+        // デッキの端にたどり着いた時にボタンがdisableした場合、フォーカスを失ってしまうので、
+        // このタイミングで明示的にフォーカスをmainに当てる
+        document.querySelector('.memoTraining__main').focus();
+
         const timeVisible = yield select(state => state.timeVisible);
         const newTimeVisible = !timeVisible;
 
@@ -584,6 +600,7 @@ function * handleToggleTimer () {
             yield call(delay, 1000);
             yield fork(handleUpdateTimer);
         }
+
         yield put(toggleTimer({ newTimeVisible: !newTimeVisible, }));
     }
 };
@@ -1044,6 +1061,20 @@ export const memoTrainingReducer = handleActions(
                 ...state,
                 memoLogs: state.memoLogs.concat(action.payload.memoLogs),
             };
+        },
+        [toggleShortcutModal]: (state, action) => {
+            const newIsOpen = action.payload.newIsOpen;
+            if (typeof newIsOpen === 'undefined') {
+                return {
+                    ...state,
+                    isOpenMemoShortcutModal: !state.isOpenMemoShortcutModal,
+                };
+            } else {
+                return {
+                    ...state,
+                    isOpenMemoShortcutModal: newIsOpen,
+                };
+            }
         },
         // [initLoad]: (state, action) => {
         //     return {

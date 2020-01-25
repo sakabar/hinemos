@@ -29,6 +29,8 @@ import {
 
     sagaOnKeyDown,
 
+    toggleShortcutModal,
+
     memoTrainingReducer,
     rootSaga,
 } from '../../../modules/memoTraining';
@@ -40,6 +42,8 @@ const mapStateToProps = ({
     startRecallMiliUnixtime,
     timerMiliUnixtime,
     timeVisible,
+    // isLefty,
+    isOpenMemoShortcutModal,
     deckNum,
     pairSize,
     memoEvent,
@@ -57,6 +61,8 @@ const mapStateToProps = ({
         startRecallMiliUnixtime,
         timerMiliUnixtime,
         timeVisible,
+        // isLefty,
+        isOpenMemoShortcutModal,
         deckNum,
         pairSize,
         memoEvent,
@@ -115,6 +121,9 @@ const mapDispatchToProps = (dispatch) => {
         },
         sagaOnKeyDown: (e) => {
             dispatch(sagaOnKeyDown(e));
+        },
+        toggleShortcutModal: (newIsOpen) => {
+            dispatch(toggleShortcutModal({ newIsOpen, }));
         },
     };
 };
