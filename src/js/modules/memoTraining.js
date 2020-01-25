@@ -291,6 +291,11 @@ function * handleSwitchPair (currentMiliUnixtime) {
         };
     });
 
+    // <main>にフォーカスすることで、ショートカットキーをすぐに使えるようにする
+    // デッキの端にたどり着いた時にボタンがdisableした場合、フォーカスを失ってしまうので、
+    // このタイミングで明示的にフォーカスをmainに当てる
+    document.querySelector('.memoTraining__main').focus();
+
     yield put(pushMemoLogs({ memoLogs, }));
 };
 
@@ -573,6 +578,12 @@ function * handleFinishRecallPhase () {
 function * handleToggleTimer () {
     while (true) {
         yield take(sagaToggleTimer);
+
+        // <main>にフォーカスすることで、ショートカットキーをすぐに使えるようにする
+        // デッキの端にたどり着いた時にボタンがdisableした場合、フォーカスを失ってしまうので、
+        // このタイミングで明示的にフォーカスをmainに当てる
+        document.querySelector('.memoTraining__main').focus();
+
         const timeVisible = yield select(state => state.timeVisible);
         const newTimeVisible = !timeVisible;
 
@@ -584,6 +595,7 @@ function * handleToggleTimer () {
             yield call(delay, 1000);
             yield fork(handleUpdateTimer);
         }
+
         yield put(toggleTimer({ newTimeVisible: !newTimeVisible, }));
     }
 };
