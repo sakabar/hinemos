@@ -19,6 +19,8 @@ const MemoTrainingCardsTemplate = (
         pairSize,
         isLefty,
 
+        isOpenMemoShortcutModal,
+
         memoEvent,
         mode,
 
@@ -53,6 +55,8 @@ const MemoTrainingCardsTemplate = (
 
         sagaOnKeyDown,
 
+        toggleShortcutModal,
+
         selectHole,
         goToPrevDeckRecall,
         goToNextDeckRecall,
@@ -65,7 +69,7 @@ const MemoTrainingCardsTemplate = (
             {
                 (() => {
                     if (phase === memoTrainingUtils.TrainingPhase.setting) {
-                        return (<MemoTrainingCardsSetting deckNum={deckNum} deckSize={deckSize} pairSize={pairSize} isLefty={isLefty} setDeckNum={setDeckNum} setDeckSize={setDeckSize} setPairSize={setPairSize} setIsLefty={setIsLefty} sagaStartMemorizationPhase={sagaStartMemorizationPhase}/>);
+                        return (<MemoTrainingCardsSetting deckNum={deckNum} deckSize={deckSize} pairSize={pairSize} isLefty={isLefty} isOpenMemoShortcutModal={isOpenMemoShortcutModal} setDeckNum={setDeckNum} setDeckSize={setDeckSize} setPairSize={setPairSize} setIsLefty={setIsLefty} sagaStartMemorizationPhase={sagaStartMemorizationPhase} toggleShortcutModal={toggleShortcutModal}/>);
                     } else if (phase === memoTrainingUtils.TrainingPhase.memorization) {
                         return (<MemoTrainingCardsMemorization startMemoMiliUnixtime={startMemoMiliUnixtime} startRecallMiliUnixtime={startRecallMiliUnixtime} timerMiliUnixtime={timerMiliUnixtime} timeVisible={timeVisible} isLefty={isLefty} decks={decks} deckInd={deckInd} pairInd={pairInd} sagaFinishMemorizationPhase={sagaFinishMemorizationPhase} sagaGoToNextPair={sagaGoToNextPair} sagaGoToPrevPair={sagaGoToPrevPair} sagaGoToDeckHead={sagaGoToDeckHead} sagaGoToNextDeck={sagaGoToNextDeck} sagaToggleTimer={sagaToggleTimer}/>);
                     } else if (phase === memoTrainingUtils.TrainingPhase.recall) {
@@ -90,6 +94,8 @@ MemoTrainingCardsTemplate.propTypes = {
     timeVisible: PropTypes.bool.isRequired,
 
     isLefty: PropTypes.bool.isRequired,
+
+    isOpenMemoShortcutModal: PropTypes.bool.isRequired,
 
     deckNum: PropTypes.number.isRequired,
     deckSize: PropTypes.number,
@@ -128,6 +134,8 @@ MemoTrainingCardsTemplate.propTypes = {
     sagaToggleTimer: PropTypes.func.isRequired,
 
     sagaOnKeyDown: PropTypes.func.isRequired,
+
+    toggleShortcutModal: PropTypes.func.isRequired,
 
     selectHole: PropTypes.func.isRequired,
     goToPrevDeckRecall: PropTypes.func.isRequired,

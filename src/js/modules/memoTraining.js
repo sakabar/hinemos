@@ -79,6 +79,9 @@ export const sagaToggleTimer = createAction(SAGA_TOGGLE_TIMER);
 const UPDATE_TIMER = 'UPDATE_TIMER';
 const updateTimer = createAction(UPDATE_TIMER);
 
+const TOGGLE_SHORTCUT_MODAL = 'TOGGLE_SHORTCUT_MODAL';
+export const toggleShortcutModal = createAction(TOGGLE_SHORTCUT_MODAL);
+
 // 回答phaseでのアクション
 const UPDATE_MBLD_SOLUTION = 'UPDATE_MBLD_SOLUTION';
 const updateMbldSolution = createAction(UPDATE_MBLD_SOLUTION);
@@ -125,6 +128,8 @@ const initialState = {
     timerMiliUnixtime: 0,
     timeVisible: false,
     isLefty: true,
+
+    isOpenMemoShortcutModal: false,
 
     trialId: 0,
     trialDeckIds: [],
@@ -1056,6 +1061,20 @@ export const memoTrainingReducer = handleActions(
                 ...state,
                 memoLogs: state.memoLogs.concat(action.payload.memoLogs),
             };
+        },
+        [toggleShortcutModal]: (state, action) => {
+            const newIsOpen = action.payload.newIsOpen;
+            if (typeof newIsOpen === 'undefined') {
+                return {
+                    ...state,
+                    isOpenMemoShortcutModal: !state.isOpenMemoShortcutModal,
+                };
+            } else {
+                return {
+                    ...state,
+                    isOpenMemoShortcutModal: newIsOpen,
+                };
+            }
         },
         // [initLoad]: (state, action) => {
         //     return {

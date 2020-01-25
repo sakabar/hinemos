@@ -30,6 +30,8 @@ import {
 
     sagaOnKeyDown,
 
+    toggleShortcutModal,
+
     selectHole,
     goToPrevDeckRecall,
     goToNextDeckRecall,
@@ -47,6 +49,8 @@ const mapStateToProps = ({
     timerMiliUnixtime,
     timeVisible,
     isLefty,
+
+    isOpenMemoShortcutModal,
 
     trialId,
     deckElementList,
@@ -74,6 +78,8 @@ const mapStateToProps = ({
         timerMiliUnixtime,
         timeVisible,
         isLefty,
+
+        isOpenMemoShortcutModal,
 
         trialId,
         deckElementList,
@@ -144,6 +150,9 @@ const mapDispatchToProps = (dispatch) => {
         },
         sagaOnKeyDown: (e) => {
             dispatch(sagaOnKeyDown(e));
+        },
+        toggleShortcutModal: (newIsOpen) => {
+            dispatch(toggleShortcutModal({ newIsOpen, }));
         },
         selectHole: (holeDeckInd, holePairInd, holePosInd) => {
             dispatch(selectHole({ holeDeckInd, holePairInd, holePosInd, }));
