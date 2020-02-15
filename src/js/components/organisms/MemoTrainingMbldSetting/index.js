@@ -13,7 +13,7 @@ const path = require('path');
 
 const urlRoot = path.basename(config.urlRoot);
 
-const deckNumOptions = [ ...Array(15).keys(), ].map(ind => [ String(ind + 1), String(ind + 1), ]);
+const deckNumOptions = [ ...Array(50).keys(), ].map(ind => [ String(ind + 1), String(ind + 1), ]);
 const pairSizeList = [ ...Array(2).keys(), ].map(ind => [ String(ind + 1), `${ind + 1}単語`, ]);
 
 const MemoTrainingMbldSetting = ({
