@@ -13,7 +13,7 @@ const path = require('path');
 
 const urlRoot = path.basename(config.urlRoot);
 
-const deckNumOptions = [ ...Array(5).keys(), ].map(ind => [ String(ind + 1), String(ind + 1), ]);
+const deckNumOptions = [ ...Array(10).keys(), ].map(ind => [ String(ind + 1), String(ind + 1), ]);
 const deckSizeOptions = [ ...Array(52).keys(), ].map(ind => [ String(ind + 1), String(ind + 1), ]);
 const pairSizeList = [ ...Array(4).keys(), ].map(ind => [ String(ind + 1), String(ind + 1) + '枚', ]);
 const isLeftyOptions = [
