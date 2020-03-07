@@ -39,9 +39,9 @@ const showMove = (setup, move1, move2) => {
     if (setup === '') {
         return `[${move1}, ${move2}]`;
     } else if (move1 === '' && move2 === '') {
-        return `[${setup}]`;
+        return `${setup}`;
     } else {
-        return `[${setup}, [${move1}, ${move2}]]`;
+        return `[${setup}: [${move1}, ${move2}]]`;
     }
 };
 
@@ -206,19 +206,19 @@ const ThreeStyleType = {
 // 判定できないパターンの場合はエラーを返す
 // FIXME 正規表現の保守性が低すぎる
 const getThreeStyleType = (s) => {
-    // [A B C D] => 'seq'
-    const seqMatch = s.match(/^\[[^, \[\]]+( [^, \[\]]+)*\]$/);
+    // A B C D => 'seq'
+    const seqMatch = s.match(/^[^, \[\]]+( [^, \[\]]+)*$/);
     if (seqMatch) {
         return ThreeStyleType.seq;
     }
 
-    // [S, [A, B C D]] => 'setup'
-    const setupMatch = s.match(/^\[[^, \[\]]+( [^, \[\]]+)*, \[[^, \[\]]+( [^, \[\]]+)*, [^, \[\]]+( [^, \[\]]+)*\]\]$/);
+    // [S: [A, B C D]] => 'setup'
+    const setupMatch = s.match(/^\[[^, \[\]]+( [^, \[\]]+)*[:,] \[[^, \[\]]+( [^, \[\]]+)*, [^, \[\]]+( [^, \[\]]+)*\]\]$/);
     if (setupMatch) {
         return ThreeStyleType.setup;
     }
 
-    // [A, B C D]] => 'pure'
+    // [A, B C D] => 'pure'
     const pureMatch = s.match(/^\[[^, \[\]]+( [^, \[\]]+)*, [^, \[\]]+( [^, \[\]]+)*\]$/);
     if (pureMatch) {
         return ThreeStyleType.pure;
@@ -235,10 +235,22 @@ const readThreeStyles = (s) => {
     }
 
     // 似たような文字や、複数個のスペースを置換
-    const replacedStr = s.trim().replace(/[;:；：]/g, ',').replace(/[‘’´｀`]/g, '\'').replace(/[，、]/g, ',').replace(/,/g, ' , ').replace(/[({【「]/g, '[').replace(/[」】}]/g, ']').replace(/\s+/g, ' ').replace(/ *,/g, ',').replace(/\s+]/g, ']').replace(/]\s+/g, ']').replace(/\[\s+/g, '[').replace(/,\[/g, ', [');
+    const replacedStr = s.trim().replace(/[;；：]/g, ':').replace(/[‘’´｀`]/g, '\'').replace(/[，、]/g, ',').replace(/,/g, ' , ').replace(/:/g, ' : ').replace(/[({【「]/g, '[').replace(/[」】}]/g, ']').replace(/\s+/g, ' ').replace(/ *,/g, ',').replace(/ *:/g, ':').replace(/\s+]/g, ']').replace(/]\s+/g, ']').replace(/\[\s+/g, '[').replace(/,\[/g, ', [').replace(/:\[/g, ': [');
 
     // 複数の場合
-    // 効率が悪そうなので納得できていないが、とりあえず再帰で実装できた FIXME
+    // 最初が'['で始まっていない場合は、type=seq確定なのでその部分を切り取って再帰
+    const pluralSeqMatch = replacedStr.match(/^([^\[\],]*), (.+)$/);
+    if (pluralSeqMatch) {
+        const hd = pluralSeqMatch[1];
+        const tl = pluralSeqMatch[2];
+
+        const hdArr = readThreeStyles(hd.replace(/,$/, ''));
+        const tlArr = readThreeStyles(tl.replace(/^, /, ''));
+        return [ ...hdArr, ...tlArr, ];
+    }
+
+    // 複数の場合、その2
+    // Seqのパターンは過ぎたので、[]で切り取ればよい
     const pluralMatch = replacedStr.match(/^(\[.+?\],) (.+)$/);
     if (pluralMatch) {
         const hd = pluralMatch[1];
@@ -271,7 +283,7 @@ const readThreeStyles = (s) => {
     }
 
     if (t === ThreeStyleType.setup) {
-        const setupMatch = replacedStr.match(/^\[([^,]+), \[([^,]+), ([^,]+)\]\]$/);
+        const setupMatch = replacedStr.match(/^\[([^,]+)[:,] \[([^,]+), ([^,]+)\]\]$/);
         if (!setupMatch) {
             throw new Error('Unexpected setupMatch pattern');
         }
@@ -290,7 +302,7 @@ const readThreeStyles = (s) => {
     }
 
     if (t === ThreeStyleType.seq) {
-        const seqMatch = replacedStr.match(/^\[([^,]+)\]$/);
+        const seqMatch = replacedStr.match(/^([^,]+)$/);
         if (!seqMatch) {
             throw new Error('Unexpected seqMatch pattern');
         }
