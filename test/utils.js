@@ -8,11 +8,11 @@ describe('utils.js', () => {
         });
 
         it('正常系: setupが空ではない場合', () => {
-            assert.deepStrictEqual(utils.showMove('D', 'U', 'R D R\''), '[D, [U, R D R\']]');
+            assert.deepStrictEqual(utils.showMove('D', 'U', 'R D R\''), '[D: [U, R D R\']]');
         });
 
         it('正常系: setupのみの場合 (cyclic shift)', () => {
-            assert.deepStrictEqual(utils.showMove('D Rw2 U R U\' Rw2 D R\' D2', '', ''), '[D Rw2 U R U\' Rw2 D R\' D2]');
+            assert.deepStrictEqual(utils.showMove('D Rw2 U R U\' Rw2 D R\' D2', '', ''), 'D Rw2 U R U\' Rw2 D R\' D2');
         });
     });
 
@@ -296,11 +296,11 @@ describe('utils.js', () => {
         });
 
         it('正常系: setup', () => {
-            assert.deepStrictEqual(utils.getThreeStyleType('[U D, [U D, R D R\']]'), utils.ThreeStyleType.setup);
+            assert.deepStrictEqual(utils.getThreeStyleType('[U D: [U D, R D R\']]'), utils.ThreeStyleType.setup);
         });
 
         it('正常系: seq', () => {
-            assert.deepStrictEqual(utils.getThreeStyleType('[Rw\' L]'), utils.ThreeStyleType.seq);
+            assert.deepStrictEqual(utils.getThreeStyleType('Rw\' L'), utils.ThreeStyleType.seq);
         });
 
         it('正常系: プライムが全角でも正しく判定できる', () => {
@@ -335,22 +335,22 @@ describe('utils.js', () => {
             assert.deepStrictEqual(utils.readThreeStyles('[U, R D R\']'), [ expected, ]);
         });
 
-        it('正常系: setup [D, [U, R D R\']]', () => {
+        it('正常系: setup [D: [U, R D R\']]', () => {
             const expected = {
                 setup: 'D',
                 move1: 'U',
                 move2: 'R D R\'',
             };
-            assert.deepStrictEqual(utils.readThreeStyles('[D, [U, R D R\']]'), [ expected, ]);
+            assert.deepStrictEqual(utils.readThreeStyles('[D: [U, R D R\']]'), [ expected, ]);
         });
 
-        it('正常系: seq [D U R]', () => {
+        it('正常系: seq D U R', () => {
             const expected = {
                 setup: 'D U R',
                 move1: '',
                 move2: '',
             };
-            assert.deepStrictEqual(utils.readThreeStyles('[D U R]'), [ expected, ]);
+            assert.deepStrictEqual(utils.readThreeStyles('D U R'), [ expected, ]);
         });
 
         it('正常系: setup [D, [U, R D R’]] (全角プライム)', () => {
@@ -416,13 +416,13 @@ describe('utils.js', () => {
             assert.deepStrictEqual(utils.readThreeStyles('[U, [ S\' , R\' D\' R]]'), [ expected, ]);
         });
 
-        it('正常系: setup [F Lw\' U\' L U R U\' Rw\' ] (カッコの前にスペース)', () => {
+        it('正常系: setup F Lw\' U\' L U R U\' Rw\'  (カッコの前にスペース)', () => {
             const expected = {
                 setup: 'F Lw\' U\' L U R U\' Rw\'',
                 move1: '',
                 move2: '',
             };
-            assert.deepStrictEqual(utils.readThreeStyles('[F Lw\' U\' L U R U\' Rw\' ]'), [ expected, ]);
+            assert.deepStrictEqual(utils.readThreeStyles('F Lw\' U\' L U R U\' Rw\' '), [ expected, ]);
         });
 
         it('正常系: setup [R U , [U ,R D R’]] (コンマの直後にスペースを空けずにアルファベット)', () => {
@@ -454,19 +454,25 @@ describe('utils.js', () => {
 
         it('正常系: 複数', () => {
             const ts1 = {
+                setup: 'S',
+                move1: 'R',
+                move2: 'U',
+            };
+
+            const ts2 = {
                 setup: 'R L',
                 move1: '',
                 move2: '',
             };
 
-            const ts2 = {
-                setup: 'R U',
-                move1: '',
-                move2: '',
+            const ts3 = {
+                setup: '',
+                move1: 'R',
+                move2: 'U',
             };
 
-            const expected = [ ts1, ts2, ];
-            assert.deepStrictEqual(utils.readThreeStyles('[R L], [R U]'), expected);
+            const expected = [ ts1, ts2, ts3, ];
+            assert.deepStrictEqual(utils.readThreeStyles('[S : [R, U]], R L, [R, U]'), expected);
         });
 
         it('異常系: パースに失敗した場合はエラー', () => {
