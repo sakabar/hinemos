@@ -136,7 +136,7 @@ const saveThreeStyleTable = (hot, part, numbering) => {
             try {
                 threeStyles = utils.readThreeStyles(cellStr);
             } catch (e) {
-                alert(`${e}\nステッカー: ${letter1}${letter2}\n例\n[U, R D R\']\nまたは\n[D, [U, R D R\']]\nまたは\n[D Rw2 U R U\' Rw2 D R\' D2]`);
+                alert(`${e}\nステッカー: ${letter1}${letter2}\n例\n[U, R D R\']\nまたは\n[D: [U, R D R\']]\nまたは\nD Rw2 U R U\' Rw2 D R\' D2`);
                 saveBtn.disabled = false;
                 return;
             }
