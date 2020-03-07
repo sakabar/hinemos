@@ -310,6 +310,90 @@ const suggestThreeStyles = (part) => {
         .catch(() => {});
 };
 
+const bldLifeCornerStickerDict = {
+    'BDR': 'BDR',
+    'BDL': 'BLD',
+    'BRU': 'BRU',
+    'BLU': 'BUL',
+    'DBL': 'DBL',
+    'DFR': 'DFR',
+    'DFL': 'DLF',
+    'DBR': 'DRB',
+    'FDL': 'FDL',
+    'FLU': 'FLU',
+    'FDR': 'FRD',
+    'FRU': 'FUR',
+    'LBU': 'LBU',
+    'LBD': 'LDB',
+    'LDF': 'LFD',
+    'LFU': 'LUF',
+    'RBD': 'RBD',
+    'RDF': 'RDF',
+    'RFU': 'RFU',
+    'RBU': 'RUB',
+    'UBR': 'UBR',
+    'UFL': 'UFL',
+    'UBL': 'ULB',
+    'UFR': 'URF',
+};
+
+const openBldLife = (part) => {
+    const lettersText = document.querySelector('.registerThreeStyleForm__lettersText');
+    const userName = localStorage.userName;
+    // バッファを意味する'@'を付与
+    const letters = '@' + lettersText.value.replace(/\s*/g, '');
+
+    // 「指定なし」
+    const authorAll = '%E6%8C%87%E5%AE%9A%E3%81%AA%E3%81%97';
+
+    const numberingOptions = {
+        url: `${config.apiRoot}/numbering/${part.name}/${userName}?letters=${letters}`,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {},
+    };
+
+    rp(numberingOptions)
+        .then((ans) => {
+            const numberings = ans.success.result;
+
+            let stickers = [];
+            for (let i = 0; i < letters.length; i++) {
+                const ch = letters[i];
+                const sticker = numberings.filter(x => x.letter === ch)[0].sticker;
+                stickers.push(sticker);
+            }
+
+            let partStr;
+            let buffer;
+            let sticker1;
+            let sticker2;
+            if (part === constant.partType.corner) {
+                partStr = 'Corner';
+                buffer = bldLifeCornerStickerDict[stickers[0]];
+                sticker1 = bldLifeCornerStickerDict[stickers[1]];
+                sticker2 = bldLifeCornerStickerDict[stickers[2]];
+            } else if (part === constant.partType.edgeMiddle) {
+                partStr = 'Edge';
+                buffer = stickers[0];
+                sticker1 = stickers[1];
+                sticker2 = stickers[2];
+            } else {
+                throw new Error('想定していないパート');
+            }
+
+            const url = `https://bld-life.com/show-3style/?parts_type=${partStr}&buffer=${buffer}&search_target1=${sticker1}&search_target2=${sticker2}&author=${authorAll}`;
+
+            window.open(url);
+        })
+        .catch(() => {
+            alert('エラーが発生しました');
+        });
+};
+
 const init = () => {
     const saveBtn = document.querySelector('.registerThreeStyleForm__saveBtn');
     const checkBtn = document.querySelector('.registerThreeStyleForm__checkBtn');
@@ -369,6 +453,9 @@ const init = () => {
         move1Text.value = lst[1];
         move2Text.value = lst[2];
     });
+
+    const bldLifeLinkButton = document.querySelector('.registerThreeStyleForm__bldLifeLinkBtn');
+    bldLifeLinkButton.addEventListener('click', () => openBldLife(part));
 };
 
 init();
