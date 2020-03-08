@@ -66,7 +66,10 @@ const saveLetterPairTableFromHot = (hot) => {
     for (let r = 1; r < rowLn; r++) {
         for (let c = 1; c < colLn; c++) {
             const letters = col0[r] + row0[c];
-            const cellStr = hot.getDataAtCell(r, c);
+
+            // バックスペースだけ押してセルを削除し、すぐに表の外にフォーカスを移した場合は
+            // cellStrはnullになる
+            const cellStr = hot.getDataAtCell(r, c) || '';
 
             const words = cellStr === '' ? [] : cellStr.replace(/\s/g, '').split(/[,，、/／]/).filter(x => x.length > 0);
 
