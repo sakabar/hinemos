@@ -131,7 +131,9 @@ const saveThreeStyleTable = (hot, part, numbering) => {
             const letter2 = sticker2Match[1]; // 'き' など
             const sticker2 = sticker2Match[2]; // 'RDF' など
 
-            const cellStr = hot.getDataAtCell(r, c);
+            // バックスペースだけ押してセルを削除し、すぐに表の外にフォーカスを移した場合は
+            // cellStrはnullになる
+            const cellStr = hot.getDataAtCell(r, c) || '';
             let threeStyles = [];
             try {
                 threeStyles = utils.readThreeStyles(cellStr);
