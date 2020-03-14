@@ -90,8 +90,14 @@ const saveLetterPairTableFromHot = (hot) => {
         })
         .catch((err) => {
             // FIXME なかなかひどい実装
-            const msg = err.message.match(/『[^』]*』/)[0];
-            alert(msg);
+            const m = err.message.match(/『[^』]*』/);
+            if (m) {
+                const msg = m[0];
+                alert(msg);
+            } else {
+                const msg = `エラーが発生しました: ${err}`;
+                alert(msg);
+            }
             saveBtn.disabled = false; // 元に戻す
         });
 };
