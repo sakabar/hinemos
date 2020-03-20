@@ -66,7 +66,10 @@ const saveLetterPairTableFromHot = (hot) => {
     for (let r = 1; r < rowLn; r++) {
         for (let c = 1; c < colLn; c++) {
             const letters = col0[r] + row0[c];
-            const cellStr = hot.getDataAtCell(r, c);
+
+            // バックスペースだけ押してセルを削除し、すぐに表の外にフォーカスを移した場合は
+            // cellStrはnullになる
+            const cellStr = hot.getDataAtCell(r, c) || '';
 
             const words = cellStr === '' ? [] : cellStr.replace(/\s/g, '').split(/[,，、/／]/).filter(x => x.length > 0);
 
@@ -87,8 +90,14 @@ const saveLetterPairTableFromHot = (hot) => {
         })
         .catch((err) => {
             // FIXME なかなかひどい実装
-            const msg = err.message.match(/『[^』]*』/)[0];
-            alert(msg);
+            const m = err.message.match(/『[^』]*』/);
+            if (m) {
+                const msg = m[0];
+                alert(msg);
+            } else {
+                const msg = `エラーが発生しました: ${err}`;
+                alert(msg);
+            }
             saveBtn.disabled = false; // 元に戻す
         });
 };
