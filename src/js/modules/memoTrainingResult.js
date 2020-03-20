@@ -22,7 +22,9 @@ const SAGA_FETCH_SCORES = 'SAGA_FETCH_SCORES';
 export const sagaFetchScores = createAction(SAGA_FETCH_SCORES);
 
 const DECIDE_TRIAL = 'DECIDE_TRIAL';
-export const decideTrial = createAction(DECIDE_TRIAL);
+const decideTrial = createAction(DECIDE_TRIAL);
+const SAGA_DECIDE_TRIAL = 'SAGA_DECIDE_TRIAL';
+export const sagaDecideTrial = createAction(SAGA_DECIDE_TRIAL);
 
 const initialState = {
     userName: localStorage.userName,
@@ -53,7 +55,16 @@ const fetchScore = (userName, event, mode) => {
     return rp(options);
 };
 
-const fetchMemoLog = (userName) => {
+const fetchMemoLog = (userName, trialId) => {
+    const form = {
+        userName,
+        token: localStorage.token,
+    };
+
+    if (trialId) {
+        form.trialId = trialId;
+    }
+
     const options = {
         url: `${config.apiRoot}/getMemoLog`,
         method: 'POST',
@@ -61,16 +72,22 @@ const fetchMemoLog = (userName) => {
             'Content-Type': 'application/json',
         },
         json: true,
-        form: {
-            userName,
-            token: localStorage.token,
-        },
+        form,
     };
 
     return rp(options);
 };
 
-const fetchRecallLog = (userName) => {
+const fetchRecallLog = (userName, trialId) => {
+    const form = {
+        userName,
+        token: localStorage.token,
+    };
+
+    if (trialId) {
+        form.trialId = trialId;
+    }
+
     const options = {
         url: `${config.apiRoot}/getRecallLog`,
         method: 'POST',
@@ -78,10 +95,7 @@ const fetchRecallLog = (userName) => {
             'Content-Type': 'application/json',
         },
         json: true,
-        form: {
-            userName,
-            token: localStorage.token,
-        },
+        form,
     };
 
     return rp(options);
@@ -113,17 +127,10 @@ function * handleFetchScores () {
         }
         const scores = resFetchScore.success.result.scores;
 
-        const resFetchMemoLog = yield call(fetchMemoLog, userName);
-        if (!resFetchMemoLog.success) {
-            throw new Error('Error fetchMemoLog()');
-        }
-        const memoLogs = resFetchMemoLog.success.result.logs;
-
-        const resFetchRecallLog = yield call(fetchRecallLog, userName);
-        if (!resFetchRecallLog.success) {
-            throw new Error('Error fetchRecallLog()');
-        }
-        const recallLogs = resFetchRecallLog.success.result.logs;
+        // 最初はこのタイミングでログを取得していたが、
+        // 全件取得で遅くなるのでやめた
+        const memoLogs = [];
+        const recallLogs = [];
 
         const payload = {
             event,
@@ -134,6 +141,34 @@ function * handleFetchScores () {
         };
 
         yield put(fetchScores(payload));
+    }
+};
+
+function * handleDecideTrial () {
+    while (true) {
+        const action = yield take(sagaDecideTrial);
+        const userName = yield select(state => state.userName);
+        const trialId = action.payload.trialId;
+
+        const resFetchMemoLog = yield call(fetchMemoLog, userName, trialId);
+        if (!resFetchMemoLog.success) {
+            throw new Error('Error fetchMemoLog()');
+        }
+        const memoLogs = resFetchMemoLog.success.result.logs;
+
+        const resFetchRecallLog = yield call(fetchRecallLog, userName, trialId);
+        if (!resFetchRecallLog.success) {
+            throw new Error('Error fetchRecallLog()');
+        }
+        const recallLogs = resFetchRecallLog.success.result.logs;
+
+        const payload = {
+            ...action.payload,
+            memoLogs,
+            recallLogs,
+        };
+
+        yield put(decideTrial(payload));
     }
 };
 
@@ -154,6 +189,8 @@ export const memoTrainingResultReducer = handleActions(
             return {
                 ...state,
                 trialId: action.payload.trialId,
+                memoLogs: action.payload.memoLogs ? action.payload.memoLogs : state.memoLogs,
+                recallLogs: action.payload.recallLogs ? action.payload.recallLogs : state.recallLogs,
             };
         },
     },
@@ -162,4 +199,5 @@ export const memoTrainingResultReducer = handleActions(
 
 export function * rootSaga () {
     yield fork(handleFetchScores);
+    yield fork(handleDecideTrial);
 };
