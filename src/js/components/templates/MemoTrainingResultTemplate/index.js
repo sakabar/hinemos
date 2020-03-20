@@ -60,7 +60,7 @@ const MemoTrainingResultTemplate = (
         trialId,
 
         sagaFetchScores,
-        decideTrial,
+        sagaDecideTrial,
     }
 ) => (
     <div>
@@ -130,7 +130,7 @@ const MemoTrainingResultTemplate = (
                             <SortableTbl tblData={MyData}
                                 tHead={tHead}
                                 customTd={[
-                                    { custd: DecideTrialButtonTdFactory(decideTrial), keyItem: 'decideTrial', },
+                                    { custd: DecideTrialButtonTdFactory(sagaDecideTrial), keyItem: 'decideTrial', },
                                 ]}
                                 dKey={col}
                                 search={true}
@@ -357,7 +357,7 @@ MemoTrainingResultTemplate.propTypes = {
     trialId: PropTypes.number,
 
     sagaFetchScores: PropTypes.func.isRequired,
-    decideTrial: PropTypes.func.isRequired,
+    sagaDecideTrial: PropTypes.func.isRequired,
 };
 
 export default MemoTrainingResultTemplate;
