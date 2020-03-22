@@ -76,7 +76,8 @@ const MemoTrainingCardsRecall = ({
                         });
                     });
 
-                    const flatten = isLefty ? _.flattenDeep(components) : _.reverse(_.cloneDeep(_.flattenDeep(components)));
+                    // _.reverse()は破壊的なメソッドだが、_.flattenDeep()によって新しい配列が生成されているので、その新しい配列が破壊されても問題ない
+                    const flatten = isLefty ? _.flattenDeep(components) : _.reverse(_.flattenDeep(components));
 
                     const chunkSize = 12;
                     return _.chunk(flatten, chunkSize).map((bulk, bulkInd) => {
