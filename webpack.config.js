@@ -1,6 +1,6 @@
 const path = require('path');
-const ExtendedDefinePlugin = require('extended-define-webpack-plugin')
-var HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
+const ExtendedDefinePlugin = require('extended-define-webpack-plugin');
+// var HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 // var StatsPlugin = require('stats-webpack-plugin');
 
 module.exports = {
@@ -33,48 +33,49 @@ module.exports = {
     },
     output: {
         path: path.join(__dirname, '/dist'),
-        filename: './[name].bundle.js'
+        filename: './[name].bundle.js',
     },
     module: {
         rules: [
             {
                 test: /\.js$/,
-                loader: "babel-loader",
+                loader: 'babel-loader',
                 exclude: /node_modules/,
                 options: {
-                    presets: ['@babel/preset-react'],
+                    presets: [ '@babel/preset-react', ],
                 },
             },
             {
                 test: /\.css$/,
                 loaders: ['style-loader',
-                          {loader: 'css-loader', options: {importLoaders: 1}}],
+                    { loader: 'css-loader', options: { importLoaders: 1, }, }, ],
             },
             {
                 test: /\.(jpg|png)$/,
                 loaders: 'url-loader',
             },
         ],
-        noParse: [path.join(__dirname, 'node_modules/handsontable/dist/handsontable.full.min.js')]
+        noParse: [ path.join(__dirname, 'node_modules/handsontable/dist/handsontable.full.min.js'), ],
     },
     resolve: {
         alias: {
             'handsontable': path.join(__dirname, 'node_modules/handsontable/dist/handsontable.full.min.js'),
-            'handsontable.css': path.join(__dirname, 'node_modules/handsontable/dist/handsontable.full.min.css')
-        }
+            'handsontable.css': path.join(__dirname, 'node_modules/handsontable/dist/handsontable.full.min.css'),
+        },
     },
     plugins: [
         new ExtendedDefinePlugin({
             DEPLOY_ENV: process.env.DEPLOY_ENV ? JSON.stringify(process.env.DEPLOY_ENV) : 'stg',
         }),
-        new HardSourceWebpackPlugin(),
+        // 不安定なのでコメントアウトして使わないようにした
+        // new HardSourceWebpackPlugin(),
+
         // バンドルの大きさを調べたい時だけアンコメントする。Macに入れてあるwebpack-bundle-analyzerと連携
         // new StatsPlugin('stats.json', {
         //     chunkModules: true,
         // }),
     ],
     node: {
-        fs: 'empty'
-    }
+        fs: 'empty',
+    },
 };
-
