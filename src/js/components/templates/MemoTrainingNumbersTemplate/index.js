@@ -19,6 +19,7 @@ const MemoTrainingNumbersTemplate = (
         digitsPerImage,
         pairSize,
         isLefty,
+        isUniqInDeck,
 
         isOpenMemoShortcutModal,
 
@@ -41,6 +42,7 @@ const MemoTrainingNumbersTemplate = (
         setDigitsPerImage,
         setPairSize,
         setIsLefty,
+        setIsUniqInDeck,
 
         sagaStartMemorizationPhase,
         sagaFinishMemorizationPhase,
@@ -71,7 +73,7 @@ const MemoTrainingNumbersTemplate = (
             {
                 (() => {
                     if (phase === memoTrainingUtils.TrainingPhase.setting) {
-                        return (<MemoTrainingNumbersSetting deckNum={deckNum} deckSize={deckSize} digitsPerImage={digitsPerImage} pairSize={pairSize} isLefty={isLefty} isOpenMemoShortcutModal={isOpenMemoShortcutModal} setDeckNum={setDeckNum} setDeckSize={setDeckSize} setDigitsPerImage={setDigitsPerImage} setPairSize={setPairSize} setIsLefty={setIsLefty} sagaStartMemorizationPhase={sagaStartMemorizationPhase} toggleShortcutModal={toggleShortcutModal}/>);
+                        return (<MemoTrainingNumbersSetting deckNum={deckNum} deckSize={deckSize} digitsPerImage={digitsPerImage} pairSize={pairSize} isLefty={isLefty} isUniqInDeck={isUniqInDeck} isOpenMemoShortcutModal={isOpenMemoShortcutModal} setDeckNum={setDeckNum} setDeckSize={setDeckSize} setDigitsPerImage={setDigitsPerImage} setPairSize={setPairSize} setIsLefty={setIsLefty} setIsUniqInDeck={setIsUniqInDeck} sagaStartMemorizationPhase={sagaStartMemorizationPhase} toggleShortcutModal={toggleShortcutModal}/>);
                     } else if (phase === memoTrainingUtils.TrainingPhase.memorization) {
                         return (<MemoTrainingNumbersMemorization startMemoMiliUnixtime={startMemoMiliUnixtime} startRecallMiliUnixtime={startRecallMiliUnixtime} timerMiliUnixtime={timerMiliUnixtime} timeVisible={timeVisible} isLefty={isLefty} decks={decks} deckInd={deckInd} pairInd={pairInd} sagaFinishMemorizationPhase={sagaFinishMemorizationPhase} sagaGoToNextPair={sagaGoToNextPair} sagaGoToPrevPair={sagaGoToPrevPair} sagaGoToDeckHead={sagaGoToDeckHead} sagaGoToNextDeck={sagaGoToNextDeck} sagaToggleTimer={sagaToggleTimer}/>);
                     } else if (phase === memoTrainingUtils.TrainingPhase.recall) {
@@ -96,6 +98,7 @@ MemoTrainingNumbersTemplate.propTypes = {
     timeVisible: PropTypes.bool.isRequired,
 
     isLefty: PropTypes.bool.isRequired,
+    isUniqInDeck: PropTypes.bool.isRequired,
 
     isOpenMemoShortcutModal: PropTypes.bool.isRequired,
 
@@ -123,6 +126,7 @@ MemoTrainingNumbersTemplate.propTypes = {
     setDigitsPerImage: PropTypes.func.isRequired,
     setPairSize: PropTypes.func.isRequired,
     setIsLefty: PropTypes.func.isRequired,
+    setIsUniqInDeck: PropTypes.func.isRequired,
 
     sagaStartMemorizationPhase: PropTypes.func.isRequired,
     sagaFinishMemorizationPhase: PropTypes.func.isRequired,

@@ -15,6 +15,7 @@ import {
     setDigitsPerImage,
     setPairSize,
     setIsLefty,
+    setIsUniqInDeck,
 
     sagaGoToNextPair,
     sagaGoToPrevPair,
@@ -50,6 +51,7 @@ const mapStateToProps = ({
     timerMiliUnixtime,
     timeVisible,
     isLefty,
+    isUniqInDeck,
 
     isOpenMemoShortcutModal,
 
@@ -80,6 +82,7 @@ const mapStateToProps = ({
         timerMiliUnixtime,
         timeVisible,
         isLefty,
+        isUniqInDeck,
 
         isOpenMemoShortcutModal,
 
@@ -121,6 +124,9 @@ const mapDispatchToProps = (dispatch) => {
         },
         setIsLefty: (isLefty) => {
             dispatch(setIsLefty({ isLefty, }));
+        },
+        setIsUniqInDeck: (isUniqInDeck) => {
+            dispatch(setIsUniqInDeck({ isUniqInDeck, }));
         },
         sagaGoToNextPair: () => {
             dispatch(sagaGoToNextPair());

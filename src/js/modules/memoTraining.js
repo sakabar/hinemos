@@ -23,12 +23,14 @@ const SET_DECK_SIZE = 'SET_DECK_SIZE';
 const SET_DIGITS_PER_IMAGE = 'SET_DIGITS_PER_IMAGE';
 const SET_PAIR_SIZE = 'SET_PAIR_SIZE';
 const SET_IS_LEFTY = 'SET_IS_LEFTY';
+const SET_IS_UNIQ_IN_DECK = 'SET_IS_UNIQ_IN_DECK';
 
 export const setDeckNum = createAction(SET_DECK_NUM);
 export const setDeckSize = createAction(SET_DECK_SIZE);
 export const setDigitsPerImage = createAction(SET_DIGITS_PER_IMAGE);
 export const setPairSize = createAction(SET_PAIR_SIZE);
 export const setIsLefty = createAction(SET_IS_LEFTY);
+export const setIsUniqInDeck = createAction(SET_IS_UNIQ_IN_DECK);
 
 // モード選択系のアクション
 const START_MEMORIZATION_PHASE = 'START_MEMORIZATION_PHASE';
@@ -130,6 +132,7 @@ const initialState = {
     timerMiliUnixtime: 0,
     timeVisible: false,
     isLefty: true,
+    isUniqInDeck: false, // デッキ内で同じイメージが重複して出現しないようにする
 
     isOpenMemoShortcutModal: false,
 
@@ -177,6 +180,14 @@ function * handleStartMemorizationPhase () {
         const currentMiliUnixtime = parseInt(moment().format('x'));
 
         const memoEvent = action.payload.memoEvent;
+        const mode = action.payload.mode;
+
+        // 数字の記憶練習が完成するまでは一時的に封印している
+        if (memoEvent === memoTrainingUtils.MemoEvent.numbers && mode === memoTrainingUtils.TrainingMode.memorization) {
+            alert('数字モードの記憶練習は工事中です。しばらくお待ちください');
+            continue;
+        }
+
         const deckNum = action.payload.deckNum;
 
         // もしselectがデフォルトのままで渡されたdeckSizeがundefinedなら、種目ごとのデフォルト値を設定する
@@ -188,7 +199,7 @@ function * handleStartMemorizationPhase () {
                 return 52;
             }
             if (memoEvent === memoTrainingUtils.MemoEvent.numbers) {
-                return 80;
+                return 100;
             }
             throw new Error('Unexpected event');
         })();
@@ -197,20 +208,25 @@ function * handleStartMemorizationPhase () {
         const pairSize = action.payload.pairSize ? action.payload.pairSize : 1;
 
         // もしselectがデフォルトのままで渡されたdigitsPerImageがundefinedなら、種目ごとのデフォルト値を設定する
-        const digitsPerImage = (() => {
-            if (action.payload.digitsPerImage) {
-                return action.payload.digitsPerImage;
+        const tmpDigitsPerImage = yield select(state => state.digitsPerImage);
+        const digitsPerImage = ((tmpDigitsPerImage) => {
+            if (tmpDigitsPerImage) {
+                return tmpDigitsPerImage;
             }
             if (memoEvent === memoTrainingUtils.MemoEvent.mbld) {
                 return 2;
             }
+            if (memoEvent === memoTrainingUtils.MemoEvent.cards) {
+                return 1;
+            }
             if (memoEvent === memoTrainingUtils.MemoEvent.numbers) {
                 return 2;
             }
-            throw new Error('Unexpected event');
-        })();
+            throw new Error('想定していない種目です');
+        })(tmpDigitsPerImage);
 
         const userName = yield select(state => state.userName);
+        const isUniqInDeck = yield select(state => state.isUniqInDeck);
 
         const numberingCorner = yield call(memoTrainingUtils.fetchNumberingCorner, userName);
         const numberingEdge = yield call(memoTrainingUtils.fetchNumberingEdge, userName);
@@ -227,11 +243,20 @@ function * handleStartMemorizationPhase () {
             } else if (memoEvent === memoTrainingUtils.MemoEvent.cards) {
                 return memoTrainingUtils.generateCardsDecks(deckNum, deckSize, pairSize);
             } else if (memoEvent === memoTrainingUtils.MemoEvent.numbers) {
-                return memoTrainingUtils.generateNumbersDecks(deckNum, deckSize, digitsPerImage, pairSize);
+                try {
+                    return memoTrainingUtils.generateNumbersDecks(deckNum, deckSize, digitsPerImage, pairSize, isUniqInDeck);
+                } catch (e) {
+                    alert(e);
+                    return [];
+                }
             } else {
                 throw new Error('Unexpected event');
             }
         })();
+
+        if (decks.length === 0) {
+            continue;
+        }
 
         const elementsList = memoTrainingUtils.decksToElementsList(decks);
         const elementIdsDict = yield call(memoTrainingUtils.loadElementIdsDict);
@@ -262,7 +287,6 @@ function * handleStartMemorizationPhase () {
             .map(deckElementIds => _.chunk(deckElementIds, pairSize));
 
         // trialをPOSTする
-        const mode = action.payload.mode;
         const resPostTrial = yield call(memoTrainingUtils.postTrial, userName, memoEvent, mode, deckIds);
         const trialId = resPostTrial.success.result.trialId;
         const trialDeckIds = resPostTrial.success.result.trialDeckIds;
@@ -761,6 +785,12 @@ export const memoTrainingReducer = handleActions(
                 isLefty: action.payload.isLefty,
             };
         },
+        [setIsUniqInDeck]: (state, action) => {
+            return {
+                ...state,
+                isUniqInDeck: action.payload.isUniqInDeck,
+            };
+        },
         [startMemorizationPhase]: (state, action) => {
             if (typeof state.mode === 'undefined') {
                 return {
@@ -816,6 +846,7 @@ export const memoTrainingReducer = handleActions(
                     deckSize: state.deckSize,
                     pairSize: state.pairSize,
                     isLefty: state.isLefty,
+                    isUniqInDeck: state.isUniqInDeck,
                 };
             } else if (state.mode === memoTrainingUtils.TrainingMode.memorization) {
                 return {
