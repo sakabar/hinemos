@@ -345,4 +345,24 @@ describe('memoTrainingUtils.js', () => {
             assert.deepStrictEqual(actual, expected);
         });
     });
+
+    describe('generateNumbersDeck()', () => {
+        it('正常系', () => {
+            const numsStr = '1234567';
+            const digitsPerImage = 2;
+            const pairSize = 3;
+            const actual = memoTrainingUtils.generateNumbersDeck(numsStr, digitsPerImage, pairSize);
+            const expected = [
+                [
+                    new memoTrainingUtils.NumberElement('12'),
+                    new memoTrainingUtils.NumberElement('34'),
+                    new memoTrainingUtils.NumberElement('56'),
+                ],
+                [
+                    new memoTrainingUtils.NumberElement('7'),
+                ],
+            ];
+            assert.deepStrictEqual(actual, expected);
+        });
+    });
 });

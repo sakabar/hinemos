@@ -20,13 +20,17 @@ const _ = require('lodash');
 // Settingモード
 const SET_DECK_NUM = 'SET_DECK_NUM';
 const SET_DECK_SIZE = 'SET_DECK_SIZE';
+const SET_DIGITS_PER_IMAGE = 'SET_DIGITS_PER_IMAGE';
 const SET_PAIR_SIZE = 'SET_PAIR_SIZE';
 const SET_IS_LEFTY = 'SET_IS_LEFTY';
+const SET_IS_UNIQ_IN_DECK = 'SET_IS_UNIQ_IN_DECK';
 
 export const setDeckNum = createAction(SET_DECK_NUM);
 export const setDeckSize = createAction(SET_DECK_SIZE);
+export const setDigitsPerImage = createAction(SET_DIGITS_PER_IMAGE);
 export const setPairSize = createAction(SET_PAIR_SIZE);
 export const setIsLefty = createAction(SET_IS_LEFTY);
+export const setIsUniqInDeck = createAction(SET_IS_UNIQ_IN_DECK);
 
 // モード選択系のアクション
 const START_MEMORIZATION_PHASE = 'START_MEMORIZATION_PHASE';
@@ -128,6 +132,7 @@ const initialState = {
     timerMiliUnixtime: 0,
     timeVisible: false,
     isLefty: true,
+    isUniqInDeck: false, // デッキ内で同じイメージが重複して出現しないようにする
 
     isOpenMemoShortcutModal: false,
 
@@ -138,7 +143,8 @@ const initialState = {
     switchedPairMiliUnixtime: 0,
 
     deckNum: 1, // 束数
-    deckSize: undefined, // 1束の枚数。UIで指定されなかった場合は記憶/分析の開始時に種目ごとのデフォルト値に設定する
+    deckSize: undefined, // 1束の枚数。UIで指定されなかった場合は記憶/分析の開始時に種目ごとのデフォルト値に設定する。数字記憶の場合は「桁数」であり、イメージ数ではない。
+    digitsPerImage: undefined, // 1イメージを構成する桁数
     pairSize: 1, // 何イメージをペアにするか
     memoEvent: undefined, // 'cards, numbers,'
     mode: undefined, // 'transformation, memorization'
@@ -174,6 +180,14 @@ function * handleStartMemorizationPhase () {
         const currentMiliUnixtime = parseInt(moment().format('x'));
 
         const memoEvent = action.payload.memoEvent;
+        const mode = action.payload.mode;
+
+        // 数字の記憶練習が完成するまでは一時的に封印している
+        if (memoEvent === memoTrainingUtils.MemoEvent.numbers && mode === memoTrainingUtils.TrainingMode.memorization) {
+            alert('数字モードの記憶練習は工事中です。しばらくお待ちください');
+            continue;
+        }
+
         const deckNum = action.payload.deckNum;
 
         // もしselectがデフォルトのままで渡されたdeckSizeがundefinedなら、種目ごとのデフォルト値を設定する
@@ -184,13 +198,35 @@ function * handleStartMemorizationPhase () {
             if (memoEvent === memoTrainingUtils.MemoEvent.cards) {
                 return 52;
             }
-            return 1;
+            if (memoEvent === memoTrainingUtils.MemoEvent.numbers) {
+                return 100;
+            }
+            throw new Error('Unexpected event');
         })();
 
         // もしselectがデフォルトのままで渡されたpairSizeがundefinedなら、1を設定する
         const pairSize = action.payload.pairSize ? action.payload.pairSize : 1;
 
+        // もしselectがデフォルトのままで渡されたdigitsPerImageがundefinedなら、種目ごとのデフォルト値を設定する
+        const tmpDigitsPerImage = yield select(state => state.digitsPerImage);
+        const digitsPerImage = ((tmpDigitsPerImage) => {
+            if (tmpDigitsPerImage) {
+                return tmpDigitsPerImage;
+            }
+            if (memoEvent === memoTrainingUtils.MemoEvent.mbld) {
+                return 2;
+            }
+            if (memoEvent === memoTrainingUtils.MemoEvent.cards) {
+                return 1;
+            }
+            if (memoEvent === memoTrainingUtils.MemoEvent.numbers) {
+                return 2;
+            }
+            throw new Error('想定していない種目です');
+        })(tmpDigitsPerImage);
+
         const userName = yield select(state => state.userName);
+        const isUniqInDeck = yield select(state => state.isUniqInDeck);
 
         const numberingCorner = yield call(memoTrainingUtils.fetchNumberingCorner, userName);
         const numberingEdge = yield call(memoTrainingUtils.fetchNumberingEdge, userName);
@@ -206,10 +242,21 @@ function * handleStartMemorizationPhase () {
                 return memoTrainingUtils.generateMbldDecks(numberingCorner, numberingEdge, deckNum, pairSize);
             } else if (memoEvent === memoTrainingUtils.MemoEvent.cards) {
                 return memoTrainingUtils.generateCardsDecks(deckNum, deckSize, pairSize);
+            } else if (memoEvent === memoTrainingUtils.MemoEvent.numbers) {
+                try {
+                    return memoTrainingUtils.generateNumbersDecks(deckNum, deckSize, digitsPerImage, pairSize, isUniqInDeck);
+                } catch (e) {
+                    alert(e);
+                    return [];
+                }
             } else {
                 throw new Error('Unexpected event');
             }
         })();
+
+        if (decks.length === 0) {
+            continue;
+        }
 
         const elementsList = memoTrainingUtils.decksToElementsList(decks);
         const elementIdsDict = yield call(memoTrainingUtils.loadElementIdsDict);
@@ -240,7 +287,6 @@ function * handleStartMemorizationPhase () {
             .map(deckElementIds => _.chunk(deckElementIds, pairSize));
 
         // trialをPOSTする
-        const mode = action.payload.mode;
         const resPostTrial = yield call(memoTrainingUtils.postTrial, userName, memoEvent, mode, deckIds);
         const trialId = resPostTrial.success.result.trialId;
         const trialDeckIds = resPostTrial.success.result.trialDeckIds;
@@ -721,6 +767,12 @@ export const memoTrainingReducer = handleActions(
                 deckSize: action.payload.deckSize,
             };
         },
+        [setDigitsPerImage]: (state, action) => {
+            return {
+                ...state,
+                digitsPerImage: action.payload.digitsPerImage,
+            };
+        },
         [setPairSize]: (state, action) => {
             return {
                 ...state,
@@ -731,6 +783,12 @@ export const memoTrainingReducer = handleActions(
             return {
                 ...state,
                 isLefty: action.payload.isLefty,
+            };
+        },
+        [setIsUniqInDeck]: (state, action) => {
+            return {
+                ...state,
+                isUniqInDeck: action.payload.isUniqInDeck,
             };
         },
         [startMemorizationPhase]: (state, action) => {
@@ -788,6 +846,7 @@ export const memoTrainingReducer = handleActions(
                     deckSize: state.deckSize,
                     pairSize: state.pairSize,
                     isLefty: state.isLefty,
+                    isUniqInDeck: state.isUniqInDeck,
                 };
             } else if (state.mode === memoTrainingUtils.TrainingMode.memorization) {
                 return {
@@ -997,6 +1056,7 @@ export const memoTrainingReducer = handleActions(
 
             // tagPair = [ "あい", "う", ]
             // MBLDなのでchunkする幅は2文字ずつで固定としている
+            // FIXME メモ: この仕組みをNumbersでも使ったほうがいいかもね
             const tmpTagPair = _.chunk(action.payload.pairStr, 2).map(chars => chars.join(''));
 
             // 出題されたpairより多く入力された場合は切り捨てる
