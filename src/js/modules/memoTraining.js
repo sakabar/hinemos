@@ -20,11 +20,13 @@ const _ = require('lodash');
 // Settingモード
 const SET_DECK_NUM = 'SET_DECK_NUM';
 const SET_DECK_SIZE = 'SET_DECK_SIZE';
+const SET_DIGITS_PER_IMAGE = 'SET_DIGITS_PER_IMAGE';
 const SET_PAIR_SIZE = 'SET_PAIR_SIZE';
 const SET_IS_LEFTY = 'SET_IS_LEFTY';
 
 export const setDeckNum = createAction(SET_DECK_NUM);
 export const setDeckSize = createAction(SET_DECK_SIZE);
+export const setDigitsPerImage = createAction(SET_DIGITS_PER_IMAGE);
 export const setPairSize = createAction(SET_PAIR_SIZE);
 export const setIsLefty = createAction(SET_IS_LEFTY);
 
@@ -138,7 +140,8 @@ const initialState = {
     switchedPairMiliUnixtime: 0,
 
     deckNum: 1, // 束数
-    deckSize: undefined, // 1束の枚数。UIで指定されなかった場合は記憶/分析の開始時に種目ごとのデフォルト値に設定する
+    deckSize: undefined, // 1束の枚数。UIで指定されなかった場合は記憶/分析の開始時に種目ごとのデフォルト値に設定する。数字記憶の場合は「桁数」であり、イメージ数ではない。
+    digitsPerImage: undefined, // 1イメージを構成する桁数
     pairSize: 1, // 何イメージをペアにするか
     memoEvent: undefined, // 'cards, numbers,'
     mode: undefined, // 'transformation, memorization'
@@ -184,11 +187,28 @@ function * handleStartMemorizationPhase () {
             if (memoEvent === memoTrainingUtils.MemoEvent.cards) {
                 return 52;
             }
-            return 1;
+            if (memoEvent === memoTrainingUtils.MemoEvent.numbers) {
+                return 80;
+            }
+            throw new Error('Unexpected event');
         })();
 
         // もしselectがデフォルトのままで渡されたpairSizeがundefinedなら、1を設定する
         const pairSize = action.payload.pairSize ? action.payload.pairSize : 1;
+
+        // もしselectがデフォルトのままで渡されたdigitsPerImageがundefinedなら、種目ごとのデフォルト値を設定する
+        const digitsPerImage = (() => {
+            if (action.payload.digitsPerImage) {
+                return action.payload.digitsPerImage;
+            }
+            if (memoEvent === memoTrainingUtils.MemoEvent.mbld) {
+                return 2;
+            }
+            if (memoEvent === memoTrainingUtils.MemoEvent.numbers) {
+                return 2;
+            }
+            throw new Error('Unexpected event');
+        })();
 
         const userName = yield select(state => state.userName);
 
@@ -206,6 +226,8 @@ function * handleStartMemorizationPhase () {
                 return memoTrainingUtils.generateMbldDecks(numberingCorner, numberingEdge, deckNum, pairSize);
             } else if (memoEvent === memoTrainingUtils.MemoEvent.cards) {
                 return memoTrainingUtils.generateCardsDecks(deckNum, deckSize, pairSize);
+            } else if (memoEvent === memoTrainingUtils.MemoEvent.numbers) {
+                return memoTrainingUtils.generateNumbersDecks(deckNum, deckSize, digitsPerImage, pairSize);
             } else {
                 throw new Error('Unexpected event');
             }
@@ -721,6 +743,12 @@ export const memoTrainingReducer = handleActions(
                 deckSize: action.payload.deckSize,
             };
         },
+        [setDigitsPerImage]: (state, action) => {
+            return {
+                ...state,
+                digitsPerImage: action.payload.digitsPerImage,
+            };
+        },
         [setPairSize]: (state, action) => {
             return {
                 ...state,
@@ -997,6 +1025,7 @@ export const memoTrainingReducer = handleActions(
 
             // tagPair = [ "あい", "う", ]
             // MBLDなのでchunkする幅は2文字ずつで固定としている
+            // FIXME メモ: この仕組みをNumbersでも使ったほうがいいかもね
             const tmpTagPair = _.chunk(action.payload.pairStr, 2).map(chars => chars.join(''));
 
             // 出題されたpairより多く入力された場合は切り捨てる

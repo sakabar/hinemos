@@ -25,8 +25,9 @@ const MemoTrainingTemplate = () => (
             <ul>
                 <li><Link to={`/${urlRoot}/memoTraining/mbld/trial.html`}>MBLD</Link></li>
                 <li><Link to={`/${urlRoot}/memoTraining/cards/trial.html`}>Cards</Link></li>
+                <li><Link to={`/${urlRoot}/memoTraining/numbers/trial.html`}>Numbers</Link></li>
             </ul>
-        <Link to={`/${urlRoot}/memoTraining/result.html`}>結果ページへ</Link>
+            <Link to={`/${urlRoot}/memoTraining/result.html`}>結果ページへ</Link>
         </main>
     </div>
 );

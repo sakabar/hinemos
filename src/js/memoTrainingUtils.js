@@ -9,11 +9,13 @@ const rp = require('request-promise');
 export const MemoEvent = {
     mbld: 'mbld',
     cards: 'cards',
+    numbers: 'numbers',
 };
 
 export const ElementType = {
     letter: 'letter',
     card: 'card',
+    number: 'number',
 };
 
 export const TrainingMode = {
@@ -61,6 +63,15 @@ export function CardElement (suit, num) {
     const size = 1;
     const zeroPaddedNum = _.padStart(num, 2, '0');
     const tag = `${suit}-${zeroPaddedNum}`;
+
+    return new Element(type, size, tag);
+};
+
+// '00'を許容するため、文字列として格納
+export function NumberElement (numberStr) {
+    const type = ElementType.number;
+    const size = numberStr.length;
+    const tag = numberStr;
 
     return new Element(type, size, tag);
 };
@@ -358,6 +369,30 @@ export const generateMbldDecks = (numberingCorner, numberingEdge, deckNum, pairS
     for (let i = 0; i < deckNum; i++) {
         const analysisDict = generateRandomAnalysisDict(numberingCorner, numberingEdge);
         const deck = generateMbldDeck(analysisDict, pairSize);
+        decks.push(deck);
+    }
+
+    return decks;
+};
+
+export const generateNumbersDeck = (numsStr, digitsPerImage, pairSize) => {
+    const digitsPerPair = pairSize * digitsPerImage;
+    return _.chunk(numsStr, digitsPerPair).map(pairChars => {
+        const pairStr = pairChars.join('');
+        return _.chunk(pairStr, digitsPerImage).map(numChars => {
+            const numStr = numChars.join('');
+            return new NumberElement(numStr);
+        });
+    });
+};
+
+export const generateNumbersDecks = (deckNum, deckSize, digitsPerImage, pairSize) => {
+    const decks = [];
+
+    for (let i = 0; i < deckNum; i++) {
+        const numsStr = _.range(0, deckSize).map(num => String(_.random(0, 9))).join('');
+        const deck = generateNumbersDeck(numsStr, digitsPerImage, pairSize);
+
         decks.push(deck);
     }
 

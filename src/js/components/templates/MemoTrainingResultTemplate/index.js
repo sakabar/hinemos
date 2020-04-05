@@ -22,6 +22,7 @@ const eventOptions = [
     [ '', '種目', ],
     [ 'mbld', 'MBLD', ],
     [ 'cards', 'Cards', ],
+    [ 'numbers', 'Numbers', ],
 ];
 
 const modeOptions = [
