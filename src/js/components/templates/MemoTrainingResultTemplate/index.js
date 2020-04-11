@@ -106,8 +106,8 @@ const MemoTrainingResultTemplate = (
                         '挑戦(束)',
                         '全体(束)',
 
-                        '挑戦(札)',
-                        '全体(札)',
+                        '挑戦(elem)',
+                        '全体(elem)',
                         '',
                     ];
 
