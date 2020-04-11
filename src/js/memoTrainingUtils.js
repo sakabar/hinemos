@@ -611,3 +611,13 @@ export const mergeNumbersImageInDecks = (decks, digitsPerImage, pairSize) => {
         return generateNumbersDeck(deckStr, digitsPerImage, pairSize);
     });
 };
+
+export const mergeLastRecallMiliUnixtimePairsList = (lastRecallMiliUnixtimePairsList, digitsPerImage) => {
+    return lastRecallMiliUnixtimePairsList.map(deck => {
+        return deck.map(pair => {
+            return _.chunk(pair, digitsPerImage).map(digitsInImage => {
+                return _.max(digitsInImage);
+            });
+        });
+    });
+};

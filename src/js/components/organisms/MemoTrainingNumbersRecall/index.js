@@ -44,7 +44,7 @@ const MemoTrainingNumbersRecall = ({
                 (() => {
                     let cnt = 1;
 
-                    // ここで、finishMemorizationPhaseした段階で1イメージ1桁のデッキに変換されていることに注意
+                    // ここで、finishMemorizationPhaseした段階で1桁1イメージのデッキに変換されていることに注意
                     const components = decks[deckInd].map((pair, holePairInd) => {
                         return pair.map((elem, holePosInd) => {
                             const tag = (() => {
@@ -87,7 +87,7 @@ const MemoTrainingNumbersRecall = ({
             <div>
                 {
                     (() => {
-                        return _.range(0, 10 + 1).map(numberInd => {
+                        return _.range(0, 10).map(numberInd => {
                             const element = new memoTrainingUtils.NumberElement(String(numberInd));
                             return (<Button color="light" value={String(numberInd)} style={ { width: '4em', height: '3em', fontFamily: [ 'Courier New', 'monospace', ], }} key={`${numberInd}`} disabled={false} onClick={ () => { sagaSelectHand(element); }}/>);
                         });

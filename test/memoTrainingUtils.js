@@ -1,5 +1,6 @@
 const assert = require('assert');
 const memoTrainingUtils = require('../src/js/memoTrainingUtils.js');
+const _ = require('lodash');
 
 describe('memoTrainingUtils.js', () => {
     describe('generateRandomAnalysisDict()', () => {
@@ -392,6 +393,8 @@ describe('memoTrainingUtils.js', () => {
                 ],
             ];
 
+            const origDecks = _.cloneDeep(decks);
+
             const digitsPerImage = 2;
             const pairSize = 3;
 
@@ -427,6 +430,9 @@ describe('memoTrainingUtils.js', () => {
             ];
 
             assert.deepStrictEqual(actual, expected);
+
+            // 元のdecksが破壊されていないこと
+            assert.deepStrictEqual(decks, origDecks);
         });
     });
 
@@ -489,6 +495,40 @@ describe('memoTrainingUtils.js', () => {
                         new memoTrainingUtils.NumberElement('2'),
                     ],
                 ],
+            ];
+
+            assert.deepStrictEqual(actual, expected);
+        });
+    });
+
+    describe('mergeNumbersImageInDecks()', () => {
+        it('正常系', () => {
+            const digitsPerImage = 3;
+
+            const lastRecallMiliUnixtimePairsList = [
+                [
+                    [ 1, 2, 3, 4, 5, 6, ],
+                    [ 7, 8, 9, ],
+                ],
+
+                [
+                    [ 11, 12, 13, 14, 15, 16, ],
+                    [ 17, 18, 19, ],
+                ],
+            ];
+
+            const actual = memoTrainingUtils.mergeLastRecallMiliUnixtimePairsList(lastRecallMiliUnixtimePairsList, digitsPerImage);
+            const expected = [
+                [
+                    [ 3, 6, ],
+                    [ 9, ],
+                ],
+
+                [
+                    [ 13, 16, ],
+                    [ 19, ],
+                ],
+
             ];
 
             assert.deepStrictEqual(actual, expected);

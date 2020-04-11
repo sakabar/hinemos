@@ -52,6 +52,10 @@ export const sagaFinishRecallPhase = createAction(SAGA_FINISH_RECALL_PHASE);
 const FINISH_RECALL_PHASE = 'FINISH_RECALL_PHASE';
 const finishRecallPhase = createAction(FINISH_RECALL_PHASE);
 
+// 数字記憶で1桁1イメージにしたデッキ(など)をマージして復元
+const MERGE_DECKS = 'MERGE_DECKS';
+const mergeDecks = createAction(MERGE_DECKS);
+
 // 移動する系のアクション
 const GO_TO_NEXT_PAIR = 'GO_TO_NEXT_PAIR';
 const GO_TO_PREV_PAIR = 'GO_TO_PREV_PAIR';
@@ -292,6 +296,7 @@ function * handleStartMemorizationPhase () {
             deckElementIdPairsList,
             currentMiliUnixtime,
             deckSize,
+            digitsPerImage,
             pairSize,
             decks,
             elementIdsDict,
@@ -386,6 +391,10 @@ function * handleGoToDeckHead () {
 
         yield put(goToDeckHead({ currentMiliUnixtime, }));
     }
+};
+
+function * handleMergeDecks (payload) {
+    yield put(mergeDecks(payload));
 };
 
 function * handleFinishMemorizationPhase () {
@@ -532,15 +541,41 @@ function * handleFinishRecallPhase () {
             continue;
         }
 
-        const decks = yield select(state => state.decks);
-        const solution = yield select(state => state.solution);
+        // 数字記憶の場合、デッキを1桁1イメージに変換しているので、それを元の戻す
+        // decks, solution, lastRecallMiliUnixtimePairsList
+        let decks = yield select(state => state.decks);
+        let solution = yield select(state => state.solution);
+        let lastRecallMiliUnixtimePairsList = yield select(state => state.lastRecallMiliUnixtimePairsList);
+        const memoEvent = yield select(state => state.memoEvent);
+        const mode = yield select(state => state.mode);
+        const digitsPerImage = yield select(state => state.digitsPerImage);
+        const pairSize = yield select(state => state.pairSize);
+
+        if (memoEvent === memoTrainingUtils.MemoEvent.numbers && mode === memoTrainingUtils.TrainingMode.memorization) {
+            decks = memoTrainingUtils.mergeNumbersImageInDecks(decks, digitsPerImage, pairSize);
+            solution = memoTrainingUtils.mergeNumbersImageInDecks(solution, digitsPerImage, pairSize);
+
+            // lastRecallMiliUnixtimePairsListの復元
+            // 最も新しい値を採用して集約
+            lastRecallMiliUnixtimePairsList = memoTrainingUtils.mergeLastRecallMiliUnixtimePairsList(lastRecallMiliUnixtimePairsList, digitsPerImage);
+
+            // stateのdeck, solution, lastRecallMiliUnixtimePairsList を更新
+            const mergePayload = {
+                decks,
+                solution,
+                lastRecallMiliUnixtimePairsList,
+            };
+            const mergeDecksTask = yield fork(handleMergeDecks, mergePayload);
+            // wait
+            yield join(mergeDecksTask);
+        }
+        // ↑復元完了
 
         const trialDeckIds = yield select(state => state.trialDeckIds);
         const userName = yield select(state => state.userName);
         const deckElementIdPairsList = yield select(state => state.deckElementIdPairsList);
         const elementIdsDict = yield select(state => state.elementIdsDict);
         const lastMemoMiliUnixtimePairsList = yield select(state => state.lastMemoMiliUnixtimePairsList);
-        const lastRecallMiliUnixtimePairsList = yield select(state => state.lastRecallMiliUnixtimePairsList);
 
         // nullじゃない値の中で最も大きい(新しい)値
         // 全てnullの場合はundefinedとなるので、nullに変える
@@ -815,6 +850,7 @@ export const memoTrainingReducer = handleActions(
 
                     memoEvent: action.payload.memoEvent,
                     deckSize: action.payload.deckSize,
+                    digitsPerImage: action.payload.digitsPerImage,
                     decks: action.payload.decks,
                     startMemoMiliUnixtime: action.payload.currentMiliUnixtime,
                     mode: action.payload.mode,
@@ -833,7 +869,11 @@ export const memoTrainingReducer = handleActions(
             // 記録ページができたらそっちに飛んだほうがいいかも? FIXME
 
             const currentMiliUnixtime = action.payload.currentMiliUnixtime;
-            const decks = state.decks;
+            const origDecks = state.decks;
+
+            // 数字記憶の場合は1桁1イメージになったdecks。それ以外の場合はorigDecksと同じ
+            const newDecks = action.payload.decks;
+
             const deckInd = state.deckInd;
             const pairInd = state.pairInd;
 
@@ -846,8 +886,10 @@ export const memoTrainingReducer = handleActions(
                 newLastMemoMiliUnixtimePairsList[deckInd][pairInd] = [];
             }
 
-            // ここはdecksでforを回すので注意
-            for (let posInd = 0; posInd < decks[deckInd][pairInd].length; posInd++) {
+            // カーソルが最後にあったイメージについて、記憶時間を登録する。
+            // ここはorigDecksでforを回すので注意。newDeckで回すと記憶が完了した時点でのdeckInd, pairIndで
+            // newDecks[deckInd][pairInd]を参照した場合、デッキの中身が変わっているので意図した値を引けない
+            for (let posInd = 0; posInd < origDecks[deckInd][pairInd].length; posInd++) {
                 newLastMemoMiliUnixtimePairsList[deckInd][pairInd][posInd] = currentMiliUnixtime;
             }
 
@@ -868,6 +910,7 @@ export const memoTrainingReducer = handleActions(
                     startRecallMiliUnixtime: currentMiliUnixtime,
                     timeVisible: false,
                     handDict: memoTrainingUtils.cardsDefaultHand(state.deckNum),
+                    decks: newDecks, // デッキは変換後を使う
                     deckInd: 0,
                     pairInd: 0,
                     lastMemoMiliUnixtimePairsList: newLastMemoMiliUnixtimePairsList,
@@ -885,6 +928,14 @@ export const memoTrainingReducer = handleActions(
                 deckSize: state.deckSize,
                 pairSize: state.pairSize,
                 isLefty: state.isLefty,
+            };
+        },
+        [mergeDecks]: (state, action) => {
+            return {
+                ...state,
+                decks: action.payload.decks,
+                solution: action.payload.solution,
+                lastRecallMiliUnixtimePairsList: action.payload.lastRecallMiliUnixtimePairsList,
             };
         },
         [goToNextPair]: (state, action) => {
