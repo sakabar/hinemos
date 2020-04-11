@@ -727,11 +727,15 @@ const LEFT_KEYCODE = 37;
 const UP_KEYCODE = 38;
 const RIGHT_KEYCODE = 39;
 const DOWN_KEYCODE = 40;
+const ZERO_KEYCODE = 48;
+const TENKEY_ZERO_KEYCODE = 96;
 
 function * handleKeyDown () {
     while (true) {
         const action = yield take(sagaOnKeyDown);
         const phase = yield select(state => state.phase);
+        const memoEvent = yield select(state => state.memoEvent);
+        const mode = yield select(state => state.mode);
 
         if (phase === memoTrainingUtils.TrainingPhase.memorization) {
             if (action.payload.keyCode === LEFT_KEYCODE) {
@@ -748,6 +752,18 @@ function * handleKeyDown () {
                 continue;
             } else if (action.payload.keyCode === ENTER_KEYCODE) {
                 yield put(sagaFinishMemorizationPhase());
+                continue;
+            }
+        } else if (memoEvent === memoTrainingUtils.MemoEvent.numbers && mode === memoTrainingUtils.TrainingMode.memorization && phase === memoTrainingUtils.TrainingPhase.recall) {
+            if (ZERO_KEYCODE <= action.payload.keyCode && action.payload.keyCode <= ZERO_KEYCODE + 9) {
+                const num = action.payload.keyCode - ZERO_KEYCODE;
+                const element = new memoTrainingUtils.NumberElement(String(num));
+                yield put(sagaSelectHand({ element, }));
+                continue;
+            } else if (TENKEY_ZERO_KEYCODE <= action.payload.keyCode && action.payload.keyCode <= TENKEY_ZERO_KEYCODE + 9) {
+                const num = action.payload.keyCode - TENKEY_ZERO_KEYCODE;
+                const element = new memoTrainingUtils.NumberElement(String(num));
+                yield put(sagaSelectHand({ element, }));
                 continue;
             }
         }
