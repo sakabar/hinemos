@@ -182,12 +182,6 @@ function * handleStartMemorizationPhase () {
         const memoEvent = action.payload.memoEvent;
         const mode = action.payload.mode;
 
-        // 数字の記憶練習が完成するまでは一時的に封印している
-        if (memoEvent === memoTrainingUtils.MemoEvent.numbers && mode === memoTrainingUtils.TrainingMode.memorization) {
-            alert('数字モードの記憶練習は工事中です。しばらくお待ちください');
-            continue;
-        }
-
         const deckNum = action.payload.deckNum;
 
         // もしselectがデフォルトのままで渡されたdeckSizeがundefinedなら、種目ごとのデフォルト値を設定する
