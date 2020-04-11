@@ -583,3 +583,31 @@ export const getHoleNextCoordinate = (decks, deckInd, pairInd, posInd, solution)
     // 次のholeが空いていない場合は、再帰でさらに次を探す
     return getDeckNextCoordinate(decks, nextDeckInd, nextPairInd, nextPosInd);
 };
+
+// 数字記憶の画面に表示するために、decksを1桁1イメージに変換する
+export const splitNumbersImageInDecks = (decks, digitsPerImage, pairSize) => {
+    const newDigitsPerImage = 1;
+    const newPairSize = digitsPerImage * pairSize;
+
+    return decks.map(deck => {
+        const deckStr = deck.map(pair => {
+            return pair.map(element => {
+                return element.tag;
+            }).join('');
+        }).join('');
+
+        return generateNumbersDeck(deckStr, newDigitsPerImage, newPairSize);
+    });
+};
+
+export const mergeNumbersImageInDecks = (decks, digitsPerImage, pairSize) => {
+    return decks.map(deck => {
+        const deckStr = deck.map(pair => {
+            return pair.map(element => {
+                return element.tag;
+            }).join('');
+        }).join('');
+
+        return generateNumbersDeck(deckStr, digitsPerImage, pairSize);
+    });
+};

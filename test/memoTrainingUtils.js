@@ -365,4 +365,133 @@ describe('memoTrainingUtils.js', () => {
             assert.deepStrictEqual(actual, expected);
         });
     });
+
+    describe('splitNumbersImageInDecks()', () => {
+        it('正常系', () => {
+            const decks = [
+                [
+                    [
+                        new memoTrainingUtils.NumberElement('12'),
+                        new memoTrainingUtils.NumberElement('34'),
+                        new memoTrainingUtils.NumberElement('56'),
+                    ],
+                    [
+                        new memoTrainingUtils.NumberElement('7'),
+                    ],
+                ],
+
+                [
+                    [
+                        new memoTrainingUtils.NumberElement('89'),
+                        new memoTrainingUtils.NumberElement('90'),
+                        new memoTrainingUtils.NumberElement('91'),
+                    ],
+                    [
+                        new memoTrainingUtils.NumberElement('2'),
+                    ],
+                ],
+            ];
+
+            const digitsPerImage = 2;
+            const pairSize = 3;
+
+            const actual = memoTrainingUtils.splitNumbersImageInDecks(decks, digitsPerImage, pairSize);
+            const expected = [
+                [
+                    [
+                        new memoTrainingUtils.NumberElement('1'),
+                        new memoTrainingUtils.NumberElement('2'),
+                        new memoTrainingUtils.NumberElement('3'),
+                        new memoTrainingUtils.NumberElement('4'),
+                        new memoTrainingUtils.NumberElement('5'),
+                        new memoTrainingUtils.NumberElement('6'),
+                    ],
+                    [
+                        new memoTrainingUtils.NumberElement('7'),
+                    ],
+                ],
+
+                [
+                    [
+                        new memoTrainingUtils.NumberElement('8'),
+                        new memoTrainingUtils.NumberElement('9'),
+                        new memoTrainingUtils.NumberElement('9'),
+                        new memoTrainingUtils.NumberElement('0'),
+                        new memoTrainingUtils.NumberElement('9'),
+                        new memoTrainingUtils.NumberElement('1'),
+                    ],
+                    [
+                        new memoTrainingUtils.NumberElement('2'),
+                    ],
+                ],
+            ];
+
+            assert.deepStrictEqual(actual, expected);
+        });
+    });
+
+    describe('mergeNumbersImageInDecks()', () => {
+        it('正常系', () => {
+            const oneImageDecks = [
+                [
+                    [
+                        new memoTrainingUtils.NumberElement('1'),
+                        new memoTrainingUtils.NumberElement('2'),
+                        new memoTrainingUtils.NumberElement('3'),
+                        new memoTrainingUtils.NumberElement('4'),
+                        new memoTrainingUtils.NumberElement('5'),
+                        new memoTrainingUtils.NumberElement('6'),
+                    ],
+                    [
+                        new memoTrainingUtils.NumberElement('7'),
+                    ],
+                ],
+
+                [
+                    [
+                        new memoTrainingUtils.NumberElement('8'),
+                        new memoTrainingUtils.NumberElement('9'),
+                        new memoTrainingUtils.NumberElement('9'),
+                        new memoTrainingUtils.NumberElement('0'),
+                        new memoTrainingUtils.NumberElement('9'),
+                        new memoTrainingUtils.NumberElement('1'),
+                    ],
+                    [
+                        new memoTrainingUtils.NumberElement('2'),
+                    ],
+                ],
+            ];
+
+            const digitsPerImage = 2;
+            const pairSize = 3;
+
+            const actual = memoTrainingUtils.mergeNumbersImageInDecks(oneImageDecks, digitsPerImage, pairSize);
+
+            const expected = [
+                [
+                    [
+                        new memoTrainingUtils.NumberElement('12'),
+                        new memoTrainingUtils.NumberElement('34'),
+                        new memoTrainingUtils.NumberElement('56'),
+                    ],
+                    [
+                        new memoTrainingUtils.NumberElement('7'),
+                    ],
+                ],
+
+                [
+                    [
+                        new memoTrainingUtils.NumberElement('89'),
+                        new memoTrainingUtils.NumberElement('90'),
+                        new memoTrainingUtils.NumberElement('91'),
+                    ],
+                    [
+                        new memoTrainingUtils.NumberElement('2'),
+                    ],
+                ],
+            ];
+
+            assert.deepStrictEqual(actual, expected);
+        });
+    });
 });
