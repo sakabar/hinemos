@@ -1,5 +1,6 @@
 const assert = require('assert');
 const memoTrainingUtils = require('../src/js/memoTrainingUtils.js');
+const _ = require('lodash');
 
 describe('memoTrainingUtils.js', () => {
     describe('generateRandomAnalysisDict()', () => {
@@ -362,6 +363,174 @@ describe('memoTrainingUtils.js', () => {
                     new memoTrainingUtils.NumberElement('7'),
                 ],
             ];
+            assert.deepStrictEqual(actual, expected);
+        });
+    });
+
+    describe('splitNumbersImageInDecks()', () => {
+        it('正常系', () => {
+            const decks = [
+                [
+                    [
+                        new memoTrainingUtils.NumberElement('12'),
+                        new memoTrainingUtils.NumberElement('34'),
+                        new memoTrainingUtils.NumberElement('56'),
+                    ],
+                    [
+                        new memoTrainingUtils.NumberElement('7'),
+                    ],
+                ],
+
+                [
+                    [
+                        new memoTrainingUtils.NumberElement('89'),
+                        new memoTrainingUtils.NumberElement('90'),
+                        new memoTrainingUtils.NumberElement('91'),
+                    ],
+                    [
+                        new memoTrainingUtils.NumberElement('2'),
+                    ],
+                ],
+            ];
+
+            const origDecks = _.cloneDeep(decks);
+
+            const digitsPerImage = 2;
+            const pairSize = 3;
+
+            const actual = memoTrainingUtils.splitNumbersImageInDecks(decks, digitsPerImage, pairSize);
+            const expected = [
+                [
+                    [
+                        new memoTrainingUtils.NumberElement('1'),
+                        new memoTrainingUtils.NumberElement('2'),
+                        new memoTrainingUtils.NumberElement('3'),
+                        new memoTrainingUtils.NumberElement('4'),
+                        new memoTrainingUtils.NumberElement('5'),
+                        new memoTrainingUtils.NumberElement('6'),
+                    ],
+                    [
+                        new memoTrainingUtils.NumberElement('7'),
+                    ],
+                ],
+
+                [
+                    [
+                        new memoTrainingUtils.NumberElement('8'),
+                        new memoTrainingUtils.NumberElement('9'),
+                        new memoTrainingUtils.NumberElement('9'),
+                        new memoTrainingUtils.NumberElement('0'),
+                        new memoTrainingUtils.NumberElement('9'),
+                        new memoTrainingUtils.NumberElement('1'),
+                    ],
+                    [
+                        new memoTrainingUtils.NumberElement('2'),
+                    ],
+                ],
+            ];
+
+            assert.deepStrictEqual(actual, expected);
+
+            // 元のdecksが破壊されていないこと
+            assert.deepStrictEqual(decks, origDecks);
+        });
+    });
+
+    describe('mergeNumbersImageInDecks()', () => {
+        it('正常系', () => {
+            const oneImageDecks = [
+                [
+                    [
+                        new memoTrainingUtils.NumberElement('1'),
+                        new memoTrainingUtils.NumberElement('2'),
+                        new memoTrainingUtils.NumberElement('3'),
+                        new memoTrainingUtils.NumberElement('4'),
+                        new memoTrainingUtils.NumberElement('5'),
+                        new memoTrainingUtils.NumberElement('6'),
+                    ],
+                    [
+                        new memoTrainingUtils.NumberElement('7'),
+                    ],
+                ],
+
+                [
+                    [
+                        new memoTrainingUtils.NumberElement('8'),
+                        new memoTrainingUtils.NumberElement('9'),
+                        new memoTrainingUtils.NumberElement('9'),
+                        new memoTrainingUtils.NumberElement('0'),
+                        new memoTrainingUtils.NumberElement('9'),
+                        new memoTrainingUtils.NumberElement('1'),
+                    ],
+                    [
+                        new memoTrainingUtils.NumberElement('2'),
+                    ],
+                ],
+            ];
+
+            const digitsPerImage = 2;
+            const pairSize = 3;
+
+            const actual = memoTrainingUtils.mergeNumbersImageInDecks(oneImageDecks, digitsPerImage, pairSize);
+
+            const expected = [
+                [
+                    [
+                        new memoTrainingUtils.NumberElement('12'),
+                        new memoTrainingUtils.NumberElement('34'),
+                        new memoTrainingUtils.NumberElement('56'),
+                    ],
+                    [
+                        new memoTrainingUtils.NumberElement('7'),
+                    ],
+                ],
+
+                [
+                    [
+                        new memoTrainingUtils.NumberElement('89'),
+                        new memoTrainingUtils.NumberElement('90'),
+                        new memoTrainingUtils.NumberElement('91'),
+                    ],
+                    [
+                        new memoTrainingUtils.NumberElement('2'),
+                    ],
+                ],
+            ];
+
+            assert.deepStrictEqual(actual, expected);
+        });
+    });
+
+    describe('mergeNumbersImageInDecks()', () => {
+        it('正常系', () => {
+            const digitsPerImage = 3;
+
+            const lastRecallMiliUnixtimePairsList = [
+                [
+                    [ 1, 2, 3, 4, 5, 6, ],
+                    [ 7, 8, 9, ],
+                ],
+
+                [
+                    [ 11, 12, 13, 14, 15, 16, ],
+                    [ 17, 18, 19, ],
+                ],
+            ];
+
+            const actual = memoTrainingUtils.mergeLastRecallMiliUnixtimePairsList(lastRecallMiliUnixtimePairsList, digitsPerImage);
+            const expected = [
+                [
+                    [ 3, 6, ],
+                    [ 9, ],
+                ],
+
+                [
+                    [ 13, 16, ],
+                    [ 19, ],
+                ],
+
+            ];
+
             assert.deepStrictEqual(actual, expected);
         });
     });

@@ -8,20 +8,6 @@ const memoTrainingUtils = require('../../../memoTrainingUtils');
 
 const _ = require('lodash');
 
-const getColor = (tag) => {
-    if (!tag) {
-        return 'black';
-    }
-
-    if ([ 'C', 'S', ].includes(tag[0])) {
-        return 'black';
-    } else if ([ 'D', 'H', ].includes(tag[0])) {
-        return 'red';
-    } else {
-        return 'black';
-    }
-};
-
 const MemoTrainingNumbersRecall = ({
     // startMemoMiliUnixtime,
     // startRecallMiliUnixtime,
@@ -49,7 +35,6 @@ const MemoTrainingNumbersRecall = ({
 }) => {
     return (
         <div>
-            {/* <Txt>{deckInd + 1}束目の{pairInd}-{posInd}</Txt> */}
             <Button color="primary" value="回答終了" onClick={(e) => sagaFinishRecallPhase()}/>
             <Br/>
 
@@ -58,6 +43,8 @@ const MemoTrainingNumbersRecall = ({
             {
                 (() => {
                     let cnt = 1;
+
+                    // ここで、finishMemorizationPhaseした段階で1桁1イメージのデッキに変換されていることに注意
                     const components = decks[deckInd].map((pair, holePairInd) => {
                         return pair.map((elem, holePosInd) => {
                             const tag = (() => {
@@ -68,18 +55,18 @@ const MemoTrainingNumbersRecall = ({
                                 return null;
                             })();
 
-                            const val = tag ? memoTrainingUtils.numberTagToMarkStr(tag) : `[${cnt}]`;
-                            const color = getColor(tag);
+                            const val = tag || `[${cnt}]`;
                             cnt += 1;
 
-                            return (<Button color="light" value={val} style={ { color, width: '4em', height: '3em', fontFamily: [ 'Courier New', 'monospace', ], }} key={`${deckInd}-${holePairInd}-${holePosInd}`} onClick={ () => { selectHole(deckInd, holePairInd, holePosInd); }}/>);
+                            return (<Button color="light" value={val} style={ { width: '4em', height: '3em', fontFamily: [ 'Courier New', 'monospace', ], }} key={`${deckInd}-${holePairInd}-${holePosInd}`} onClick={ () => { selectHole(deckInd, holePairInd, holePosInd); }}/>);
                         });
                     });
 
                     // _.reverse()は破壊的なメソッドだが、_.flattenDeep()によって新しい配列が生成されているので、その新しい配列が破壊されても問題ない
                     const flatten = isLefty ? _.flattenDeep(components) : _.reverse(_.flattenDeep(components));
 
-                    const chunkSize = 12;
+                    // 横一列に何桁表示するか
+                    const chunkSize = 10;
                     return _.chunk(flatten, chunkSize).map((bulk, bulkInd) => {
                         return (
                             <div key={bulkInd}>
@@ -96,27 +83,18 @@ const MemoTrainingNumbersRecall = ({
             <MemoTimer timeVisible={timeVisible} timerMiliUnixtime={timerMiliUnixtime} sagaToggleTimer={sagaToggleTimer}/>
 
             <Br/>
-            {
-                (() => {
-                    return handSuits.map((suit, suitInd) => {
-                        const numbers = memoTrainingUtils.getSameSuitNumbers(suit);
-                        return (
-                            <div key={suitInd}>
-                                {
-                                    numbers.map((element, numberInd) => {
-                                        const color = getColor(element.tag);
-                                        const disabled = !handDict[deckInd][element.tag];
-                                        const value = disabled ? '' : memoTrainingUtils.numberTagToMarkStr(element.tag);
 
-                                        // 手礼に残っているカードだけ選択できるようにしている
-                                        return (<Button color="light" value={value} style={ { color, width: '4em', height: '3em', fontFamily: [ 'Courier New', 'monospace', ], }} key={`${numberInd}`} disabled={disabled} onClick={ () => { sagaSelectHand(element); }}/>);
-                                    })
-                                }
-                            </div>
-                        );
-                    });
-                })()
-            }
+            <div>
+                {
+                    (() => {
+                        return _.range(0, 10).map(numberInd => {
+                            const element = new memoTrainingUtils.NumberElement(String(numberInd));
+                            return (<Button color="light" value={String(numberInd)} style={ { width: '4em', height: '3em', fontFamily: [ 'Courier New', 'monospace', ], }} key={`${numberInd}`} disabled={false} onClick={ () => { sagaSelectHand(element); }}/>);
+                        });
+                    })()
+                }
+            </div>
+
             <Br/>
         </div>
     );
