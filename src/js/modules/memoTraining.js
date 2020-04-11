@@ -416,7 +416,26 @@ function * handleFinishMemorizationPhase () {
             yield join(postScoreTask);
         }
 
-        yield put(finishMemorizationPhase({ currentMiliUnixtime, }));
+        // 数字記憶の場合は、リコール時の入力/表示のために便宜的に1桁1イメージに変換する
+        const memoEvent = yield select(state => state.memoEvent);
+        const digitsPerImage = yield select(state => state.digitsPerImage);
+        const pairSize = yield select(state => state.pairSize);
+        const decks = yield select(state => state.decks);
+
+        const newDecks = (() => {
+            if (memoEvent === memoTrainingUtils.MemoEvent.numbers && mode === memoTrainingUtils.TrainingMode.memorization) {
+                return memoTrainingUtils.splitNumbersImageInDecks(decks, digitsPerImage, pairSize);
+            } else {
+                return _.cloneDeep(decks);
+            }
+        })();
+
+        const payload = {
+            currentMiliUnixtime,
+            decks: newDecks,
+        };
+
+        yield put(finishMemorizationPhase(payload));
     }
 }
 
