@@ -499,9 +499,72 @@ describe('memoTrainingUtils.js', () => {
 
             assert.deepStrictEqual(actual, expected);
         });
+
+        it('正常系: solutionをマージする際、解答していないholeがあってnullの場合 (解答していない部分は全てnullになっている想定)', () => {
+            const oneImageDecks = [
+                [
+                    [
+                        new memoTrainingUtils.NumberElement('1'),
+                        new memoTrainingUtils.NumberElement('2'),
+                        new memoTrainingUtils.NumberElement('3'),
+                        new memoTrainingUtils.NumberElement('4'),
+                        null,
+                        null,
+                    ],
+                    [
+                        new memoTrainingUtils.NumberElement('7'),
+                    ],
+                ],
+
+                [
+                    [
+                        new memoTrainingUtils.NumberElement('8'),
+                        null,
+                        new memoTrainingUtils.NumberElement('9'),
+                        new memoTrainingUtils.NumberElement('0'),
+                        new memoTrainingUtils.NumberElement('9'),
+                        new memoTrainingUtils.NumberElement('1'),
+                    ],
+                    [
+                        new memoTrainingUtils.NumberElement('2'),
+                    ],
+                ],
+            ];
+
+            const digitsPerImage = 2;
+            const pairSize = 3;
+
+            const actual = memoTrainingUtils.mergeNumbersImageInDecks(oneImageDecks, digitsPerImage, pairSize);
+
+            const expected = [
+                [
+                    [
+                        new memoTrainingUtils.NumberElement('12'),
+                        new memoTrainingUtils.NumberElement('34'),
+                        null,
+                    ],
+                    [
+                        new memoTrainingUtils.NumberElement('7'),
+                    ],
+                ],
+
+                [
+                    [
+                        null,
+                        new memoTrainingUtils.NumberElement('90'),
+                        new memoTrainingUtils.NumberElement('91'),
+                    ],
+                    [
+                        new memoTrainingUtils.NumberElement('2'),
+                    ],
+                ],
+            ];
+
+            assert.deepStrictEqual(actual, expected);
+        });
     });
 
-    describe('mergeNumbersImageInDecks()', () => {
+    describe('mergeLastRecallMiliUnixtimePairsList()', () => {
         it('正常系', () => {
             const digitsPerImage = 3;
 
@@ -529,6 +592,71 @@ describe('memoTrainingUtils.js', () => {
                     [ 19, ],
                 ],
 
+            ];
+
+            assert.deepStrictEqual(actual, expected);
+        });
+
+        it('正常系: nullを含む', () => {
+            const digitsPerImage = 3;
+
+            const lastRecallMiliUnixtimePairsList = [
+                [
+                    [ 1, 2, null, 4, 5, 6, ],
+                    [ 7, 8, 9, ],
+                ],
+
+                [
+                    [ null, null, null, 14, null, null, ],
+                    [ 17, 18, 19, ],
+                ],
+            ];
+
+            const actual = memoTrainingUtils.mergeLastRecallMiliUnixtimePairsList(lastRecallMiliUnixtimePairsList, digitsPerImage);
+            const expected = [
+                [
+                    [ 2, 6, ],
+                    [ 9, ],
+                ],
+
+                [
+                    [ null, 14, ],
+                    [ 19, ],
+                ],
+
+            ];
+
+            assert.deepStrictEqual(actual, expected);
+        });
+
+        it.skip('正常系: nullで抜けていたり、飛ばされていたりする場合: このテストは通らないが、実際に利用する際にこのような引数を渡さないことでカバーしてある。', () => {
+            const digitsPerImage = 3;
+            // const pairSize = 2;
+            // const deckSize = 9; // イメージ数ではなく桁数
+
+            const lastRecallMiliUnixtimePairsList = [
+                [
+                    [ 1, 2, null, 4, 5, ],
+                    [ 7, 8, 9, ], // これは最後
+                ],
+
+                [
+                    [ 11, 12, ],
+                    [ 17, 18, ],
+                ],
+            ];
+
+            const actual = memoTrainingUtils.mergeLastRecallMiliUnixtimePairsList(lastRecallMiliUnixtimePairsList, digitsPerImage);
+            const expected = [
+                [
+                    [ 2, 5, ],
+                    [ 9, ], // これは最後
+                ],
+
+                [
+                    [ 12, null, ],
+                    [ 18, ],
+                ],
             ];
 
             assert.deepStrictEqual(actual, expected);

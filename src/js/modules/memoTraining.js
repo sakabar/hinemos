@@ -856,6 +856,22 @@ export const memoTrainingReducer = handleActions(
             };
         },
         [startMemorizationPhase]: (state, action) => {
+            const decks = action.payload.decks;
+
+            // decksと構造が一致することを保証するために、lastMemoMiliUnixtimePairsListをnullで埋めて初期化
+            const lastMemoMiliUnixtimePairsList = [ [], ];
+            for (let deckInd = 0; deckInd < decks.length; deckInd++) {
+                const pairs = decks[deckInd];
+                lastMemoMiliUnixtimePairsList[deckInd] = [];
+                for (let pairInd = 0; pairInd < pairs.length; pairInd++) {
+                    const pair = pairs[pairInd];
+                    lastMemoMiliUnixtimePairsList[deckInd][pairInd] = [];
+                    for (let posInd = 0; posInd < pair.length; posInd++) {
+                        lastMemoMiliUnixtimePairsList[deckInd][pairInd][posInd] = null;
+                    }
+                }
+            }
+
             if (typeof state.mode === 'undefined') {
                 return {
                     ...state,
@@ -867,11 +883,13 @@ export const memoTrainingReducer = handleActions(
                     memoEvent: action.payload.memoEvent,
                     deckSize: action.payload.deckSize,
                     digitsPerImage: action.payload.digitsPerImage,
-                    decks: action.payload.decks,
+                    decks,
                     startMemoMiliUnixtime: action.payload.currentMiliUnixtime,
                     mode: action.payload.mode,
                     phase: memoTrainingUtils.TrainingPhase.memorization,
                     elementIdsDict: action.payload.elementIdsDict,
+
+                    lastMemoMiliUnixtimePairsList,
                 };
             }
 
@@ -909,6 +927,24 @@ export const memoTrainingReducer = handleActions(
                 newLastMemoMiliUnixtimePairsList[deckInd][pairInd][posInd] = currentMiliUnixtime;
             }
 
+            // newDecksと構造が一致することを保証するために、solutionとlastRecallMiliUnixtimePairsListをnullで埋めて初期化
+            const solution = [ [], ];
+            const lastRecallMiliUnixtimePairsList = [ [], ];
+            for (let deckInd = 0; deckInd < newDecks.length; deckInd++) {
+                const pairs = newDecks[deckInd];
+                solution[deckInd] = [];
+                lastRecallMiliUnixtimePairsList[deckInd] = [];
+                for (let pairInd = 0; pairInd < pairs.length; pairInd++) {
+                    const pair = pairs[pairInd];
+                    solution[deckInd][pairInd] = [];
+                    lastRecallMiliUnixtimePairsList[deckInd][pairInd] = [];
+                    for (let posInd = 0; posInd < pair.length; posInd++) {
+                        solution[deckInd][pairInd][posInd] = null;
+                        lastRecallMiliUnixtimePairsList[deckInd][pairInd][posInd] = null;
+                    }
+                }
+            }
+
             if (state.mode === memoTrainingUtils.TrainingMode.transformation) {
                 return {
                     ...initialState,
@@ -929,7 +965,9 @@ export const memoTrainingReducer = handleActions(
                     decks: newDecks, // デッキは変換後を使う
                     deckInd: 0,
                     pairInd: 0,
+                    solution,
                     lastMemoMiliUnixtimePairsList: newLastMemoMiliUnixtimePairsList,
+                    lastRecallMiliUnixtimePairsList,
                 };
             } else {
                 throw new Error(`unexpected mode : ${state.mode}`);
