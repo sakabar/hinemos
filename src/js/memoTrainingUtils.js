@@ -602,13 +602,16 @@ export const splitNumbersImageInDecks = (decks, digitsPerImage, pairSize) => {
 
 export const mergeNumbersImageInDecks = (decks, digitsPerImage, pairSize) => {
     return decks.map(deck => {
-        const deckStr = deck.map(pair => {
-            return pair.map(element => {
-                return element.tag;
-            }).join('');
-        }).join('');
-
-        return generateNumbersDeck(deckStr, digitsPerImage, pairSize);
+        return deck.map(pair => {
+            return _.chunk(pair, digitsPerImage).map(digitsInImage => {
+                if (digitsInImage.includes(null)) {
+                    return null;
+                } else {
+                    const tag = digitsInImage.map(element => element.tag).join('');
+                    return new NumberElement(tag);
+                }
+            });
+        });
     });
 };
 
@@ -616,7 +619,12 @@ export const mergeLastRecallMiliUnixtimePairsList = (lastRecallMiliUnixtimePairs
     return lastRecallMiliUnixtimePairsList.map(deck => {
         return deck.map(pair => {
             return _.chunk(pair, digitsPerImage).map(digitsInImage => {
-                return _.max(digitsInImage);
+                const tmpMax = _.max(digitsInImage);
+
+                // digitsInImageの要素が全てnullの場合は、値がundefinedになる
+                // この場合に、nullに直す。
+                // 配列中の不明値はundefinedではなくnullとする想定でコーディングしている
+                return tmpMax || null;
             });
         });
     });
