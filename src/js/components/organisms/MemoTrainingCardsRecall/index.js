@@ -72,7 +72,17 @@ const MemoTrainingCardsRecall = ({
                             const color = getColor(tag);
                             cnt += 1;
 
-                            return (<Button color="light" value={val} style={ { color, width: '4em', height: '3em', fontFamily: [ 'Courier New', 'monospace', ], }} key={`${deckInd}-${holePairInd}-${holePosInd}`} onClick={ () => { selectHole(deckInd, holePairInd, holePosInd); }}/>);
+                            const holeColor = (() => {
+                                if (pairInd === holePairInd && posInd === holePosInd) {
+                                    return 'warning';
+                                } else if (!tag) {
+                                    return 'secondary';
+                                } else {
+                                    return 'light';
+                                }
+                            })();
+
+                            return (<Button color={holeColor} value={val} style={ { color, width: '4em', height: '3em', fontFamily: [ 'Courier New', 'monospace', ], }} key={`${deckInd}-${holePairInd}-${holePosInd}`} onClick={ () => { selectHole(deckInd, holePairInd, holePosInd); }}/>);
                         });
                     });
 
