@@ -17,12 +17,13 @@ const ThreeStyleAlgorithmTr = ({
     <Tr {...rest}>
         <Td><Checkbox checked={isChecked} onChange={() => selectAlg(ind, !isChecked)}/></Td>
         <Td>{ind}</Td>
-        <Td>{letters}</Td>
+        <Td>「{letters}」</Td>
         <Td>{stickers}</Td>
         <Td>{moves}</Td>
         <Td>{acc}</Td>
         <Td>{sec}</Td>
-        <Td>操作は悩み中</Td>
+        <Td>999tps</Td>
+        <Td>削除</Td>
     </Tr>
 );
 

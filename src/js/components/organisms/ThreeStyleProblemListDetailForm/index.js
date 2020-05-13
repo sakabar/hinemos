@@ -4,7 +4,7 @@ import Button from '../../atoms/Button';
 import Radio from '../../atoms/Radio';
 import Textbox from '../../atoms/Textbox';
 
-const ThreeStyleListForm = (
+const ThreeStyleProblemListDetailForm = (
     {
         letters,
         radioMatch,
@@ -13,7 +13,7 @@ const ThreeStyleListForm = (
         inputLetters,
         changeRadioOrder,
         changeRadioMatch,
-        searchAlgorithms,
+        sagaSearchAlgorithms,
         onChangeProblemListSelect,
         onClickAddButton,
     }
@@ -32,11 +32,11 @@ const ThreeStyleListForm = (
         <Radio name="listThreeStyleForm__radio--order" value="遅い順" checked={ radioOrder === '遅い順' } text="遅い順" onChange={() => changeRadioOrder('遅い順')} />
         <br />
 
-        <Button className="listThreeStyleForm__submitBtn" value="検索" onClick={() => searchAlgorithms(letters)}/>
+        <Button className="listThreeStyleForm__submitBtn" value="検索" onClick={() => sagaSearchAlgorithms()}/>
     </form>
 );
 
-ThreeStyleListForm.propTypes = {
+ThreeStyleProblemListDetailForm.propTypes = {
     letters: PropTypes.string,
     radioMatch: PropTypes.string,
     radioOrder: PropTypes.string,
@@ -46,10 +46,10 @@ ThreeStyleListForm.propTypes = {
     inputLetters: PropTypes.func,
     changeRadioOrder: PropTypes.func,
     changeRadioMatch: PropTypes.func,
-    searchAlgorithms: PropTypes.func,
+    sagaSearchAlgorithms: PropTypes.func,
     onChangeProblemListSelect: PropTypes.func,
     onClickAddButton: PropTypes.func,
     onClickAlg: PropTypes.func,
 };
 
-export default ThreeStyleListForm;
+export default ThreeStyleProblemListDetailForm;

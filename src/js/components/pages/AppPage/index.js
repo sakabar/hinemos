@@ -7,7 +7,8 @@ import {
 } from 'react-router-dom';
 import BldTimerPage from '../BldTimerPage';
 import FaqPage from '../FaqPage';
-import ThreeStyleListPage from '../ThreeStyleListPage';
+import ThreeStyleProblemListPage from '../ThreeStyleProblemListPage';
+import ThreeStyleProblemListDetailPage from '../ThreeStyleProblemListDetailPage';
 import MemoTrainingTrialPage from '../MemoTrainingTrialPage';
 import MemoTrainingMbldPage from '../MemoTrainingMbldPage';
 import MemoTrainingCardsPage from '../MemoTrainingCardsPage';
@@ -23,7 +24,8 @@ const routeDict = {
     bldSmartTimer: BldTimerPage,
     faq: FaqPage,
     threeStyle: {
-        listNew: ThreeStyleListPage,
+        problemList: ThreeStyleProblemListPage,
+        problemListDetail: ThreeStyleProblemListDetailPage,
     },
     memoTraining: {
         index: MemoTrainingTrialPage,
@@ -60,7 +62,8 @@ if (!Object.keys(flatRouteDict).map(path => `${config.urlRoot}/${path}`).include
 const AppPage = () => (
     <BrowserRouter>
         <div>
-            <Link to={`/${urlRoot}/threeStyle/listNew.html`}>3-style 一覧</Link>
+            <Link to={`/${urlRoot}/threeStyle/problemList.html?part=edgeMiddle`}>3-style 問題リスト</Link>
+            <Link to={`/${urlRoot}/threeStyle/problemListDetail.html?part=edgeMiddle&problemListId=1`}>3-style 一覧</Link>
 
             <Switch>
                 {

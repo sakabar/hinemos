@@ -37,28 +37,29 @@ const ThreeStyleTable = (
                     <th>手順</th>
                     <th>正解率</th>
                     <th>平均タイム</th>
+                    <th>tps</th>
                     <th>操作</th>
                 </tr>
             </thead>
 
             <tbody className="listThreeStyleForm__table__tbody">
-            {
-                algorithms.map((alg) => {
-                    return (
-                        <ThreeStyleAlgorithmTr
-                            key={alg.ind}
-                            isChecked={alg.isChecked}
-                            ind={alg.ind}
-                            letters={alg.letters}
-                            stickers={alg.stickers}
-                            moves={alg.moves}
-                            acc={alg.acc}
-                            sec={alg.sec}
-                            selectAlg={selectAlg}
-                        />
-                    );
-                })
-            }
+                {
+                    algorithms.map((alg) => {
+                        return (
+                            <ThreeStyleAlgorithmTr
+                                key={alg.ind}
+                                isChecked={alg.isChecked}
+                                ind={alg.ind}
+                                letters={alg.letters}
+                                stickers={alg.stickers}
+                                moves={alg.moves}
+                                acc={alg.acc}
+                                sec={alg.sec}
+                                selectAlg={selectAlg}
+                            />
+                        );
+                    })
+                }
             </tbody>
         </table>
     </div>
