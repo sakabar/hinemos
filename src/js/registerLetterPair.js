@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const count = require('count-array-values');
 const rp = require('request-promise');
 const config = require('./config');
@@ -161,54 +162,65 @@ const getWordToLettersListHash = (letterPairs) => {
     return wordToLettersListHash;
 };
 
+// rankMaxは同じletters内で設定ユーザ数が多い順に何単語までをサジェストするか。nullの時は全てサジェスト
+// 一度groupByしてしまうと順番が崩れるので、絞り込んだ後に復元する
+const filterLetterPairCount = (letterPairCount, rankMax = null) => {
+    if (!rankMax) {
+        return letterPairCount;
+    }
+
+    const filteredGroupedDict = {};
+    const groupedDict = _.groupBy(letterPairCount, (record) => record.letters);
+    const keys = Object.keys(groupedDict);
+    for (let i = 0; i < keys.length; i++) {
+        const letters = keys[i];
+        const groupedRecords = groupedDict[letters];
+
+        const selectedWords = groupedRecords.slice(0, rankMax).map(record => record.word);
+        filteredGroupedDict[letters] = selectedWords;
+    }
+
+    return letterPairCount.filter(record => {
+        const letters = record.letters;
+        const word = record.word;
+
+        return filteredGroupedDict[letters].includes(word);
+    });
+};
+
 // POSTするためのデータを作って返す
-const getAllLetterPairs = (letterPairs, myLetterPairs, lettersSet) => {
+const getAllLetterPairs = (letterPairCount, myLetterPairs, lettersSet) => {
     // 自分が登録したレターペアは必ず残すようにする
     // POST /letterPairTable を使うため、自分が登録したレターペアを入れておかないと、
     // 上書きされて消えてしまう
 
-    // 暫定的に、全ユーザのレターペアを使うことにする
-    // ユーザ数が増えると、単語が登録されすぎてしまうので、
-    // いずれは人気トップ3などを登録するようにしたい
-
     // 何度もアクセスするのでハッシュ化
     // word => [letters]
-    const wordToLettersListHash = getWordToLettersListHash(letterPairs);
+    // letterPairCountはuserCountの降順に並んでいるので、wordToLettersListHashの中身もuserCountの降順になっている
+    const wordToLettersListHash = _.groupBy(letterPairCount, (record) => record.word);
     const myWordToLettersListHash = getWordToLettersListHash(myLetterPairs);
 
     // 1つの単語が複数のひらがなに割り当てられていた場合は、採用数が多いほうを採用
     // letters => [Words]
     const letterPairHash = {};
-    const words = Object.keys(wordToLettersListHash);
+    const words = [ ...new Set([ ...Object.keys(wordToLettersListHash), ...Object.keys(myWordToLettersListHash), ]), ];
     for (let i = 0; i < words.length; i++) {
         const word = words[i];
 
-        // 登録されている数の多い順にソート
-        const suggestedLettersCount = count(wordToLettersListHash[word], 'letters').sort((a, b) => {
-            if (a.count < b.count) return 1;
-            if (a.count === b.count) return 0;
-            if (a.count > b.count) return -1;
-        });
-
-        // 降順にソートしたので、先頭のレターペアが一番人気である
-        // 自分が登録した単語であれば自分が登録した単語を使用
-        // そうでなければ、先頭のレターペアを使用
-        let letters = '';
-        if (suggestedLettersCount.length > 1) {
+        // 降順にソートされているので、このwordは先頭のlettersのレターペアとして最も多く使用されている
+        // もしwordが自分が登録した単語であれば、それは自分が設定したlettersとして登録
+        // そうでなければ、先頭のlettersとして登録
+        const letters = (() => {
             if (word in myWordToLettersListHash) {
-                letters = myWordToLettersListHash[word][0];
+                return myWordToLettersListHash[word][0];
             } else {
-                letters = suggestedLettersCount[0].letters;
+                const records = wordToLettersListHash[word];
+                return records[0].letters;
             }
-        } else {
-            letters = suggestedLettersCount[0].letters;
-        }
+        })();
 
         if (letters in letterPairHash) {
-            if (!letterPairHash[letters].includes(word)) {
-                // リストを探査するので遅い。効率を改善する場合はまずここを狙うこと。
-                letterPairHash[letters].push(word);
-            }
+            letterPairHash[letters].push(word);
         } else {
             letterPairHash[letters] = [ word, ];
         }
@@ -241,8 +253,8 @@ const registerAllLetterPairs = (userName) => {
     const registerAllLetterPairsBtn = document.querySelector('.registerAllLetterPairsForm__btn');
     registerAllLetterPairsBtn.disabled = true; // 連打を防ぐ
 
-    const allLetterPairOptions = {
-        url: `${config.apiRoot}/letterPair`,
+    const allLetterPairCountOptions = {
+        url: `${config.apiRoot}/letterPairCount`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -283,9 +295,10 @@ const registerAllLetterPairs = (userName) => {
         form: {},
     };
 
-    return rp(allLetterPairOptions)
+    return rp(allLetterPairCountOptions)
         .then((result) => {
-            const letterPairs = result.success.result;
+            const rankMax = 5;
+            const letterPairCount = filterLetterPairCount(result.success.result, rankMax);
 
             return rp(numberingCornerOptions)
                 .then((result) => {
@@ -303,7 +316,7 @@ const registerAllLetterPairs = (userName) => {
 
                                     const lettersSet = getLettersSet(cornerNumberings, edgeNumberings);
 
-                                    const suggested = getAllLetterPairs(letterPairs, myLetterPairs, lettersSet);
+                                    const suggested = getAllLetterPairs(letterPairCount, myLetterPairs, lettersSet);
                                     const letterPairTable = suggested.letterPairs;
                                     const notFoundLetters = suggested.notFoundLetters;
 
