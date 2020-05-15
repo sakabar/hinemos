@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const count = require('count-array-values');
 const rp = require('request-promise');
 const config = require('./config');
@@ -242,7 +243,7 @@ const registerAllLetterPairs = (userName) => {
     registerAllLetterPairsBtn.disabled = true; // 連打を防ぐ
 
     const allLetterPairOptions = {
-        url: `${config.apiRoot}/letterPair`,
+        url: `${config.apiRoot}/letterPairCount`,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -285,7 +286,33 @@ const registerAllLetterPairs = (userName) => {
 
     return rp(allLetterPairOptions)
         .then((result) => {
-            const letterPairs = result.success.result;
+            const letterPairCount = result.success.result;
+
+            // いったん、これまでの実装と単にI/Fだけ合わせてみる
+            // lettersごとのカウント上位5件のみを選出して、GET /letterPair した時のレコードを構築
+            const letterPairs = [];
+            const letterPairCountGrouped = _.groupBy(letterPairCount, (record) => record.letters);
+            const rankMax = 5;
+
+            const keys = Object.keys(letterPairCountGrouped);
+            for (let i = 0; i < keys.length; i++) {
+                const letters = keys[i];
+                const records = letterPairCountGrouped[letters].slice(0, rankMax);
+
+                for (let k = 0; k < records.length; k++) {
+                    const record = records[k];
+
+                    for (let n = 0; n < record.userCount; n++) {
+                        const instance = {
+                            userName: 'dummy',
+                            letters: record.letters,
+                            word: record.word,
+                        };
+
+                        letterPairs.push(instance);
+                    }
+                }
+            }
 
             return rp(numberingCornerOptions)
                 .then((result) => {
