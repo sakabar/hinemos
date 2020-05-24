@@ -53,7 +53,9 @@ const requestThreeStyleQuizProblemListDetail = (part, problemListId) => {
             'Content-Type': 'application/json',
         },
         json: true,
-        form: {},
+        form: {
+            token: localStorage.token,
+        },
     };
 
     return rp(options)

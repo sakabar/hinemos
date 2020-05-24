@@ -27,7 +27,26 @@ const createProblemLists = createAction(CREATE_PROBLEM_LISTS);
 const SAGA_CREATE_PROBLEM_LISTS = 'SAGA_CREATE_PROBLEM_LISTS';
 export const sagaCreateProblemLists = createAction(SAGA_CREATE_PROBLEM_LISTS);
 
-const requestPostProblemListName = (part, buffer, titles) => {
+const LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST = 'LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST';
+const loadThreeStyleQuizProblemList = createAction(LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST);
+
+const requestGetThreeStyleQuizProblemList = (part) => {
+    const options = {
+        url: `${config.apiRoot}/threeStyleQuizProblemListName/${part.name}`,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {
+            token: localStorage.token,
+        },
+    };
+
+    return rp(options);
+};
+
+const requestPostProblemListName = (part, titles) => {
     const options = {
         url: `${config.apiRoot}/threeStyleQuizProblemListName/${part.name}`,
         method: 'POST',
@@ -36,7 +55,6 @@ const requestPostProblemListName = (part, buffer, titles) => {
         },
         json: true,
         form: {
-            buffer,
             titles,
             token: localStorage.token,
         },
@@ -45,15 +63,31 @@ const requestPostProblemListName = (part, buffer, titles) => {
     return rp(options);
 };
 
+function * handleLoadThreeStyleQuizProblemList () {
+    const part = yield select(state => state.part);
+    const threeStyleQuizProblemList = yield call(requestGetThreeStyleQuizProblemList, part);
+
+    const payload = {
+        problemLists: threeStyleQuizProblemList.success.result.map(problemList => {
+            return {
+                ...problemList,
+                createdAt: moment(problemList.createdAt, moment.ISO_8601),
+                updatedAt: moment(problemList.updatedAt, moment.ISO_8601),
+            };
+        }),
+    };
+
+    yield put(loadThreeStyleQuizProblemList(payload));
+}
+
 function * handleCreateProblemLists () {
     while (true) {
         yield take(sagaCreateProblemLists);
 
         const part = yield select(state => state.part);
-        const buffer = yield select(state => state.buffer);
         const titles = yield select(state => state.titles);
 
-        const ans = yield call(requestPostProblemListName, part, buffer, titles);
+        const ans = yield call(requestPostProblemListName, part, titles);
 
         const newProblemLists = ans.success.result.map(problemList => {
             return {
@@ -68,10 +102,6 @@ function * handleCreateProblemLists () {
     }
 };
 
-// function * handleLoadNumbering () {
-//     // FIXME
-// };
-
 const initialState = (() => {
     const url = new URL(location.href);
 
@@ -82,8 +112,7 @@ const initialState = (() => {
         {
             id: null,
             userName: localStorage.userName,
-            buffer: 'DF', // FIXME
-            title: 'sys_全手順',
+            title: 'system_全手順',
             createdAt: moment('2018/01/01 00:00', 'YYYY/MM/DD HH:mm'),
             updatedAt: moment('2018/01/01 00:00', 'YYYY/MM/DD HH:mm'),
             numberOfAlgs: null,
@@ -93,7 +122,6 @@ const initialState = (() => {
     return {
         userName: localStorage.userName,
         part,
-        buffer: 'DF', // FIXME
         titles: '',
 
         // problemLists: [],
@@ -108,6 +136,15 @@ export const threeStyleProblemListReducer = handleActions(
             return {
                 ...state,
                 titles,
+            };
+        },
+        [loadThreeStyleQuizProblemList]: (state, action) => {
+            const newProblemLists = action.payload.problemLists;
+            const problemLists = _.cloneDeep(initialState.problemLists).concat(newProblemLists);
+
+            return {
+                ...state,
+                problemLists,
             };
         },
         [createProblemLists]: (state, action) => {
@@ -128,4 +165,5 @@ export const threeStyleProblemListReducer = handleActions(
 
 export function * rootSaga () {
     yield fork(handleCreateProblemLists);
+    yield fork(handleLoadThreeStyleQuizProblemList);
 };

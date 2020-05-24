@@ -108,6 +108,7 @@ const ThreeStyleProblemListDetailTemplate = (
                         dKey={col}
                         search={true}
                         defaultCSS={true}
+                        defaultRowsPerPage={1000}
                     />
                     );
                 })()
