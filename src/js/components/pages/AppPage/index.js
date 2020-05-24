@@ -63,6 +63,7 @@ const AppPage = () => (
     <BrowserRouter>
         <div>
             <Link to={`/${urlRoot}/threeStyle/problemList.html?part=edgeMiddle`}>3-style 問題リスト</Link>
+            <Link to={`/${urlRoot}/threeStyle/problemListDetail.html?part=edgeMiddle`}>3-style 一覧(all)</Link>
             <Link to={`/${urlRoot}/threeStyle/problemListDetail.html?part=edgeMiddle&problemListId=1`}>3-style 一覧</Link>
 
             <Switch>

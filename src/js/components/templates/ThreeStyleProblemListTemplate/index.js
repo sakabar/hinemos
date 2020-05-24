@@ -7,66 +7,41 @@ import Header from '../../organisms/Header';
 import SortableTbl from 'react-sort-search-table';
 const moment = require('moment');
 
-// const Paragraph = (props) => (
-//     <div>
-//         <h2>{props.title}</h2>
-//         <p>{props.desc}</p>
-//     </div>
-// );
+const ThreeStyleProblemListTemplate = (
+    {
+        userName,
+        part,
+        buffer,
+        titles,
+        problemLists,
 
-// Paragraph.propTypes = {
-//     title: PropTypes.string,
-//     desc: PropTypes.string,
-// };
-
-const ThreeStyleProblemListTemplate = () => (
+        inputTitles,
+        sagaCreateProblemLists,
+    }
+) => (
     <div>
         <Header title="問題リスト一覧" />
-        <Heading2>ウィングエッジ(ここFIXME)</Heading2>
 
         <main>
-        どんな情報が必要なんだろう
+            <Heading2>{part.japanese}</Heading2>
             <br/>
-            <Textbox placeholder="リスト名" /><Button value="作成"/><br/>
+            <br/>
+            <Textbox placeholder="リスト名" value={titles} onChange={(e) => inputTitles(e.target.value)}/><Button value="作成" onClick={(e) => sagaCreateProblemLists(part, buffer, titles) }/><br/>
 
         [] 全て選択 選択したリストを<Button value="削除"/><br/>
 
             {
                 (() => {
-                    const myData = [
-                        {
+                    const myData = problemLists.map(problemList => {
+                        return {
                             checkbox: '[]',
-                            title: 'サ行苦手',
-                            algNum: 10,
-                            createdAt: moment('2020/05/13 10:00', 'YYYY/MM/DD HH:mm').format('YYYY/MM/DD HH:mm'),
+                            title: problemList.title,
+                            numberOfAlgs: problemList.numberOfAlgs,
+                            createdAt: problemList.createdAt.format('YYYY/MM/DD HH:mm'),
                             detail: '[詳細]',
                             quiz: '[クイズ]',
-                        },
-                        {
-                            checkbox: '[]',
-                            title: 'sys_all',
-                            algNum: 378,
-                            createdAt: moment('2020/05/13 10:01', 'YYYY/MM/DD HH:mm').format('YYYY/MM/DD HH:mm'),
-                            detail: '[詳細]',
-                            quiz: '[クイズ]',
-                        },
-                        {
-                            checkbox: '[]',
-                            title: 'sys_kh_001_あい',
-                            algNum: 1,
-                            createdAt: moment('2020/05/13 10:01', 'YYYY/MM/DD HH:mm').format('YYYY/MM/DD HH:mm'),
-                            detail: '[詳細]',
-                            quiz: '[クイズ]',
-                        },
-                        {
-                            checkbox: '[]',
-                            title: 'sys_kh_002_うき',
-                            algNum: 2,
-                            createdAt: moment('2020/05/13 10:01', 'YYYY/MM/DD HH:mm').format('YYYY/MM/DD HH:mm'),
-                            detail: '[詳細]',
-                            quiz: '[クイズ]',
-                        },
-                    ];
+                        };
+                    });
 
                     const tHead = [
                         '',
@@ -80,7 +55,7 @@ const ThreeStyleProblemListTemplate = () => (
                     const col = [
                         'checkbox',
                         'title',
-                        'algNum',
+                        'numberOfAlgs',
                         'createdAt',
                         'detail',
                         'quiz',

@@ -6,7 +6,6 @@ import SortableTbl from 'react-sort-search-table';
 import ThreeStyleProblemListDetailForm from '../../organisms/ThreeStyleProblemListDetailForm';
 import ThreeStyleTable from '../../organisms/ThreeStyleTable';
 
-
 const Msg = (props) => (
     <ul>
         <li>3-style手順を一覧で確認できます</li>
@@ -24,7 +23,7 @@ const ThreeStyleProblemListDetailTemplate = (
         radioMatch,
         radioOrder,
         checkSelectAll,
-        algorithms,
+        threeStyleQuizProblemListDetail,
         selectedProblemList,
         selectedAlgs,
         inputLetters,
@@ -42,61 +41,40 @@ const ThreeStyleProblemListDetailTemplate = (
 
         <main>
             <Heading2>{part.japanese}</Heading2>
-        <Heading2>[FIXME: ここにリスト名を入れるよ]</Heading2>
+            <Heading2>[FIXME: ここにリスト名を入れるよ]</Heading2>
 
             <Msg />
 
-            <ThreeStyleProblemListDetailForm
-                letters={letters}
-                radioMatch={radioMatch}
-                radioOrder={radioOrder}
-                selectedProblemList={selectedProblemList}
-                inputLetters={inputLetters}
-                changeRadioOrder={changeRadioOrder}
-                changeRadioMatch={changeRadioMatch}
-                sagaSearchAlgorithms={sagaSearchAlgorithms}
-                onChangeProblemListSelect={onChangeProblemListSelect}
-                onClickAddButton={onClickAddButton}
-            />
+            {
+            // <ThreeStyleProblemListDetailForm
+            //     letters={letters}
+            //     radioMatch={radioMatch}
+            //     radioOrder={radioOrder}
+            //     selectedProblemList={selectedProblemList}
+            //     inputLetters={inputLetters}
+            //     changeRadioOrder={changeRadioOrder}
+            //     changeRadioMatch={changeRadioMatch}
+            //     sagaSearchAlgorithms={sagaSearchAlgorithms}
+            //     onChangeProblemListSelect={onChangeProblemListSelect}
+            //     onClickAddButton={onClickAddButton}
+            // />
+            }
 
             {
                 (() => {
-                    const myData = [
-                        {
+                    const myData = threeStyleQuizProblemListDetail.map(record => {
+                        return {
                             checkbox: '[]',
-                            ind: 1,
-                            letters: '「あい」',
-                            stickers: 'DF RF RU',
-                            moves: '[S: [A, B]]',
-                            acc: '1/3',
-                            avgSec: 2.3,
-                            tps: 9.9,
-                            del: '[削除]',
-                        },
-                        {
-                            checkbox: '[]',
-                            ind: 2,
-                            letters: '「あう」',
-                            stickers: 'DF RF RU',
-                            moves: '[S: [A, B]]',
-                            acc: '1/3',
-                            avgSec: 2.2,
-                            tps: 8,
-                            del: '[削除]',
-                        },
-                        {
-                            checkbox: '[]',
-                            ind: 3,
-                            letters: '「かい」',
-                            stickers: 'DF RF RU',
-                            moves: '[S: [A, B]]',
-                            acc: '1/3',
-                            avgSec: 1.9,
-                            tps: 9.8,
-                            del: '[削除]',
-                        },
-
-                    ];
+                            ind: record.ind + 1, // 1-origin
+                            letters: `「${record.letters}」`,
+                            stickers: record.stickers,
+                            moves: record.moves,
+                            acc: record.acc,
+                            avgSec: record.avgSec,
+                            tps: record.tps,
+                            operation: '[削除]',
+                        };
+                    });
 
                     const tHead = [
                         '',

@@ -10,25 +10,36 @@ import {
 import createSagaMiddleware from 'redux-saga';
 import ThreeStyleProblemListTemplate from '../../templates/ThreeStyleProblemListTemplate';
 import {
+    inputTitles,
     sagaCreateProblemLists,
 
     threeStyleProblemListReducer,
     rootSaga,
 } from '../../../modules/threeStyleProblemList';
 
-
-// const mapStateToProps = ({
-//     problemListIds,
-// }) => {
-//     return {
-//         problemListIds,
-//     };
-// };
+const mapStateToProps = ({
+    userName,
+    part,
+    buffer,
+    titles,
+    problemLists,
+}) => {
+    return {
+        userName,
+        part,
+        buffer,
+        titles,
+        problemLists,
+    };
+};
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        sagaCreateProblemLists (listNames) {
-            dispatch(sagaCreateProblemLists({ listNames, });)
+        inputTitles: (titles) => {
+            dispatch(inputTitles({ titles, }));
+        },
+        sagaCreateProblemLists: () => {
+            dispatch(sagaCreateProblemLists());
         },
     };
 };
@@ -38,7 +49,6 @@ const store = createStore(threeStyleProblemListReducer, applyMiddleware(sagaMidd
 sagaMiddleware.run(rootSaga);
 
 const Conn = connect(mapStateToProps, mapDispatchToProps)(ThreeStyleProblemListTemplate);
-
 
 const ThreeStyleProblemListPage = () => (
     <Provider store={store}>

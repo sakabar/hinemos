@@ -8,29 +8,69 @@ import {
     // join,
     put,
     take,
-    // select,
+    select,
 } from 'redux-saga/effects';
 // import {
 //     delay,
 // } from 'redux-saga';
+const _ = require('lodash');
 const moment = require('moment');
+const rp = require('request-promise');
+const config = require('../config');
 const constant = require('../constant');
+
+const INPUT_TITLES = 'INPUT_TITLES';
+export const inputTitles = createAction(INPUT_TITLES);
 
 const CREATE_PROBLEM_LISTS = 'CREATE_PROBLEM_LISTS';
 const createProblemLists = createAction(CREATE_PROBLEM_LISTS);
 const SAGA_CREATE_PROBLEM_LISTS = 'SAGA_CREATE_PROBLEM_LISTS';
 export const sagaCreateProblemLists = createAction(SAGA_CREATE_PROBLEM_LISTS);
 
+const requestPostProblemListName = (part, buffer, titles) => {
+    const options = {
+        url: `${config.apiRoot}/threeStyleQuizProblemListName/${part.name}`,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {
+            buffer,
+            titles,
+            token: localStorage.token,
+        },
+    };
+
+    return rp(options);
+};
+
 function * handleCreateProblemLists () {
     while (true) {
         yield take(sagaCreateProblemLists);
 
-        const payload = {
-        };
+        const part = yield select(state => state.part);
+        const buffer = yield select(state => state.buffer);
+        const titles = yield select(state => state.titles);
 
-        yield put(createProblemLists());
+        const ans = yield call(requestPostProblemListName, part, buffer, titles);
+
+        const newProblemLists = ans.success.result.map(problemList => {
+            return {
+                ...problemList,
+                createdAt: moment(problemList.createdAt, moment.ISO_8601),
+                updatedAt: moment(problemList.updatedAt, moment.ISO_8601),
+                numberOfAlgs: 0,
+            };
+        });
+
+        yield put(createProblemLists({ newProblemLists, }));
     }
 };
+
+// function * handleLoadNumbering () {
+//     // FIXME
+// };
 
 const initialState = (() => {
     const url = new URL(location.href);
@@ -38,32 +78,47 @@ const initialState = (() => {
     const partStr = url.searchParams.get('part');
     const part = constant.partType[partStr] || null;
 
-    const problemList = [
+    const problemLists = [
         {
-            id: 123,
-            title: 'サ行苦手',
-            createdAt: moment('2020/05/13 10:00', 'YYYY/MM/DD HH:mm'),
-        }
-    ]
+            id: null,
+            userName: localStorage.userName,
+            buffer: 'DF', // FIXME
+            title: 'sys_全手順',
+            createdAt: moment('2018/01/01 00:00', 'YYYY/MM/DD HH:mm'),
+            updatedAt: moment('2018/01/01 00:00', 'YYYY/MM/DD HH:mm'),
+            numberOfAlgs: null,
+        },
+    ];
 
     return {
         userName: localStorage.userName,
         part,
-        // problemList: [],
-        problemList,
+        buffer: 'DF', // FIXME
+        titles: '',
+
+        // problemLists: [],
+        problemLists,
     };
 })();
 
 export const threeStyleProblemListReducer = handleActions(
     {
+        [inputTitles]: (state, action) => {
+            const titles = action.payload.titles;
+            return {
+                ...state,
+                titles,
+            };
+        },
         [createProblemLists]: (state, action) => {
-            const createdProblemLists = action.payload.createdProblemLists;
+            const newProblemLists = action.payload.newProblemLists;
 
-            const newProblemList = _.cloneDeep(problemList).concat(createdProblemLists);
+            const problemLists = _.cloneDeep(state.problemLists).concat(newProblemLists);
 
             return {
                 ...state,
-                problemList: newProblemList,
+                titles: '',
+                problemLists,
             };
         },
 
@@ -72,5 +127,5 @@ export const threeStyleProblemListReducer = handleActions(
 );
 
 export function * rootSaga () {
-    yield fork(handleCreateProblemList);
+    yield fork(handleCreateProblemLists);
 };

@@ -13,7 +13,7 @@ import {
     // inputLetters,
     // changeRadioMatch,
     // changeSelectAll,
-    sagaSearchAlgorithms,
+    // sagaSearchAlgorithms,
     // selectAlg,
 
     threeStyleProblemListDetailReducer,
@@ -26,7 +26,7 @@ const mapStateToProps = ({
     radioMatch,
     radioOrder,
     checkSelectAll,
-    algorithms,
+    threeStyleQuizProblemListDetail,
 }) => {
     return {
         part,
@@ -34,27 +34,12 @@ const mapStateToProps = ({
         radioMatch,
         radioOrder,
         checkSelectAll,
-        algorithms,
+        threeStyleQuizProblemListDetail,
     };
 };
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        // inputLetters (letters) {
-        //     dispatch(inputLetters({ letters, }));
-        // },
-        // changeRadioMatch (radioMatch) {
-        //     dispatch(changeRadioMatch({ radioMatch, }));
-        // },
-        // changeSelectAll (checkSelectAll) {
-        //     dispatch(changeSelectAll({ checkSelectAll, }));
-        // },
-        sagaSearchAlgorithms () {
-            dispatch(sagaSearchAlgorithms());
-        },
-        // selectAlg (ind, isCheckedNew) {
-        //     dispatch(selectAlg({ ind, isCheckedNew, }));
-        // },
     };
 };
 

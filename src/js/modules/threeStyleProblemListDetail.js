@@ -7,13 +7,16 @@ import {
     fork,
     // join,
     put,
-    take,
-    // select,
+    // take,
+    select,
 } from 'redux-saga/effects';
 // import {
 //     delay,
 // } from 'redux-saga';
 const constant = require('../constant');
+const config = require('../config');
+const moment = require('moment');
+const rp = require('request-promise');
 
 const INPUT_LETTERS = 'INPUT_LETTERS';
 export const inputLetters = createAction(INPUT_LETTERS);
@@ -21,10 +24,8 @@ export const inputLetters = createAction(INPUT_LETTERS);
 const SET_MATCH_TYPE = 'SET_MATCH_TYPE';
 export const setMatchType = createAction(SET_MATCH_TYPE);
 
-const SAGA_SEARCH_ALGORITHMS = 'SAGA_SEARCH_ALGORITHMS';
-export const sagaSearchAlgorithms = createAction(SAGA_SEARCH_ALGORITHMS);
-const SEARCH_ALGORITHMS = 'SEARCH_ALGORITHMS';
-const searchAlgorithms = createAction(SEARCH_ALGORITHMS);
+const LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST_DETAIL = 'LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST_DETAIL';
+const loadThreeStyleQuizProblemListDetail = createAction(LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST_DETAIL);
 
 const SELECT_PROBLEM_LIST = 'SELECT_PROBLEM_LIST';
 export const selectProblemList = createAction(SELECT_PROBLEM_LIST);
@@ -41,90 +42,84 @@ export const changeSelectAll = createAction(CHANGE_SELECT_ALL);
 // const SELECT_ALG = 'SELECT_ALG';
 // export const selectAlg = createAction(SELECT_ALG);
 
-const requestThreeStyle = () => {
-    const ans = [
-        {
-            ind: 1, // 暫定的。このカラム必要な作りになっているが、本当に必要??
-            'id': 184,
-            'userName': 'tsakakib',
-            'numberOfMoves': 4,
-            'buffer': 'FU',
-            'sticker1': 'RD',
-            'sticker2': 'RU',
-            'stickers': 'FU RD RU',
-            // 'setup': '',
-            // 'move1': 'R',
-            // 'move2': 'R\'',
-            move: '[R, R\']',
-            'createdAt': '2019-03-16T14:05:35.000Z',
-            'updatedAt': '2019-03-16T14:05:35.000Z',
+const requestThreeStyleQuizProblemListDetail = (part, problemListId) => {
+    // problemListIdがnullの時はそれをAPIに渡さないことで、全手順を出力
+    const url = problemListId ? `${config.apiRoot}/threeStyleQuizProblemListDetail/${part.name}?problemListId=${problemListId}` : `${config.apiRoot}/threeStyleQuizProblemListDetail/${part.name}`;
+
+    const options = {
+        url,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
         },
-        {
-            ind: 2, // 暫定的。このカラム必要な作りになっているが、本当に必要??
-            'id': 2444,
-            'userName': 'tsakakib',
-            'numberOfMoves': 8,
-            'buffer': 'DF',
-            'sticker1': 'RF',
-            'sticker2': 'RU',
-            'stickers': 'DF RF RU',
-            'setup': '',
-            'move1': 'R',
-            'move2': 'U M\' U\'',
-            move: '[R, U M\' U\']',
-            'createdAt': '2020-03-07T04:45:12.000Z',
-            'updatedAt': '2020-03-07T04:45:12.000Z',
-        },
-    ];
-    return Promise.resolve(ans);
+        json: true,
+        form: {},
+    };
+
+    return rp(options)
+        .then((result) => {
+            return result.success.result.map((record, ind) => {
+                return {
+                    ...record,
+                    stickers: `${record.buffer} ${record.sticker1} ${record.sticker2}`,
+                    createdAt: moment(record.createdAt, moment.ISO_8601),
+                    updatedAt: moment(record.recordAt, moment.ISO_8601),
+                    ind,
+                    moves: null,
+                    numberOfMoves: null,
+                    acc: null,
+                    avgSec: null,
+                    tps: null,
+                };
+            });
+        })
+        .catch((err) => {
+            alert(`3-style問題リストの取得に失敗しました: ${err}`);
+            return [];
+        });
 };
 
-function * handleSearchAlgorithms () {
-    while (true) {
-        yield take(sagaSearchAlgorithms);
-        const algorithms = yield call(requestThreeStyle);
+function * handleLoadThreeStyleQuizProblemListDetail () {
+    const part = yield select(state => state.part);
+    const problemListId = yield select(state => state.problemListId);
+    const threeStyleQuizProblemListDetail = yield call(requestThreeStyleQuizProblemListDetail, part, problemListId);
 
-        const payload = {
-            algorithms,
-        };
+    const payload = {
+        threeStyleQuizProblemListDetail,
+    };
+    yield put(loadThreeStyleQuizProblemListDetail(payload));
+}
 
-        yield put(searchAlgorithms(payload));
+const initialState = (() => {
+    const url = new URL(location.href);
+    const partStr = url.searchParams.get('part');
+    const part = constant.partType[partStr] || null;
+    const problemListId = parseInt(url.searchParams.get('problemListId')) || null;
+
+    // problemListIdがnullの時はAPIにproblemListIdを渡さないようにする
+    // その場合は、APIは全手順が含まれたリストを返す仕様とする
+
+    if (!part) {
+        alert(`partパラメータが不正です: ${partStr}`);
     }
-};
 
-const initialState = {
-    // FIXME これはどうやって入力しようか?
-    part: constant.partType.edgeMiddle,
-    userName: localStorage.userName,
-    letters: '',
-    isForwardMatch: true,
-    isCheckedSelectAll: false,
-    algorithms: [],
-};
+    return {
+        part,
+        userName: localStorage.userName,
+        problemListId,
+        letters: '',
+        isForwardMatch: true,
+        isCheckedSelectAll: false,
+        threeStyleQuizProblemListDetail: [],
+    };
+})();
 
 export const threeStyleProblemListDetailReducer = handleActions(
     {
-        // [inputLetters]: (state, action) => {
-        //     return {
-        //         ...state,
-        //         letters: action.payload.letters,
-        //     };
-        // },
-        // [changeRadioMatch]: (state, action) => {
-        //     return {
-        //         ...state,
-        //         radioMatch: action.payload.radioMatch,
-        //     };
-        // },
-        // [changeSelectAll]: (state, action) => {
-        //     return {
-        //         ...state,
-        //     };
-        // },
-        [searchAlgorithms]: (state, action) => {
+        [loadThreeStyleQuizProblemListDetail]: (state, action) => {
             return {
                 ...state,
-                algorithms: action.payload.algorithms,
+                threeStyleQuizProblemListDetail: action.payload.threeStyleQuizProblemListDetail,
             };
         },
 
@@ -132,20 +127,6 @@ export const threeStyleProblemListDetailReducer = handleActions(
     initialState
 );
 
-// export const threeStyleProblemListDetailReducer = (state = initialState, action) => {
-
-//     case CHANGE_SELECT_ALL:
-
-//     case SELECT_ALG:
-//         return {
-//             ...state,
-//             algorithms: state.algorithms.map((alg) => (alg.ind === action.payload.ind) ? { ...alg, isChecked: action.payload.isChecked, } : alg),
-//         };
-//     default:
-//         return state;
-//     }
-// };
-
 export function * rootSaga () {
-    yield fork(handleSearchAlgorithms);
+    yield fork(handleLoadThreeStyleQuizProblemListDetail);
 };
