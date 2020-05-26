@@ -15,6 +15,7 @@ import {
 // } from 'redux-saga';
 const constant = require('../constant');
 const config = require('../config');
+const _ = require('lodash');
 const moment = require('moment');
 const rp = require('request-promise');
 
@@ -39,23 +40,28 @@ export const deleteFromProblemList = createAction(DELETE_FROM_PROBLEM_LIST);
 const CHANGE_SELECT_ALL = 'CHANGE_SELECT_ALL';
 export const changeSelectAll = createAction(CHANGE_SELECT_ALL);
 
-// const SELECT_ALG = 'SELECT_ALG';
-// export const selectAlg = createAction(SELECT_ALG);
+const SELECT_ALGORITHM = 'SELECT_ALGORITHM';
+export const selectAlgorithm = createAction(SELECT_ALGORITHM);
 
 const requestThreeStyleQuizProblemListDetail = (part, problemListId) => {
+    const url = `${config.apiRoot}/getThreeStyleQuizProblemListDetail/${part.name}`;
+
     // problemListIdがnullの時はそれをAPIに渡さないことで、全手順を出力
-    const url = problemListId ? `${config.apiRoot}/threeStyleQuizProblemListDetail/${part.name}?problemListId=${problemListId}` : `${config.apiRoot}/threeStyleQuizProblemListDetail/${part.name}`;
+    const form = {
+        token: localStorage.token,
+    };
+    if (problemListId) {
+        form.problemListId = `${problemListId}`;
+    }
 
     const options = {
         url,
-        method: 'GET',
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         json: true,
-        form: {
-            token: localStorage.token,
-        },
+        form,
     };
 
     return rp(options)
@@ -72,6 +78,7 @@ const requestThreeStyleQuizProblemListDetail = (part, problemListId) => {
                     acc: null,
                     avgSec: null,
                     tps: null,
+                    isSelected: false,
                 };
             });
         })
@@ -109,8 +116,7 @@ const initialState = (() => {
         part,
         userName: localStorage.userName,
         problemListId,
-        letters: '',
-        isForwardMatch: true,
+        // targetProblemListId,
         isCheckedSelectAll: false,
         threeStyleQuizProblemListDetail: [],
     };
@@ -119,12 +125,29 @@ const initialState = (() => {
 export const threeStyleProblemListDetailReducer = handleActions(
     {
         [loadThreeStyleQuizProblemListDetail]: (state, action) => {
+            const threeStyleQuizProblemListDetail = action.payload.threeStyleQuizProblemListDetail;
+
             return {
                 ...state,
-                threeStyleQuizProblemListDetail: action.payload.threeStyleQuizProblemListDetail,
+                threeStyleQuizProblemListDetail,
             };
         },
+        [selectAlgorithm]: (state, action) => {
+            const ind = action.payload.ind;
+            const newIsSelected = action.payload.newIsSelected;
 
+            const threeStyleQuizProblemListDetail = _.cloneDeep(state.threeStyleQuizProblemListDetail);
+            const newData = {
+                ...threeStyleQuizProblemListDetail[ind],
+                isSelected: newIsSelected,
+            };
+            threeStyleQuizProblemListDetail[ind] = newData;
+
+            return {
+                ...state,
+                threeStyleQuizProblemListDetail,
+            };
+        },
     },
     initialState
 );

@@ -32,8 +32,8 @@ const loadThreeStyleQuizProblemList = createAction(LOAD_THREE_STYLE_QUIZ_PROBLEM
 
 const requestGetThreeStyleQuizProblemList = (part) => {
     const options = {
-        url: `${config.apiRoot}/threeStyleQuizProblemListName/${part.name}`,
-        method: 'GET',
+        url: `${config.apiRoot}/getThreeStyleQuizProblemListName/${part.name}`,
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
@@ -48,7 +48,7 @@ const requestGetThreeStyleQuizProblemList = (part) => {
 
 const requestPostProblemListName = (part, titles) => {
     const options = {
-        url: `${config.apiRoot}/threeStyleQuizProblemListName/${part.name}`,
+        url: `${config.apiRoot}/postThreeStyleQuizProblemListName/${part.name}`,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

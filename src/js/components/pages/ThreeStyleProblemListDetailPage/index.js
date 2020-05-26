@@ -14,7 +14,7 @@ import {
     // changeRadioMatch,
     // changeSelectAll,
     // sagaSearchAlgorithms,
-    // selectAlg,
+    selectAlgorithm,
 
     threeStyleProblemListDetailReducer,
     rootSaga,
@@ -40,6 +40,9 @@ const mapStateToProps = ({
 
 const mapDispatchToProps = (dispatch) => {
     return {
+        selectAlgorithm: (ind, newIsSelected) => {
+            dispatch(selectAlgorithm({ ind, newIsSelected, }));
+        },
     };
 };
 

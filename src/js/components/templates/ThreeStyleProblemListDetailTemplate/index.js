@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Heading2 from '../../atoms/Heading2';
 import Header from '../../organisms/Header';
+import CheckboxTdFactory from '../../molecules/CheckboxTd';
 import SortableTbl from 'react-sort-search-table';
 import ThreeStyleProblemListDetailForm from '../../organisms/ThreeStyleProblemListDetailForm';
 import ThreeStyleTable from '../../organisms/ThreeStyleTable';
@@ -12,7 +13,6 @@ const Msg = (props) => (
         <ul>
             <li>未登録の手順は登録できます</li>
         </ul>
-        <li>テキストボックスが空の状態で検索すると、全ての組み合わせを列挙します</li>
     </ul>
 );
 
@@ -34,6 +34,8 @@ const ThreeStyleProblemListDetailTemplate = (
         onChangeProblemListSelect,
         onClickAddButton,
         selectAlg,
+
+        selectAlgorithm,
     }
 ) => (
     <div>
@@ -60,12 +62,17 @@ const ThreeStyleProblemListDetailTemplate = (
             // />
             }
 
+             選択した手順を[]に[追加]
+            <br/>
+    選択した手順をリストから[削除]
+            <br/>
+
             {
                 (() => {
                     const myData = threeStyleQuizProblemListDetail.map(record => {
                         return {
-                            checkbox: '[]',
-                            ind: record.ind + 1, // 1-origin
+                            isSelected: record.isSelected, // 描画はしないが、checkboxの表示のために必要
+                            pInd: record.ind + 1, // 1-origin (positive ind)
                             letters: `「${record.letters}」`,
                             stickers: record.stickers,
                             moves: record.moves,
@@ -90,7 +97,7 @@ const ThreeStyleProblemListDetailTemplate = (
 
                     const col = [
                         'checkbox',
-                        'ind',
+                        'pInd',
                         'letters',
                         'stickers',
                         'moves',
@@ -102,9 +109,9 @@ const ThreeStyleProblemListDetailTemplate = (
 
                     return (<SortableTbl tblData={myData}
                         tHead={tHead}
-                        // customTd={[
-                        //     { custd: DecideTrialButtonTdFactory(sagaDecideTrial), keyItem: 'decideTrial', },
-                        // ]}
+                        customTd={[
+                            { custd: CheckboxTdFactory(selectAlgorithm), keyItem: 'checkbox', },
+                        ]}
                         dKey={col}
                         search={true}
                         defaultCSS={true}
