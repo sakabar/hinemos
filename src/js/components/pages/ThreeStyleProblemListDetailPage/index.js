@@ -10,12 +10,12 @@ import {
 import createSagaMiddleware from 'redux-saga';
 import ThreeStyleProblemListDetailTemplate from '../../templates/ThreeStyleProblemListDetailTemplate';
 import {
-    // inputLetters,
-    // changeRadioMatch,
     // changeSelectAll,
     // sagaSearchAlgorithms,
     selectAlgorithm,
     sagaLoadThreeStyleQuizProblemListDetail,
+    selectProblemList,
+    sagaAddToProblemList,
 
     threeStyleProblemListDetailReducer,
     rootSaga,
@@ -27,6 +27,8 @@ const mapStateToProps = ({
     userName,
     problemListId,
     isCheckedSelectAll,
+    threeStyleQuizProblemLists,
+    selectedThreeStyleQuizListId,
     threeStyleQuizProblemListDetail,
 }) => {
     return {
@@ -35,6 +37,8 @@ const mapStateToProps = ({
         userName,
         problemListId,
         isCheckedSelectAll,
+        threeStyleQuizProblemLists,
+        selectedThreeStyleQuizListId,
         threeStyleQuizProblemListDetail,
     };
 };
@@ -46,6 +50,12 @@ const mapDispatchToProps = (dispatch) => {
         },
         sagaLoadThreeStyleQuizProblemListDetail: (url) => {
             dispatch(sagaLoadThreeStyleQuizProblemListDetail({ url, }));
+        },
+        selectProblemList: (selectedProblemListId) => {
+            dispatch(selectProblemList({ selectedProblemListId, }));
+        },
+        sagaAddToProblemList: () => {
+            dispatch(sagaAddToProblemList());
         },
     };
 };

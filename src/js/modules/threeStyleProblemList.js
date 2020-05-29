@@ -18,6 +18,7 @@ const moment = require('moment');
 const rp = require('request-promise');
 const config = require('../config');
 const constant = require('../constant');
+const threeStyleQuizListUtils = require('../threeStyleQuizListUtils');
 
 const INPUT_TITLES = 'INPUT_TITLES';
 export const inputTitles = createAction(INPUT_TITLES);
@@ -31,22 +32,6 @@ const LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST = 'LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST';
 const loadThreeStyleQuizProblemList = createAction(LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST);
 const SAGA_LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST = 'SAGA_LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST';
 export const sagaLoadThreeStyleQuizProblemList = createAction(SAGA_LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST);
-
-const requestGetThreeStyleQuizProblemList = (part) => {
-    const options = {
-        url: `${config.apiRoot}/getThreeStyleQuizProblemListName/${part.name}`,
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        json: true,
-        form: {
-            token: localStorage.token,
-        },
-    };
-
-    return rp(options);
-};
 
 const requestPostProblemListName = (part, titles) => {
     const options = {
@@ -77,7 +62,7 @@ function * handleLoadThreeStyleQuizProblemList () {
             return;
         }
 
-        const threeStyleQuizProblemList = yield call(requestGetThreeStyleQuizProblemList, part);
+        const threeStyleQuizProblemList = yield call(threeStyleQuizListUtils.requestGetThreeStyleQuizProblemList, part);
 
         const payload = {
             url,

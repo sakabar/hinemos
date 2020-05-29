@@ -25,8 +25,10 @@ const ThreeStyleProblemListTemplate = (
     useEffect(() => {
         // コンポーネントが描画された時 & urlが変更された時にイベント発火
         const newUrl = new URL(location.href);
-        sagaLoadThreeStyleQuizProblemList(newUrl);
-    }, [ url ? url.toString() : null, ]);
+        if (!url || url.toString() !== newUrl.toString()) {
+            sagaLoadThreeStyleQuizProblemList(newUrl);
+        }
+    });
 
     return (
         <div>

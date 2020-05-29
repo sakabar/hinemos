@@ -8,33 +8,30 @@ import {
     // join,
     put,
     take,
-    // select,
+    select,
 } from 'redux-saga/effects';
 // import {
 //     delay,
 // } from 'redux-saga';
 const constant = require('../constant');
 const config = require('../config');
+const threeStyleQuizListUtils = require('../threeStyleQuizListUtils');
 const _ = require('lodash');
 const moment = require('moment');
 const rp = require('request-promise');
 
-const INPUT_LETTERS = 'INPUT_LETTERS';
-export const inputLetters = createAction(INPUT_LETTERS);
-
-const SET_MATCH_TYPE = 'SET_MATCH_TYPE';
-export const setMatchType = createAction(SET_MATCH_TYPE);
-
-const SAGA_LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST_DETAIL = 'SAGA_LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST_DETAIL';
-export const sagaLoadThreeStyleQuizProblemListDetail = createAction(SAGA_LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST_DETAIL);
 const LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST_DETAIL = 'LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST_DETAIL';
 const loadThreeStyleQuizProblemListDetail = createAction(LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST_DETAIL);
+const SAGA_LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST_DETAIL = 'SAGA_LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST_DETAIL';
+export const sagaLoadThreeStyleQuizProblemListDetail = createAction(SAGA_LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST_DETAIL);
 
 const SELECT_PROBLEM_LIST = 'SELECT_PROBLEM_LIST';
 export const selectProblemList = createAction(SELECT_PROBLEM_LIST);
 
-const ADD_TO_PROBLEM_LIST = 'ADD_TO_PROBLEM_LIST';
-export const addToProblemList = createAction(ADD_TO_PROBLEM_LIST);
+// const ADD_TO_PROBLEM_LIST = 'ADD_TO_PROBLEM_LIST';
+// const addToProblemList = createAction(ADD_TO_PROBLEM_LIST);
+const SAGA_ADD_TO_PROBLEM_LIST = 'SAGA_ADD_TO_PROBLEM_LIST';
+export const sagaAddToProblemList = createAction(SAGA_ADD_TO_PROBLEM_LIST);
 
 const DELETE_FROM_PROBLEM_LIST = 'DELETE_FROM_PROBLEM_LIST';
 export const deleteFromProblemList = createAction(DELETE_FROM_PROBLEM_LIST);
@@ -45,7 +42,7 @@ export const changeSelectAll = createAction(CHANGE_SELECT_ALL);
 const SELECT_ALGORITHM = 'SELECT_ALGORITHM';
 export const selectAlgorithm = createAction(SELECT_ALGORITHM);
 
-const requestThreeStyleQuizProblemListDetail = (part, problemListId) => {
+const requestGetThreeStyleQuizProblemListDetail = (part, problemListId) => {
     const url = `${config.apiRoot}/getThreeStyleQuizProblemListDetail/${part.name}`;
 
     // problemListIdがnullの時はそれをAPIに渡さないことで、全手順を出力
@@ -90,6 +87,35 @@ const requestThreeStyleQuizProblemListDetail = (part, problemListId) => {
         });
 };
 
+const requestPostThreeStyleQuizProblemListDetail = (part, problemListId, stickersStr) => {
+    const url = `${config.apiRoot}/postThreeStyleQuizProblemListDetail/${part.name}`;
+
+    const options = {
+        url,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {
+            token: localStorage.token,
+            problemListId,
+            stickersStr,
+        },
+    };
+
+    alert(JSON.stringify(options));
+
+    return rp(options)
+        .then(() => {
+            alert('保存しました');
+        })
+        .catch((err) => {
+            alert(`3-style問題リストの登録に失敗しました: ${err}`);
+            return [];
+        });
+};
+
 function * handleLoadThreeStyleQuizProblemListDetail () {
     while (true) {
         const action = yield take(sagaLoadThreeStyleQuizProblemListDetail);
@@ -105,16 +131,44 @@ function * handleLoadThreeStyleQuizProblemListDetail () {
         // problemListIdがnullの時はAPIにproblemListIdを渡さないようにする
         // その場合は、APIは全手順が含まれたリストを返す仕様とする
         const problemListId = parseInt(url.searchParams.get('problemListId')) || null;
-        const threeStyleQuizProblemListDetail = yield call(requestThreeStyleQuizProblemListDetail, part, problemListId);
+        const threeStyleQuizProblemListDetail = yield call(requestGetThreeStyleQuizProblemListDetail, part, problemListId);
+
+        const threeStyleQuizProblemListsRes = yield call(threeStyleQuizListUtils.requestGetThreeStyleQuizProblemList, part);
+
+        const threeStyleQuizProblemLists = threeStyleQuizProblemListsRes.success.result.map(record => {
+            return {
+                problemListId: record.problemListId,
+                title: record.title,
+            };
+        });
 
         const payload = {
             url,
             part,
             problemListId,
+            threeStyleQuizProblemLists,
             threeStyleQuizProblemListDetail,
         };
 
         yield put(loadThreeStyleQuizProblemListDetail(payload));
+    }
+}
+
+function * handleAddToProblemList () {
+    while (true) {
+        yield take(sagaAddToProblemList);
+
+        const part = yield select(state => state.part);
+        const selectedProblemListId = yield select(state => state.selectedProblemListId);
+
+        const threeStyleQuizProblemListDetail = yield select(state => state.threeStyleQuizProblemListDetail);
+
+        const stickersStr = threeStyleQuizProblemListDetail
+            .filter(alg => alg.isSelected)
+            .map(alg => alg.stickers)
+            .join(',');
+
+        yield call(requestPostThreeStyleQuizProblemListDetail, part, selectedProblemListId, stickersStr);
     }
 }
 
@@ -125,6 +179,8 @@ const initialState = {
     problemListId: null,
     // targetProblemListId,
     isCheckedSelectAll: false,
+    threeStyleQuizProblemLists: [], // [ { problemListId: , title: , } ]
+    selectedThreeStyleQuizListId: null,
     threeStyleQuizProblemListDetail: [],
 };
 
@@ -134,6 +190,7 @@ export const threeStyleProblemListDetailReducer = handleActions(
             const url = action.payload.url;
             const part = action.payload.part;
             const problemListId = action.payload.problemListId;
+            const threeStyleQuizProblemLists = action.payload.threeStyleQuizProblemLists;
             const threeStyleQuizProblemListDetail = action.payload.threeStyleQuizProblemListDetail;
 
             return {
@@ -141,6 +198,7 @@ export const threeStyleProblemListDetailReducer = handleActions(
                 url,
                 part,
                 problemListId,
+                threeStyleQuizProblemLists,
                 threeStyleQuizProblemListDetail,
             };
         },
@@ -160,10 +218,18 @@ export const threeStyleProblemListDetailReducer = handleActions(
                 threeStyleQuizProblemListDetail,
             };
         },
+        [selectProblemList]: (state, action) => {
+            const selectedProblemListId = action.payload.selectedProblemListId;
+            return {
+                ...state,
+                selectedProblemListId,
+            };
+        },
     },
     initialState
 );
 
 export function * rootSaga () {
     yield fork(handleLoadThreeStyleQuizProblemListDetail);
+    yield fork(handleAddToProblemList);
 };
