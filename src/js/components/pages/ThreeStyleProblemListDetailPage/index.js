@@ -15,25 +15,26 @@ import {
     // changeSelectAll,
     // sagaSearchAlgorithms,
     selectAlgorithm,
+    sagaLoadThreeStyleQuizProblemListDetail,
 
     threeStyleProblemListDetailReducer,
     rootSaga,
 } from '../../../modules/threeStyleProblemListDetail';
 
 const mapStateToProps = ({
+    url,
     part,
-    letters,
-    radioMatch,
-    radioOrder,
-    checkSelectAll,
+    userName,
+    problemListId,
+    isCheckedSelectAll,
     threeStyleQuizProblemListDetail,
 }) => {
     return {
+        url,
         part,
-        letters,
-        radioMatch,
-        radioOrder,
-        checkSelectAll,
+        userName,
+        problemListId,
+        isCheckedSelectAll,
         threeStyleQuizProblemListDetail,
     };
 };
@@ -42,6 +43,9 @@ const mapDispatchToProps = (dispatch) => {
     return {
         selectAlgorithm: (ind, newIsSelected) => {
             dispatch(selectAlgorithm({ ind, newIsSelected, }));
+        },
+        sagaLoadThreeStyleQuizProblemListDetail: (url) => {
+            dispatch(sagaLoadThreeStyleQuizProblemListDetail({ url, }));
         },
     };
 };

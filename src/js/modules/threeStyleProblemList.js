@@ -29,6 +29,8 @@ export const sagaCreateProblemLists = createAction(SAGA_CREATE_PROBLEM_LISTS);
 
 const LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST = 'LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST';
 const loadThreeStyleQuizProblemList = createAction(LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST);
+const SAGA_LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST = 'SAGA_LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST';
+export const sagaLoadThreeStyleQuizProblemList = createAction(SAGA_LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST);
 
 const requestGetThreeStyleQuizProblemList = (part) => {
     const options = {
@@ -64,21 +66,34 @@ const requestPostProblemListName = (part, titles) => {
 };
 
 function * handleLoadThreeStyleQuizProblemList () {
-    const part = yield select(state => state.part);
-    const threeStyleQuizProblemList = yield call(requestGetThreeStyleQuizProblemList, part);
+    while (true) {
+        const action = yield take(sagaLoadThreeStyleQuizProblemList);
 
-    const payload = {
-        problemLists: threeStyleQuizProblemList.success.result.map(problemList => {
-            return {
-                ...problemList,
-                createdAt: moment(problemList.createdAt, moment.ISO_8601),
-                updatedAt: moment(problemList.updatedAt, moment.ISO_8601),
-            };
-        }),
-    };
+        const url = action.payload.url;
+        const partStr = url.searchParams.get('part');
+        const part = constant.partType[partStr] || null;
 
-    yield put(loadThreeStyleQuizProblemList(payload));
-}
+        if (!part) {
+            return;
+        }
+
+        const threeStyleQuizProblemList = yield call(requestGetThreeStyleQuizProblemList, part);
+
+        const payload = {
+            url,
+            part,
+            problemLists: threeStyleQuizProblemList.success.result.map(problemList => {
+                return {
+                    ...problemList,
+                    createdAt: moment(problemList.createdAt, moment.ISO_8601),
+                    updatedAt: moment(problemList.updatedAt, moment.ISO_8601),
+                };
+            }),
+        };
+
+        yield put(loadThreeStyleQuizProblemList(payload));
+    }
+};
 
 function * handleCreateProblemLists () {
     while (true) {
@@ -102,13 +117,13 @@ function * handleCreateProblemLists () {
     }
 };
 
-const initialState = (() => {
-    const url = new URL(location.href);
+const initialState = {
+    url: null,
+    part: null,
+    userName: localStorage.userName,
+    titles: '',
 
-    const partStr = url.searchParams.get('part');
-    const part = constant.partType[partStr] || null;
-
-    const problemLists = [
+    problemLists: [
         {
             id: null,
             userName: localStorage.userName,
@@ -117,17 +132,8 @@ const initialState = (() => {
             updatedAt: moment('2018/01/01 00:00', 'YYYY/MM/DD HH:mm'),
             numberOfAlgs: null,
         },
-    ];
-
-    return {
-        userName: localStorage.userName,
-        part,
-        titles: '',
-
-        // problemLists: [],
-        problemLists,
-    };
-})();
+    ],
+};
 
 export const threeStyleProblemListReducer = handleActions(
     {
@@ -139,11 +145,16 @@ export const threeStyleProblemListReducer = handleActions(
             };
         },
         [loadThreeStyleQuizProblemList]: (state, action) => {
+            const url = action.payload.url;
+            const part = action.payload.part;
+
             const newProblemLists = action.payload.problemLists;
             const problemLists = _.cloneDeep(initialState.problemLists).concat(newProblemLists);
 
             return {
                 ...state,
+                url,
+                part,
                 problemLists,
             };
         },

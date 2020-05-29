@@ -11,6 +11,7 @@ import createSagaMiddleware from 'redux-saga';
 import ThreeStyleProblemListTemplate from '../../templates/ThreeStyleProblemListTemplate';
 import {
     inputTitles,
+    sagaLoadThreeStyleQuizProblemList,
     sagaCreateProblemLists,
 
     threeStyleProblemListReducer,
@@ -18,16 +19,16 @@ import {
 } from '../../../modules/threeStyleProblemList';
 
 const mapStateToProps = ({
-    userName,
+    url,
     part,
-    buffer,
+    userName,
     titles,
     problemLists,
 }) => {
     return {
-        userName,
+        url,
         part,
-        buffer,
+        userName,
         titles,
         problemLists,
     };
@@ -37,6 +38,9 @@ const mapDispatchToProps = (dispatch) => {
     return {
         inputTitles: (titles) => {
             dispatch(inputTitles({ titles, }));
+        },
+        sagaLoadThreeStyleQuizProblemList: (url) => {
+            dispatch(sagaLoadThreeStyleQuizProblemList({ url, }));
         },
         sagaCreateProblemLists: () => {
             dispatch(sagaCreateProblemLists());

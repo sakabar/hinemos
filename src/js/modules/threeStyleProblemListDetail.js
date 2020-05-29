@@ -7,8 +7,8 @@ import {
     fork,
     // join,
     put,
-    // take,
-    select,
+    take,
+    // select,
 } from 'redux-saga/effects';
 // import {
 //     delay,
@@ -25,6 +25,8 @@ export const inputLetters = createAction(INPUT_LETTERS);
 const SET_MATCH_TYPE = 'SET_MATCH_TYPE';
 export const setMatchType = createAction(SET_MATCH_TYPE);
 
+const SAGA_LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST_DETAIL = 'SAGA_LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST_DETAIL';
+export const sagaLoadThreeStyleQuizProblemListDetail = createAction(SAGA_LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST_DETAIL);
 const LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST_DETAIL = 'LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST_DETAIL';
 const loadThreeStyleQuizProblemListDetail = createAction(LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST_DETAIL);
 
@@ -89,46 +91,56 @@ const requestThreeStyleQuizProblemListDetail = (part, problemListId) => {
 };
 
 function * handleLoadThreeStyleQuizProblemListDetail () {
-    const part = yield select(state => state.part);
-    const problemListId = yield select(state => state.problemListId);
-    const threeStyleQuizProblemListDetail = yield call(requestThreeStyleQuizProblemListDetail, part, problemListId);
+    while (true) {
+        const action = yield take(sagaLoadThreeStyleQuizProblemListDetail);
 
-    const payload = {
-        threeStyleQuizProblemListDetail,
-    };
-    yield put(loadThreeStyleQuizProblemListDetail(payload));
+        const url = action.payload.url;
+        const partStr = url.searchParams.get('part');
+        const part = constant.partType[partStr] || null;
+
+        if (!part) {
+            continue;
+        };
+
+        // problemListIdがnullの時はAPIにproblemListIdを渡さないようにする
+        // その場合は、APIは全手順が含まれたリストを返す仕様とする
+        const problemListId = parseInt(url.searchParams.get('problemListId')) || null;
+        const threeStyleQuizProblemListDetail = yield call(requestThreeStyleQuizProblemListDetail, part, problemListId);
+
+        const payload = {
+            url,
+            part,
+            problemListId,
+            threeStyleQuizProblemListDetail,
+        };
+
+        yield put(loadThreeStyleQuizProblemListDetail(payload));
+    }
 }
 
-const initialState = (() => {
-    const url = new URL(location.href);
-    const partStr = url.searchParams.get('part');
-    const part = constant.partType[partStr] || null;
-    const problemListId = parseInt(url.searchParams.get('problemListId')) || null;
-
-    // problemListIdがnullの時はAPIにproblemListIdを渡さないようにする
-    // その場合は、APIは全手順が含まれたリストを返す仕様とする
-
-    if (!part) {
-        alert(`partパラメータが不正です: ${partStr}`);
-    }
-
-    return {
-        part,
-        userName: localStorage.userName,
-        problemListId,
-        // targetProblemListId,
-        isCheckedSelectAll: false,
-        threeStyleQuizProblemListDetail: [],
-    };
-})();
+const initialState = {
+    url: null,
+    part: null,
+    userName: localStorage.userName,
+    problemListId: null,
+    // targetProblemListId,
+    isCheckedSelectAll: false,
+    threeStyleQuizProblemListDetail: [],
+};
 
 export const threeStyleProblemListDetailReducer = handleActions(
     {
         [loadThreeStyleQuizProblemListDetail]: (state, action) => {
+            const url = action.payload.url;
+            const part = action.payload.part;
+            const problemListId = action.payload.problemListId;
             const threeStyleQuizProblemListDetail = action.payload.threeStyleQuizProblemListDetail;
 
             return {
                 ...state,
+                url,
+                part,
+                problemListId,
                 threeStyleQuizProblemListDetail,
             };
         },
