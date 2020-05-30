@@ -64,7 +64,7 @@ const AppPage = () => (
         <div>
             <Link to={`/${urlRoot}/threeStyle/problemList.html?part=edgeMiddle`}>3-style 問題リスト</Link>
             <Link to={`/${urlRoot}/threeStyle/problemListDetail.html?part=edgeMiddle`}>3-style 一覧(all)</Link>
-            <Link to={`/${urlRoot}/threeStyle/problemListDetail.html?part=edgeMiddle&problemListId=2`}>3-style 一覧</Link>
+            <Link to={`/${urlRoot}/threeStyle/problemListDetail.html?part=edgeMiddle&problemListId=3`}>3-style 一覧</Link>
 
             <Switch>
                 {

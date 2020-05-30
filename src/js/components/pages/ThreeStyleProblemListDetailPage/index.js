@@ -10,12 +10,12 @@ import {
 import createSagaMiddleware from 'redux-saga';
 import ThreeStyleProblemListDetailTemplate from '../../templates/ThreeStyleProblemListDetailTemplate';
 import {
-    // changeSelectAll,
     // sagaSearchAlgorithms,
     selectAlgorithm,
     sagaLoadThreeStyleQuizProblemListDetail,
     selectProblemList,
     sagaAddToProblemList,
+    toggleSelectAll,
 
     threeStyleProblemListDetailReducer,
     rootSaga,
@@ -56,6 +56,9 @@ const mapDispatchToProps = (dispatch) => {
         },
         sagaAddToProblemList: () => {
             dispatch(sagaAddToProblemList());
+        },
+        toggleSelectAll: () => {
+            dispatch(toggleSelectAll());
         },
     };
 };

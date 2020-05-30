@@ -37,7 +37,7 @@ const DELETE_FROM_PROBLEM_LIST = 'DELETE_FROM_PROBLEM_LIST';
 export const deleteFromProblemList = createAction(DELETE_FROM_PROBLEM_LIST);
 
 const CHANGE_SELECT_ALL = 'CHANGE_SELECT_ALL';
-export const changeSelectAll = createAction(CHANGE_SELECT_ALL);
+export const toggleSelectAll = createAction(CHANGE_SELECT_ALL);
 
 const SELECT_ALGORITHM = 'SELECT_ALGORITHM';
 export const selectAlgorithm = createAction(SELECT_ALGORITHM);
@@ -78,6 +78,7 @@ const requestGetThreeStyleQuizProblemListDetail = (part, problemListId) => {
                     avgSec: null,
                     tps: null,
                     isSelected: false,
+                    dispLetters: `「${record.letters}」`, // 「全て選択」の際、フィルタ条件に"「"が入っている時も正しく処理ができるように、表示表にテーブルに渡したカッコ付きの文字列をstateでも持っておく
                 };
             });
         })
@@ -103,8 +104,6 @@ const requestPostThreeStyleQuizProblemListDetail = (part, problemListId, sticker
             stickersStr,
         },
     };
-
-    alert(JSON.stringify(options));
 
     return rp(options)
         .then(() => {
@@ -177,7 +176,6 @@ const initialState = {
     part: null,
     userName: localStorage.userName,
     problemListId: null,
-    // targetProblemListId,
     isCheckedSelectAll: false,
     threeStyleQuizProblemLists: [], // [ { problemListId: , title: , } ]
     selectedThreeStyleQuizListId: null,
@@ -223,6 +221,29 @@ export const threeStyleProblemListDetailReducer = handleActions(
             return {
                 ...state,
                 selectedProblemListId,
+            };
+        },
+        [toggleSelectAll]: (state, action) => {
+            const newIsCheckedSelectAll = !state.isCheckedSelectAll;
+
+            const searchBox = document.querySelector('.sortable-table .search-box .search');
+            const searchWord = searchBox ? searchBox.value : '';
+
+            // 画面に見えている手順全てのチェック状態を、newIsCheckedSelectAllと同じにする
+            const newThreeStyleQuizProblemListDetail = state.threeStyleQuizProblemListDetail
+                .map((row, i) => {
+                    if (threeStyleQuizListUtils.isSelectedRow(searchWord, row)) {
+                        row.isSelected = newIsCheckedSelectAll;
+                        return row;
+                    } else {
+                        return row;
+                    }
+                });
+
+            return {
+                ...state,
+                isCheckedSelectAll: newIsCheckedSelectAll,
+                threeStyleQuizProblemListDetail: newThreeStyleQuizProblemListDetail,
             };
         },
     },

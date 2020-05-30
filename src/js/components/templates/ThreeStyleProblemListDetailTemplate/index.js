@@ -3,6 +3,7 @@ React,
 { useEffect, } from 'react';
 import PropTypes from 'prop-types';
 import Button from '../../atoms/Button';
+import Checkbox from '../../atoms/Checkbox';
 import Heading2 from '../../atoms/Heading2';
 import Select from '../../molecules/Select';
 import Header from '../../organisms/Header';
@@ -36,6 +37,7 @@ const ThreeStyleProblemListDetailTemplate = (
         sagaLoadThreeStyleQuizProblemListDetail,
         selectProblemList,
         sagaAddToProblemList,
+        toggleSelectAll,
     }
 ) => {
     useEffect(() => {
@@ -80,6 +82,8 @@ const ThreeStyleProblemListDetailTemplate = (
                 <br/>
              選択した手順をリストから[削除]
                 <br/>
+                <Checkbox text="全て選択" checked={isCheckedSelectAll} onChange={(e) => { toggleSelectAll(); }}/>
+                <br/>
 
                 {
                     (() => {
@@ -87,7 +91,7 @@ const ThreeStyleProblemListDetailTemplate = (
                             return {
                                 isSelected: record.isSelected, // 描画はしないが、checkboxの表示のために必要
                                 pInd: record.ind + 1, // 1-origin (positive ind)
-                                letters: `「${record.letters}」`,
+                                letters: record.dispLetters,
                                 stickers: record.stickers,
                                 moves: record.moves,
                                 acc: record.acc,
@@ -153,6 +157,7 @@ ThreeStyleProblemListDetailTemplate.propTypes = {
     sagaLoadThreeStyleQuizProblemListDetail: PropTypes.func.isRequired,
     selectProblemList: PropTypes.func.isRequired,
     sagaAddToProblemList: PropTypes.func.isRequired,
+    toggleSelectAll: PropTypes.func.isRequired,
 };
 
 export default ThreeStyleProblemListDetailTemplate;
