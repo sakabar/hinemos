@@ -110,7 +110,7 @@ const initialState = {
 
     problemLists: [
         {
-            id: null,
+            problemListId: null,
             userName: localStorage.userName,
             title: 'system_全手順',
             createdAt: moment('2018/01/01 00:00', 'YYYY/MM/DD HH:mm'),

@@ -5,9 +5,14 @@ import PropTypes from 'prop-types';
 import Button from '../../atoms/Button';
 import Heading2 from '../../atoms/Heading2';
 import Textbox from '../../atoms/Textbox';
+import LinkTdFactory from '../../molecules/LinkTd';
 import Header from '../../organisms/Header';
 import SortableTbl from 'react-sort-search-table';
+const path = require('path');
+const config = require('../../../config');
 const constant = require('../../../constant');
+
+const urlRoot = path.basename(config.urlRoot);
 
 const ThreeStyleProblemListTemplate = (
     {
@@ -47,10 +52,11 @@ const ThreeStyleProblemListTemplate = (
                         const myData = problemLists.map(problemList => {
                             return {
                                 checkbox: '[]',
+                                problemListId: problemList.problemListId,
                                 title: problemList.title,
                                 numberOfAlgs: problemList.numberOfAlgs,
                                 createdAt: problemList.createdAt.format('YYYY/MM/DD HH:mm'),
-                                detail: '[詳細]',
+                                // detail: '[詳細]',
                                 quiz: '[クイズ]',
                             };
                         });
@@ -75,9 +81,9 @@ const ThreeStyleProblemListTemplate = (
 
                         return (<SortableTbl tblData={myData}
                             tHead={tHead}
-                            // customTd={[
-                            //     { custd: DecideTrialButtonTdFactory(sagaDecideTrial), keyItem: 'decideTrial', },
-                            // ]}
+                            customTd={[
+                                { custd: LinkTdFactory((tdData, rowData, field) => `/${urlRoot}/threeStyle/problemListDetail.html?part=edgeMiddle&problemListId=${rowData.problemListId}`, '詳細'), keyItem: 'detail', },
+                            ]}
                             dKey={col}
                             search={true}
                             defaultCSS={true}
