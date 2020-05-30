@@ -22,6 +22,37 @@ const Msg = (props) => (
     </ul>
 );
 
+// テキストボックスの値をJSの機能で変えた時にイベントを発火させるには、ひと手間必要
+// https://github.com/facebook/react/issues/10135
+// TODO: 同じコードがbldTimerにも書いてあるので共通化する
+const setNativeValue = (element, value) => {
+    const valueSetter = Object.getOwnPropertyDescriptor(element, 'value').set;
+    const prototype = Object.getPrototypeOf(element);
+    const prototypeValueSetter = Object.getOwnPropertyDescriptor(prototype, 'value').set;
+
+    if (valueSetter && valueSetter !== prototypeValueSetter) {
+        prototypeValueSetter.call(element, value);
+    } else {
+        valueSetter.call(element, value);
+    }
+};
+
+// SortableTblの値をvalueに変えてリロードする
+// value = nullの時は今の値を変えずにリロードする
+const reFilterTable = (value) => {
+    const searchBox = document.querySelector('.sortable-table .search-box .search');
+
+    const newValue = (value === null) ? searchBox.value : value;
+
+    // いったん空にする (この時点ではonChange()は発火しない)
+    searchBox.value = '';
+
+    // newValueをInputするイベントを渡し、onChange()を発火
+    setNativeValue(searchBox, newValue);
+    const event = new Event('input', { bubbles: true, });
+    searchBox.dispatchEvent(event);
+};
+
 const ThreeStyleProblemListDetailTemplate = (
     {
         url,
@@ -46,6 +77,10 @@ const ThreeStyleProblemListDetailTemplate = (
         if (!url || url.toString() !== newUrl.toString()) {
             sagaLoadThreeStyleQuizProblemListDetail(newUrl);
         }
+
+        // Stateを変更して再描画があった時に、SortableTblのフィルタリングが解除されないようにした
+        // 何もしないと、フィルタが反映されずに全件表示されてしまう
+        reFilterTable(null);
     });
 
     const showLength = 10;
