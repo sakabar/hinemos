@@ -173,7 +173,7 @@ function * handleAddToProblemList () {
 
 const initialState = {
     url: null,
-    part: null,
+    part: constant.dummyPartType,
     userName: localStorage.userName,
     problemListId: null,
     isCheckedSelectAll: false,

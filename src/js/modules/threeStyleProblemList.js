@@ -104,7 +104,7 @@ function * handleCreateProblemLists () {
 
 const initialState = {
     url: null,
-    part: null,
+    part: constant.dummyPartType,
     userName: localStorage.userName,
     titles: '',
 

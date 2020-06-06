@@ -40,7 +40,7 @@ const ThreeStyleProblemListTemplate = (
             <Header title="問題リスト一覧" />
 
             <main>
-                <Heading2>{part ? part.japanese : ''}</Heading2>
+                <Heading2>{part.japanese}</Heading2>
                 <br/>
                 <br/>
                 <Textbox placeholder="リスト名" value={titles} onChange={(e) => inputTitles(e.target.value)}/><Button value="作成" onClick={(e) => sagaCreateProblemLists() }/><br/>
@@ -82,7 +82,8 @@ const ThreeStyleProblemListTemplate = (
                         return (<SortableTbl tblData={myData}
                             tHead={tHead}
                             customTd={[
-                                { custd: LinkTdFactory((tdData, rowData, field) => `/${urlRoot}/threeStyle/problemListDetail.html?part=edgeMiddle&problemListId=${rowData.problemListId}`, '詳細'), keyItem: 'detail', },
+                                { custd: LinkTdFactory((tdData, rowData, field) => `/${urlRoot}/threeStyle/problemListDetail.html?part=${part.name}&problemListId=${rowData.problemListId}`, '詳細'), keyItem: 'detail', },
+                                { custd: LinkTdFactory((tdData, rowData, field) => `/${urlRoot}/threeStyle/quiz.html?part=${part.name}&problemListType=manual&sort=acc&problemListId=${rowData.problemListId}`, 'クイズ'), keyItem: 'quiz', },
                             ]}
                             dKey={col}
                             search={true}
@@ -99,7 +100,7 @@ const ThreeStyleProblemListTemplate = (
 
 ThreeStyleProblemListTemplate.propTypes = {
     url: PropTypes.object,
-    part: PropTypes.oneOf(Object.values(constant.partType)),
+    part: PropTypes.oneOf([ ...Object.values(constant.partType), constant.dummyPartType, ]),
     userName: PropTypes.string.isRequired,
     titles: PropTypes.string,
     problemLists: PropTypes.array,

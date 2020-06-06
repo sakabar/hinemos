@@ -190,7 +190,7 @@ const ThreeStyleProblemListDetailTemplate = (
 
 ThreeStyleProblemListDetailTemplate.propTypes = {
     url: PropTypes.object,
-    part: PropTypes.oneOf(Object.values(constant.partType)),
+    part: PropTypes.oneOf([ ...Object.values(constant.partType), constant.dummyPartType, ]),
     userName: PropTypes.string.isRequired,
     problemListId: PropTypes.number,
     isCheckedSelectAll: PropTypes.bool.isRequired,
