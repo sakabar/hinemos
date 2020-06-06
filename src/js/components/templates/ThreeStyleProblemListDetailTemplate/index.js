@@ -1,6 +1,9 @@
 import
 React,
 { useEffect, } from 'react';
+import {
+    Link,
+} from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Button from '../../atoms/Button';
 import Checkbox from '../../atoms/Checkbox';
@@ -9,7 +12,11 @@ import Select from '../../molecules/Select';
 import Header from '../../organisms/Header';
 import CheckboxTdFactory from '../../molecules/CheckboxTd';
 import SortableTbl from 'react-sort-search-table';
+const path = require('path');
 const constant = require('../../../constant');
+const config = require('../../../config');
+
+const urlRoot = path.basename(config.urlRoot);
 
 const Msg = (props) => (
     <ul>
@@ -101,12 +108,15 @@ const ThreeStyleProblemListDetailTemplate = (
             threeStyleQuizProblemListOptions.push(instance);
         });
 
+    const parentUrl = part ? `/${urlRoot}/threeStyle/problemList.html?part=${part.name}` : '';
+
     return (
         <div>
             <Header title="3-style 一覧" />
 
             <main>
                 <Heading2>{part ? part.japanese : ''}</Heading2>
+                <Link to={parentUrl}>問題リスト一覧に戻る</Link>
                 <Heading2>[FIXME: ここにリスト名を入れるよ]</Heading2>
 
                 <Msg />

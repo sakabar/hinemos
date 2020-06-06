@@ -62,9 +62,7 @@ if (!Object.keys(flatRouteDict).map(path => `${config.urlRoot}/${path}`).include
 const AppPage = () => (
     <BrowserRouter>
         <div>
-            <Link to={`/${urlRoot}/threeStyle/problemList.html?part=edgeMiddle`}>3-style 問題リスト</Link>
-            <Link to={`/${urlRoot}/threeStyle/problemListDetail.html?part=edgeMiddle`}>3-style 一覧(all)</Link>
-            <Link to={`/${urlRoot}/threeStyle/problemListDetail.html?part=edgeMiddle&problemListId=3`}>3-style 一覧</Link>
+            <Link to={`/${urlRoot}/threeStyle/problemList.html?part=edgeMiddle`}>3-style 問題リスト一覧</Link>
 
             <Switch>
                 {
