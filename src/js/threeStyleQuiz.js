@@ -223,9 +223,12 @@ const submit = (part, letterPairs, numberings, selectedThreeStyles, isRecalled, 
 };
 
 // 問題リストは、全問か、それとも自分で設定した問題のみか
+// 新しくproblemListを追加。いずれはallも特殊な問題リストと見なすことで、全てproblemListだけにする予定
+// その時にはproblemListTypeを廃止する
 const ProblemListType = {
     all: { value: 0, name: 'all', },
     manual: { value: 1, name: 'manual', },
+    problemList: { value: 2, name: 'problemList', },
 };
 
 // 右/左のボタンの挙動を設定
@@ -305,7 +308,7 @@ const init = () => {
     renderSettings(days, solved, onlyOnce);
 
     // URLでproblemListType=manualが指定された場合、自分が設定した問題でやる
-    const problemListType = urlObj.query.problemListType === ProblemListType.manual.name ? ProblemListType.manual : ProblemListType.all;
+    const problemListType = urlObj.query.problemListType === ProblemListType.manual.name ? ProblemListType.manual : ProblemListType.problemList;
 
     const problemListId = parseInt(urlObj.query.problemListId) || null;
     // problemListId !== null →問題リスト(複数)
@@ -368,7 +371,7 @@ const init = () => {
 
                     // 登録した問題
                     // 新旧の問題リストの並行稼働中は、入力タイプによってどちらAPIを叩くか分岐させる
-                    const problemListOptions = problemListId ? {
+                    const problemListOptions = (problemListType !== ProblemListType.manual) ? {
                         url: `${config.apiRoot}/getThreeStyleQuizProblemListDetail/${part.name}`,
                         method: 'POST',
                         headers: {
@@ -429,13 +432,7 @@ const init = () => {
                                         .then((ans) => {
                                             const problemList = ans.success.result;
 
-                                            let selectedThreeStyles = [];
-
-                                            if (problemListType === ProblemListType.all) {
-                                                selectedThreeStyles = utils.chunkAndShuffle(selectThreeStyles(threeStyles, quizLogRes), 10);
-                                            } else if (problemListType === ProblemListType.manual) {
-                                                selectedThreeStyles = utils.chunkAndShuffle(selectFromManualList(threeStyles, quizLogRes, problemList), 10);
-                                            }
+                                            const selectedThreeStyles = utils.chunkAndShuffle(selectFromManualList(threeStyles, quizLogRes, problemList), 10);
 
                                             if (selectedThreeStyles.length === 0) {
                                                 alert('出題できる3-styleがありません。先に登録してください。');
