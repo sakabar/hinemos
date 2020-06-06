@@ -23,8 +23,6 @@ const Msg = (props) => (
         <li>3-style手順を一覧で確認できます</li>
         <ul>
             <li>未登録の手順は登録できます</li>
-            <li>今見ているリストそのものへの登録を不能にする</li>
-            <li>同じ手順が1つのリスト内に複数登録されないようにする (upsert的な感じ)</li>
         </ul>
     </ul>
 );
@@ -96,6 +94,7 @@ const ThreeStyleProblemListDetailTemplate = (
         [ null, ' '.repeat(showLength), ],
     ];
     threeStyleQuizProblemLists
+        .filter(threeStyleQuizProblemList => threeStyleQuizProblemList.problemListId !== problemListId)
         .map(threeStyleQuizProblemList => {
             const title = threeStyleQuizProblemList.title;
             const omittedTitle = (title.length <= showLength) ? title : `${threeStyleQuizProblemList.title.slice(0, showLength - 3)}...`;
@@ -110,6 +109,21 @@ const ThreeStyleProblemListDetailTemplate = (
 
     const parentUrl = part ? `/${urlRoot}/threeStyle/problemList.html?part=${part.name}` : '';
 
+    const showingProblemList = threeStyleQuizProblemLists
+        .filter(threeStyleQuizProblemList => threeStyleQuizProblemList.problemListId === problemListId);
+
+    const problemListTitle = (() => {
+        if (threeStyleQuizProblemLists.length === 0) {
+            return '';
+        } else {
+            if (problemListId) {
+                return showingProblemList.length === 1 ? showingProblemList[0].title : '';
+            } else {
+                return 'system_全手順'; // FIXME これ、複数の場所に現れている
+            }
+        }
+    })();
+
     return (
         <div>
             <Header title="3-style 一覧" />
@@ -117,7 +131,7 @@ const ThreeStyleProblemListDetailTemplate = (
             <main>
                 <Heading2>{part ? part.japanese : ''}</Heading2>
                 <Link to={parentUrl}>問題リスト一覧に戻る</Link>
-                <Heading2>[FIXME: ここにリスト名を入れるよ]</Heading2>
+                <Heading2>{problemListTitle}</Heading2>
 
                 <Msg />
 

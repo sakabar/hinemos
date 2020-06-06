@@ -12,7 +12,7 @@ const LinkTdFactory = (dstFormat, text, internal = true) => {
         tdData,
         rowData,
         field,
-    }) => {
+    }) => (() => {
         if (internal) {
             return (
                 <td>
@@ -23,11 +23,10 @@ const LinkTdFactory = (dstFormat, text, internal = true) => {
             return (
                 <td>
                     <a href={dstFormat(tdData, rowData, field)} target='_blank' rel='noreferrer noopener'>{text}</a>
-
                 </td>
             );
         }
-    };
+    })();
 
     LinkTd.propTypes = {
         tdData: PropTypes.object,

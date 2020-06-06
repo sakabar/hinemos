@@ -57,7 +57,7 @@ const ThreeStyleProblemListTemplate = (
                                 numberOfAlgs: problemList.numberOfAlgs,
                                 createdAt: problemList.createdAt.format('YYYY/MM/DD HH:mm'),
                                 // detail: '[詳細]',
-                                quiz: '[クイズ]',
+                                // quiz: '[クイズ]',
                             };
                         });
 
