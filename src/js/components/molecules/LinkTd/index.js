@@ -7,16 +7,27 @@ import PropTypes from 'prop-types';
 // rowDataを埋め込めるようにするために、toは
 // (tdData, rowData, field) => `ID is ${rowData.id}`
 // のような関数で渡す
-const LinkTdFactory = (dstFormat, text) => {
+const LinkTdFactory = (dstFormat, text, internal = true) => {
     const LinkTd = ({
         tdData,
         rowData,
         field,
-    }) => (
-        <td>
-            <Link to={dstFormat(tdData, rowData, field)}>{text}</Link>
-        </td>
-    );
+    }) => {
+        if (internal) {
+            return (
+                <td>
+                    <Link to={dstFormat(tdData, rowData, field)}>{text}</Link>
+                </td>
+            );
+        } else {
+            return (
+                <td>
+                    <a href={dstFormat(tdData, rowData, field)} target='_blank' rel='noreferrer noopener'>{text}</a>
+
+                </td>
+            );
+        }
+    };
 
     LinkTd.propTypes = {
         tdData: PropTypes.object,

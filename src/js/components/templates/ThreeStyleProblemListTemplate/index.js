@@ -83,7 +83,8 @@ const ThreeStyleProblemListTemplate = (
                             tHead={tHead}
                             customTd={[
                                 { custd: LinkTdFactory((tdData, rowData, field) => `/${urlRoot}/threeStyle/problemListDetail.html?part=${part.name}&problemListId=${rowData.problemListId}`, '詳細'), keyItem: 'detail', },
-                                { custd: LinkTdFactory((tdData, rowData, field) => `/${urlRoot}/threeStyle/quiz.html?part=${part.name}&problemListType=manual&sort=acc&problemListId=${rowData.problemListId}`, 'クイズ'), keyItem: 'quiz', },
+                                { custd: LinkTdFactory((tdData, rowData, field) => `${config.urlRoot}/threeStyle/quiz.html?part=${part.name}&problemListType=manual&sort=acc&problemListId=${rowData.problemListId}`, 'クイズ', false), keyItem: 'quiz', },
+                                // { custd: LinkTdFactory((tdData, rowData, field) => `/${urlRoot}/threeStyle/quiz.html?part=${part.name}&problemListType=manual&sort=acc&problemListId=${rowData.problemListId}`, 'クイズ'), keyItem: 'quiz', },
                             ]}
                             dKey={col}
                             search={true}
