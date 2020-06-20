@@ -153,6 +153,8 @@ const saveThreeStyleTable = (hot, part, numbering) => {
                     setup: ts.setup,
                     move1: ts.move1,
                     move2: ts.move2,
+                    // FIXME これは上の引数から構築できるので、わざわざ構築して渡しているのがちょっと引っかかる
+                    shownMove: utils.showMove(ts.setup, ts.move1, ts.move2),
                 };
                 threeStyleTable.push(instance);
             }
@@ -181,14 +183,13 @@ const saveThreeStyleTable = (hot, part, numbering) => {
 
     return rp(options)
         .then((result) => {
-            alert('保存が完了しました');
             saveBtn.disabled = false;
+            alert('保存が完了しました');
         })
         .catch((err) => {
-            // FIXME なかなかひどい実装
-            const msg = err.message.match(/『[^』]*』/)[0];
-            alert(msg);
             saveBtn.disabled = false;
+            const msg = err.message.replace(/\\n/g, '\n');
+            alert(msg);
         });
 };
 
