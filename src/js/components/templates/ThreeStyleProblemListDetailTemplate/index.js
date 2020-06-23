@@ -70,7 +70,7 @@ const ThreeStyleProblemListDetailTemplate = (
         threeStyleQuizProblemListDetail,
 
         selectAlgorithm,
-        sagaLoadThreeStyleQuizProblemListDetail,
+        sagaLoadInitially,
         selectProblemList,
         sagaAddToProblemList,
         toggleSelectAll,
@@ -80,7 +80,7 @@ const ThreeStyleProblemListDetailTemplate = (
         // コンポーネントが描画された時 & urlが変更された時にイベント発火
         const newUrl = new URL(location.href);
         if (!url || url.toString() !== newUrl.toString()) {
-            sagaLoadThreeStyleQuizProblemListDetail(newUrl);
+            sagaLoadInitially(newUrl);
         }
 
         // Stateを変更して再描画があった時に、SortableTblのフィルタリングが解除されないようにした
@@ -149,13 +149,14 @@ const ThreeStyleProblemListDetailTemplate = (
                         const myData = threeStyleQuizProblemListDetail.map(record => {
                             return {
                                 isSelected: record.isSelected, // 描画はしないが、checkboxの表示のために必要
-                                pInd: record.ind + 1, // 1-origin (positive ind)
+                                pInd: record.pInd,
                                 letters: record.dispLetters,
                                 stickers: record.stickers,
                                 moves: record.moves,
-                                acc: record.acc,
-                                avgSec: record.avgSec,
-                                tps: record.tps,
+                                acc: record.acc ? record.acc.toFixed(2) : null,
+                                avgSec: record.avgSec ? parseFloat(record.avgSec.toFixed(2)) : null,
+                                tps: record.tps ? parseFloat(record.tps.toFixed(2)) : null,
+                                createdAt: record.createdAt.format('YYYY/MM/DD HH:mm'),
                                 operation: '[削除]',
                             };
                         });
@@ -169,6 +170,7 @@ const ThreeStyleProblemListDetailTemplate = (
                             '正解率',
                             '平均タイム',
                             'tps',
+                            '手順作成日時',
                             '操作',
                         ];
 
@@ -181,6 +183,7 @@ const ThreeStyleProblemListDetailTemplate = (
                             'acc',
                             'avgSec',
                             'tps',
+                            'createdAt',
                             'operation',
                         ];
 
@@ -213,7 +216,7 @@ ThreeStyleProblemListDetailTemplate.propTypes = {
     threeStyleQuizProblemListDetail: PropTypes.array,
 
     selectAlgorithm: PropTypes.func.isRequired,
-    sagaLoadThreeStyleQuizProblemListDetail: PropTypes.func.isRequired,
+    sagaLoadInitially: PropTypes.func.isRequired,
     selectProblemList: PropTypes.func.isRequired,
     sagaAddToProblemList: PropTypes.func.isRequired,
     toggleSelectAll: PropTypes.func.isRequired,

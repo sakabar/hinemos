@@ -16,14 +16,16 @@ import {
 const constant = require('../constant');
 const config = require('../config');
 const threeStyleQuizListUtils = require('../threeStyleQuizListUtils');
+const utils = require('../utils');
+const threeStyleUtils = require('../threeStyleUtils');
 const _ = require('lodash');
 const moment = require('moment');
 const rp = require('request-promise');
 
-const LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST_DETAIL = 'LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST_DETAIL';
-const loadThreeStyleQuizProblemListDetail = createAction(LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST_DETAIL);
-const SAGA_LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST_DETAIL = 'SAGA_LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST_DETAIL';
-export const sagaLoadThreeStyleQuizProblemListDetail = createAction(SAGA_LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST_DETAIL);
+const LOAD_INITIALLY = 'LOAD_INITIALLY';
+const loadInitially = createAction(LOAD_INITIALLY);
+const SAGA_LOAD_INITIALLY = 'SAGA_LOAD_INITIALLY';
+export const sagaLoadInitially = createAction(SAGA_LOAD_INITIALLY);
 
 const SELECT_PROBLEM_LIST = 'SELECT_PROBLEM_LIST';
 export const selectProblemList = createAction(SELECT_PROBLEM_LIST);
@@ -65,22 +67,10 @@ const requestGetThreeStyleQuizProblemListDetail = (part, problemListId) => {
 
     return rp(options)
         .then((result) => {
-            return result.success.result.map((record, ind) => {
-                return {
-                    ...record,
-                    stickers: `${record.buffer} ${record.sticker1} ${record.sticker2}`,
-                    createdAt: moment(record.createdAt, moment.ISO_8601),
-                    updatedAt: moment(record.recordAt, moment.ISO_8601),
-                    ind,
-                    moves: null,
-                    numberOfMoves: null,
-                    acc: null,
-                    avgSec: null,
-                    tps: null,
-                    isSelected: false,
-                    dispLetters: `「${record.letters}」`, // 「全て選択」の際、フィルタ条件に"「"が入っている時も正しく処理ができるように、表示表にテーブルに渡したカッコ付きの文字列をstateでも持っておく
-                };
-            });
+            return {
+                buffer: result.success.buffer,
+                result: result.success.result,
+            };
         })
         .catch((err) => {
             alert(`3-style問題リストの取得に失敗しました: ${err}`);
@@ -115,9 +105,9 @@ const requestPostThreeStyleQuizProblemListDetail = (part, problemListId, sticker
         });
 };
 
-function * handleLoadThreeStyleQuizProblemListDetail () {
+function * handleLoadInitially () {
     while (true) {
-        const action = yield take(sagaLoadThreeStyleQuizProblemListDetail);
+        const action = yield take(sagaLoadInitially);
 
         const url = action.payload.url;
         const partStr = url.searchParams.get('part');
@@ -130,7 +120,9 @@ function * handleLoadThreeStyleQuizProblemListDetail () {
         // problemListIdがnullの時はAPIにproblemListIdを渡さないようにする
         // その場合は、APIは全手順が含まれたリストを返す仕様とする
         const problemListId = parseInt(url.searchParams.get('problemListId')) || null;
-        const threeStyleQuizProblemListDetail = yield call(requestGetThreeStyleQuizProblemListDetail, part, problemListId);
+        const detailRes = yield call(requestGetThreeStyleQuizProblemListDetail, part, problemListId);
+        const detail = detailRes.result;
+        const buffer = detailRes.buffer;
 
         const threeStyleQuizProblemListsRes = yield call(threeStyleQuizListUtils.requestGetThreeStyleQuizProblemList, part);
 
@@ -141,15 +133,77 @@ function * handleLoadThreeStyleQuizProblemListDetail () {
             };
         });
 
+        const userName = yield select(state => state.userName);
+        const threeStyles = yield call(threeStyleUtils.getThreeStyles, userName, part, buffer);
+        const quizLogs = yield call(threeStyleUtils.getThreeStyleQuizLog, userName, part, buffer);
+
+        // 問題リストと3-style手順の情報とクイズ結果の情報をJOIN
+        // ベースは3-style手順
+        // 問題リストに含まれる
+        // クイズの結果の情報をleft join
+        const problemListStickers = detail.map(record => record.stickers);
+        const stickersToProblemListDetail = {};
+        detail.map(record => {
+            stickersToProblemListDetail[record.stickers] = record;
+        });
+
+        const stickersToQuizLog = {};
+        quizLogs.map(log => {
+            const stickers = log.stickers;
+
+            const record = {
+                buffer: log.buffer,
+                sticker1: log.sticker1,
+                sticker2: log.sticker2,
+                stickers,
+                solved: log.solved,
+                tried: log.tried,
+                avgSec: log['avg_sec'],
+                newness: log.newness,
+            };
+
+            stickersToQuizLog[stickers] = record;
+        });
+
+        const threeStyleQuizProblemListDetail = threeStyles
+            .filter(record => problemListStickers.includes(record.stickers))
+            .map((threeStyle, ind) => {
+                const stickers = threeStyle.stickers;
+
+                const acc = ((stickers in stickersToQuizLog) && stickersToQuizLog[stickers].tried > 0) ? 1.0 * stickersToQuizLog[stickers].solved / stickersToQuizLog[stickers].tried : null;
+                const avgSec = (stickers in stickersToQuizLog) ? stickersToQuizLog[stickers].avgSec : null;
+                const tps = ((stickers in stickersToQuizLog) && avgSec > 0) ? 1.0 * threeStyle.numberOfMoves / avgSec : null;
+
+                const letters = stickersToProblemListDetail[stickers].letters;
+
+                return {
+                    ...threeStyle,
+                    ind,
+                    pInd: ind + 1, // 1-origin (positive ind)
+                    moves: utils.showMove(threeStyle.setup, threeStyle.move1, threeStyle.move2),
+                    acc,
+                    avgSec,
+                    tps,
+                    isSelected: false,
+                    letters,
+                    // 「全て選択」の際、フィルタ条件に"「"が入っている時も正しく処理ができるように、
+                    // 表示表にテーブルに渡したカッコ付きの文字列をstateでも持っておく
+                    dispLetters: `「${letters}」`,
+                    createdAt: moment(threeStyle.createdAt, moment.ISO_8601),
+                    updatedAt: moment(threeStyle.updatedAt, moment.ISO_8601),
+                };
+            });
+
         const payload = {
             url,
             part,
             problemListId,
             threeStyleQuizProblemLists,
             threeStyleQuizProblemListDetail,
+            threeStyles,
         };
 
-        yield put(loadThreeStyleQuizProblemListDetail(payload));
+        yield put(loadInitially(payload));
     }
 }
 
@@ -184,12 +238,13 @@ const initialState = {
 
 export const threeStyleProblemListDetailReducer = handleActions(
     {
-        [loadThreeStyleQuizProblemListDetail]: (state, action) => {
+        [loadInitially]: (state, action) => {
             const url = action.payload.url;
             const part = action.payload.part;
             const problemListId = action.payload.problemListId;
             const threeStyleQuizProblemLists = action.payload.threeStyleQuizProblemLists;
             const threeStyleQuizProblemListDetail = action.payload.threeStyleQuizProblemListDetail;
+            const threeStyles = action.payload.threeStyles;
 
             return {
                 ...state,
@@ -198,6 +253,7 @@ export const threeStyleProblemListDetailReducer = handleActions(
                 problemListId,
                 threeStyleQuizProblemLists,
                 threeStyleQuizProblemListDetail,
+                threeStyles,
             };
         },
         [selectAlgorithm]: (state, action) => {
@@ -251,6 +307,6 @@ export const threeStyleProblemListDetailReducer = handleActions(
 );
 
 export function * rootSaga () {
-    yield fork(handleLoadThreeStyleQuizProblemListDetail);
+    yield fork(handleLoadInitially);
     yield fork(handleAddToProblemList);
 };

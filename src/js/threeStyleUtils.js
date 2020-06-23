@@ -53,9 +53,11 @@ const getThreeStyleQuizList = (userName, part, buffer = undefined) => {
         });
 };
 
-const getThreeStyleQuizLog = (userName, part) => {
+const getThreeStyleQuizLog = (userName, part, buffer = undefined) => {
+    const url = buffer ? `${config.apiRoot}/threeStyleQuizLog/${part.name}/${userName}&buffer=${buffer}` : `${config.apiRoot}/threeStyleQuizLog/${part.name}/${userName}`;
+
     const options = {
-        url: `${config.apiRoot}/threeStyleQuizLog/${part.name}/${userName}`,
+        url,
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

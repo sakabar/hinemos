@@ -12,7 +12,7 @@ import ThreeStyleProblemListDetailTemplate from '../../templates/ThreeStyleProbl
 import {
     // sagaSearchAlgorithms,
     selectAlgorithm,
-    sagaLoadThreeStyleQuizProblemListDetail,
+    sagaLoadInitially,
     selectProblemList,
     sagaAddToProblemList,
     toggleSelectAll,
@@ -48,8 +48,8 @@ const mapDispatchToProps = (dispatch) => {
         selectAlgorithm: (ind, newIsSelected) => {
             dispatch(selectAlgorithm({ ind, newIsSelected, }));
         },
-        sagaLoadThreeStyleQuizProblemListDetail: (url) => {
-            dispatch(sagaLoadThreeStyleQuizProblemListDetail({ url, }));
+        sagaLoadInitially: (url) => {
+            dispatch(sagaLoadInitially({ url, }));
         },
         selectProblemList: (selectedProblemListId) => {
             dispatch(selectProblemList({ selectedProblemListId, }));
