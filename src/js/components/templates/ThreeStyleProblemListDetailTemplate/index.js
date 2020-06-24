@@ -65,12 +65,14 @@ const ThreeStyleProblemListDetailTemplate = (
         threeStyleQuizProblemLists,
         selectedThreeStyleQuizListId,
         threeStyleQuizProblemListDetail,
+        threeStyleQuizProblemListDetailIndsStr,
 
         selectAlgorithm,
         sagaLoadInitially,
         selectProblemList,
         sagaAddToProblemList,
         toggleSelectAll,
+        sagaSortTable,
     }
 ) => {
     useEffect(() => {
@@ -83,6 +85,15 @@ const ThreeStyleProblemListDetailTemplate = (
         // Stateを変更して再描画があった時に、SortableTblのフィルタリングが解除されないようにした
         // 何もしないと、フィルタが反映されずに全件表示されてしまう
         reFilterTable(null);
+    });
+
+    useEffect(() => {
+        // sortableTblをクリックした時の見た目上のソートは、ReducerのStateには反映されていない
+        // なので、見た目と状態が一致するように、再描画時にソートを適用する
+        // sagaSortTableの処理の中で無限ループ回避をしているはず
+        if (threeStyleQuizProblemListDetail.length > 0) {
+            sagaSortTable(null, null);
+        }
     });
 
     const showLength = 10;
@@ -212,12 +223,14 @@ ThreeStyleProblemListDetailTemplate.propTypes = {
     threeStyleQuizProblemLists: PropTypes.array,
     selectedThreeStyleQuizListId: PropTypes.number,
     threeStyleQuizProblemListDetail: PropTypes.array,
+    threeStyleQuizProblemListDetailIndsStr: PropTypes.string,
 
     selectAlgorithm: PropTypes.func.isRequired,
     sagaLoadInitially: PropTypes.func.isRequired,
     selectProblemList: PropTypes.func.isRequired,
     sagaAddToProblemList: PropTypes.func.isRequired,
     toggleSelectAll: PropTypes.func.isRequired,
+    sagaSortTable: PropTypes.func.isRequired,
 };
 
 export default ThreeStyleProblemListDetailTemplate;

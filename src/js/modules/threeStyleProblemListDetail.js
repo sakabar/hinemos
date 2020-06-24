@@ -44,6 +44,11 @@ export const toggleSelectAll = createAction(CHANGE_SELECT_ALL);
 const SELECT_ALGORITHM = 'SELECT_ALGORITHM';
 export const selectAlgorithm = createAction(SELECT_ALGORITHM);
 
+const SORT_TABLE = 'SORT_TABLE';
+const sortTable = createAction(SORT_TABLE);
+const SAGA_SORT_TABLE = 'SAGA_SORT_TABLE';
+export const sagaSortTable = createAction(SAGA_SORT_TABLE);
+
 const requestGetThreeStyleQuizProblemListDetail = (part, problemListId) => {
     const url = `${config.apiRoot}/getThreeStyleQuizProblemListDetail/${part.name}`;
 
@@ -275,6 +280,118 @@ function * handleAddToProblemList () {
     }
 }
 
+function * handleSortTable () {
+    while (true) {
+        const action = yield take(sagaSortTable);
+
+        const origDetail = yield select(state => state.threeStyleQuizProblemListDetail);
+        const origIndsStr = yield select(state => state.threeStyleQuizProblemListDetailIndsStr);
+
+        // dKey, nAscが指定されているときはその設定でソート
+        // nullの場合は現在のソート状態を取得してその通りにソート
+        let dKey = action.payload.dKey;
+        let nAsc = action.payload.nAsc;
+
+        if ((dKey !== null) || (nAsc !== null)) {
+            const newDetail = origDetail.slice();
+            newDetail.sort((a, b) => {
+                if (a[dKey] === b[dKey]) { return 0; }
+                if (nAsc ? a[dKey] > b[dKey] : a[dKey] < b[dKey]) { return 1; }
+                if (nAsc ? a[dKey] < b[dKey] : a[dKey] > b[dKey]) { return -1; }
+                return 0;
+            });
+
+            const newIndsStr = newDetail.map(d => String(d.ind)).join(',');
+
+            // 無限にソートと発火を繰り返すのを防ぐ
+            if (origIndsStr === newIndsStr) {
+                continue;
+            }
+
+            const payload = {
+                dKey,
+                nAsc,
+            };
+
+            yield put(sortTable(payload));
+            continue;
+        }
+
+        // 降順ソートの時は 'fa-sort-amount-desc',
+        // 昇順ソートの時は 'fa-sort-amount-asc'の
+        // CSS classの要素がある
+
+        const ascTh = document.querySelector('.fa-sort-amount-asc');
+        const descTh = document.querySelector('.fa-sort-amount-desc');
+
+        let th;
+        if (ascTh) {
+            th = ascTh;
+            nAsc = true;
+        } else if (descTh) {
+            th = descTh;
+            nAsc = false;
+        }
+
+        // thがnull、つまりソートされているカラムが無い場合は何もしない
+        if (!th) {
+            continue;
+        }
+
+        // FIXME これTemplateと重複しているが、どう抽出して持つといいのか分からん
+        const tHead = [
+            '',
+            '連番',
+            'ナンバリング',
+            'ステッカー',
+            '手順',
+            '正解率',
+            '平均タイム',
+            'tps',
+            '手順作成日時',
+            '操作',
+        ];
+
+        const col = [
+            'checkbox',
+            'pInd',
+            'letters',
+            'stickers',
+            'moves',
+            'acc',
+            'avgSec',
+            'tps',
+            'createdAt',
+            'operation',
+        ];
+
+        const tHeadText = th.parentNode.innerText.replace('\n', '');
+        dKey = _.zip(tHead, col).filter(pair => pair[0] === tHeadText)[0][1];
+
+        const newDetail = origDetail.slice();
+        newDetail.sort((a, b) => {
+            if (a[dKey] === b[dKey]) { return 0; }
+            if (nAsc ? a[dKey] > b[dKey] : a[dKey] < b[dKey]) { return 1; }
+            if (nAsc ? a[dKey] < b[dKey] : a[dKey] > b[dKey]) { return -1; }
+            return 0;
+        });
+
+        const newIndsStr = newDetail.map(d => String(d.ind)).join(',');
+
+        // 無限にソートと発火を繰り返すのを防ぐ
+        if (origIndsStr === newIndsStr) {
+            continue;
+        }
+
+        const payload = {
+            dKey,
+            nAsc,
+        };
+
+        yield put(sortTable(payload));
+    }
+}
+
 const initialState = {
     url: null,
     part: constant.dummyPartType,
@@ -284,6 +401,7 @@ const initialState = {
     threeStyleQuizProblemLists: [], // [ { problemListId: , title: , } ]
     selectedThreeStyleQuizListId: null,
     threeStyleQuizProblemListDetail: [],
+    threeStyleQuizProblemListDetailIndsStr: '',
 };
 
 export const threeStyleProblemListDetailReducer = handleActions(
@@ -303,14 +421,19 @@ export const threeStyleProblemListDetailReducer = handleActions(
                 problemListId,
                 threeStyleQuizProblemLists,
                 threeStyleQuizProblemListDetail,
+                threeStyleQuizProblemListDetailIndsStr: threeStyleQuizProblemListDetail.map(d => String(d.ind)).join(','),
                 threeStyles,
             };
         },
         [selectAlgorithm]: (state, action) => {
-            const ind = action.payload.ind;
+            const pInd = action.payload.pInd;
             const newIsSelected = action.payload.newIsSelected;
 
             const threeStyleQuizProblemListDetail = _.cloneDeep(state.threeStyleQuizProblemListDetail);
+
+            // ソートしていることがあるので、ここのindはレコードに含まれているindカラムの値ではない
+            const ind = threeStyleQuizProblemListDetail.findIndex(d => d.pInd === pInd);
+
             const newData = {
                 ...threeStyleQuizProblemListDetail[ind],
                 isSelected: newIsSelected,
@@ -320,6 +443,7 @@ export const threeStyleProblemListDetailReducer = handleActions(
             return {
                 ...state,
                 threeStyleQuizProblemListDetail,
+                threeStyleQuizProblemListDetailIndsStr: threeStyleQuizProblemListDetail.map(d => String(d.ind)).join(','),
             };
         },
         [selectProblemList]: (state, action) => {
@@ -350,6 +474,27 @@ export const threeStyleProblemListDetailReducer = handleActions(
                 ...state,
                 isCheckedSelectAll: newIsCheckedSelectAll,
                 threeStyleQuizProblemListDetail: newThreeStyleQuizProblemListDetail,
+                threeStyleQuizProblemListDetailIndsStr: newThreeStyleQuizProblemListDetail.map(d => String(d.ind)).join(','),
+            };
+        },
+        [sortTable]: (state, action) => {
+            // https://github.com/Grace951/react-table/blob/1ebc9a1fbc2c8d4f113b1d47dad87596fe61c30c/src/SortableTbl.js#L55-L66
+
+            const dKey = action.payload.dKey;
+            const nAsc = action.payload.nAsc;
+            const threeStyleQuizProblemListDetail = state.threeStyleQuizProblemListDetail.slice();
+
+            threeStyleQuizProblemListDetail.sort((a, b) => {
+                if (a[dKey] === b[dKey]) { return 0; }
+                if (nAsc ? a[dKey] > b[dKey] : a[dKey] < b[dKey]) { return 1; }
+                if (nAsc ? a[dKey] < b[dKey] : a[dKey] > b[dKey]) { return -1; }
+                return 0;
+            });
+
+            return {
+                ...state,
+                threeStyleQuizProblemListDetail,
+                threeStyleQuizProblemListDetailIndsStr: threeStyleQuizProblemListDetail.map(d => String(d.ind)).join(','),
             };
         },
     },
@@ -359,4 +504,5 @@ export const threeStyleProblemListDetailReducer = handleActions(
 export function * rootSaga () {
     yield fork(handleLoadInitially);
     yield fork(handleAddToProblemList);
+    yield fork(handleSortTable);
 };

@@ -16,6 +16,7 @@ import {
     selectProblemList,
     sagaAddToProblemList,
     toggleSelectAll,
+    sagaSortTable,
 
     threeStyleProblemListDetailReducer,
     rootSaga,
@@ -30,6 +31,7 @@ const mapStateToProps = ({
     threeStyleQuizProblemLists,
     selectedThreeStyleQuizListId,
     threeStyleQuizProblemListDetail,
+    threeStyleQuizProblemListDetailIndsStr,
 }) => {
     return {
         url,
@@ -40,13 +42,14 @@ const mapStateToProps = ({
         threeStyleQuizProblemLists,
         selectedThreeStyleQuizListId,
         threeStyleQuizProblemListDetail,
+        threeStyleQuizProblemListDetailIndsStr,
     };
 };
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        selectAlgorithm: (ind, newIsSelected) => {
-            dispatch(selectAlgorithm({ ind, newIsSelected, }));
+        selectAlgorithm: (pInd, newIsSelected) => {
+            dispatch(selectAlgorithm({ pInd, newIsSelected, }));
         },
         sagaLoadInitially: (url) => {
             dispatch(sagaLoadInitially({ url, }));
@@ -59,6 +62,9 @@ const mapDispatchToProps = (dispatch) => {
         },
         toggleSelectAll: () => {
             dispatch(toggleSelectAll());
+        },
+        sagaSortTable: (dKey, nAsc) => {
+            dispatch(sagaSortTable({ dKey, nAsc, }));
         },
     };
 };

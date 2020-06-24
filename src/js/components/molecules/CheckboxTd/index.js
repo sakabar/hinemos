@@ -9,7 +9,7 @@ const CheckboxTdFactory = (selectAlgorithm) => {
         field,
     }) => (
         <td>
-            <Checkbox text='' checked={rowData.isSelected} onChange={(e) => { selectAlgorithm(rowData.pInd - 1, e.target.checked); }}/>
+            <Checkbox text='' checked={rowData.isSelected} onChange={(e) => { selectAlgorithm(rowData.pInd, e.target.checked); }}/>
         </td>
     );
 
