@@ -21,9 +21,6 @@ const urlRoot = path.basename(config.urlRoot);
 const Msg = (props) => (
     <ul>
         <li>3-style手順を一覧で確認できます</li>
-        <ul>
-            <li>未登録の手順は登録できます</li>
-        </ul>
     </ul>
 );
 

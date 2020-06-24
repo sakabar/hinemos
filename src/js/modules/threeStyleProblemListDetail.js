@@ -256,11 +256,21 @@ function * handleAddToProblemList () {
 
         const threeStyleQuizProblemListDetail = yield select(state => state.threeStyleQuizProblemListDetail);
 
-        const stickersStr = threeStyleQuizProblemListDetail
+        const targetStickers = threeStyleQuizProblemListDetail
             .filter(alg => alg.isSelected)
-            .map(alg => alg.stickers)
-            .join(',');
+            .map(alg => alg.stickers);
 
+        if (!selectedProblemListId) {
+            alert('対象の問題リストが選択されていません');
+            continue;
+        }
+
+        if (targetStickers.length === 0) {
+            alert('手順が選択されていません');
+            continue;
+        }
+
+        const stickersStr = targetStickers.join(',');
         yield call(requestPostThreeStyleQuizProblemListDetail, part, selectedProblemListId, stickersStr);
     }
 }

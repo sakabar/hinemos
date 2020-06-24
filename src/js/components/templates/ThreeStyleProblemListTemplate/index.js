@@ -45,7 +45,7 @@ const ThreeStyleProblemListTemplate = (
                 <br/>
                 <Textbox placeholder="リスト名" value={titles} onChange={(e) => inputTitles(e.target.value)}/><Button value="作成" onClick={(e) => sagaCreateProblemLists() }/><br/>
 
-        [] 全て選択 選択したリストを<Button value="削除"/><br/>
+        [ ] 全て選択 選択したリストを[削除]<br/>
 
                 {
                     (() => {
