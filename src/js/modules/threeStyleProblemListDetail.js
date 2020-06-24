@@ -121,8 +121,15 @@ function * handleLoadInitially () {
         // その場合は、APIは全手順が含まれたリストを返す仕様とする
         const problemListId = parseInt(url.searchParams.get('problemListId')) || null;
         const detailRes = yield call(requestGetThreeStyleQuizProblemListDetail, part, problemListId);
-        const detail = detailRes.result;
+        const details = detailRes.result;
         const buffer = detailRes.buffer;
+
+        // lettersの昇順でソートしておく
+        details.sort((a, b) => {
+            if (a.letters < b.letters) return -1;
+            if (a.letters === b.letters) return 0;
+            if (a.letters > b.letters) return 1;
+        });
 
         const threeStyleQuizProblemListsRes = yield call(threeStyleQuizListUtils.requestGetThreeStyleQuizProblemList, part);
 
@@ -138,13 +145,20 @@ function * handleLoadInitially () {
         const quizLogs = yield call(threeStyleUtils.getThreeStyleQuizLog, userName, part, buffer);
 
         // 問題リストと3-style手順の情報とクイズ結果の情報をJOIN
-        // ベースは3-style手順
-        // 問題リストに含まれる
-        // クイズの結果の情報をleft join
-        const problemListStickers = detail.map(record => record.stickers);
-        const stickersToProblemListDetail = {};
-        detail.map(record => {
-            stickersToProblemListDetail[record.stickers] = record;
+        // 1つのstickersに対して複数3-style手順があるので、基本的に問題リストの要素でループしつつも、
+        // map()処理ではなく配列にどんどんpush()していく方式
+        // クイズの結果の情報も付加
+
+        // stickers -> [threeStyle]
+        const stickersToThreeStyles = {};
+        threeStyles.map(threeStyle => {
+            const stickers = threeStyle.stickers;
+
+            if (stickers in stickersToThreeStyles) {
+                stickersToThreeStyles[stickers].push(threeStyle);
+            } else {
+                stickersToThreeStyles[stickers] = [ threeStyle, ];
+            }
         });
 
         const stickersToQuizLog = {};
@@ -165,22 +179,36 @@ function * handleLoadInitially () {
             stickersToQuizLog[stickers] = record;
         });
 
-        const threeStyleQuizProblemListDetail = threeStyles
-            .filter(record => problemListStickers.includes(record.stickers))
-            .map((threeStyle, ind) => {
-                const stickers = threeStyle.stickers;
+        const threeStyleQuizProblemListDetail = [];
+        details.map(detail => {
+            const stickers = detail.stickers;
 
-                const acc = ((stickers in stickersToQuizLog) && stickersToQuizLog[stickers].tried > 0) ? 1.0 * stickersToQuizLog[stickers].solved / stickersToQuizLog[stickers].tried : null;
-                const avgSec = (stickers in stickersToQuizLog) ? stickersToQuizLog[stickers].avgSec : null;
-                const tps = ((stickers in stickersToQuizLog) && avgSec > 0) ? 1.0 * threeStyle.numberOfMoves / avgSec : null;
+            const acc = ((stickers in stickersToQuizLog) && stickersToQuizLog[stickers].tried > 0) ? 1.0 * stickersToQuizLog[stickers].solved / stickersToQuizLog[stickers].tried : null;
+            const avgSec = (stickers in stickersToQuizLog) ? stickersToQuizLog[stickers].avgSec : null;
+            const letters = detail.letters;
 
-                const letters = stickersToProblemListDetail[stickers].letters;
+            // あるstickerのthreeStyleが無い場合でも、1行だけ用意したいので、 [ null, ]にしている
+            const len = stickersToThreeStyles[stickers] ? stickersToThreeStyles[stickers].length : 0;
+            (stickersToThreeStyles[stickers] || [ null, ]).map(threeStyle => {
+                let tps = null;
+                let moves = '';
+                let createdAt = null;
+                let updatedAt = null;
+                if (threeStyle !== null) {
+                    tps = ((stickers in stickersToQuizLog) && avgSec > 0) ? 1.0 * threeStyle.numberOfMoves / avgSec : null;
+                    moves = utils.showMove(threeStyle.setup, threeStyle.move1, threeStyle.move2);
+                    createdAt = moment(threeStyle.createdAt, moment.ISO_8601);
+                    updatedAt = moment(threeStyle.updatedAt, moment.ISO_8601);
+                }
 
-                return {
-                    ...threeStyle,
-                    ind,
-                    pInd: ind + 1, // 1-origin (positive ind)
-                    moves: utils.showMove(threeStyle.setup, threeStyle.move1, threeStyle.move2),
+                let dispLetters = `「${letters}」`;
+                if (len >= 2) {
+                    dispLetters += '【重複】';
+                }
+
+                const record = {
+                    ...detail,
+                    moves,
                     acc,
                     avgSec,
                     tps,
@@ -188,18 +216,30 @@ function * handleLoadInitially () {
                     letters,
                     // 「全て選択」の際、フィルタ条件に"「"が入っている時も正しく処理ができるように、
                     // 表示表にテーブルに渡したカッコ付きの文字列をstateでも持っておく
-                    dispLetters: `「${letters}」`,
-                    createdAt: moment(threeStyle.createdAt, moment.ISO_8601),
-                    updatedAt: moment(threeStyle.updatedAt, moment.ISO_8601),
+                    dispLetters,
+                    createdAt,
+                    updatedAt,
                 };
+
+                threeStyleQuizProblemListDetail.push(record);
             });
+        });
+
+        // indの情報はレコードの数が確定してから追加する必要があるので最後にやっている
+        const detailsWithInd = threeStyleQuizProblemListDetail.map((rec, ind) => {
+            return {
+                ...rec,
+                ind,
+                pInd: ind + 1, // 1-origin (positive ind)
+            };
+        });
 
         const payload = {
             url,
             part,
             problemListId,
             threeStyleQuizProblemLists,
-            threeStyleQuizProblemListDetail,
+            threeStyleQuizProblemListDetail: detailsWithInd,
             threeStyles,
         };
 
