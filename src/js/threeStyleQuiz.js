@@ -76,16 +76,53 @@ const selectThreeStyles = (threeStyles, quizLogRes) => {
     return unsolvedAns.concat(solvedAns);
 };
 
-// threeStyleのうち、problemListに含まれるもののみを抽出
+// problemListにthreeStyleの情報を付けて返す
+// 問題リストにthreeStyleが登録されていないものがあっても出題
 const selectFromManualList = (threeStyles, quizLogRes, problemList) => {
-    if (threeStyles.length === 0 || problemList.length === 0) {
+    if (problemList.length === 0) {
         return [];
     }
 
-    const problemListStickers = problemList.map(x => x.stickers);
-    const threeStylesInProblemList = threeStyles.filter(x => problemListStickers.includes(x.stickers));
+    // const problemListStickers = problemList.map(x => x.stickers);
 
-    return selectThreeStyles(threeStylesInProblemList, quizLogRes);
+    // stickers -> [threeStyle]
+    const stickersToThreeStyles = {};
+    threeStyles.map(threeStyle => {
+        const stickers = threeStyle.stickers;
+
+        if (stickers in stickersToThreeStyles) {
+            stickersToThreeStyles[stickers].push(threeStyle);
+        } else {
+            stickersToThreeStyles[stickers] = [ threeStyle, ];
+        }
+    });
+
+    const joinedProblemList = [];
+    problemList.map(problem => {
+        const stickers = problem.stickers;
+
+        if (stickers in stickersToThreeStyles) {
+            stickersToThreeStyles[stickers].map(t => {
+                joinedProblemList.push(t);
+            });
+        } else {
+            const rec = {
+                id: undefined,
+                userName: undefined,
+                buffer: problem.buffer,
+                sticker1: problem.sticker1,
+                sticker2: problem.sticker2,
+                stickers,
+                setup: '',
+                move1: '',
+                move2: '',
+            };
+
+            joinedProblemList.push(rec);
+        }
+    });
+
+    return selectThreeStyles(joinedProblemList, quizLogRes);
 };
 
 const showHint = () => {
