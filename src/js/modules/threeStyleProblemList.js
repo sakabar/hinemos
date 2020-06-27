@@ -20,6 +20,9 @@ const config = require('../config');
 const constant = require('../constant');
 const threeStyleQuizListUtils = require('../threeStyleQuizListUtils');
 
+const SET_LOAD_WILL_SKIPPED = 'SET_LOAD_WILL_SKIPPED';
+export const setLoadWillSkipped = createAction(SET_LOAD_WILL_SKIPPED);
+
 const INPUT_TITLES = 'INPUT_TITLES';
 export const inputTitles = createAction(INPUT_TITLES);
 
@@ -104,6 +107,7 @@ function * handleCreateProblemLists () {
 
 const initialState = {
     url: null,
+    loadWillSkipped: false,
     part: constant.dummyPartType,
     userName: localStorage.userName,
     titles: '',
@@ -122,6 +126,13 @@ const initialState = {
 
 export const threeStyleProblemListReducer = handleActions(
     {
+        [setLoadWillSkipped]: (state, action) => {
+            const loadWillSkipped = action.payload.loadWillSkipped || false;
+            return {
+                ...state,
+                loadWillSkipped,
+            };
+        },
         [inputTitles]: (state, action) => {
             const titles = action.payload.titles;
             return {
@@ -139,6 +150,7 @@ export const threeStyleProblemListReducer = handleActions(
             return {
                 ...state,
                 url,
+                loadWillSkipped: true,
                 part,
                 problemLists,
             };

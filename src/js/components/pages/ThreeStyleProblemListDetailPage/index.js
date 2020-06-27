@@ -10,7 +10,7 @@ import {
 import createSagaMiddleware from 'redux-saga';
 import ThreeStyleProblemListDetailTemplate from '../../templates/ThreeStyleProblemListDetailTemplate';
 import {
-    // sagaSearchAlgorithms,
+    setLoadWillSkipped,
     selectAlgorithm,
     sagaLoadInitially,
     selectProblemList,
@@ -24,6 +24,7 @@ import {
 
 const mapStateToProps = ({
     url,
+    loadWillSkipped,
     part,
     userName,
     problemListId,
@@ -35,6 +36,7 @@ const mapStateToProps = ({
 }) => {
     return {
         url,
+        loadWillSkipped,
         part,
         userName,
         problemListId,
@@ -48,6 +50,9 @@ const mapStateToProps = ({
 
 const mapDispatchToProps = (dispatch) => {
     return {
+        setLoadWillSkipped: (loadWillSkipped) => {
+            dispatch(setLoadWillSkipped({ loadWillSkipped, }));
+        },
         selectAlgorithm: (pInd, newIsSelected) => {
             dispatch(selectAlgorithm({ pInd, newIsSelected, }));
         },

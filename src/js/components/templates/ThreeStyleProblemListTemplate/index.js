@@ -17,23 +17,31 @@ const urlRoot = path.basename(config.urlRoot);
 const ThreeStyleProblemListTemplate = (
     {
         url,
+        loadWillSkipped,
         part,
         userName,
         titles,
         problemLists,
 
+        setLoadWillSkipped,
         inputTitles,
         sagaLoadThreeStyleQuizProblemList,
         sagaCreateProblemLists,
     }
 ) => {
+    // 第二引数として[]を渡しているので、コンポーネントのマウント/アンマウント時に発火
     useEffect(() => {
-        // コンポーネントが描画された時 & urlが変更された時にイベント発火
-        const newUrl = new URL(location.href);
-        if (!url || url.toString() !== newUrl.toString()) {
+        if (!loadWillSkipped) {
+            const newUrl = new URL(location.href);
             sagaLoadThreeStyleQuizProblemList(newUrl);
         }
-    });
+
+        const cleanup = () => {
+            setLoadWillSkipped(false);
+        };
+
+        return cleanup;
+    }, []);
 
     return (
         <div>
@@ -101,11 +109,13 @@ const ThreeStyleProblemListTemplate = (
 
 ThreeStyleProblemListTemplate.propTypes = {
     url: PropTypes.object,
+    loadWillSkipped: PropTypes.bool,
     part: PropTypes.oneOf([ ...Object.values(constant.partType), constant.dummyPartType, ]),
     userName: PropTypes.string.isRequired,
     titles: PropTypes.string,
     problemLists: PropTypes.array,
 
+    setLoadWillSkipped: PropTypes.func.isRequired,
     inputTitles: PropTypes.func.isRequired,
     sagaLoadThreeStyleQuizProblemList: PropTypes.func.isRequired,
     sagaCreateProblemLists: PropTypes.func.isRequired,

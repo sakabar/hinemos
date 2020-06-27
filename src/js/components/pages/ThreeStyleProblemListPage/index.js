@@ -10,6 +10,7 @@ import {
 import createSagaMiddleware from 'redux-saga';
 import ThreeStyleProblemListTemplate from '../../templates/ThreeStyleProblemListTemplate';
 import {
+    setLoadWillSkipped,
     inputTitles,
     sagaLoadThreeStyleQuizProblemList,
     sagaCreateProblemLists,
@@ -20,6 +21,7 @@ import {
 
 const mapStateToProps = ({
     url,
+    loadWillSkipped,
     part,
     userName,
     titles,
@@ -27,6 +29,7 @@ const mapStateToProps = ({
 }) => {
     return {
         url,
+        loadWillSkipped,
         part,
         userName,
         titles,
@@ -36,6 +39,9 @@ const mapStateToProps = ({
 
 const mapDispatchToProps = (dispatch) => {
     return {
+        setLoadWillSkipped: (loadWillSkipped) => {
+            dispatch(setLoadWillSkipped({ loadWillSkipped, }));
+        },
         inputTitles: (titles) => {
             dispatch(inputTitles({ titles, }));
         },

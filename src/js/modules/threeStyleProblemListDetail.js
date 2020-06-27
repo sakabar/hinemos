@@ -22,6 +22,9 @@ const _ = require('lodash');
 const moment = require('moment');
 const rp = require('request-promise');
 
+const SET_LOAD_WILL_SKIPPED = 'SET_LOAD_WILL_SKIPPED';
+export const setLoadWillSkipped = createAction(SET_LOAD_WILL_SKIPPED);
+
 const LOAD_INITIALLY = 'LOAD_INITIALLY';
 const loadInitially = createAction(LOAD_INITIALLY);
 const SAGA_LOAD_INITIALLY = 'SAGA_LOAD_INITIALLY';
@@ -394,6 +397,7 @@ function * handleSortTable () {
 
 const initialState = {
     url: null,
+    loadWillSkipped: false,
     part: constant.dummyPartType,
     userName: localStorage.userName,
     problemListId: null,
@@ -417,12 +421,20 @@ export const threeStyleProblemListDetailReducer = handleActions(
             return {
                 ...state,
                 url,
+                loadWillSkipped: true,
                 part,
                 problemListId,
                 threeStyleQuizProblemLists,
                 threeStyleQuizProblemListDetail,
                 threeStyleQuizProblemListDetailIndsStr: threeStyleQuizProblemListDetail.map(d => String(d.ind)).join(','),
                 threeStyles,
+            };
+        },
+        [setLoadWillSkipped]: (state, action) => {
+            const loadWillSkipped = action.payload.loadWillSkipped || false;
+            return {
+                ...state,
+                loadWillSkipped,
             };
         },
         [selectAlgorithm]: (state, action) => {

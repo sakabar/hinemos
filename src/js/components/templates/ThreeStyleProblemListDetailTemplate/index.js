@@ -58,6 +58,7 @@ const reFilterTable = (value) => {
 const ThreeStyleProblemListDetailTemplate = (
     {
         url,
+        loadWillSkipped,
         part,
         userName,
         problemListId,
@@ -67,6 +68,7 @@ const ThreeStyleProblemListDetailTemplate = (
         threeStyleQuizProblemListDetail,
         threeStyleQuizProblemListDetailIndsStr,
 
+        setLoadWillSkipped,
         selectAlgorithm,
         sagaLoadInitially,
         selectProblemList,
@@ -75,19 +77,25 @@ const ThreeStyleProblemListDetailTemplate = (
         sagaSortTable,
     }
 ) => {
+    // 第二引数として[]を渡しているので、コンポーネントのマウント/アンマウント時に発火
     useEffect(() => {
-        // コンポーネントが描画された時 & urlが変更された時にイベント発火
-        const newUrl = new URL(location.href);
-        if (!url || url.toString() !== newUrl.toString()) {
+        if (!loadWillSkipped) {
+            const newUrl = new URL(location.href);
             sagaLoadInitially(newUrl);
         }
 
+        const cleanup = () => {
+            setLoadWillSkipped(false);
+        };
+
+        return cleanup;
+    }, []);
+
+    useEffect(() => {
         // Stateを変更して再描画があった時に、SortableTblのフィルタリングが解除されないようにした
         // 何もしないと、フィルタが反映されずに全件表示されてしまう
         reFilterTable(null);
-    });
 
-    useEffect(() => {
         // sortableTblをクリックした時の見た目上のソートは、ReducerのStateには反映されていない
         // なので、見た目と状態が一致するように、再描画時にソートを適用する
         // sagaSortTableの処理の中で無限ループ回避をしているはず
@@ -216,6 +224,7 @@ const ThreeStyleProblemListDetailTemplate = (
 
 ThreeStyleProblemListDetailTemplate.propTypes = {
     url: PropTypes.object,
+    loadWillSkipped: PropTypes.bool,
     part: PropTypes.oneOf([ ...Object.values(constant.partType), constant.dummyPartType, ]),
     userName: PropTypes.string.isRequired,
     problemListId: PropTypes.number,
@@ -225,6 +234,7 @@ ThreeStyleProblemListDetailTemplate.propTypes = {
     threeStyleQuizProblemListDetail: PropTypes.array,
     threeStyleQuizProblemListDetailIndsStr: PropTypes.string,
 
+    setLoadWillSkipped: PropTypes.func.isRequired,
     selectAlgorithm: PropTypes.func.isRequired,
     sagaLoadInitially: PropTypes.func.isRequired,
     selectProblemList: PropTypes.func.isRequired,
