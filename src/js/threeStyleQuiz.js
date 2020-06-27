@@ -26,8 +26,7 @@ const renderSettings = (days, solved, onlyOnce) => {
 };
 
 // 入力された設定を反映
-// FIXME レターペアと実装が重複…いや、partが入っているからそうでもなかった
-const reloadWithOptions = (part, problemListType, quizOrder) => {
+const reloadWithOptions = (part, problemListType, quizOrder, problemListId) => {
     const daysText = document.querySelector('.settingForm__daysText');
 
     // daysは0以上の値であることを想定
@@ -37,7 +36,7 @@ const reloadWithOptions = (part, problemListType, quizOrder) => {
 
     const onlyOnce = document.querySelector('.settingForm__checkBox').checked;
 
-    location.href = `${config.urlRoot}/threeStyle/quiz.html?&part=${part.name}&problemListType=${problemListType.name}&solved=${solved}&days=${days}&sort=${quizOrder}&onlyOnce=${onlyOnce}`;
+    location.href = `${config.urlRoot}/threeStyle/quiz.html?&part=${part.name}&problemListType=${problemListType.name}&solved=${solved}&days=${days}&sort=${quizOrder}&onlyOnce=${onlyOnce}&problemListId=${problemListId}`;
 };
 
 const getHint = (setup, move1, move2) => {
@@ -77,16 +76,53 @@ const selectThreeStyles = (threeStyles, quizLogRes) => {
     return unsolvedAns.concat(solvedAns);
 };
 
-// threeStyleのうち、problemListに含まれるもののみを抽出
+// problemListにthreeStyleの情報を付けて返す
+// 問題リストにthreeStyleが登録されていないものがあっても出題
 const selectFromManualList = (threeStyles, quizLogRes, problemList) => {
-    if (threeStyles.length === 0 || problemList.length === 0) {
+    if (problemList.length === 0) {
         return [];
     }
 
-    const problemListStickers = problemList.map(x => x.stickers);
-    const threeStylesInProblemList = threeStyles.filter(x => problemListStickers.includes(x.stickers));
+    // const problemListStickers = problemList.map(x => x.stickers);
 
-    return selectThreeStyles(threeStylesInProblemList, quizLogRes);
+    // stickers -> [threeStyle]
+    const stickersToThreeStyles = {};
+    threeStyles.map(threeStyle => {
+        const stickers = threeStyle.stickers;
+
+        if (stickers in stickersToThreeStyles) {
+            stickersToThreeStyles[stickers].push(threeStyle);
+        } else {
+            stickersToThreeStyles[stickers] = [ threeStyle, ];
+        }
+    });
+
+    const joinedProblemList = [];
+    problemList.map(problem => {
+        const stickers = problem.stickers;
+
+        if (stickers in stickersToThreeStyles) {
+            stickersToThreeStyles[stickers].map(t => {
+                joinedProblemList.push(t);
+            });
+        } else {
+            const rec = {
+                id: undefined,
+                userName: undefined,
+                buffer: problem.buffer,
+                sticker1: problem.sticker1,
+                sticker2: problem.sticker2,
+                stickers,
+                setup: '',
+                move1: '',
+                move2: '',
+            };
+
+            joinedProblemList.push(rec);
+        }
+    });
+
+    return selectThreeStyles(joinedProblemList, quizLogRes);
 };
 
 const showHint = () => {
@@ -224,9 +260,12 @@ const submit = (part, letterPairs, numberings, selectedThreeStyles, isRecalled, 
 };
 
 // 問題リストは、全問か、それとも自分で設定した問題のみか
+// 新しくproblemListを追加。いずれはallも特殊な問題リストと見なすことで、全てproblemListだけにする予定
+// その時にはproblemListTypeを廃止する
 const ProblemListType = {
     all: { value: 0, name: 'all', },
     manual: { value: 1, name: 'manual', },
+    problemList: { value: 2, name: 'problemList', },
 };
 
 // 右/左のボタンの挙動を設定
@@ -306,13 +345,17 @@ const init = () => {
     renderSettings(days, solved, onlyOnce);
 
     // URLでproblemListType=manualが指定された場合、自分が設定した問題でやる
-    const problemListType = urlObj.query.problemListType === ProblemListType.manual.name ? ProblemListType.manual : ProblemListType.all;
+    const problemListType = urlObj.query.problemListType === ProblemListType.manual.name ? ProblemListType.manual : ProblemListType.problemList;
+
+    const problemListId = parseInt(urlObj.query.problemListId) || null;
+    // problemListId !== null →問題リスト(複数)
+    // else : これまでの処理
 
     // 設定読み込みボタン
     const reloadBtn = document.querySelector('.settingForm__reloadBtn');
     if (reloadBtn) {
-        reloadBtn.addEventListener('click', () => reloadWithOptions(part, problemListType, quizOrder));
-        onlyOnceCheckBox.addEventListener('change', () => reloadWithOptions(part, problemListType, quizOrder));
+        reloadBtn.addEventListener('click', () => reloadWithOptions(part, problemListType, quizOrder, problemListId));
+        onlyOnceCheckBox.addEventListener('change', () => reloadWithOptions(part, problemListType, quizOrder, problemListId));
     }
 
     const quizUrlStr = days ? `${config.apiRoot}/threeStyleQuizLog/${part.name}/${userName}?days=${days}` : `${config.apiRoot}/threeStyleQuizLog/${part.name}/${userName}`;
@@ -364,15 +407,30 @@ const init = () => {
                     }
 
                     // 登録した問題
-                    const problemListOptions = {
-                        url: `${config.apiRoot}/threeStyleQuizList/${part.name}/${userName}?buffer=${buffer}`,
-                        method: 'GET',
+                    // 新旧の問題リストの並行稼働中は、入力タイプによってどちらAPIを叩くか分岐させる
+                    const problemListOptions = (problemListType !== ProblemListType.manual) ? {
+                        url: `${config.apiRoot}/getThreeStyleQuizProblemListDetail/${part.name}`,
+                        method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
                         json: true,
-                        form: {},
-                    };
+                        form: problemListId ? {
+                            token: localStorage.token,
+                            problemListId,
+                        } : {
+                            token: localStorage.token,
+                        },
+                    }
+                        : {
+                            url: `${config.apiRoot}/threeStyleQuizList/${part.name}/${userName}?buffer=${buffer}`,
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            json: true,
+                            form: {},
+                        };
 
                     return rp(quizOptions)
                         .then((ans) => {
@@ -411,13 +469,7 @@ const init = () => {
                                         .then((ans) => {
                                             const problemList = ans.success.result;
 
-                                            let selectedThreeStyles = [];
-
-                                            if (problemListType === ProblemListType.all) {
-                                                selectedThreeStyles = utils.chunkAndShuffle(selectThreeStyles(threeStyles, quizLogRes), 10);
-                                            } else if (problemListType === ProblemListType.manual) {
-                                                selectedThreeStyles = utils.chunkAndShuffle(selectFromManualList(threeStyles, quizLogRes, problemList), 10);
-                                            }
+                                            const selectedThreeStyles = utils.chunkAndShuffle(selectFromManualList(threeStyles, quizLogRes, problemList), 10);
 
                                             if (selectedThreeStyles.length === 0) {
                                                 alert('出題できる3-styleがありません。先に登録してください。');

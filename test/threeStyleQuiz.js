@@ -27,10 +27,6 @@ describe('threeStyleQuiz.js', () => {
             assert.deepStrictEqual(threeStyleQuiz.selectFromManualList([ null, ], [ null, ], []), []);
         });
 
-        it('正常系: threeStylesが空', () => {
-            assert.deepStrictEqual(threeStyleQuiz.selectFromManualList([], [ null, ], [ null, ]), []);
-        });
-
         it('正常系: どちらも空ではない', () => {
             // 判定に使わないカラムは省略している
             const threeStyles = [
@@ -55,7 +51,7 @@ describe('threeStyleQuiz.js', () => {
             assert.deepStrictEqual(actual, expected);
         });
 
-        it('正常系: threeStyleに登録していないものが問題リストにあった場合は無視', () => {
+        it('正常系: threeStyleに登録していないものが問題リストにあった場合も出題', () => {
             // 判定に使わないカラムは省略している
             const threeStyles = [
                 { id: 1, userName: 'user1', buffer: 'UBL', sticker1: 'UFR', sticker2: 'RDF', stickers: 'UBL UFR RDF', setup: 'D U M M y', move1: 'D U M M y', move2: 'D U M M y', },
@@ -67,6 +63,7 @@ describe('threeStyleQuiz.js', () => {
             const quizLogRes = [
                 { userName: 'user1', buffer: 'UBL', sticker1: 'UFR', sticker2: 'RDF', stickers: 'UBL UFR RDF', avg_sec: 20, },
                 { userName: 'user1', buffer: 'UBL', sticker1: 'UFR', sticker2: 'LDF', stickers: 'UBL UFR LDF', avg_sec: 10, },
+                { userName: 'user1', buffer: 'UBL', sticker1: 'UFR', sticker2: 'FDR', stickers: 'UBL UFR FDR', avg_sec: 5, },
             ];
 
             const problemList = [
@@ -75,7 +72,7 @@ describe('threeStyleQuiz.js', () => {
                 { id: 103, userName: 'user1', buffer: 'UBL', sticker1: 'UFR', sticker2: 'FDR', stickers: 'UBL UFR FDR', }, // これは登録していない3-style
             ];
             const actual = threeStyleQuiz.selectFromManualList(threeStyles, quizLogRes, problemList).map(x => x.stickers);
-            const expected = [ 'UBL UFR RDF', 'UBL UFR LDF', ]; // 1, 2
+            const expected = [ 'UBL UFR RDF', 'UBL UFR LDF', 'UBL UFR FDR', ]; // 1, 2 + 3
 
             assert.deepStrictEqual(actual, expected);
         });
@@ -102,7 +99,7 @@ describe('threeStyleQuiz.js', () => {
             ];
             const actual = threeStyleQuiz.selectFromManualList(threeStyles, quizLogRes, problemList).map(x => x.stickers);
             // 解いていない問題で、problemListに登録してある順 + 遅い順
-            const expected = [ 'UBL UFR BDF', 'UBL UFR RDF', 'UBL UFR LDF', ]; // 3, 1, 2
+            const expected = [ 'UBL UFR BDF', 'UBL UFR FDR', 'UBL UFR RDF', 'UBL UFR LDF', ]; // 4, 3, 1, 2
             assert.deepStrictEqual(actual, expected);
         });
     });
