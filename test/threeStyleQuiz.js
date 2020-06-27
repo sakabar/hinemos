@@ -1,4 +1,5 @@
 const assert = require('assert');
+const _ = require('lodash');
 const threeStyleQuiz = require('../src/js/threeStyleQuiz');
 
 describe('threeStyleQuiz.js', () => {
@@ -99,8 +100,12 @@ describe('threeStyleQuiz.js', () => {
             ];
             const actual = threeStyleQuiz.selectFromManualList(threeStyles, quizLogRes, problemList).map(x => x.stickers);
             // 解いていない問題で、problemListに登録してある順 + 遅い順
-            const expected = [ 'UBL UFR BDF', 'UBL UFR FDR', 'UBL UFR RDF', 'UBL UFR LDF', ]; // 4, 3, 1, 2
-            assert.deepStrictEqual(actual, expected);
+            // 解いていない問題の順番はランダム
+            const expected1 = [ 'UBL UFR FDR', 'UBL UFR BDF', 'UBL UFR RDF', 'UBL UFR LDF', ]; // 3, 4, 1, 2
+            const expected2 = [ 'UBL UFR BDF', 'UBL UFR FDR', 'UBL UFR RDF', 'UBL UFR LDF', ]; // 4, 3, 1, 2
+
+            const isOK = _.isEqual(actual, expected1) || _.isEqual(actual, expected2);
+            assert.deepStrictEqual(isOK, true);
         });
     });
 });
