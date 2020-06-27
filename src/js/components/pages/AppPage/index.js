@@ -1,11 +1,14 @@
-import React from 'react'; // Component,
+import React from 'react';
 import {
     BrowserRouter,
+    // Link,
     Route,
     Switch,
 } from 'react-router-dom';
 import BldTimerPage from '../BldTimerPage';
 import FaqPage from '../FaqPage';
+import ThreeStyleProblemListPage from '../ThreeStyleProblemListPage';
+import ThreeStyleProblemListDetailPage from '../ThreeStyleProblemListDetailPage';
 import MemoTrainingTrialPage from '../MemoTrainingTrialPage';
 import MemoTrainingMbldPage from '../MemoTrainingMbldPage';
 import MemoTrainingCardsPage from '../MemoTrainingCardsPage';
@@ -20,6 +23,10 @@ const urlRoot = path.basename(config.urlRoot);
 const routeDict = {
     bldSmartTimer: BldTimerPage,
     faq: FaqPage,
+    threeStyle: {
+        problemList: ThreeStyleProblemListPage,
+        problemListDetail: ThreeStyleProblemListDetailPage,
+    },
     memoTraining: {
         index: MemoTrainingTrialPage,
         cards: {
