@@ -1,7 +1,7 @@
 import React from 'react';
 import {
     BrowserRouter,
-    Link,
+    // Link,
     Route,
     Switch,
 } from 'react-router-dom';
@@ -62,8 +62,6 @@ if (!Object.keys(flatRouteDict).map(path => `${config.urlRoot}/${path}`).include
 const AppPage = () => (
     <BrowserRouter>
         <div>
-            <Link to={`/${urlRoot}/threeStyle/problemList.html?part=edgeMiddle`}>3-style 問題リスト一覧</Link>
-
             <Switch>
                 {
                     Object.keys(flatRouteDict).map((path, i) => {

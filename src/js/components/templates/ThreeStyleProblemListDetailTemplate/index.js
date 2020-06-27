@@ -107,7 +107,7 @@ const ThreeStyleProblemListDetailTemplate = (
     const showLength = 10;
 
     const threeStyleQuizProblemListOptions = [
-        [ null, ' '.repeat(showLength), ],
+        [ -1, '[選択してください]', ],
     ];
     threeStyleQuizProblemLists
         .filter(threeStyleQuizProblemList => threeStyleQuizProblemList.problemListId !== problemListId)
@@ -152,7 +152,13 @@ const ThreeStyleProblemListDetailTemplate = (
                 <Msg />
 
         選択した手順を
-                <Select options={threeStyleQuizProblemListOptions} defaultValue={null} onChange={(e) => { if (e.target.value) { selectProblemList(e.target.value); } }}/>
+                <Select options={threeStyleQuizProblemListOptions} defaultValue={null} onChange={(e) => {
+                    if (e.target.value === threeStyleQuizProblemListOptions[0][0]) {
+                        selectProblemList(null);
+                    } else {
+                        selectProblemList(e.target.value);
+                    }
+                } }/>
             に<Button value='追加' onClick={(e) => { sagaAddToProblemList(); }}/>
                 <br/>
              選択した手順をリストから[削除]

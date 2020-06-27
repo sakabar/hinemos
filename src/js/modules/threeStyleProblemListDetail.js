@@ -403,7 +403,7 @@ const initialState = {
     problemListId: null,
     isCheckedSelectAll: false,
     threeStyleQuizProblemLists: [], // [ { problemListId: , title: , } ]
-    selectedThreeStyleQuizListId: null,
+    selectedProblemListId: null,
     threeStyleQuizProblemListDetail: [],
     threeStyleQuizProblemListDetailIndsStr: '',
 };
@@ -451,6 +451,10 @@ export const threeStyleProblemListDetailReducer = handleActions(
                 isSelected: newIsSelected,
             };
             threeStyleQuizProblemListDetail[ind] = newData;
+
+            if (state.selectedProblemListId === null) {
+                alert('追加先となる問題リストを選択してください');
+            }
 
             return {
                 ...state,
