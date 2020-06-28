@@ -90,6 +90,11 @@ function * handleCreateProblemLists () {
         const part = yield select(state => state.part);
         const titles = yield select(state => state.titles);
 
+        if (titles.indexOf(' ') !== -1) {
+            alert('問題リスト名にスペースが含まれています');
+            continue;
+        }
+
         const ans = yield call(requestPostProblemListName, part, titles);
 
         const newProblemLists = ans.success.result.map(problemList => {
