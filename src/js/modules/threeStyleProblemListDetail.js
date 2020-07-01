@@ -14,13 +14,11 @@ import {
 //     delay,
 // } from 'redux-saga';
 const constant = require('../constant');
-const config = require('../config');
-const threeStyleQuizListUtils = require('../threeStyleQuizListUtils');
+const threeStyleQuizProblemListUtils = require('../threeStyleQuizProblemListUtils');
 const utils = require('../utils');
 const threeStyleUtils = require('../threeStyleUtils');
 const _ = require('lodash');
 const moment = require('moment');
-const rp = require('request-promise');
 
 const SET_LOAD_WILL_SKIPPED = 'SET_LOAD_WILL_SKIPPED';
 export const setLoadWillSkipped = createAction(SET_LOAD_WILL_SKIPPED);
@@ -52,67 +50,6 @@ const sortTable = createAction(SORT_TABLE);
 const SAGA_SORT_TABLE = 'SAGA_SORT_TABLE';
 export const sagaSortTable = createAction(SAGA_SORT_TABLE);
 
-const requestGetThreeStyleQuizProblemListDetail = (part, problemListId) => {
-    const url = `${config.apiRoot}/getThreeStyleQuizProblemListDetail/${part.name}`;
-
-    // problemListIdがnullの時はそれをAPIに渡さないことで、全手順を出力
-    const form = {
-        token: localStorage.token,
-    };
-    if (problemListId) {
-        form.problemListId = `${problemListId}`;
-    }
-
-    const options = {
-        url,
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        json: true,
-        form,
-    };
-
-    return rp(options)
-        .then((result) => {
-            return {
-                buffer: result.success.buffer,
-                result: result.success.result,
-            };
-        })
-        .catch((err) => {
-            alert(`3-style問題リストの取得に失敗しました: ${err}`);
-            return [];
-        });
-};
-
-const requestPostThreeStyleQuizProblemListDetail = (part, problemListId, stickersStr) => {
-    const url = `${config.apiRoot}/postThreeStyleQuizProblemListDetail/${part.name}`;
-
-    const options = {
-        url,
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        json: true,
-        form: {
-            token: localStorage.token,
-            problemListId,
-            stickersStr,
-        },
-    };
-
-    return rp(options)
-        .then(() => {
-            alert('保存しました');
-        })
-        .catch((err) => {
-            alert(`3-style問題リストの登録に失敗しました: ${err}`);
-            return [];
-        });
-};
-
 function * handleLoadInitially () {
     while (true) {
         const action = yield take(sagaLoadInitially);
@@ -128,7 +65,7 @@ function * handleLoadInitially () {
         // problemListIdがnullの時はAPIにproblemListIdを渡さないようにする
         // その場合は、APIは全手順が含まれたリストを返す仕様とする
         const problemListId = parseInt(url.searchParams.get('problemListId')) || null;
-        const detailRes = yield call(requestGetThreeStyleQuizProblemListDetail, part, problemListId);
+        const detailRes = yield call(threeStyleQuizProblemListUtils.requestGetThreeStyleQuizProblemListDetail, part, problemListId);
         const details = detailRes.result;
         const buffer = detailRes.buffer;
 
@@ -139,7 +76,7 @@ function * handleLoadInitially () {
             if (a.letters > b.letters) return 1;
         });
 
-        const threeStyleQuizProblemListsRes = yield call(threeStyleQuizListUtils.requestGetThreeStyleQuizProblemList, part);
+        const threeStyleQuizProblemListsRes = yield call(threeStyleQuizProblemListUtils.requestGetThreeStyleQuizProblemList, part);
 
         const threeStyleQuizProblemLists = threeStyleQuizProblemListsRes.success.result.map(record => {
             return {
@@ -280,7 +217,7 @@ function * handleAddToProblemList () {
         }
 
         const stickersStr = targetStickers.join(',');
-        yield call(requestPostThreeStyleQuizProblemListDetail, part, selectedProblemListId, stickersStr);
+        yield call(threeStyleQuizProblemListUtils.requestPostThreeStyleQuizProblemListDetail, part, selectedProblemListId, stickersStr);
     }
 }
 
@@ -479,7 +416,7 @@ export const threeStyleProblemListDetailReducer = handleActions(
             // 画面に見えている手順全てのチェック状態を、newIsCheckedSelectAllと同じにする
             const newThreeStyleQuizProblemListDetail = state.threeStyleQuizProblemListDetail
                 .map((row, i) => {
-                    if (threeStyleQuizListUtils.isSelectedRow(searchWord, row)) {
+                    if (threeStyleQuizProblemListUtils.isSelectedRow(searchWord, row)) {
                         row.isSelected = newIsCheckedSelectAll;
                         return row;
                     } else {

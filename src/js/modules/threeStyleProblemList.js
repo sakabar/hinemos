@@ -15,10 +15,8 @@ import {
 // } from 'redux-saga';
 const _ = require('lodash');
 const moment = require('moment');
-const rp = require('request-promise');
-const config = require('../config');
 const constant = require('../constant');
-const threeStyleQuizListUtils = require('../threeStyleQuizListUtils');
+const threeStyleQuizProblemListUtils = require('../threeStyleQuizProblemListUtils');
 
 const SET_LOAD_WILL_SKIPPED = 'SET_LOAD_WILL_SKIPPED';
 export const setLoadWillSkipped = createAction(SET_LOAD_WILL_SKIPPED);
@@ -81,7 +79,7 @@ function * handleLoadThreeStyleQuizProblemList () {
             return;
         }
 
-        const threeStyleQuizProblemList = yield call(threeStyleQuizListUtils.requestGetThreeStyleQuizProblemList, part);
+        const threeStyleQuizProblemList = yield call(threeStyleQuizProblemListUtils.requestGetThreeStyleQuizProblemList, part);
 
         const payload = {
             url,
@@ -113,7 +111,7 @@ function * handleCreateProblemLists () {
             continue;
         }
 
-        const ans = yield call(requestPostProblemListName, part, titles);
+        const ans = yield call(threeStyleQuizProblemListUtils.requestPostProblemListName, part, titles);
 
         const newProblemLists = ans.success.result.map(problemList => {
             return {

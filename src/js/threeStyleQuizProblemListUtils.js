@@ -34,5 +34,88 @@ const isSelectedRow = (searchWord, item) => {
     return false;
 };
 
+const requestPostProblemListName = (part, titles) => {
+    const options = {
+        url: `${config.apiRoot}/postThreeStyleQuizProblemListName/${part.name}`,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {
+            titles,
+            token: localStorage.token,
+        },
+    };
+
+    return rp(options);
+};
+
+const requestGetThreeStyleQuizProblemListDetail = (part, problemListId) => {
+    const url = `${config.apiRoot}/getThreeStyleQuizProblemListDetail/${part.name}`;
+
+    // problemListIdがnullの時はそれをAPIに渡さないことで、全手順を出力
+    const form = {
+        token: localStorage.token,
+    };
+    if (problemListId) {
+        form.problemListId = `${problemListId}`;
+    }
+
+    const options = {
+        url,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form,
+    };
+
+    return rp(options)
+        .then((result) => {
+            return {
+                buffer: result.success.buffer,
+                result: result.success.result,
+            };
+        })
+        .catch((err) => {
+            alert(`3-style問題リストの取得に失敗しました: ${err}`);
+            return [];
+        });
+};
+
+const requestPostThreeStyleQuizProblemListDetail = (part, problemListId, stickersStr) => {
+    const url = `${config.apiRoot}/postThreeStyleQuizProblemListDetail/${part.name}`;
+
+    const options = {
+        url,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {
+            token: localStorage.token,
+            problemListId,
+            stickersStr,
+        },
+    };
+
+    return rp(options)
+        .then(() => {
+            alert('保存しました');
+        })
+        .catch((err) => {
+            alert(`3-style問題リストの登録に失敗しました: ${err}`);
+            return [];
+        });
+};
+
 exports.requestGetThreeStyleQuizProblemList = requestGetThreeStyleQuizProblemList;
+
 exports.isSelectedRow = isSelectedRow;
+
+exports.requestPostProblemListName = requestPostProblemListName;
+exports.requestGetThreeStyleQuizProblemListDetail = requestGetThreeStyleQuizProblemListDetail;
+exports.requestPostThreeStyleQuizProblemListDetail = requestPostThreeStyleQuizProblemListDetail;
