@@ -34,6 +34,9 @@ const loadThreeStyleQuizProblemList = createAction(LOAD_THREE_STYLE_QUIZ_PROBLEM
 const SAGA_LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST = 'SAGA_LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST';
 export const sagaLoadThreeStyleQuizProblemList = createAction(SAGA_LOAD_THREE_STYLE_QUIZ_PROBLEM_LIST);
 
+const SAGA_AUTO_CREATE_PROBLEM_LISTS = 'SAGA_AUTO_CREATE_PROBLEM_LISTS';
+export const sagaAutoCreateProblemLists = createAction(SAGA_AUTO_CREATE_PROBLEM_LISTS);
+
 const SORT_TABLE = 'SORT_TABLE';
 const sortTable = createAction(SORT_TABLE);
 const SAGA_SORT_TABLE = 'SAGA_SORT_TABLE';
@@ -125,6 +128,67 @@ function * handleCreateProblemLists () {
         });
 
         yield put(createProblemLists({ newProblemLists, }));
+    }
+};
+
+function * handleAutoCreateProblemLists () {
+    while (true) {
+        yield take(sagaAutoCreateProblemLists);
+        const part = yield select(state => state.part);
+
+        // System_全手順のDetailを読み込んで、ステッカーの組み合わせ全量を取得
+        // 登録したいStickers全量を並べる
+        // 1手順ずつ増やしていって、問題リストの中に登録
+
+        const detailRes = yield call(threeStyleQuizProblemListUtils.requestGetThreeStyleQuizProblemListDetail, part, null);
+        // const detailRecords = detailRes.result.slice(0, 5);
+        const detailRecords = detailRes.result;
+
+        const titles = detailRecords.map((record, i) => {
+            const numStr = `${i + 1}`.padStart(3, '0');
+            return `System_auto_${numStr}_${record.letters}_as_new`;
+        }).join(',');
+
+        const newProblemListsRes = yield call(threeStyleQuizProblemListUtils.requestPostProblemListName, part, titles);
+        const newProblemLists = newProblemListsRes.success.result;
+
+        const problemListDetail = [];
+        const requestPost = () => {
+            const promises = _.zip(detailRecords, newProblemLists).map(pair => {
+                const detailRecord = pair[0];
+                const problemList = pair[1];
+                problemListDetail.push(detailRecord);
+
+                const stickersStr = problemListDetail.map(r => r.stickers).join(',');
+                const problemListId = problemList.problemListId;
+
+                return threeStyleQuizProblemListUtils.requestPostThreeStyleQuizProblemListDetail(part, problemListId, stickersStr);
+            });
+
+            return Promise.all(promises)
+                .then(() => {
+                    alert('保存しました');
+                })
+                .catch((err) => {
+                    alert(`3-style問題リストの登録に失敗しました: ${err}`);
+                    return [];
+                });
+        };
+
+        yield call(requestPost);
+
+        const payload = {
+            newProblemLists: newProblemLists.map((problemList, i) => {
+                return {
+                    ...problemList,
+                    createdAt: moment(problemList.createdAt, moment.ISO_8601),
+                    updatedAt: moment(problemList.updatedAt, moment.ISO_8601),
+                    numberOfAlgs: i + 1,
+                };
+            }),
+        };
+
+        yield put(createProblemLists(payload));
     }
 };
 
@@ -268,6 +332,7 @@ function * handleDeleteProblemList () {
     }
 }
 
+
 const initialState = {
     url: null,
     loadWillSkipped: false,
@@ -281,7 +346,7 @@ const initialState = {
             pInd: 1,
             problemListId: null,
             userName: localStorage.userName,
-            title: 'system_全手順',
+            title: 'system_all_全手順',
             createdAt: moment('2018/01/01 00:00', 'YYYY/MM/DD HH:mm'),
             updatedAt: moment('2018/01/01 00:00', 'YYYY/MM/DD HH:mm'),
             numberOfAlgs: null,
@@ -436,6 +501,7 @@ export const threeStyleProblemListReducer = handleActions(
 
 export function * rootSaga () {
     yield fork(handleCreateProblemLists);
+    yield fork(handleAutoCreateProblemLists);
     yield fork(handleLoadThreeStyleQuizProblemList);
     yield fork(handleSortTable);
     yield fork(handleDeleteProblemList);

@@ -102,14 +102,7 @@ const requestPostThreeStyleQuizProblemListDetail = (part, problemListId, sticker
         },
     };
 
-    return rp(options)
-        .then(() => {
-            alert('保存しました');
-        })
-        .catch((err) => {
-            alert(`3-style問題リストの登録に失敗しました: ${err}`);
-            return [];
-        });
+    return rp(options);
 };
 
 exports.requestGetThreeStyleQuizProblemList = requestGetThreeStyleQuizProblemList;

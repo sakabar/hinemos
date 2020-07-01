@@ -69,13 +69,6 @@ function * handleLoadInitially () {
         const details = detailRes.result;
         const buffer = detailRes.buffer;
 
-        // lettersの昇順でソートしておく
-        details.sort((a, b) => {
-            if (a.letters < b.letters) return -1;
-            if (a.letters === b.letters) return 0;
-            if (a.letters > b.letters) return 1;
-        });
-
         const threeStyleQuizProblemListsRes = yield call(threeStyleQuizProblemListUtils.requestGetThreeStyleQuizProblemList, part);
 
         const threeStyleQuizProblemLists = threeStyleQuizProblemListsRes.success.result.map(record => {
@@ -217,7 +210,20 @@ function * handleAddToProblemList () {
         }
 
         const stickersStr = targetStickers.join(',');
-        yield call(threeStyleQuizProblemListUtils.requestPostThreeStyleQuizProblemListDetail, part, selectedProblemListId, stickersStr);
+
+        const promiseFunc = (part, selectedProblemListId, stickersStr) => {
+            return threeStyleQuizProblemListUtils.requestPostThreeStyleQuizProblemListDetail(part, selectedProblemListId, stickersStr)
+                .then(() => {
+                    alert('保存しました');
+                    return [];
+                })
+                .catch((err) => {
+                    alert(`3-style問題リストの登録に失敗しました: ${err}`);
+                    return [];
+                });
+        };
+
+        yield call(promiseFunc, part, selectedProblemListId, stickersStr);
     }
 }
 

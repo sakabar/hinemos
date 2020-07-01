@@ -14,6 +14,7 @@ import {
     inputTitles,
     sagaLoadThreeStyleQuizProblemList,
     sagaCreateProblemLists,
+    sagaAutoCreateProblemLists,
     sagaSortTable,
     selectRow,
     sagaDeleteProblemLists,
@@ -55,6 +56,8 @@ const mapDispatchToProps = (dispatch) => {
         sagaCreateProblemLists: () => {
             dispatch(sagaCreateProblemLists());
         },
+        sagaAutoCreateProblemLists: () => {
+            dispatch(sagaAutoCreateProblemLists());
         sagaSortTable: (dKey, nAsc) => {
             dispatch(sagaSortTable({ dKey, nAsc, }));
         },
