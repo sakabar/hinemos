@@ -1,4 +1,6 @@
 const _ = require('lodash');
+const { Matrix, } = require('ml-matrix');
+const { agnes, } = require('ml-hclust');
 
 export const getMoveLayer = (move) => {
     if (move.slice(-1) === '2' || move.slice(-1) === '\'') {
@@ -213,11 +215,14 @@ export const factorize = (inputSeq) => {
 
 // arg.isSequenceがtrueなら因数分解、arg.isSequenceがfalseならそのまま代入
 export function Alg (arg) {
+    this.letters = arg.letters;
+
     if (arg.isSequence) {
         const factorized = factorize(arg.sequence);
 
         if (factorized === null) {
             this.setup = [];
+            this.revSetup = [];
             this.interchange = [];
             this.insert = [];
             this.isInterchangeFirst = false;
@@ -227,6 +232,9 @@ export function Alg (arg) {
         }
 
         this.setup = factorized.setup;
+        const revSetup = factorized.setup.slice();
+        revSetup.reverse();
+        this.revSetup = revSetup;
         this.interchange = factorized.interchange;
         this.insert = factorized.insert;
         this.isInterchangeFirst = factorized.isInterchangeFirst;
@@ -238,6 +246,9 @@ export function Alg (arg) {
         }
 
         this.setup = arg.setup;
+        const revSetup = arg.setup.slice();
+        revSetup.reverse();
+        this.revSetup = revSetup;
         this.interchange = arg.interchange;
         this.insert = arg.insert;
         this.isInterchangeFirst = arg.isInterchangeFirst || false;
@@ -267,4 +278,155 @@ export const distanceAlg = (x, y) => {
     const swapDistance = (x.isInterchangeFirst ^ y.isInterchangeFirst) ? 0.25 : 0.0;
 
     return (setupDistance * 2) + interchangeDistance + insertDistance + swapDistance;
+};
+
+const makeDictKey = (alg) => {
+    let move1;
+    let move2;
+
+    if (alg.isInterchangeFirst) {
+        move1 = alg.interchange;
+        move2 = alg.insert;
+    } else {
+        move1 = alg.insert;
+        move2 = alg.interchange;
+    }
+
+    const pair = `${move1.join(' ')},${move2.join(' ')}`;
+    return pair;
+};
+
+export const extractBasicAlgs = (inputAlgs) => {
+    const algs = inputAlgs.slice();
+
+    const basicAlgs = [];
+    const similarAlgsDict = {};
+
+    // 簡単な手順が前に来るようにソート
+    const sortedAlgs = algs.sort((a, b) => {
+        if (a.sequence.length < b.sequence.length) return -1;
+        if (a.sequence.length === b.sequence.length) {
+            if (a.letters < b.letters) return -1;
+            if (a.letters === b.letters) return 0;
+            if (a.letters > b.letters) return 1;
+        }
+        if (a.sequence.length > b.sequence.length) return 1;
+    });
+
+    for (let i = 0; i < sortedAlgs.length; i++) {
+        const alg = sortedAlgs[i];
+
+        // is_sequenceのときはセットアップ手順は無いはず
+        if (!alg.isFactorized) {
+            basicAlgs.push(alg);
+            continue;
+        }
+
+        const pair = makeDictKey(alg);
+
+        const setupPair = {
+            setup: alg.setup.join(' '),
+            revSetup: alg.revSetup.join(' '),
+            setupMoveCnt: alg.setup.length,
+            alg,
+        };
+
+        if (pair in similarAlgsDict) {
+            similarAlgsDict[pair].push(setupPair);
+        } else {
+            // pure-algが手順中に存在しない場合がある。たとえばcorner「あか」
+            // なので、「setup===[] (つまりpure)ならばcorner_dataに足す」だと
+            // 取りこぼしが発生する
+
+            similarAlgsDict[pair] = [ setupPair, ];
+            basicAlgs.push(alg);
+        }
+    }
+
+    // それぞれのsetup_dictがセットアップが短い順に並ぶようにソート
+    const keys = Object.keys(similarAlgsDict);
+    for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        similarAlgsDict[key].sort((a, b) => {
+            if (a.setupMoveCnt < b.setupMoveCnt) return -1;
+            if (a.setupMoveCnt === b.setupMoveCnt) {
+                if (a.setup < b.setup) return -1;
+                if (a.setup === b.setup) return 0;
+                if (a.setup > b.setup) return 1;
+            }
+            if (a.setupMoveCnt > b.setupMoveCnt) return 1;
+        });
+    }
+
+    return {
+        basicAlgs,
+        similarAlgsDict,
+    };
+};
+
+const calcDepth = (tree) => {
+    if (tree.isLeaf) {
+        return 0;
+    }
+
+    let ans = 0;
+
+    for (let i = 0; i < tree.children.length; i++) {
+        const child = tree.children[i];
+        const d = calcDepth(child) + 1;
+        ans = ans > d ? ans : d;
+    }
+
+    return ans;
+};
+
+// leftの木なら先頭に'0', rightの木なら先頭に'1'を付けていく
+// treeにbinaryLabelプロパティを追加
+export const addBinaryLabels = (tree, maxDepth) => {
+    // もしbinaryLabelsが無かったら(ルートノード)付与
+    if (!('binaryLabel' in tree)) {
+        tree.binaryLabel = '';
+    }
+
+    if (tree.isLeaf) {
+        // 葉ノードのラベルはその親を処理した段階で付けているが、
+        // 深さが足りないかもしれないので、そのぶん補う
+        // 今の所の深さ = binaryLabelsの文字列としての長さ
+        const ones = '1'.repeat(maxDepth - tree.binaryLabel.length);
+        tree.binaryLabel = ones + tree.binaryLabel;
+    } else if (tree.children.length === 2) {
+        tree.children[0].binaryLabel = '0' + tree.binaryLabel;
+        tree.children[1].binaryLabel = '1' + tree.binaryLabel;
+        addBinaryLabels(tree.children[0], maxDepth);
+        addBinaryLabels(tree.children[1], maxDepth);
+    } else {
+        throw new Error(`Unexpected case: ${JSON.stringify(tree)}`);
+    }
+};
+
+export const orderAlgsByEasiness = (algs) => {
+    const rawDistanceMatrix = [];
+    for (let rowInd = 0; rowInd < algs.length; rowInd++) {
+        const row = [];
+        const algRow = algs[rowInd];
+
+        for (let colInd = 0; colInd < algs.length; colInd++) {
+            const algCol = algs[colInd];
+            const distance = distanceAlg(algRow, algCol);
+            row.push(distance);
+        }
+    }
+
+    const distanceMatrix = new Matrix(rawDistanceMatrix);
+
+    const tree = agnes(distanceMatrix, {
+        method: 'average',
+        isDistanceMatrix: true,
+    });
+
+    // 階層的クラスタリングの木をrootから下に辿ってラベルを付けていく
+    const maxDepth = calcDepth(tree);
+    addBinaryLabels(tree, maxDepth);
+
+
 };

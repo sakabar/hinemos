@@ -1,5 +1,7 @@
 const assert = require('assert');
 const threeStyleNavigatorUtils = require('../src/js/threeStyleNavigatorUtils');
+const { Matrix, } = require('ml-matrix');
+const { agnes, } = require('ml-hclust');
 
 describe('threeStyleNavigatorUtils', () => {
     describe('isSameLayerMove()', () => {
@@ -134,15 +136,18 @@ describe('threeStyleNavigatorUtils', () => {
                 interchange: [ 'U', ],
                 insert: [ 'R', 'D', 'R\'', ],
                 isInterchangeFirst: true,
+                letters: 'あい',
             };
             const alg = new threeStyleNavigatorUtils.Alg(arg);
 
             assert.deepStrictEqual(alg.setup, arg.setup);
+            assert.deepStrictEqual(alg.revSetup, [ 'D', ]);
             assert.deepStrictEqual(alg.interchange, arg.interchange);
             assert.deepStrictEqual(alg.insert, arg.insert);
             assert.deepStrictEqual(alg.isInterchangeFirst, arg.isInterchangeFirst);
             assert.deepStrictEqual(alg.isFactorized, true);
             assert.deepStrictEqual(alg.sequence, [ 'D', 'U', 'R', 'D', 'R\'', 'U\'', 'R', 'D\'', 'R\'', 'D\'', ]);
+            assert.deepStrictEqual(alg.letters, 'あい');
         });
 
         it('正常系: 引数として与えられたsequenceを因数分解', () => {
@@ -153,6 +158,7 @@ describe('threeStyleNavigatorUtils', () => {
             const alg = new threeStyleNavigatorUtils.Alg(arg);
 
             assert.deepStrictEqual(alg.setup, [ 'D', ]);
+            assert.deepStrictEqual(alg.revSetup, [ 'D', ]);
             assert.deepStrictEqual(alg.interchange, [ 'U', ]);
             assert.deepStrictEqual(alg.insert, [ 'R', 'D', 'R\'', ]);
             assert.deepStrictEqual(alg.isInterchangeFirst, true);
@@ -168,6 +174,7 @@ describe('threeStyleNavigatorUtils', () => {
             const alg = new threeStyleNavigatorUtils.Alg(arg);
 
             assert.deepStrictEqual(alg.setup, []);
+            assert.deepStrictEqual(alg.revSetup, []);
             assert.deepStrictEqual(alg.interchange, []);
             assert.deepStrictEqual(alg.insert, []);
             assert.deepStrictEqual(alg.isInterchangeFirst, false);
@@ -257,4 +264,158 @@ describe('threeStyleNavigatorUtils', () => {
             assert.deepStrictEqual(actual, expected);
         });
     });
+
+    describe('extractBasicAlgs()', () => {
+        it('正常系', () => {
+            const inputAlgs = [
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: false,
+                    setup: [ 'U', 'R', ],
+                    interchange: [ 'U2', ],
+                    insert: [ 'R', 'D', 'R\'', ],
+                    isInterchangeFirst: false,
+                    letters: 'あい',
+                }),
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: false,
+                    setup: [ 'U', 'L', ],
+                    interchange: [ 'U2', ],
+                    insert: [ 'R', 'D', 'R\'', ],
+                    isInterchangeFirst: false,
+                    letters: 'あう',
+                }),
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: false,
+                    setup: [],
+                    interchange: [ 'U2', ],
+                    insert: [ 'R', 'D', 'R\'', ],
+                    isInterchangeFirst: false,
+                    letters: 'ひあ',
+                }),
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: false,
+                    setup: [ 'U', 'R', ],
+                    interchange: [ 'U2', ],
+                    insert: [ 'R', 'D', 'R\'', ],
+                    isInterchangeFirst: true,
+                    letters: 'いあ',
+                }),
+            ];
+
+            const actual = threeStyleNavigatorUtils.extractBasicAlgs(inputAlgs);
+            const expectedBasicAlgs = [
+                // セットアップなし
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: false,
+                    setup: [],
+                    interchange: [ 'U2', ],
+                    insert: [ 'R', 'D', 'R\'', ],
+                    isInterchangeFirst: false,
+                    letters: 'ひあ',
+                }),
+
+                // セットアップがあるが、他に候補が無い
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: false,
+                    setup: [ 'U', 'R', ],
+                    interchange: [ 'U2', ],
+                    insert: [ 'R', 'D', 'R\'', ],
+                    isInterchangeFirst: true,
+                    letters: 'いあ',
+                }),
+            ];
+
+            const expectedSimilarAlgsDict = {
+                'R D R\',U2': [
+                    {
+                        setup: '',
+                        revSetup: '',
+                        setupMoveCnt: 0,
+                        alg: new threeStyleNavigatorUtils.Alg({
+                            isSequence: false,
+                            setup: [],
+                            interchange: [ 'U2', ],
+                            insert: [ 'R', 'D', 'R\'', ],
+                            isInterchangeFirst: false,
+                            letters: 'ひあ',
+                        }),
+                    },
+
+                    {
+                        setup: 'U L',
+                        revSetup: 'L U',
+                        setupMoveCnt: 2,
+                        alg: new threeStyleNavigatorUtils.Alg({
+                            isSequence: false,
+                            setup: [ 'U', 'L', ],
+                            interchange: [ 'U2', ],
+                            insert: [ 'R', 'D', 'R\'', ],
+                            isInterchangeFirst: false,
+                            letters: 'あう',
+                        }),
+                    },
+
+                    {
+                        setup: 'U R',
+                        revSetup: 'R U',
+                        setupMoveCnt: 2,
+                        alg: new threeStyleNavigatorUtils.Alg({
+                            isSequence: false,
+                            setup: [ 'U', 'R', ],
+                            interchange: [ 'U2', ],
+                            insert: [ 'R', 'D', 'R\'', ],
+                            isInterchangeFirst: false,
+                            letters: 'あい',
+                        }),
+                    },
+                ],
+
+                'U2,R D R\'': [
+                    {
+                        setup: 'U R',
+                        revSetup: 'R U',
+                        setupMoveCnt: 2,
+                        alg: new threeStyleNavigatorUtils.Alg({
+                            isSequence: false,
+                            setup: [ 'U', 'R', ],
+                            interchange: [ 'U2', ],
+                            insert: [ 'R', 'D', 'R\'', ],
+                            isInterchangeFirst: true,
+                            letters: 'いあ',
+                        }),
+                    },
+                ],
+            };
+
+            assert.deepStrictEqual(actual.basicAlgs, expectedBasicAlgs);
+            assert.deepStrictEqual(actual.similarAlgsDict, expectedSimilarAlgsDict);
+        });
+    });
+
+    describe('addBinaryLabels()', () => {
+        it('正常系', () => {
+            const rawData = [
+                [ 0, 1, 1.5, ],
+                [ 1, 0, 2.0, ],
+                [ 1.5, 2.0, 0, ],
+            ];
+
+            const data = new Matrix(rawData);
+
+            // (node 2 (node 0 1))
+            const tree = agnes(data, {
+                method: 'average',
+                isDistanceMatrix: true,
+            });
+
+            const maxDepth = threeStyleNavigatorUtils.calcDepth(tree);
+            threeStyleNavigatorUtils.addBinaryLabels(tree, maxDepth);
+
+            assert.deepStrictEqual(tree.binaryLabel, '');
+            assert.deepStrictEqual(tree.children[0].binaryLabel, '10');
+            assert.deepStrictEqual(tree.children[1].children[0].binaryLabel, '01');
+            assert.deepStrictEqual(tree.children[1].children[1].binaryLabel, '11');
+        });
+    });
+
 });
