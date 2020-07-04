@@ -57,6 +57,8 @@
     "giiker": "2.0.1",
     "handsontable": "^7.4.2",
     "lodash": "^4.17.19",
+    "ml-hclust": "^3.0.0",
+    "ml-matrix": "^6.5.0",
     "moment": "^2.24.0",
     "net": "1.0.2",
     "prop-types": "^15.7.2",
