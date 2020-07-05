@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const { MinPriorityQueue, } = require('@datastructures-js/priority-queue');
 const { Matrix, } = require('ml-matrix');
 const { agnes, } = require('ml-hclust');
 
@@ -364,7 +365,7 @@ export const extractBasicAlgs = (inputAlgs) => {
     };
 };
 
-const calcDepth = (tree) => {
+export const calcDepth = (tree) => {
     if (tree.isLeaf) {
         return 0;
     }
@@ -404,7 +405,70 @@ export const addBinaryLabels = (tree, maxDepth) => {
     }
 };
 
-export const orderAlgsByEasiness = (algs) => {
+// https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Set
+function union (setA, setB) {
+    var _union = new Set(setA);
+    for (var elem of setB) {
+        _union.add(elem);
+    }
+    return _union;
+}
+
+const getLeafNode = (tree) => {
+    if (tree.isLeaf) {
+        return new Set([ tree, ]);
+    } else if (tree.children.length === 2) {
+        const leftLeafSet = getLeafNode(tree.children[0]);
+        const rightLeafSet = getLeafNode(tree.children[1]);
+
+        return union(leftLeafSet, rightLeafSet);
+    } else {
+        throw new Error('Unexpected');
+    }
+};
+
+export const isAncestor = (parAlg, childAlg) => {
+    // setup + (因数分解できなかった手順) +逆setup のような形式は扱っていない
+    if (!parAlg.isFactorized || !childAlg.isFactorized) {
+        return false;
+    }
+
+    // interchange, insertの順序が異なる
+    if (parAlg.isInterchangeFirst !== childAlg.isInterchangeFirst) {
+        console.log('438');
+        return false;
+    }
+
+    if (!_.isEqual(parAlg.interchange, childAlg.interchange)) {
+        console.log('444');
+        return false;
+    }
+
+    if (!_.isEqual(parAlg.insert, childAlg.insert)) {
+        console.log('449');
+        return false;
+    }
+
+    if (parAlg.setup.length === 0) {
+        return true;
+    }
+
+    const parAlgRevSetupStr = parAlg.revSetup.join(' ');
+    const childAlgRevSetupStr = childAlg.revSetup.join(' ');
+    console.log(parAlgRevSetupStr);
+    console.log(childAlgRevSetupStr);
+
+    // LとLwのような場合に誤ってマッチしないように' 'を付けて比較
+    if (childAlgRevSetupStr.startsWith(parAlgRevSetupStr + ' ')) {
+        return true;
+    }
+
+    return false;
+};
+
+const orderBasicAlgsByEasiness = (inputBasicAlgs) => {
+    const algs = inputBasicAlgs.slice();
+
     const rawDistanceMatrix = [];
     for (let rowInd = 0; rowInd < algs.length; rowInd++) {
         const row = [];
@@ -428,5 +492,133 @@ export const orderAlgsByEasiness = (algs) => {
     const maxDepth = calcDepth(tree);
     addBinaryLabels(tree, maxDepth);
 
+    // 2進数のラベルを優先度として、priority-queueに追加
+    // (priorityが低いほうが先に取り出される)
+    const q = new MinPriorityQueue();
+    const leafNodes = [ ...getLeafNode(tree), ];
+    for (let i = 0; i < leafNodes.length; i++) {
+        const leafNode = leafNodes[i];
+        const index = leafNode.index;
+        const alg = algs[index];
+        const priority = parseInt(leafNode.binaryLabel, 2);
 
+        q.enqueue(alg, priority);
+    }
+
+    // セットアップ無し手順、priorityが高い順
+    const basicAlgs = [];
+    while (!q.isEmpty()) {
+        const alg = q.dequeue();
+        basicAlgs.push(alg);
+    }
+
+    return basicAlgs;
+};
+
+export const orderAlgsByEasiness = (inputAlgs) => {
+    const algs = inputAlgs.slice();
+    const extracted = extractBasicAlgs(algs);
+    const unOrderedBasicAlgs = extracted.basicAlgs;
+    const { similarAlgsDict, } = extracted;
+
+    const basicAlgs = orderBasicAlgsByEasiness(unOrderedBasicAlgs);
+
+    // basicAlgsを順に回り、setupあり手順を掘っていく
+
+    // (move1, move2) -> 次にどのindを見るか
+    const setupAlgIndDict = {};
+    let currentMaxSetupMoveCnt = 0;
+    const results = [];
+
+    while (results.length < algs.length) {
+        for (let i = 0; i < basicAlgs.length; i++) {
+            const basicAlg = basicAlgs[i];
+
+            let pair;
+            if (!basicAlg.isFactorized) {
+                pair = 'IS_SEQUENCE,' + basicAlg['sequence'].join(' ');
+                if (!(pair in setupAlgIndDict)) {
+                    setupAlgIndDict[pair] = 0;
+                }
+                const ind = setupAlgIndDict[pair];
+
+                if (ind === 0) {
+                    const tuple = {
+                        ind,
+                        alg: basicAlg,
+                        prev: null,
+                        appended: null,
+                    };
+                    results.push(tuple);
+                    setupAlgIndDict[pair] += 1;
+                }
+
+                continue;
+            }
+
+            // ここから下は因数分解できているケース
+            pair = makeDictKey(basicAlg);
+            if (!(pair in setupAlgIndDict)) {
+                setupAlgIndDict[pair] = 0;
+            }
+            const ind = setupAlgIndDict[pair];
+
+            // corner「あか」のようなpure-commの親が存在しないような手順もデータとしてはpure-algとして入っているが、
+            // 実際はpure-commではないため、できるだけ登場を遅らせたい
+            if (ind === 0 && basicAlg.setup.length > 0) {
+                // 8はpure-commの長さ。それに加えて、セットアップの長さの2倍(ペナルティが厳しめ)
+                if (8 + currentMaxSetupMoveCnt * 2 < basicAlg.sequence.length) {
+                    continue;
+                }
+            }
+
+            // 掘りきっている
+            if (ind > similarAlgsDict[pair].length - 1) {
+                continue;
+            }
+
+            const { setup, revSetup, alg, } = similarAlgsDict[pair][ind];
+
+            let prev = null;
+            let appended = null;
+
+            // similarAlgsDictの中で、これまで出てきた手順で
+            // セットアップが途中まで一致している手順を探す
+            for (let k = 0; k < ind; k++) {
+                const parentTuple = similarAlgsDict[pair][k];
+
+                const parSetup = parentTuple.setup;
+                const parRevSetup = parentTuple.revSetup;
+                const parAlg = parentTuple.alg;
+
+                // forall s : s.startswith('') == True であることに注意
+                if (!isAncestor(parAlg, alg)) {
+                    continue;
+                }
+
+                if (parSetup === '') {
+                    appended = setup;
+                } else {
+                    // 先頭1マッチのみ置換する
+                    const appendedRev = revSetup.replace(parRevSetup + ' ', '');
+                    appended = appendedRev.split(' ').reverse().join('');
+                }
+
+                prev = parAlg;
+                const tuple = {
+                    ind,
+                    alg,
+                    prev,
+                    appended,
+                };
+                results.push(tuple);
+                setupAlgIndDict[pair] += 1;
+                currentMaxSetupMoveCnt = currentMaxSetupMoveCnt > alg.setup.length ? currentMaxSetupMoveCnt : alg.setup.length;
+                // 最初に見つかった手順を採用する
+                break;
+            }
+        }
+    }
+
+    return results;
 };

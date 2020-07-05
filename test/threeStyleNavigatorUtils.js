@@ -418,4 +418,111 @@ describe('threeStyleNavigatorUtils', () => {
         });
     });
 
+    describe('isAncestor()', () => {
+        it('sequence', () => {
+            const alg1 = new threeStyleNavigatorUtils.Alg({
+                isSequence: false,
+                setup: [ 'U', 'R', ],
+                interchange: [ 'U2', ],
+                insert: [ 'R', 'D', 'R\'', ],
+                isInterchangeFirst: false,
+                letters: 'あい',
+            });
+
+            const alg2 = new threeStyleNavigatorUtils.Alg({
+                isSequence: true,
+                sequence: [ 'D', 'U', 'M', ],
+                letters: 'あえ',
+            });
+
+            const actual = threeStyleNavigatorUtils.isAncestor(alg1, alg2);
+            assert.deepStrictEqual(actual, false);
+        });
+
+        it('insert, intechangeの順番が違う', () => {
+            const alg1 = new threeStyleNavigatorUtils.Alg({
+                isSequence: false,
+                setup: [ 'U', 'R', ],
+                interchange: [ 'U2', ],
+                insert: [ 'R', 'D', 'R\'', ],
+                isInterchangeFirst: true, // ここ
+            });
+
+            const alg2 = new threeStyleNavigatorUtils.Alg({
+                isSequence: false,
+                setup: [ 'U', 'R', ],
+                interchange: [ 'U2', ],
+                insert: [ 'R', 'D', 'R\'', ],
+                isInterchangeFirst: false, // ここ
+            });
+
+            const actual = threeStyleNavigatorUtils.isAncestor(alg1, alg2);
+            assert.deepStrictEqual(actual, false);
+        });
+
+        it('trueとなる場合', () => {
+            const alg1 = new threeStyleNavigatorUtils.Alg({
+                isSequence: false,
+                setup: [ 'U', 'R', ],
+                interchange: [ 'U2', ],
+                insert: [ 'R', 'D', 'R\'', ],
+                isInterchangeFirst: true,
+            });
+
+            const alg2 = new threeStyleNavigatorUtils.Alg({
+                isSequence: false,
+                setup: [ 'D', 'U', 'R', ],
+                interchange: [ 'U2', ],
+                insert: [ 'R', 'D', 'R\'', ],
+                isInterchangeFirst: true,
+            });
+
+            const actual = threeStyleNavigatorUtils.isAncestor(alg1, alg2);
+            assert.deepStrictEqual(actual, true);
+        });
+    });
+
+    describe('orderAlgsByEasiness()', () => {
+        it('正常系: 何をテストすればよいの?', () => {
+            const inputAlgs = [
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: false,
+                    setup: [ 'U', 'R', ],
+                    interchange: [ 'U2', ],
+                    insert: [ 'R', 'D', 'R\'', ],
+                    isInterchangeFirst: false,
+                    letters: 'あい',
+                }),
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: false,
+                    setup: [ 'U', 'L', ],
+                    interchange: [ 'U2', ],
+                    insert: [ 'R', 'D', 'R\'', ],
+                    isInterchangeFirst: false,
+                    letters: 'あう',
+                }),
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: false,
+                    setup: [],
+                    interchange: [ 'U2', ],
+                    insert: [ 'R', 'D', 'R\'', ],
+                    isInterchangeFirst: false,
+                    letters: 'ひあ',
+                }),
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: false,
+                    setup: [ 'U', 'R', ],
+                    interchange: [ 'U2', ],
+                    insert: [ 'R', 'D', 'R\'', ],
+                    isInterchangeFirst: true,
+                    letters: 'いあ',
+                }),
+            ];
+
+            const actual = threeStyleNavigatorUtils.orderAlgsByEasiness(inputAlgs);
+            const expected = [];
+
+            assert.deepStrictEqual(actual, expected);
+        });
+    });
 });
