@@ -16,7 +16,9 @@ import {
 const _ = require('lodash');
 const moment = require('moment');
 const constant = require('../constant');
+const threeStyleUtils = require('../threeStyleUtils');
 const threeStyleQuizProblemListUtils = require('../threeStyleQuizProblemListUtils');
+const threeStyleNavigatorUtils = require('../threeStyleNavigatorUtils');
 
 const SET_LOAD_WILL_SKIPPED = 'SET_LOAD_WILL_SKIPPED';
 export const setLoadWillSkipped = createAction(SET_LOAD_WILL_SKIPPED);
@@ -135,18 +137,79 @@ function * handleAutoCreateProblemLists () {
     while (true) {
         yield take(sagaAutoCreateProblemLists);
         const part = yield select(state => state.part);
+        const userName = yield select(state => state.userName);
 
         // System_全手順のDetailを読み込んで、ステッカーの組み合わせ全量を取得
         // 登録したいStickers全量を並べる
         // 1手順ずつ増やしていって、問題リストの中に登録
 
         const detailRes = yield call(threeStyleQuizProblemListUtils.requestGetThreeStyleQuizProblemListDetail, part, null);
-        // const detailRecords = detailRes.result.slice(0, 5);
-        const detailRecords = detailRes.result;
+        const buffer = detailRes.buffer;
+        const details = detailRes.result;
 
-        const titles = detailRecords.map((record, i) => {
+        const stickersToDetails = {};
+        const lettersToDetails = {};
+        details.map(detail => {
+            // 上書きしているけど、キーが衝突していない想定なのでOK
+            const stickers = detail.stickers;
+            stickersToDetails[stickers] = detail;
+
+            const letters = detail.letters;
+            lettersToDetails[letters] = detail;
+        });
+
+        const threeStyles = yield call(threeStyleUtils.getThreeStyles, userName, part, buffer);
+
+        const unOrderedAlgs = threeStyles.map(threeStyle => {
+            const letters = stickersToDetails[threeStyle.stickers].letters;
+
+            if (threeStyle.move1 === '' && threeStyle.move2 === '') {
+                const arg = {
+                    isSequence: true,
+                    sequence: threeStyle.setup.split(' '),
+                    letters,
+                };
+
+                return new threeStyleNavigatorUtils.Alg(arg);
+            };
+
+            let interchange;
+            let insert;
+            const isInterchangeFirst = threeStyle.move1.split(' ').length === 1;
+            if (isInterchangeFirst) {
+                interchange = threeStyle.move1.split(' ');
+                insert = threeStyle.move2.split(' ');
+            } else {
+                insert = threeStyle.move1.split(' ');
+                interchange = threeStyle.move2.split(' ');
+            }
+
+            const arg = {
+                isSequence: false,
+                setup: threeStyle.setup.split(' '),
+                interchange,
+                insert,
+                isInterchangeFirst,
+                letters,
+            };
+
+            return new threeStyleNavigatorUtils.Alg(arg);
+        }); ;
+
+        const orderedAlgTuples = threeStyleNavigatorUtils.orderAlgsByEasiness(unOrderedAlgs);
+
+        const titles = orderedAlgTuples.map((tuple, i) => {
             const numStr = `${i + 1}`.padStart(3, '0');
-            return `System_auto_${numStr}_${record.letters}_as_new`;
+
+            const { alg, parAlg, appended, } = tuple;
+
+            let hint = 'new';
+            if (parAlg !== null && appended !== null) {
+                const parLetters = parAlg.letters || 'XX';
+                hint = `[${appended}:${parLetters}]`;
+            }
+
+            return `system_auto_${numStr}_${alg.letters}_as_${hint}`.replace(/\s/g, '');
         }).join(',');
 
         const newProblemListsRes = yield call(threeStyleQuizProblemListUtils.requestPostProblemListName, part, titles);
@@ -154,9 +217,11 @@ function * handleAutoCreateProblemLists () {
 
         const problemListDetail = [];
         const requestPost = () => {
-            const promises = _.zip(detailRecords, newProblemLists).map(pair => {
-                const detailRecord = pair[0];
+            const promises = _.zip(orderedAlgTuples.map(t => t.alg), newProblemLists).map(pair => {
+                const alg = pair[0];
                 const problemList = pair[1];
+
+                const detailRecord = lettersToDetails[alg.letters];
                 problemListDetail.push(detailRecord);
 
                 const stickersStr = problemListDetail.map(r => r.stickers).join(',');

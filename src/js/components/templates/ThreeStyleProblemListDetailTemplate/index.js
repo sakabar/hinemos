@@ -104,7 +104,7 @@ const ThreeStyleProblemListDetailTemplate = (
         }
     });
 
-    const showLength = 20;
+    const showLength = 30;
 
     const threeStyleQuizProblemListOptions = [
         [ -1, '[選択してください]', ],

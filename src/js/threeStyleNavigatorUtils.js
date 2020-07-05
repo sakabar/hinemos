@@ -600,8 +600,6 @@ export const orderAlgsByEasiness = (inputAlgs) => {
     const { similarAlgsDict, } = extracted;
 
     const basicAlgs = orderBasicAlgsByEasiness(unOrderedBasicAlgs);
-    // console.log(basicAlgs);
-    // console.log(similarAlgsDict);
 
     // basicAlgsを順に回り、setupあり手順を掘っていく
 
