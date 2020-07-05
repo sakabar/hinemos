@@ -435,17 +435,14 @@ export const isAncestor = (parAlg, childAlg) => {
 
     // interchange, insertの順序が異なる
     if (parAlg.isInterchangeFirst !== childAlg.isInterchangeFirst) {
-        console.log('438');
         return false;
     }
 
     if (!_.isEqual(parAlg.interchange, childAlg.interchange)) {
-        console.log('444');
         return false;
     }
 
     if (!_.isEqual(parAlg.insert, childAlg.insert)) {
-        console.log('449');
         return false;
     }
 
@@ -453,10 +450,11 @@ export const isAncestor = (parAlg, childAlg) => {
         return true;
     }
 
+    // forall s : s.startswith('') == True であることに注意
+    // parSetupが空のケースは以前に見たのでOK
+    // 後述のようにスペースを付けて比較したいので、parSetupが空の場合は別の方法で判定する必要がある
     const parAlgRevSetupStr = parAlg.revSetup.join(' ');
     const childAlgRevSetupStr = childAlg.revSetup.join(' ');
-    console.log(parAlgRevSetupStr);
-    console.log(childAlgRevSetupStr);
 
     // LとLwのような場合に誤ってマッチしないように' 'を付けて比較
     if (childAlgRevSetupStr.startsWith(parAlgRevSetupStr + ' ')) {
@@ -479,6 +477,8 @@ const orderBasicAlgsByEasiness = (inputBasicAlgs) => {
             const distance = distanceAlg(algRow, algCol);
             row.push(distance);
         }
+
+        rawDistanceMatrix.push(row);
     }
 
     const distanceMatrix = new Matrix(rawDistanceMatrix);
@@ -500,7 +500,9 @@ const orderBasicAlgsByEasiness = (inputBasicAlgs) => {
         const leafNode = leafNodes[i];
         const index = leafNode.index;
         const alg = algs[index];
-        const priority = parseInt(leafNode.binaryLabel, 2);
+
+        // MinPriorityの仕様で、priority値は1以上である必要があるので+1しておく
+        const priority = parseInt(leafNode.binaryLabel, 2) + 1;
 
         q.enqueue(alg, priority);
     }
@@ -508,11 +510,71 @@ const orderBasicAlgsByEasiness = (inputBasicAlgs) => {
     // セットアップ無し手順、priorityが高い順
     const basicAlgs = [];
     while (!q.isEmpty()) {
-        const alg = q.dequeue();
+        const alg = q.dequeue().element;
         basicAlgs.push(alg);
     }
 
     return basicAlgs;
+};
+
+// similarAlgsの 0 <= i <= limit番の手順で、
+// 与えられたalgとセットアップが途中まで一致しているような手順のうち、
+// 最後に見つかった手順を探す
+const searchParentAlg = (similarAlgs, tmpLimit, alg, setupStr, revSetupStr) => {
+    if (similarAlgs.length === 0) {
+        return null;
+    }
+
+    // 誤ったlimitが与えられた場合も配列の範囲外に突破しないようにしておく
+    const limit = (() => {
+        if (tmpLimit < 0) {
+            return 0;
+        }
+
+        const ans = similarAlgs.length < tmpLimit ? similarAlgs.length : tmpLimit;
+        return ans;
+    })();
+
+    let ans = null;
+    for (let similarAlgsInd = 0; similarAlgsInd <= limit; similarAlgsInd++) {
+        const parentTuple = similarAlgs[similarAlgsInd];
+
+        const parSetup = parentTuple.setup;
+        const parRevSetup = parentTuple.revSetup;
+        const parAlg = parentTuple.alg;
+
+        if (!isAncestor(parAlg, alg)) {
+            continue;
+        }
+
+        // 親手順に追加されたセットアップ
+        const appended = (() => {
+            if (parSetup === '') {
+                return setupStr;
+            } else {
+                // 先頭1マッチのみ置換する
+                const appendedRev = revSetupStr.replace(parRevSetup + ' ', '');
+                return appendedRev.split(' ').reverse().join(' ');
+            }
+        })();
+
+        ans = {
+            alg,
+            parAlg,
+            appended,
+        };
+    }
+
+    // 同じ手順しかヒットしなかった場合は、それは新規扱い
+    if (ans !== null && _.isEqual(ans.alg, ans.parAlg)) {
+        ans = {
+            alg,
+            parAlg: null,
+            appended: null,
+        };
+    }
+
+    return ans;
 };
 
 export const orderAlgsByEasiness = (inputAlgs) => {
@@ -522,102 +584,105 @@ export const orderAlgsByEasiness = (inputAlgs) => {
     const { similarAlgsDict, } = extracted;
 
     const basicAlgs = orderBasicAlgsByEasiness(unOrderedBasicAlgs);
+    // console.log(basicAlgs);
+    // console.log(similarAlgsDict);
 
     // basicAlgsを順に回り、setupあり手順を掘っていく
 
     // (move1, move2) -> 次にどのindを見るか
-    const setupAlgIndDict = {};
+    const similarAlgsIndDict = {};
     let currentMaxSetupMoveCnt = 0;
     const results = [];
 
+    // basicAlgを一巡するまでの間に手順を見つけることができたか?
+    let foundInCurrentRotation = false;
+    let foundInPrevRotation = true;
+
     while (results.length < algs.length) {
+        foundInCurrentRotation = false;
         for (let i = 0; i < basicAlgs.length; i++) {
             const basicAlg = basicAlgs[i];
 
-            let pair;
             if (!basicAlg.isFactorized) {
-                pair = 'IS_SEQUENCE,' + basicAlg['sequence'].join(' ');
-                if (!(pair in setupAlgIndDict)) {
-                    setupAlgIndDict[pair] = 0;
+                const pair = 'IS_SEQUENCE,' + basicAlg.sequence.join('');
+                if (!(pair in similarAlgsIndDict)) {
+                    similarAlgsIndDict[pair] = 0;
                 }
-                const ind = setupAlgIndDict[pair];
+                const ind = similarAlgsIndDict[pair];
 
                 if (ind === 0) {
                     const tuple = {
-                        ind,
                         alg: basicAlg,
-                        prev: null,
+                        parAlg: null,
                         appended: null,
                     };
+
+                    // console.log(tuple);
                     results.push(tuple);
-                    setupAlgIndDict[pair] += 1;
+                    similarAlgsIndDict[pair] += 1;
+
+                    foundInCurrentRotation = true;
                 }
 
                 continue;
             }
 
             // ここから下は因数分解できているケース
-            pair = makeDictKey(basicAlg);
-            if (!(pair in setupAlgIndDict)) {
-                setupAlgIndDict[pair] = 0;
+            const pair = makeDictKey(basicAlg);
+            if (!(pair in similarAlgsIndDict)) {
+                similarAlgsIndDict[pair] = 0;
             }
-            const ind = setupAlgIndDict[pair];
+            const similarAlgsInd = similarAlgsIndDict[pair];
+            const similarAlgs = similarAlgsDict[pair];
 
             // corner「あか」のようなpure-commの親が存在しないような手順もデータとしてはpure-algとして入っているが、
             // 実際はpure-commではないため、できるだけ登場を遅らせたい
-            if (ind === 0 && basicAlg.setup.length > 0) {
+            if (similarAlgsInd === 0 && basicAlg.setup.length > 0) {
                 // 8はpure-commの長さ。それに加えて、セットアップの長さの2倍(ペナルティが厳しめ)
-                if (8 + currentMaxSetupMoveCnt * 2 < basicAlg.sequence.length) {
+                // 無限ループになるのを避けるために、もし前回のローテで1つも新しい手順を見つけることができなかった場合は
+                // この制約を回避する
+                if (foundInPrevRotation && 8 + currentMaxSetupMoveCnt * 2 < basicAlg.sequence.length) {
                     continue;
                 }
             }
 
             // 掘りきっている
-            if (ind > similarAlgsDict[pair].length - 1) {
+            if (similarAlgsInd > similarAlgs.length - 1) {
                 continue;
             }
 
-            const { setup, revSetup, alg, } = similarAlgsDict[pair][ind];
+            const { setup, revSetup, alg, } = similarAlgs[similarAlgsInd];
 
-            let prev = null;
-            let appended = null;
-
-            // similarAlgsDictの中で、これまで出てきた手順で
+            // similarAlgsの中で、これまで出てきた手順(0~similarAlgsInd-1まで)で
             // セットアップが途中まで一致している手順を探す
-            for (let k = 0; k < ind; k++) {
-                const parentTuple = similarAlgsDict[pair][k];
+            const parentAlgTuple = searchParentAlg(similarAlgs, similarAlgsInd - 1, alg, setup, revSetup);
 
-                const parSetup = parentTuple.setup;
-                const parRevSetup = parentTuple.revSetup;
-                const parAlg = parentTuple.alg;
-
-                // forall s : s.startswith('') == True であることに注意
-                if (!isAncestor(parAlg, alg)) {
-                    continue;
-                }
-
-                if (parSetup === '') {
-                    appended = setup;
-                } else {
-                    // 先頭1マッチのみ置換する
-                    const appendedRev = revSetup.replace(parRevSetup + ' ', '');
-                    appended = appendedRev.split(' ').reverse().join('');
-                }
-
-                prev = parAlg;
+            // basicAlgがpure-commじゃなかった場合はあり有る
+            // この場合は、親手順が無いものとして登録
+            if (parentAlgTuple === null) {
                 const tuple = {
-                    ind,
                     alg,
-                    prev,
-                    appended,
+                    parAlg: null,
+                    appended: null,
                 };
+
+                // console.log(tuple);
                 results.push(tuple);
-                setupAlgIndDict[pair] += 1;
-                currentMaxSetupMoveCnt = currentMaxSetupMoveCnt > alg.setup.length ? currentMaxSetupMoveCnt : alg.setup.length;
-                // 最初に見つかった手順を採用する
-                break;
+                similarAlgsIndDict[pair] += 1;
+
+                foundInCurrentRotation = true;
+                continue;
             }
+
+            // console.log(parentAlgTuple);
+
+            results.push(parentAlgTuple);
+            similarAlgsIndDict[pair] += 1;
+            currentMaxSetupMoveCnt = currentMaxSetupMoveCnt > alg.setup.length ? currentMaxSetupMoveCnt : alg.setup.length;
+            foundInCurrentRotation = true;
         }
+
+        foundInPrevRotation = foundInCurrentRotation;
     }
 
     return results;

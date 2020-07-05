@@ -483,7 +483,7 @@ describe('threeStyleNavigatorUtils', () => {
     });
 
     describe('orderAlgsByEasiness()', () => {
-        it('正常系: 何をテストすればよいの?', () => {
+        it('正常系: 掘り進める順番と、pure-comじゃないbasicAlgのスキップ確認', () => {
             const inputAlgs = [
                 new threeStyleNavigatorUtils.Alg({
                     isSequence: false,
@@ -491,7 +491,7 @@ describe('threeStyleNavigatorUtils', () => {
                     interchange: [ 'U2', ],
                     insert: [ 'R', 'D', 'R\'', ],
                     isInterchangeFirst: false,
-                    letters: 'あい',
+                    letters: 'あえ',
                 }),
                 new threeStyleNavigatorUtils.Alg({
                     isSequence: false,
@@ -507,7 +507,7 @@ describe('threeStyleNavigatorUtils', () => {
                     interchange: [ 'U2', ],
                     insert: [ 'R', 'D', 'R\'', ],
                     isInterchangeFirst: false,
-                    letters: 'ひあ',
+                    letters: 'あい',
                 }),
                 new threeStyleNavigatorUtils.Alg({
                     isSequence: false,
@@ -520,9 +520,135 @@ describe('threeStyleNavigatorUtils', () => {
             ];
 
             const actual = threeStyleNavigatorUtils.orderAlgsByEasiness(inputAlgs);
-            const expected = [];
+            const expected = [
+                // pure
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: false,
+                    setup: [],
+                    interchange: [ 'U2', ],
+                    insert: [ 'R', 'D', 'R\'', ],
+                    isInterchangeFirst: false,
+                    letters: 'あい',
+                }),
 
-            assert.deepStrictEqual(actual, expected);
+                // 2手セットアップ、アルファベット順なので 'U R'の「あえ」より先
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: false,
+                    setup: [ 'U', 'L', ],
+                    interchange: [ 'U2', ],
+                    insert: [ 'R', 'D', 'R\'', ],
+                    isInterchangeFirst: false,
+                    letters: 'あう',
+                }),
+
+                // basicAlgsに入っているが、[U2, R D R']のpure-comが無いので、後回しにされる
+                // キャンセルを考慮して11手なので、「あう」の後には選べるようになる
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: false,
+                    setup: [ 'U', 'R', ],
+                    interchange: [ 'U2', ],
+                    insert: [ 'R', 'D', 'R\'', ],
+                    isInterchangeFirst: true,
+                    letters: 'いあ',
+                }),
+
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: false,
+                    setup: [ 'U', 'R', ],
+                    interchange: [ 'U2', ],
+                    insert: [ 'R', 'D', 'R\'', ],
+                    isInterchangeFirst: false,
+                    letters: 'あえ',
+                }),
+            ];
+
+            assert.deepStrictEqual(actual.length, inputAlgs.length);
+            assert.deepStrictEqual(actual.map(r => r.alg), expected);
+        });
+
+        it('正常系: 無限ループにならないように、前回のローテで手順が選ばれなかった場合にはpure-comじゃないbasicAlgが採用されること', () => {
+            const inputAlgs = [
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: false,
+                    setup: [ 'U', 'R', ],
+                    interchange: [ 'U2', ],
+                    insert: [ 'R', 'D', 'R\'', ],
+                    isInterchangeFirst: false,
+                    letters: 'あえ',
+                }),
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: false,
+                    setup: [ 'U', 'L', ],
+                    interchange: [ 'U2', ],
+                    insert: [ 'R', 'D', 'R\'', ],
+                    isInterchangeFirst: false,
+                    letters: 'あう',
+                }),
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: false,
+                    setup: [],
+                    interchange: [ 'U2', ],
+                    insert: [ 'R', 'D', 'R\'', ],
+                    isInterchangeFirst: false,
+                    letters: 'あい',
+                }),
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: false,
+                    setup: [ 'U', 'R', 'L', 'D', ],
+                    interchange: [ 'U2', ],
+                    insert: [ 'R', 'D', 'R\'', ],
+                    isInterchangeFirst: true,
+                    letters: 'いあ',
+                }),
+            ];
+
+            const actual = threeStyleNavigatorUtils.orderAlgsByEasiness(inputAlgs);
+            const expected = [
+                // pure
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: false,
+                    setup: [],
+                    interchange: [ 'U2', ],
+                    insert: [ 'R', 'D', 'R\'', ],
+                    isInterchangeFirst: false,
+                    letters: 'あい',
+                }),
+
+                // 2手セットアップ、アルファベット順なので 'U R'の「あえ」より先
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: false,
+                    setup: [ 'U', 'L', ],
+                    interchange: [ 'U2', ],
+                    insert: [ 'R', 'D', 'R\'', ],
+                    isInterchangeFirst: false,
+                    letters: 'あう',
+                }),
+
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: false,
+                    setup: [ 'U', 'R', ],
+                    interchange: [ 'U2', ],
+                    insert: [ 'R', 'D', 'R\'', ],
+                    isInterchangeFirst: false,
+                    letters: 'あえ',
+                }),
+
+                // basicAlgsに入っているが、[U2, R D R']のpure-comが無いので、後回しにされる
+                // キャンセルを考慮して16手なので、「あう」の後にも選べない
+                // 1回ローテを空回しして、それで何も選ばれないので次に選ばれるようになる
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: false,
+                    setup: [ 'U', 'R', 'L', 'D', ],
+                    interchange: [ 'U2', ],
+                    insert: [ 'R', 'D', 'R\'', ],
+                    isInterchangeFirst: true,
+                    letters: 'いあ',
+                }),
+
+            ];
+
+            assert.deepStrictEqual(actual.length, inputAlgs.length);
+            assert.deepStrictEqual(actual.map(r => r.alg), expected);
         });
     });
 });
