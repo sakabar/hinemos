@@ -51,6 +51,10 @@ export const inverse = (inputSeq) => {
 
     const fst = seq[0];
 
+    if (fst === '') {
+        return inverse(seq.slice(1)).concat([ '', ]);
+    }
+
     if (fst.slice(-1) === '\'') {
         const inv = fst.slice(0, -1);
         return inverse(seq.slice(1)).concat([ inv, ]);
@@ -214,67 +218,54 @@ export const factorize = (inputSeq) => {
     return factorizeRec(seq, []);
 };
 
-// arg.isSequenceがtrueなら因数分解、arg.isSequenceがfalseならそのまま代入
+export const getSequence = (setup, interchange, insert, isInterchangeFirst) => {
+    if (isInterchangeFirst) {
+        return setup
+            .concat(interchange)
+            .concat(insert)
+            .concat(inverse(interchange))
+            .concat(inverse(insert))
+            .concat(inverse(setup))
+            .filter(s => s !== '');
+    } else {
+        return setup
+            .concat(insert)
+            .concat(interchange)
+            .concat(inverse(insert))
+            .concat(inverse(interchange))
+            .concat(inverse(setup))
+            .filter(s => s !== '');
+    }
+};
+
+// 因数分解を試してみて、ダメならisFactorizedをfalseにしつつ受け取ったものをそのままセット
 export function Alg (arg) {
     this.letters = arg.letters;
 
-    if (arg.isSequence) {
-        const factorized = factorize(arg.sequence);
+    const sequence = arg.isSequence ? arg.sequence.filter(s => s !== '') : getSequence(arg.setup, arg.interchange, arg.insert, arg.isInterchangeFirst);
 
-        if (factorized === null) {
-            this.setup = [];
-            this.revSetup = [];
-            this.interchange = [];
-            this.insert = [];
-            this.isInterchangeFirst = false;
-            this.isFactorized = false;
-            this.sequence = arg.sequence;
-            return;
-        }
+    const factorized = factorize(sequence);
 
-        this.setup = factorized.setup;
-        const revSetup = factorized.setup.slice();
-        revSetup.reverse();
-        this.revSetup = revSetup;
-        this.interchange = factorized.interchange;
-        this.insert = factorized.insert;
-        this.isInterchangeFirst = factorized.isInterchangeFirst;
-        this.isFactorized = true;
-        this.sequence = arg.sequence;
-    } else {
-        if (arg.interchange.length === 0 && arg.insert.length === 0) {
-            throw new Error('Unexpected Input');
-        }
-
-        this.setup = arg.setup;
-        const revSetup = arg.setup.slice();
-        revSetup.reverse();
-        this.revSetup = revSetup;
-        this.interchange = arg.interchange;
-        this.insert = arg.insert;
-        this.isInterchangeFirst = arg.isInterchangeFirst || false;
-        this.isFactorized = true;
-
-        const seq = (() => {
-            if (this.isInterchangeFirst) {
-                return this.setup
-                    .concat(this.interchange)
-                    .concat(this.insert)
-                    .concat(inverse(this.interchange))
-                    .concat(inverse(this.insert))
-                    .concat(inverse(this.setup));
-            } else {
-                return this.setup
-                    .concat(this.insert)
-                    .concat(this.interchange)
-                    .concat(inverse(this.insert))
-                    .concat(inverse(this.interchange))
-                    .concat(inverse(this.setup));
-            }
-        })();
-
-        this.sequence = simplifySeq(seq);
+    if (factorized === null) {
+        this.setup = [];
+        this.revSetup = [];
+        this.interchange = [];
+        this.insert = [];
+        this.isInterchangeFirst = false;
+        this.isFactorized = false;
+        this.sequence = simplifySeq(sequence);
+        return;
     }
+
+    this.setup = factorized.setup;
+    const revSetup = factorized.setup.slice();
+    revSetup.reverse();
+    this.revSetup = revSetup;
+    this.interchange = factorized.interchange;
+    this.insert = factorized.insert;
+    this.isInterchangeFirst = factorized.isInterchangeFirst;
+    this.isFactorized = true;
+    this.sequence = simplifySeq(sequence);
 }
 
 export const distanceAlg = (x, y) => {
@@ -374,6 +365,9 @@ export const extractBasicAlgs = (inputAlgs) => {
             if (a.setupMoveCnt > b.setupMoveCnt) return 1;
         });
     }
+
+    // console.log(basicAlgs);
+    // console.log(similarAlgsDict);
 
     return {
         basicAlgs,
@@ -518,8 +512,9 @@ const orderBasicAlgsByEasiness = (inputBasicAlgs) => {
         const alg = algs[index];
 
         // MinPriorityの仕様で、priority値は1以上である必要があるので+1しておく
-        const priority = parseInt(leafNode.binaryLabel, 2) + 1;
-
+        // basicAlgsの要素が1つだけのときは手順がルートノードになってしまい、
+        // binaryLabelが'' そして priorityがNaNになってしまうのでそれを回避
+        const priority = parseInt(leafNode.binaryLabel, 2) + 1 || 1;
         q.enqueue(alg, priority);
     }
 
@@ -536,7 +531,7 @@ const orderBasicAlgsByEasiness = (inputBasicAlgs) => {
 // similarAlgsの 0 <= i <= limit番の手順で、
 // 与えられたalgとセットアップが途中まで一致しているような手順のうち、
 // 最後に見つかった手順を探す
-const searchParentAlg = (similarAlgs, tmpLimit, alg, setupStr, revSetupStr) => {
+export const searchParentAlg = (similarAlgs, tmpLimit, alg, setupStr, revSetupStr) => {
     if (similarAlgs.length === 0) {
         return null;
     }

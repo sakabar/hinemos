@@ -59,6 +59,12 @@ describe('threeStyleNavigatorUtils', () => {
             const expected = [ 'R', 'D\'', ];
             assert.deepStrictEqual(actual, expected);
         });
+
+        it('空文字列だけの配列が渡された場合', () => {
+            const actual = threeStyleNavigatorUtils.inverse([ '', ]);
+            const expected = [ '', ];
+            assert.deepStrictEqual(actual, expected);
+        });
     });
 
     describe('factorize()', () => {
@@ -128,7 +134,42 @@ describe('threeStyleNavigatorUtils', () => {
         });
     });
 
+    describe('getSequence', () => {
+        it('正常系', () => {
+            const setup = [ '', ];
+            const interchange = [ 'U2', ];
+            const insert = [ 'R\'', 'D\'', 'R', ];
+            const isInterchangeFirst = true;
+
+            const actual = threeStyleNavigatorUtils.getSequence(setup, interchange, insert, isInterchangeFirst);
+            const expected = [ 'U2', 'R\'', 'D\'', 'R', 'U2', 'R\'', 'D', 'R', ];
+            assert.deepStrictEqual(actual, expected);
+        });
+    });
+
     describe('new Alg()', () => {
+        it('正常系: pureだが、setupを空文字列を1つ持つ配列を渡してしまった場合にもうまくいく', () => {
+            const arg = {
+                isSequence: false,
+                setup: [ '', ],
+                interchange: [ 'U2', ],
+                insert: [ 'R\'', 'D\'', 'R', ],
+                isInterchangeFirst: true,
+                letters: 'あき',
+            };
+
+            const alg = new threeStyleNavigatorUtils.Alg(arg);
+
+            assert.deepStrictEqual(alg.setup, []);
+            assert.deepStrictEqual(alg.revSetup, []);
+            assert.deepStrictEqual(alg.interchange, arg.interchange);
+            assert.deepStrictEqual(alg.insert, arg.insert);
+            assert.deepStrictEqual(alg.isInterchangeFirst, arg.isInterchangeFirst);
+            assert.deepStrictEqual(alg.isFactorized, true);
+            assert.deepStrictEqual(alg.sequence, [ 'U2', 'R\'', 'D\'', 'R', 'U2', 'R\'', 'D', 'R', ]);
+            assert.deepStrictEqual(alg.letters, arg.letters);
+        });
+
         it('正常系: setup, interchange, insertで生成', () => {
             const arg = {
                 isSequence: false,
@@ -199,6 +240,26 @@ describe('threeStyleNavigatorUtils', () => {
             assert.deepStrictEqual(alg.isInterchangeFirst, false);
             assert.deepStrictEqual(alg.isFactorized, false);
             assert.deepStrictEqual(alg.sequence, arg.sequence);
+        });
+
+        it('正常系: 因数分解の結果、渡した引数と変わる場合がある', () => {
+            const arg = {
+                isSequence: false,
+                setup: [ 'U', 'R', ],
+                interchange: [ 'U2', ],
+                insert: [ 'R', 'D', 'R\'', ],
+                isInterchangeFirst: false,
+                letters: 'あい',
+            };
+            const alg = new threeStyleNavigatorUtils.Alg(arg);
+
+            assert.deepStrictEqual(alg.setup, [ 'U', 'R2', ]);
+            assert.deepStrictEqual(alg.revSetup, [ 'R2', 'U', ]);
+            assert.deepStrictEqual(alg.interchange, [ 'D', ]);
+            assert.deepStrictEqual(alg.insert, [ 'R\'', 'U2', 'R', ]);
+            assert.deepStrictEqual(alg.isInterchangeFirst, true);
+            assert.deepStrictEqual(alg.isFactorized, true);
+            assert.deepStrictEqual(alg.sequence, [ 'U', 'R2', 'D', 'R\'', 'U2', 'R', 'D\'', 'R\'', 'U2', 'R\'', 'U\'', ]);
         });
     });
 
@@ -322,6 +383,7 @@ describe('threeStyleNavigatorUtils', () => {
             ];
 
             const actual = threeStyleNavigatorUtils.extractBasicAlgs(inputAlgs);
+
             const expectedBasicAlgs = [
                 // セットアップなし
                 new threeStyleNavigatorUtils.Alg({
@@ -331,6 +393,17 @@ describe('threeStyleNavigatorUtils', () => {
                     insert: [ 'R', 'D', 'R\'', ],
                     isInterchangeFirst: false,
                     letters: 'ひあ',
+                }),
+
+                // 「ひあ」とinterchange, insertは同じだったが、
+                // 因数分解によって変化した
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: false,
+                    setup: [ 'U', 'R2', ],
+                    interchange: [ 'D', ],
+                    insert: [ 'R\'', 'U2', 'R', ],
+                    isInterchangeFirst: true,
+                    letters: 'あい',
                 }),
 
                 // セットアップがあるが、他に候補が無い
@@ -373,20 +446,6 @@ describe('threeStyleNavigatorUtils', () => {
                             letters: 'あう',
                         }),
                     },
-
-                    {
-                        setup: 'U R',
-                        revSetup: 'R U',
-                        setupMoveCnt: 2,
-                        alg: new threeStyleNavigatorUtils.Alg({
-                            isSequence: false,
-                            setup: [ 'U', 'R', ],
-                            interchange: [ 'U2', ],
-                            insert: [ 'R', 'D', 'R\'', ],
-                            isInterchangeFirst: false,
-                            letters: 'あい',
-                        }),
-                    },
                 ],
 
                 'U2,R D R\'': [
@@ -401,6 +460,22 @@ describe('threeStyleNavigatorUtils', () => {
                             insert: [ 'R', 'D', 'R\'', ],
                             isInterchangeFirst: true,
                             letters: 'いあ',
+                        }),
+                    },
+                ],
+
+                'D,R\' U2 R': [
+                    {
+                        setup: 'U R2',
+                        revSetup: 'R2 U',
+                        setupMoveCnt: 2,
+                        alg: new threeStyleNavigatorUtils.Alg({
+                            isSequence: false,
+                            setup: [ 'U', 'R2', ],
+                            interchange: [ 'D', ],
+                            insert: [ 'R\'', 'U2', 'R', ],
+                            isInterchangeFirst: true,
+                            letters: 'あい',
                         }),
                     },
                 ],
@@ -480,6 +555,54 @@ describe('threeStyleNavigatorUtils', () => {
         });
     });
 
+    describe('searchParentAlg()', () => {
+        it('正常系()', () => {
+            const parAlg = new threeStyleNavigatorUtils.Alg({
+                isSequence: false,
+                setup: [],
+                interchange: [ 'U2', ],
+                insert: [ 'R\'', 'D\'', 'R', ],
+                isInterchangeFirst: true,
+                letters: 'あき',
+            });
+
+            const childAlg = new threeStyleNavigatorUtils.Alg({
+                isSequence: false,
+                setup: [ 'R\'', ],
+                interchange: [ 'U2', ],
+                insert: [ 'R\'', 'D\'', 'R', ],
+                isInterchangeFirst: true,
+                letters: 'すい',
+            });
+
+            const similarAlgs = [
+                {
+                    setup: '',
+                    revSetup: '',
+                    setupMoveCnt: 0,
+                    alg: parAlg,
+                },
+                {
+                    setup: 'R\'',
+                    revSetup: 'R\'',
+                    setupMoveCnt: 1,
+                    alg: childAlg,
+                },
+            ];
+
+            const limit = 0;
+
+            const actual = threeStyleNavigatorUtils.searchParentAlg(similarAlgs, limit, childAlg, 'R\'', 'R\'');
+            const expected = {
+                alg: childAlg,
+                parAlg,
+                appended: 'R\'',
+            };
+
+            assert.deepStrictEqual(actual, expected);
+        });
+    });
+
     describe('isAncestor()', () => {
         it('sequence', () => {
             const alg1 = new threeStyleNavigatorUtils.Alg({
@@ -542,6 +665,29 @@ describe('threeStyleNavigatorUtils', () => {
             const actual = threeStyleNavigatorUtils.isAncestor(alg1, alg2);
             assert.deepStrictEqual(actual, true);
         });
+
+        it('実際の手順で確認', () => {
+            const parAlg = new threeStyleNavigatorUtils.Alg({
+                isSequence: false,
+                setup: [],
+                interchange: [ 'U2', ],
+                insert: [ 'R\'', 'D\'', 'R', ],
+                isInterchangeFirst: true,
+                letters: 'あき',
+            });
+
+            const childAlg = new threeStyleNavigatorUtils.Alg({
+                isSequence: false,
+                setup: [ 'R\'', ],
+                interchange: [ 'U2', ],
+                insert: [ 'R\'', 'D\'', 'R', ],
+                isInterchangeFirst: true,
+                letters: 'すい',
+            });
+
+            const actual = threeStyleNavigatorUtils.isAncestor(parAlg, childAlg);
+            assert.deepStrictEqual(actual, true);
+        });
     });
 
     describe('orderAlgsByEasiness()', () => {
@@ -571,6 +717,7 @@ describe('threeStyleNavigatorUtils', () => {
                     isInterchangeFirst: false,
                     letters: 'あい',
                 }),
+
                 new threeStyleNavigatorUtils.Alg({
                     isSequence: false,
                     setup: [ 'U', 'R', ],
@@ -603,15 +750,6 @@ describe('threeStyleNavigatorUtils', () => {
                     letters: 'あう',
                 }),
 
-                new threeStyleNavigatorUtils.Alg({
-                    isSequence: false,
-                    setup: [ 'U', 'R', ],
-                    interchange: [ 'U2', ],
-                    insert: [ 'R', 'D', 'R\'', ],
-                    isInterchangeFirst: false,
-                    letters: 'あえ',
-                }),
-
                 // basicAlgsに入っているが、[U2, R D R']のpure-comが無いので、後回しにされる
                 new threeStyleNavigatorUtils.Alg({
                     isSequence: false,
@@ -620,6 +758,16 @@ describe('threeStyleNavigatorUtils', () => {
                     insert: [ 'R', 'D', 'R\'', ],
                     isInterchangeFirst: true,
                     letters: 'いあ',
+                }),
+
+                // 因数分解によって変化した
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: false,
+                    setup: [ 'U', 'R2', ],
+                    interchange: [ 'D', ],
+                    insert: [ 'R\'', 'U2', 'R', ],
+                    isInterchangeFirst: true,
+                    letters: 'あえ',
                 }),
             ];
 
@@ -753,6 +901,48 @@ describe('threeStyleNavigatorUtils', () => {
 
             assert.deepStrictEqual(actual.length, inputAlgs.length);
             assert.deepStrictEqual(actual.map(r => r.alg), expected);
+        });
+
+        it('正常系: parAlgとappended', () => {
+            const parAlg = new threeStyleNavigatorUtils.Alg({
+                isSequence: false,
+                setup: [],
+                interchange: [ 'U2', ],
+                insert: [ 'R\'', 'D\'', 'R', ],
+                isInterchangeFirst: true,
+                letters: 'あき',
+            });
+
+            const childAlg = new threeStyleNavigatorUtils.Alg({
+                isSequence: false,
+                setup: [ 'R\'', ],
+                interchange: [ 'U2', ],
+                insert: [ 'R\'', 'D\'', 'R', ],
+                isInterchangeFirst: true,
+                letters: 'すい',
+            });
+
+            const inputAlgs = [
+                parAlg,
+                childAlg,
+            ];
+
+            const actual = threeStyleNavigatorUtils.orderAlgsByEasiness(inputAlgs);
+            const expected = [
+                {
+                    alg: parAlg,
+                    parAlg: null,
+                    appended: null,
+                },
+
+                {
+                    alg: childAlg,
+                    parAlg,
+                    appended: 'R\'',
+                },
+            ];
+
+            assert.deepStrictEqual(actual, expected);
         });
     });
 });
