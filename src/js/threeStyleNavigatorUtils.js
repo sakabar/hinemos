@@ -318,9 +318,14 @@ export const extractBasicAlgs = (inputAlgs) => {
     const sortedAlgs = algs.sort((a, b) => {
         if (a.sequence.length < b.sequence.length) return -1;
         if (a.sequence.length === b.sequence.length) {
-            if (a.letters < b.letters) return -1;
-            if (a.letters === b.letters) return 0;
-            if (a.letters > b.letters) return 1;
+            // isFactorizedの降順
+            if (a.isFactorized > b.isFactorized) return -1;
+            if (a.isFactorized === b.isFactorized) {
+                if (a.letters < b.letters) return -1;
+                if (a.letters === b.letters) return 0;
+                if (a.letters > b.letters) return 1;
+            }
+            if (a.isFactorized < b.isFactorized) return 1;
         }
         if (a.sequence.length > b.sequence.length) return 1;
     });

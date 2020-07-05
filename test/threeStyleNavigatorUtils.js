@@ -155,7 +155,7 @@ describe('threeStyleNavigatorUtils', () => {
                 isSequence: false,
                 setup: [ 'R2', ],
                 interchange: [ 'U', ],
-                insert: [ 'R2', 'D', 'R2', "D'", 'R2' ],
+                insert: [ 'R2', 'D', 'R2', 'D\'', 'R2', ],
                 isInterchangeFirst: false,
             };
             const alg = new threeStyleNavigatorUtils.Alg(arg);
@@ -166,7 +166,7 @@ describe('threeStyleNavigatorUtils', () => {
             assert.deepStrictEqual(alg.insert, arg.insert);
             assert.deepStrictEqual(alg.isInterchangeFirst, arg.isInterchangeFirst);
             assert.deepStrictEqual(alg.isFactorized, true);
-            assert.deepStrictEqual(alg.sequence, [ 'D', 'R2', "D'", 'R2', 'U', 'R2', 'D', 'R2', "D'", 'R2', 'U\'', 'R2',  ]);
+            assert.deepStrictEqual(alg.sequence, [ 'D', 'R2', 'D\'', 'R2', 'U', 'R2', 'D', 'R2', 'D\'', 'R2', 'U\'', 'R2', ]);
         });
 
         it('正常系: 引数として与えられたsequenceを因数分解', () => {
@@ -408,6 +408,49 @@ describe('threeStyleNavigatorUtils', () => {
 
             assert.deepStrictEqual(actual.basicAlgs, expectedBasicAlgs);
             assert.deepStrictEqual(actual.similarAlgsDict, expectedSimilarAlgsDict);
+        });
+
+        it('正常系: 因数分解できた手順を優先', () => {
+            const inputAlgs = [
+                // 8手だが因数分解できない
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: true,
+                    sequence: [ 'F\'', 'Rw', 'U', 'R\'', 'U\'', 'L\'', 'U', 'Lw', ],
+                    letters: 'あい',
+                }),
+
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: false,
+                    setup: [],
+                    interchange: [ 'U2', ],
+                    insert: [ 'R', 'D', 'R\'', ],
+                    isInterchangeFirst: false,
+                    letters: 'いあ',
+                }),
+            ];
+
+            const actual = threeStyleNavigatorUtils.extractBasicAlgs(inputAlgs);
+            const expectedBasicAlgs = [
+                // 因数分解できた手順が優先される
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: false,
+                    setup: [],
+                    interchange: [ 'U2', ],
+                    insert: [ 'R', 'D', 'R\'', ],
+                    isInterchangeFirst: false,
+                    letters: 'いあ',
+                }),
+
+                // 8手だが因数分解できない
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: true,
+                    sequence: [ 'F\'', 'Rw', 'U', 'R\'', 'U\'', 'L\'', 'U', 'Lw', ],
+                    letters: 'あい',
+                }),
+            ];
+
+            assert.deepStrictEqual(actual.basicAlgs, expectedBasicAlgs);
+            // actual.similarAlgsについては今回興味がないので確認しない
         });
     });
 
