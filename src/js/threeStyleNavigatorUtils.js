@@ -618,6 +618,11 @@ export const orderAlgsByEasiness = (inputAlgs) => {
             const basicAlg = basicAlgs[i];
 
             if (!basicAlg.isFactorized) {
+                // できるだけ因数分解できた手順を優先する
+                if (foundInPrevRotation) {
+                    continue;
+                }
+
                 const pair = 'IS_SEQUENCE,' + basicAlg.sequence.join('');
                 if (!(pair in similarAlgsIndDict)) {
                     similarAlgsIndDict[pair] = 0;
@@ -655,7 +660,7 @@ export const orderAlgsByEasiness = (inputAlgs) => {
                 // 8はpure-commの長さ。それに加えて、セットアップの長さの2倍(ペナルティが厳しめ)
                 // 無限ループになるのを避けるために、もし前回のローテで1つも新しい手順を見つけることができなかった場合は
                 // この制約を回避する
-                if (foundInPrevRotation && 8 + currentMaxSetupMoveCnt * 2 < basicAlg.sequence.length) {
+                if (foundInPrevRotation) {
                     continue;
                 }
             }
@@ -694,6 +699,12 @@ export const orderAlgsByEasiness = (inputAlgs) => {
             similarAlgsIndDict[pair] += 1;
             currentMaxSetupMoveCnt = currentMaxSetupMoveCnt > alg.setup.length ? currentMaxSetupMoveCnt : alg.setup.length;
             foundInCurrentRotation = true;
+        }
+
+        if (!foundInPrevRotation && !foundInCurrentRotation) {
+            console.log('無限ループが検知されました');
+            console.log(results.length);
+            return results;
         }
 
         foundInPrevRotation = foundInCurrentRotation;

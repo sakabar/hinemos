@@ -603,17 +603,6 @@ describe('threeStyleNavigatorUtils', () => {
                     letters: 'あう',
                 }),
 
-                // basicAlgsに入っているが、[U2, R D R']のpure-comが無いので、後回しにされる
-                // キャンセルを考慮して11手なので、「あう」の後には選べるようになる
-                new threeStyleNavigatorUtils.Alg({
-                    isSequence: false,
-                    setup: [ 'U', 'R', ],
-                    interchange: [ 'U2', ],
-                    insert: [ 'R', 'D', 'R\'', ],
-                    isInterchangeFirst: true,
-                    letters: 'いあ',
-                }),
-
                 new threeStyleNavigatorUtils.Alg({
                     isSequence: false,
                     setup: [ 'U', 'R', ],
@@ -621,6 +610,16 @@ describe('threeStyleNavigatorUtils', () => {
                     insert: [ 'R', 'D', 'R\'', ],
                     isInterchangeFirst: false,
                     letters: 'あえ',
+                }),
+
+                // basicAlgsに入っているが、[U2, R D R']のpure-comが無いので、後回しにされる
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: false,
+                    setup: [ 'U', 'R', ],
+                    interchange: [ 'U2', ],
+                    insert: [ 'R', 'D', 'R\'', ],
+                    isInterchangeFirst: true,
+                    letters: 'いあ',
                 }),
             ];
 
@@ -707,6 +706,49 @@ describe('threeStyleNavigatorUtils', () => {
                     letters: 'いあ',
                 }),
 
+            ];
+
+            assert.deepStrictEqual(actual.length, inputAlgs.length);
+            assert.deepStrictEqual(actual.map(r => r.alg), expected);
+        });
+
+        it('正常系: 因数分解できた手順を優先', () => {
+            const inputAlgs = [
+                // 8手だが因数分解できない
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: true,
+                    sequence: [ 'F\'', 'Rw', 'U', 'R\'', 'U\'', 'L\'', 'U', 'Lw', ],
+                    letters: 'あい',
+                }),
+
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: false,
+                    setup: [],
+                    interchange: [ 'U2', ],
+                    insert: [ 'R', 'D', 'R\'', ],
+                    isInterchangeFirst: false,
+                    letters: 'いあ',
+                }),
+            ];
+
+            const actual = threeStyleNavigatorUtils.orderAlgsByEasiness(inputAlgs);
+            const expected = [
+                // 因数分解できた手順が優先される
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: false,
+                    setup: [],
+                    interchange: [ 'U2', ],
+                    insert: [ 'R', 'D', 'R\'', ],
+                    isInterchangeFirst: false,
+                    letters: 'いあ',
+                }),
+
+                // 8手だが因数分解できない
+                new threeStyleNavigatorUtils.Alg({
+                    isSequence: true,
+                    sequence: [ 'F\'', 'Rw', 'U', 'R\'', 'U\'', 'L\'', 'U', 'Lw', ],
+                    letters: 'あい',
+                }),
             ];
 
             assert.deepStrictEqual(actual.length, inputAlgs.length);
