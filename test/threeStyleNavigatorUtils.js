@@ -150,6 +150,25 @@ describe('threeStyleNavigatorUtils', () => {
             assert.deepStrictEqual(alg.letters, 'あい');
         });
 
+        it('正常系: setup, interchange, insertで生成: ちょっと複雑', () => {
+            const arg = {
+                isSequence: false,
+                setup: [ 'R2', ],
+                interchange: [ 'U', ],
+                insert: [ 'R2', 'D', 'R2', "D'", 'R2' ],
+                isInterchangeFirst: false,
+            };
+            const alg = new threeStyleNavigatorUtils.Alg(arg);
+
+            assert.deepStrictEqual(alg.setup, arg.setup);
+            assert.deepStrictEqual(alg.revSetup, arg.setup);
+            assert.deepStrictEqual(alg.interchange, arg.interchange);
+            assert.deepStrictEqual(alg.insert, arg.insert);
+            assert.deepStrictEqual(alg.isInterchangeFirst, arg.isInterchangeFirst);
+            assert.deepStrictEqual(alg.isFactorized, true);
+            assert.deepStrictEqual(alg.sequence, [ 'D', 'R2', "D'", 'R2', 'U', 'R2', 'D', 'R2', "D'", 'R2', 'U\'', 'R2',  ]);
+        });
+
         it('正常系: 引数として与えられたsequenceを因数分解', () => {
             const arg = {
                 isSequence: true,
@@ -221,7 +240,7 @@ describe('threeStyleNavigatorUtils', () => {
             });
 
             const actual = threeStyleNavigatorUtils.distanceAlg(alg1, alg2);
-            const expected = 8.5;
+            const expected = 9.0;
             assert.deepStrictEqual(actual, expected);
         });
     });

@@ -255,12 +255,23 @@ export function Alg (arg) {
         this.isInterchangeFirst = arg.isInterchangeFirst || false;
         this.isFactorized = true;
 
-        const seq = this.setup
-            .concat(this.interchange)
-            .concat(this.insert)
-            .concat(inverse(this.interchange))
-            .concat(inverse(this.insert))
-            .concat(inverse(this.setup));
+        const seq = (() => {
+            if (this.isInterchangeFirst) {
+                return this.setup
+                    .concat(this.interchange)
+                    .concat(this.insert)
+                    .concat(inverse(this.interchange))
+                    .concat(inverse(this.insert))
+                    .concat(inverse(this.setup));
+            } else {
+                return this.setup
+                    .concat(this.insert)
+                    .concat(this.interchange)
+                    .concat(inverse(this.insert))
+                    .concat(inverse(this.interchange))
+                    .concat(inverse(this.setup));
+            }
+        })();
 
         this.sequence = simplifySeq(seq);
     }
