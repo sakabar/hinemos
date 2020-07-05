@@ -186,7 +186,7 @@ export const factorizeRec = (inputRestSeq, inputSetupSeq) => {
             .concat(inverse(fst))
             .concat(inverse(snd));
 
-        if (_.isEqual(simplifySeq(candSeq), simplifySeq(restSeq))) {
+        if (_.isEqual(simplifySeq(candSeq), simplifySeq(restSeq)) && (fst.length === 1 || snd.length === 1)) {
             let interchange;
             let insert;
             let isInterchangeFirst;
@@ -242,25 +242,36 @@ export const getSequence = (setup, interchange, insert, isInterchangeFirst) => {
 export function Alg (arg) {
     this.letters = arg.letters;
 
-    const sequence = arg.isSequence ? arg.sequence.filter(s => s !== '') : getSequence(arg.setup, arg.interchange, arg.insert, arg.isInterchangeFirst);
-
+    const unsimplifiedSequence = arg.isSequence ? arg.sequence.filter(s => s !== '') : getSequence(arg.setup, arg.interchange, arg.insert, arg.isInterchangeFirst);
+    const sequence = simplifySeq(unsimplifiedSequence);
     const factorized = factorize(sequence);
 
     if (factorized === null) {
-        this.setup = [];
-        this.revSetup = [];
-        this.interchange = [];
-        this.insert = [];
-        this.isInterchangeFirst = false;
-        this.isFactorized = false;
-        this.sequence = simplifySeq(sequence);
-        return;
+        // もし入力が因数分解された形だった場合はそれに従う
+        // [R2: [R2 D R2 D' R2, U]] のような、キャンセルされて消えるセットアップを持つ場合は、今の実装では因数分解できない
+        if (arg.isSequence) {
+            this.setup = [];
+            this.revSetup = [];
+            this.interchange = [];
+            this.insert = [];
+            this.isInterchangeFirst = false;
+            this.isFactorized = false;
+            this.sequence = sequence;
+            return;
+        } else {
+            this.setup = arg.setup;
+            this.revSetup = arg.setup.slice().reverse();
+            this.interchange = arg.interchange;
+            this.insert = arg.insert;
+            this.isInterchangeFirst = arg.isInterchangeFirst;
+            this.isFactorized = true;
+            this.sequence = sequence;
+            return;
+        }
     }
 
     this.setup = factorized.setup;
-    const revSetup = factorized.setup.slice();
-    revSetup.reverse();
-    this.revSetup = revSetup;
+    this.revSetup = factorized.setup.slice().reverse();
     this.interchange = factorized.interchange;
     this.insert = factorized.insert;
     this.isInterchangeFirst = factorized.isInterchangeFirst;

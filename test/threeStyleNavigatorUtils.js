@@ -191,12 +191,12 @@ describe('threeStyleNavigatorUtils', () => {
             assert.deepStrictEqual(alg.letters, 'あい');
         });
 
-        it('正常系: setup, interchange, insertで生成: ちょっと複雑', () => {
+        it('正常系: interchangeが2手より長くならないようにする', () => {
             const arg = {
                 isSequence: false,
                 setup: [ 'R2', ],
-                interchange: [ 'U', ],
                 insert: [ 'R2', 'D', 'R2', 'D\'', 'R2', ],
+                interchange: [ 'U', ],
                 isInterchangeFirst: false,
             };
             const alg = new threeStyleNavigatorUtils.Alg(arg);
@@ -683,6 +683,29 @@ describe('threeStyleNavigatorUtils', () => {
                 insert: [ 'R\'', 'D\'', 'R', ],
                 isInterchangeFirst: true,
                 letters: 'すい',
+            });
+
+            const actual = threeStyleNavigatorUtils.isAncestor(parAlg, childAlg);
+            assert.deepStrictEqual(actual, true);
+        });
+
+        it('セットアップによっては入力とinsert,interchangeが変わってしまう', () => {
+            const parAlg = new threeStyleNavigatorUtils.Alg({
+                isSequence: false,
+                setup: [ 'U', ],
+                interchange: [ 'U', ],
+                insert: [ 'R', 'D', 'R\'', ],
+                isInterchangeFirst: true,
+                letters: 'ひた',
+            });
+
+            const childAlg = new threeStyleNavigatorUtils.Alg({
+                isSequence: false,
+                setup: [ 'R', 'U', ],
+                interchange: [ 'U', ],
+                insert: [ 'R', 'D', 'R\'', ],
+                isInterchangeFirst: true,
+                letters: 'した',
             });
 
             const actual = threeStyleNavigatorUtils.isAncestor(parAlg, childAlg);
