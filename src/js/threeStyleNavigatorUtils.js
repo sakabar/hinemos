@@ -219,30 +219,57 @@ export const factorize = (inputSeq) => {
 };
 
 export const getSequence = (setup, interchange, insert, isInterchangeFirst) => {
-    if (isInterchangeFirst) {
-        return setup
-            .concat(interchange)
-            .concat(insert)
-            .concat(inverse(interchange))
-            .concat(inverse(insert))
-            .concat(inverse(setup))
-            .filter(s => s !== '');
-    } else {
-        return setup
-            .concat(insert)
-            .concat(interchange)
-            .concat(inverse(insert))
-            .concat(inverse(interchange))
-            .concat(inverse(setup))
-            .filter(s => s !== '');
-    }
+    const ans = (() => {
+        if (isInterchangeFirst) {
+            return setup
+                .concat(interchange)
+                .concat(insert)
+                .concat(inverse(interchange))
+                .concat(inverse(insert))
+                .concat(inverse(setup));
+        } else {
+            return setup
+                .concat(insert)
+                .concat(interchange)
+                .concat(inverse(insert))
+                .concat(inverse(interchange))
+                .concat(inverse(setup));
+        }
+    })();
+
+    return ans
+        .map(s => s.replace(/'2/g, '2'))
+        .filter(s => s !== '');
 };
 
 // 因数分解を試してみて、ダメならisFactorizedをfalseにしつつ受け取ったものをそのままセット
 export function Alg (arg) {
+    // R'2のような表記は同じはずの手順を区別してしまうので消す
+    // あと空文字列
+    if (arg.setup) {
+        arg.setup = arg.setup
+            .map(s => s.replace(/'2/g, '2'))
+            .filter(s => s !== '');
+    }
+    if (arg.interchange) {
+        arg.interchange = arg.interchange
+            .map(s => s.replace(/'2/g, '2'))
+            .filter(s => s !== '');
+    }
+    if (arg.insert) {
+        arg.insert = arg.insert
+            .map(s => s.replace(/'2/g, '2'))
+            .filter(s => s !== '');
+    }
+    if (arg.sequence) {
+        arg.sequence = arg.sequence
+            .map(s => s.replace(/'2/g, '2'))
+            .filter(s => s !== '');
+    }
+
     this.letters = arg.letters;
 
-    const unsimplifiedSequence = arg.isSequence ? arg.sequence.filter(s => s !== '') : getSequence(arg.setup, arg.interchange, arg.insert, arg.isInterchangeFirst);
+    const unsimplifiedSequence = arg.isSequence ? arg.sequence : getSequence(arg.setup, arg.interchange, arg.insert, arg.isInterchangeFirst);
     const sequence = simplifySeq(unsimplifiedSequence);
     const factorized = factorize(sequence);
 
