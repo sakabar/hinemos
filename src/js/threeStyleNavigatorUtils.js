@@ -219,21 +219,32 @@ export const factorize = (inputSeq) => {
     return factorizeRec(seq, []);
 };
 
-export const getSequence = (setup, interchange, insert, isInterchangeFirst) => {
-    const ans = (() => {
+export const getSequence = (setup, interchange, insert, isInterchangeFirst, convertWideMove = false) => {
+    const pure = (() => {
         if (isInterchangeFirst) {
-            return setup
-                .concat(interchange)
+            return interchange
                 .concat(insert)
                 .concat(inverse(interchange))
+                .concat(inverse(insert));
+        } else {
+            return insert
+                .concat(interchange)
                 .concat(inverse(insert))
+                .concat(inverse(interchange));
+        }
+    })();
+
+    // セットアップまで変換してしまうと手順全体が変わってしまい親子関係を取得できなくなるので困る
+    // (A B A' B)の固まりを変換することで、発生した持ち替えが打ち消されるので、
+    // セットアップは変換せずに付け足してOK
+    const ans = (() => {
+        if (convertWideMove) {
+            return setup
+                .concat(fmcchecker.convAlg(pure.join(' ')).split(' '))
                 .concat(inverse(setup));
         } else {
             return setup
-                .concat(insert)
-                .concat(interchange)
-                .concat(inverse(insert))
-                .concat(inverse(interchange))
+                .concat(pure)
                 .concat(inverse(setup));
         }
     })();
@@ -272,9 +283,8 @@ export function Alg (arg, convertWideMove = false) {
 
     this.letters = arg.letters;
 
-    const unsimplifiedSequence = arg.isSequence ? arg.sequence : getSequence(arg.setup, arg.interchange, arg.insert, arg.isInterchangeFirst);
-    const converted = convertWideMove ? fmcchecker.convAlg(unsimplifiedSequence.join(' ')).split(' ') : unsimplifiedSequence;
-    const sequence = simplifySeq(converted);
+    const unsimplifiedSequence = arg.isSequence ? arg.sequence : getSequence(arg.setup, arg.interchange, arg.insert, arg.isInterchangeFirst, convertWideMove);
+    const sequence = simplifySeq(unsimplifiedSequence);
     const factorized = factorize(sequence);
 
     if (factorized === null) {

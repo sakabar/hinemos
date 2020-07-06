@@ -967,5 +967,51 @@ describe('threeStyleNavigatorUtils', () => {
 
             assert.deepStrictEqual(actual, expected);
         });
+
+        it('正常系: parAlgとappended, convertWide=trueの場合', () => {
+            const convertWide = true;
+
+            const parAlg = new threeStyleNavigatorUtils.Alg({
+                isSequence: false,
+                setup: [],
+                insert: [ 'R\'', 'D', 'R', ],
+                interchange: [ 'U2', ],
+                isInterchangeFirst: false,
+                letters: 'にあ',
+            }, convertWide);
+
+            const childAlg = new threeStyleNavigatorUtils.Alg({
+                isSequence: false,
+                setup: [ 'Lw', 'U', ],
+                insert: [ 'R\'', 'D', 'R', ],
+                interchange: [ 'U2', ],
+                isInterchangeFirst: false,
+                letters: 'たす',
+            }, convertWide);
+
+            const inputAlgs = [
+                parAlg,
+                childAlg,
+            ];
+
+            const actual = threeStyleNavigatorUtils.orderAlgsByEasiness(inputAlgs);
+            const expected = [
+                {
+                    alg: parAlg,
+                    parAlg: null,
+                    appended: null,
+                },
+
+                {
+                    alg: childAlg,
+                    parAlg,
+                    appended: 'Lw U',
+                },
+            ];
+
+            console.log(JSON.stringify(actual));
+
+            assert.deepStrictEqual(actual, expected);
+        });
     });
 });
