@@ -2,6 +2,7 @@ const _ = require('lodash');
 const { MinPriorityQueue, } = require('@datastructures-js/priority-queue');
 const { Matrix, } = require('ml-matrix');
 const { agnes, } = require('ml-hclust');
+const fmcchecker = require('./fmcchecker');
 
 export const getMoveLayer = (move) => {
     if (move.slice(-1) === '2' || move.slice(-1) === '\'') {
@@ -243,7 +244,9 @@ export const getSequence = (setup, interchange, insert, isInterchangeFirst) => {
 };
 
 // 因数分解を試してみて、ダメならisFactorizedをfalseにしつつ受け取ったものをそのままセット
-export function Alg (arg) {
+// convertWideMove : 2層回しを変換して処理するかどうか
+// 3x3の場合はtrueでよいが、多分割キューブにはアルゴリズムが対応していないので、デフォルトはfalse
+export function Alg (arg, convertWideMove = false) {
     // R'2のような表記は同じはずの手順を区別してしまうので消す
     // あと空文字列
     if (arg.setup) {
@@ -270,7 +273,8 @@ export function Alg (arg) {
     this.letters = arg.letters;
 
     const unsimplifiedSequence = arg.isSequence ? arg.sequence : getSequence(arg.setup, arg.interchange, arg.insert, arg.isInterchangeFirst);
-    const sequence = simplifySeq(unsimplifiedSequence);
+    const converted = convertWideMove ? fmcchecker.convAlg(unsimplifiedSequence.join(' ')).split(' ') : unsimplifiedSequence;
+    const sequence = simplifySeq(converted);
     const factorized = factorize(sequence);
 
     if (factorized === null) {

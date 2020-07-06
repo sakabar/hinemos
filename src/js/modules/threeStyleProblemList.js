@@ -137,6 +137,9 @@ function * handleAutoCreateProblemLists () {
     while (true) {
         yield take(sagaAutoCreateProblemLists);
         const part = yield select(state => state.part);
+        // Algの2層回し変換アルゴリズムは3x3キューブのみに対応している
+        const convertWideMove = (part === constant.partType.corner) || (part === constant.partType.edgeMiddle);
+
         const userName = yield select(state => state.userName);
 
         // System_全手順のDetailを読み込んで、ステッカーの組み合わせ全量を取得
@@ -170,7 +173,7 @@ function * handleAutoCreateProblemLists () {
                     letters,
                 };
 
-                return new threeStyleNavigatorUtils.Alg(arg);
+                return new threeStyleNavigatorUtils.Alg(arg, convertWideMove);
             };
 
             let interchange;
@@ -193,7 +196,7 @@ function * handleAutoCreateProblemLists () {
                 letters,
             };
 
-            return new threeStyleNavigatorUtils.Alg(arg);
+            return new threeStyleNavigatorUtils.Alg(arg, convertWideMove);
         }); ;
 
         const orderedAlgTuples = threeStyleNavigatorUtils.orderAlgsByEasiness(unOrderedAlgs);

@@ -38,5 +38,16 @@ describe('fmcchecker', () => {
             assert.notStrictEqual(actual1, 'R\' F\' R B');
             assert.deepStrictEqual(actual2, 'R\' F\' R B');
         });
+
+        it('2層回しが多くてもメモリエラーを起こさずに値を返すこと', () => {
+            // 「いく」
+            // [Lw' U: [Lw' E Lw, U]]
+            const s = 'Lw\' U Lw\' E Lw U Lw\' E\' Lw U\' U\' Lw';
+            const convedSeq = fmcchecker.convAlg(s).split(' ');
+            const actual = threeStyleNavigatorUtils.simplifySeq(convedSeq).join(' ');
+            const expected = 'R\' F R\' E\' R F R\' E R F2 R';
+
+            assert.deepStrictEqual(actual, expected);
+        });
     });
 });

@@ -16,6 +16,9 @@
 // Author: Takafumi Sakakibara
 // Changes: replace spaces of return value
 
+// 2020/07/06
+// Author: Takafumi Sakakibara
+// Changes: cancel four same moves
 
 // convAlg: 手順変換
 //   Sarumawashi 用に回転操作を含まない手順に変換する
@@ -91,6 +94,20 @@ export const convAlg = (str) => {
         str = str.replace(/ x x x x/g, '')
             .replace(/ y y y y/g, '')
             .replace(/ z z z z/g, '');
+
+        // modified by Takafumi Sakakibara on 2020/07/06 //
+        // 手順が長大になってメモリから溢れてしまうのを避ける
+        str = str
+            .replace(/R R R R/g, '')
+            .replace(/L L L L/g, '')
+            .replace(/U U U U/g, '')
+            .replace(/D D D D/g, '')
+            .replace(/F F F F/g, '')
+            .replace(/B B B B/g, '')
+            .replace(/M M M M/g, '')
+            .replace(/S S S S/g, '')
+            .replace(/E E E E/g, '');
+        // end
 
         var arr = str.split(' ');
         var found = '';
