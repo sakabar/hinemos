@@ -8,6 +8,14 @@
 // Author: Takafumi Sakakibara
 // Changes: export convAlg().
 
+// 2020/07/06
+// Author: Takafumi Sakakibara
+// Changes: allow slice moves.
+
+// 2020/07/06
+// Author: Takafumi Sakakibara
+// Changes: replace spaces of return value
+
 
 // convAlg: 手順変換
 //   Sarumawashi 用に回転操作を含まない手順に変換する
@@ -37,6 +45,13 @@ export const convAlg = (str) => {
         .replace(/y'/g, 'y y y').replace(/y2/g, 'y y')
         .replace(/z'/g, 'z z z').replace(/z2/g, 'z z');
 
+    // Begin modifying by Takafumi Sakakibara on 2020/07/06 //
+    str = str
+        .replace(/M'/g, 'M M M').replace(/M2/g, 'M M')
+        .replace(/S'/g, 'S S S').replace(/S2/g, 'S S')
+        .replace(/E'/g, 'E E E').replace(/E2/g, 'E E');
+    // End modifying //
+
     // 2層回しを全体回転と1層回しに置き換える
     str = str.replace(/r/g, 'L x')
         .replace(/l/g, 'R x x x')
@@ -55,10 +70,19 @@ export const convAlg = (str) => {
     }
 
     // 回転が無くなったら、以降のmoveがどう変換されるか辞書
+    // var rotMap = {
+    //     'x': {'R': 'R', 'L': 'L', 'U': 'F', 'D': 'B', 'F': 'D', 'B': 'U', 'x': 'x', 'y': 'z', 'z': 'y y y'},
+    //     'y': {'R': 'B', 'L': 'F', 'U': 'U', 'D': 'D', 'F': 'R', 'B': 'L', 'x': 'z z z', 'y': 'y', 'z': 'x'},
+    //     'z': {'R': 'U', 'L': 'D', 'U': 'L', 'D': 'R', 'F': 'F', 'B': 'B', 'x': 'y', 'y': 'x x x', 'z': 'z'}
+    // };
+    // modified by Takafumi Sakakibara on 2020/07/06 //
     var rotMap = {
-        'x': {'R': 'R', 'L': 'L', 'U': 'F', 'D': 'B', 'F': 'D', 'B': 'U', 'x': 'x', 'y': 'z', 'z': 'y y y'},
-        'y': {'R': 'B', 'L': 'F', 'U': 'U', 'D': 'D', 'F': 'R', 'B': 'L', 'x': 'z z z', 'y': 'y', 'z': 'x'},
-        'z': {'R': 'U', 'L': 'D', 'U': 'L', 'D': 'R', 'F': 'F', 'B': 'B', 'x': 'y', 'y': 'x x x', 'z': 'z'}
+        'x': {'R': 'R', 'L': 'L', 'U': 'F', 'D': 'B', 'F': 'D', 'B': 'U', 'x': 'x', 'y': 'z', 'z': 'y y y',
+              'M': 'M', 'S': 'E', 'E': 'S S S'},
+        'y': {'R': 'B', 'L': 'F', 'U': 'U', 'D': 'D', 'F': 'R', 'B': 'L', 'x': 'z z z', 'y': 'y', 'z': 'x',
+              'M': 'S', 'S': 'M M M', 'E': 'E'},
+        'z': {'R': 'U', 'L': 'D', 'U': 'L', 'D': 'R', 'F': 'F', 'B': 'B', 'x': 'y', 'y': 'x x x', 'z': 'z',
+              'M': 'E', 'S': 'S', 'E': 'M M M'},
     };
 
     // 全体回転がなくなるまで繰り返す
@@ -87,5 +111,8 @@ export const convAlg = (str) => {
         //console.log(str);
     }
 
-    return str;
+    // modified by Takafumi Sakakibara on 2020/07/06 //
+    // return str;
+    return str.replace(/\s+/g, ' ').trim();
+
 };
