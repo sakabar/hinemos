@@ -325,7 +325,7 @@ export const distanceAlg = (x, y) => {
         return distanceSeq(x.sequence, y.sequence);
     }
 
-    const setupDistance = distanceSeq(x.setup, y.setup);
+    const setupDistance = distanceSeq(x.revSetup, y.revSetup);
     const interchangeDistance = distanceSeq(x.interchange, y.interchange);
     const insertDistance = distanceSeq(x.insert, y.insert);
 
