@@ -2,10 +2,12 @@ import Handsontable from 'handsontable';
 import 'handsontable.css';
 const rp = require('request-promise');
 const config = require('./config');
+const constant = require('./constant');
+const numberingUtils = require('./numberingUtils');
 const letterPairTableUtils = require('./letterPairTableUtils');
 const utils = require('./utils');
 
-const generateTableData = () => {
+const generateTableData = (characterType) => {
     const userName = localStorage.userName;
 
     const options = {
@@ -18,25 +20,25 @@ const generateTableData = () => {
         form: {},
     };
 
-    const hiraganas = utils.getHiraganas();
+    const characters = utils.getCharacters(characterType);
 
     return rp(options)
         .then((ans) => {
             const fstRow = [
                 ' 2rd \\ 3rd ',
-                ...hiraganas,
+                ...characters,
             ];
             const tableData = [
                 fstRow,
             ];
 
-            for (let i = 0; i < hiraganas.length; i++) {
-                const rowHiragana = hiraganas[i];
+            for (let i = 0; i < characters.length; i++) {
+                const rowHiragana = characters[i];
                 const row = [
                     rowHiragana,
                 ];
-                for (let k = 0; k < hiraganas.length; k++) {
-                    const colHiragana = hiraganas[k];
+                for (let k = 0; k < characters.length; k++) {
+                    const colHiragana = characters[k];
                     const letters = rowHiragana + colHiragana;
                     const wordStr = ans.success.result.filter(x => x.letters === letters).map(x => x.word).join(', ');
                     row.push(wordStr);
@@ -103,32 +105,40 @@ const saveLetterPairTableFromHot = (hot) => {
 };
 
 const init = () => {
+    const userName = localStorage.userName;
     const saveBtn = document.querySelector('.viewLetterPairForm__saveBtn');
     saveBtn.disabled = true;
 
     const container = document.querySelector('.viewLetterPairForm__table');
-    generateTableData()
-        .then((tableData) => {
-            const hot = new Handsontable(container, {
-                data: tableData,
-                licenseKey: 'non-commercial-and-evaluation',
-                rowHeaders: true,
-                colHeaders: true,
-                cells: (row, col, prop) => {
-                    let cellProperties = {};
-                    if (row === 0 || col === 0) {
-                        // ひらがな行とひらがな列は変更不可
-                        cellProperties.readOnly = true;
-                    }
 
-                    return cellProperties;
-                },
-                fixedColumnsLeft: 1,
-                fixedRowsTop: 1,
-            });
+    return numberingUtils.getNumbering(userName, constant.partType.corner)
+        .then(cornerNumberings => {
+            const cornerNumberingsWithoutBuffer = cornerNumberings.filter(rec => rec.letter !== '@');
+            const characterType = utils.getCharacterType(cornerNumberingsWithoutBuffer[0].letter);
 
-            saveBtn.addEventListener('click', () => saveLetterPairTableFromHot(hot));
-            saveBtn.disabled = false;
+            return generateTableData(characterType)
+                .then((tableData) => {
+                    const hot = new Handsontable(container, {
+                        data: tableData,
+                        licenseKey: 'non-commercial-and-evaluation',
+                        rowHeaders: true,
+                        colHeaders: true,
+                        cells: (row, col, prop) => {
+                            let cellProperties = {};
+                            if (row === 0 || col === 0) {
+                                // ひらがな行とひらがな列は変更不可
+                                cellProperties.readOnly = true;
+                            }
+
+                            return cellProperties;
+                        },
+                        fixedColumnsLeft: 1,
+                        fixedRowsTop: 1,
+                    });
+
+                    saveBtn.addEventListener('click', () => saveLetterPairTableFromHot(hot));
+                    saveBtn.disabled = false;
+                });
         });
 };
 
