@@ -1,7 +1,9 @@
 const rp = require('request-promise');
 const url = require('url');
 const config = require('./config');
+const constant = require('./constant');
 const utils = require('./utils');
+const numberingUtils = require('./numberingUtils');
 
 // あるパーツがバッファのあるパーツかどうかを判定する
 const isBufferPart = (bufferSticker, cornerPart) => {
@@ -143,8 +145,6 @@ const saveCornerNumbering = () => {
     const userName = localStorage.userName;
     const token = localStorage.token;
 
-    const hiraganas = [ '@', ...utils.getHiraganas(), ];
-
     const cornerLn = utils.corners.length;
     const cornerNumberings = [];
     for (let i = 0; i < cornerLn; i++) {
@@ -157,11 +157,6 @@ const saveCornerNumbering = () => {
 
             if (letter.length > 1) {
                 alert(`エラー:${sticker}:「${pieceText.value}」:ナンバリングは1文字にしてください`);
-                return;
-            }
-
-            if (!hiraganas.includes(letter)) {
-                alert(`エラー:${sticker}:「${pieceText.value}」:使用してはいけない文字です`);
                 return;
             }
 
@@ -190,6 +185,15 @@ const saveCornerNumbering = () => {
         return;
     }
 
+    const cornerCharacterTypes = cornerNumberings
+        .map(r => r.letter)
+        .filter(s => s !== '@' && typeof s !== 'undefined')
+        .map(s => utils.getCharacterType(s));
+    if (new Set(cornerCharacterTypes).size !== 1) {
+        alert('ひらがなとアルファベットが混在しています。(Use only Japanese or Alphabet.)');
+        return;
+    }
+
     const numberingCornerOptions = {
         url: `${config.apiRoot}/numbering/corner/`,
         method: 'POST',
@@ -212,8 +216,6 @@ const saveEdgeNumbering = () => {
     const userName = localStorage.userName;
     const token = localStorage.token;
 
-    const hiraganas = [ '@', ...utils.getHiraganas(), ];
-
     const edgeLn = utils.edges.length;
     const edgeNumberings = [];
     for (let i = 0; i < edgeLn; i++) {
@@ -226,11 +228,6 @@ const saveEdgeNumbering = () => {
 
             if (letter.length > 1) {
                 alert(`エラー:${sticker}:「${pieceText.value}」:ナンバリングは1文字にしてください`);
-                return;
-            }
-
-            if (!hiraganas.includes(letter)) {
-                alert(`エラー:${sticker}:「${pieceText.value}」:使用してはいけない文字です`);
                 return;
             }
 
@@ -256,6 +253,15 @@ const saveEdgeNumbering = () => {
     const blankStickers = getBlankStickers(buffer);
     if (!checkBlankStickersAreOK(blankStickers, edgeNumberings)) {
         alert('エッジのバッファがあるパーツにひらがなが割り当てられています');
+        return;
+    }
+
+    const edgeCharacterTypes = edgeNumberings
+        .map(r => r.letter)
+        .filter(s => s !== '@' && typeof s !== 'undefined')
+        .map(s => utils.getCharacterType(s));
+    if (new Set(edgeCharacterTypes).size !== 1) {
+        alert('ひらがなとアルファベットが混在しています。(Use only Japanese or Alphabet.)');
         return;
     }
 
@@ -341,11 +347,29 @@ const exportNumbering = () => {
     return ansUrl;
 };
 
-const save = () => {
+const save = (userName) => {
     saveCornerNumbering()
         .then(() => {
             saveEdgeNumbering()
                 .then(() => {
+                    // 文字種が混在していないかどうかを確認
+                    numberingUtils.getNumbering(userName, constant.partType.corner)
+                        .then((cornerNumberings) => {
+                            numberingUtils.getNumbering(userName, constant.partType.edgeMiddle)
+                                .then((edgeNumberings) => {
+                                    const characterTypes = [ ...cornerNumberings, ...edgeNumberings, ]
+                                        .map(rec => rec.letter)
+                                        .filter(s => s !== '@')
+                                        .map(s => utils.getCharacterType(s));
+
+                                    if (new Set(characterTypes).size !== 1) {
+                                        const msg = 'エッジとコーナの文字種が異なります。修正してください。(Letter scheme is differ between corner and edge. Fix it)';
+                                        alert(msg);
+                                        throw new Error(msg);
+                                    }
+                                });
+                        });
+
                     alert('ナンバリングを登録しました');
                 })
                 .catch(() => {
@@ -358,6 +382,8 @@ const save = () => {
 };
 
 const init = () => {
+    const userName = localStorage.userName;
+
     // URLにパラメータがセットされている時はそのパラメータに従ってナンバリングを埋める
     // そうでない時は、登録済のナンバリングをロードする
     // 例: numbering3.html?useParam=true&UBL=@
@@ -371,7 +397,7 @@ const init = () => {
 
     const saveBtn = document.querySelector('.saveNumberingForm__btn');
     if (saveBtn) {
-        saveBtn.addEventListener('click', save);
+        saveBtn.addEventListener('click', () => save(userName));
     }
 
     const exportBtn = document.querySelector('.exportNumberingForm__btn');

@@ -10,6 +10,11 @@ const dummyPartType = {
     japanese: '',
 };
 
+const characterType = {
+    hiragana: 'hiragana',
+    alphabet: 'alphabet',
+};
+
 const faces = [ 'B', 'D', 'F', 'L', 'R', 'U', ];
 
 const defaultColor = {
@@ -30,6 +35,7 @@ const threeStyleEvangelists = [
 
 exports.partType = partType;
 exports.dummyPartType = dummyPartType;
+exports.characterType = characterType;
 exports.faces = faces;
 exports.defaultColor = defaultColor;
 exports.threeStyleEvangelists = threeStyleEvangelists;
