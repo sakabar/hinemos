@@ -88,9 +88,6 @@ const registerLetterPair = () => {
         })
         .catch(() => {
             alert('登録に失敗しました');
-
-            lettersText.value = '';
-            wordText.value = '';
         });
 };
 
