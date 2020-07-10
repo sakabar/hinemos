@@ -54,8 +54,6 @@ const registerLetterPair = () => {
     const userName = localStorage.userName;
     const token = localStorage.token;
 
-    const hiraganas = utils.getHiraganas();
-
     const lettersText = document.querySelector('.registerLetterPairForm__lettersText');
     const letters = lettersText.value;
     const wordText = document.querySelector('.registerLetterPairForm__wordText');
@@ -65,8 +63,9 @@ const registerLetterPair = () => {
         'Content-Type': 'application/json',
     };
 
-    if (!letters.split(/(.)/).filter(x => x).every(ch => hiraganas.includes(ch))) {
-        alert('「あ」〜「ん」の、濁点が付かないひらがなのみを使ってください');
+    const characterTypes = letters.split('').map(s => utils.getCharacterType(s));
+    if (new Set(characterTypes).size !== 1) {
+        alert('ひらがなとアルファベットが混在しています。(Use only Japanese or Alphabet.)');
         return;
     }
 
@@ -89,9 +88,6 @@ const registerLetterPair = () => {
         })
         .catch(() => {
             alert('登録に失敗しました');
-
-            lettersText.value = '';
-            wordText.value = '';
         });
 };
 

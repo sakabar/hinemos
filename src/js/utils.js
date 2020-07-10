@@ -1,6 +1,7 @@
 const chunk = require('chunk');
 const Cube = require('cubejs');
 const shuffle = require('shuffle-array');
+const constant = require('./constant');
 
 const corners = [
     'BDL', 'BDR', 'BLU', 'BRU',
@@ -32,7 +33,51 @@ const edgeParts = [
 ];
 
 const getHiraganas = () => {
-    return 'あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん'.split(/(.{1})/).filter(x => x);
+    const hiraganas = `
+        あいうえお
+        かきくけこ
+        さしすせそ
+        たちつてと
+        なにぬねの
+        はひふへほ
+        まみむめも
+        やゆよ
+        らりるれろ
+        わをん`;
+
+    return hiraganas.replace(/\s/g, '').split(/(.{1})/).filter(x => x);
+};
+
+const getAlphabets = () => {
+    const alphabets = `
+       ABCDE
+       FGHIJ
+       KLMNO
+       PQRST
+       UVWXY
+       Z`;
+
+    return alphabets.replace(/\s/g, '').split(/(.{1})/).filter(x => x);
+};
+
+const getCharacters = (characterType) => {
+    if (characterType === constant.characterType.hiragana) {
+        return getHiraganas();
+    } else if (characterType === constant.characterType.alphabet) {
+        return getAlphabets();
+    }
+
+    throw new Error('Unexpected characterType');
+};
+
+const getCharacterType = (ch) => {
+    if (getHiraganas().includes(ch)) {
+        return constant.characterType.hiragana;
+    } else if (getAlphabets().includes(ch)) {
+        return constant.characterType.alphabet;
+    }
+
+    throw new Error('Unexpected character');
 };
 
 const showMove = (setup, move1, move2) => {
@@ -327,7 +372,8 @@ exports.corners = corners;
 exports.edges = edges;
 exports.cornerParts = cornerParts;
 exports.edgeParts = edgeParts;
-exports.getHiraganas = getHiraganas;
+exports.getCharacters = getCharacters;
+exports.getCharacterType = getCharacterType;
 exports.showMove = showMove;
 exports.big2Small = big2Small;
 exports.small2Big = small2Big;

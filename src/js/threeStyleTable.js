@@ -5,33 +5,8 @@ const url = require('url');
 const config = require('./config');
 const constant = require('./constant');
 const threeStyleUtils = require('./threeStyleUtils');
+const numberingUtils = require('./numberingUtils');
 const utils = require('./utils');
-
-const getNumbering = (userName, part) => {
-    const options = {
-        url: `${config.apiRoot}/numbering/${part.name}/${userName}`,
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        json: true,
-        form: {},
-    };
-
-    return rp(options)
-        .then((result) => {
-            // 文字の昇順にソートして返す
-            return result.success.result.sort((a, b) => {
-                if (a.letter < b.letter) return -1;
-                if (a.letter === b.letter) return 0;
-                if (a.letter > b.letter) return 1;
-            });
-        })
-        .catch((err) => {
-            alert(`ナンバリングの取得に失敗しました:${err}`);
-            return [];
-        });
-};
 
 const getThreeStyleLogs = (userName, part) => {
     const options = {
@@ -219,7 +194,7 @@ const init = () => {
         return;
     }
 
-    return getNumbering(userName, part)
+    return numberingUtils.getNumbering(userName, part)
         .then((numbering) => {
             const bufferSticker = numbering.filter(numbering => numbering.letter === '@')[0].sticker;
 
