@@ -220,6 +220,7 @@ function * handleLoadInitially () {
                     acc,
                     avgSec,
                     tps,
+                    isSelectable: true,
                     isSelected: false,
                     letters,
                     // 「全て選択」の際、フィルタ条件に"「"が入っている時も正しく処理ができるように、

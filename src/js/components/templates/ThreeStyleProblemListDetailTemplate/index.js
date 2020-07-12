@@ -170,6 +170,7 @@ const ThreeStyleProblemListDetailTemplate = (
                     (() => {
                         const myData = threeStyleQuizProblemListDetail.map(record => {
                             return {
+                                isSelectable: record.isSelectable,
                                 isSelected: record.isSelected, // 描画はしないが、checkboxの表示のために必要
                                 pInd: record.pInd,
                                 letters: record.dispLetters,
