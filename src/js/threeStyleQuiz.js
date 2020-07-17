@@ -1,3 +1,5 @@
+const axios = require('axios');
+const qs = require('qs');
 const rp = require('request-promise');
 const shuffle = require('shuffle-array');
 const url = require('url');
@@ -181,10 +183,9 @@ const submit = (part, letterPairs, numberings, selectedThreeStyles, isRecalled, 
         url: `${config.apiRoot}/threeStyleQuizLog/${part.name}`,
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+            'content-type': 'application/x-www-form-urlencoded',
         },
-        json: true,
-        form: {
+        data: qs.stringify({
             buffer,
             sticker1,
             sticker2,
@@ -192,71 +193,68 @@ const submit = (part, letterPairs, numberings, selectedThreeStyles, isRecalled, 
             isRecalled,
             token,
             sec: sendSec,
-        },
+        }),
     };
 
-    return rp(options)
-        .then((ans) => {
-            const prevAns = '前問の答え\n' + moves.join('\n');
-            if (isRecalled === 0) {
-                alert(prevAns);
-            }
-            const nextInd = ind + 1;
+    // レスポンスを利用しないので、非同期に通信する
+    axios(options);
 
-            // これまでの記録との差を計算
-            const quizLog = quizLogRes.filter(x => x.stickers === selectedThreeStyles[ind].stickers);
-            const timeDiff = (() => {
-                if (quizLog.length === 0) {
-                    return 0.0;
-                }
+    const prevAns = '前問の答え\n' + moves.join('\n');
+    if (isRecalled === 0) {
+        alert(prevAns);
+    }
+    const nextInd = ind + 1;
 
-                if (onlyOnce) {
-                    return sendSec - quizLog[0]['avg_sec'];
-                } else {
-                    return (sendSec - quizLog[0]['avg_sec']) * 3.0;
-                }
-            })();
+    // これまでの記録との差を計算
+    const quizLog = quizLogRes.filter(x => x.stickers === selectedThreeStyles[ind].stickers);
+    const timeDiff = (() => {
+        if (quizLog.length === 0) {
+            return 0.0;
+        }
 
-            let diffStr = '';
-            if (isRecalled === 0) {
-                diffStr = '';
+        if (onlyOnce) {
+            return sendSec - quizLog[0]['avg_sec'];
+        } else {
+            return (sendSec - quizLog[0]['avg_sec']) * 3.0;
+        }
+    })();
+
+    let diffStr = '';
+    if (isRecalled === 0) {
+        diffStr = '';
+    } else {
+        if (quizLog.length > 0) {
+            if (timeDiff >= 0) {
+                diffStr = `(+${timeDiff.toFixed(2)})`;
             } else {
-                if (quizLog.length > 0) {
-                    if (timeDiff >= 0) {
-                        diffStr = `(+${timeDiff.toFixed(2)})`;
-                    } else {
-                        diffStr = `(${timeDiff.toFixed(2)})`;
-                    }
-                } else {
-                    diffStr = '(new)';
-                }
+                diffStr = `(${timeDiff.toFixed(2)})`;
             }
+        } else {
+            diffStr = '(new)';
+        }
+    }
 
-            if (nextInd <= selectedThreeStyles.length - 1) {
-                quizFormStartUnixTimeHidden.value = String(new Date().getTime());
-                quizIndHidden.value = `このセッションで解いた問題数:${nextInd}`;
-                const letters = selectedThreeStyles[nextInd].stickers.split(' ').map(sticker => numberings.filter(x => x.sticker === sticker)[0].letter).join('').replace(/@/g, '');
-                const words = letterPairs.filter(x => x.letters === letters).map(x => x.word).join(',');
+    if (nextInd <= selectedThreeStyles.length - 1) {
+        quizFormStartUnixTimeHidden.value = String(new Date().getTime());
+        quizIndHidden.value = `このセッションで解いた問題数:${nextInd}`;
+        const letters = selectedThreeStyles[nextInd].stickers.split(' ').map(sticker => numberings.filter(x => x.sticker === sticker)[0].letter).join('').replace(/@/g, '');
+        const words = letterPairs.filter(x => x.letters === letters).map(x => x.word).join(',');
 
-                const nextLettersAndWords = getNextNextLettersAndWords(nextInd, selectedThreeStyles, numberings, letterPairs);
-                quizFormLettersText.value = `${letters}: ${words} ${nextLettersAndWords}`;
+        const nextLettersAndWords = getNextNextLettersAndWords(nextInd, selectedThreeStyles, numberings, letterPairs);
+        quizFormLettersText.value = `${letters}: ${words} ${nextLettersAndWords}`;
 
-                const hints = selectedThreeStyles[nextInd].hints;
-                hintText.style.display = 'none';
-                hintText.value = hints.join('\nまたは\n');
+        const hints = selectedThreeStyles[nextInd].hints;
+        hintText.style.display = 'none';
+        hintText.value = hints.join('\nまたは\n');
 
-                quizFormPrevAnsText.value = prevAns;
-                quizFormPrevSecText.value = `前問の秒数:${sec.toFixed(2)} ${diffStr}`;
-            } else {
-                quizIndHidden.value = `このセッションで解いた問題数:${nextInd}`;
-                quizFormLettersText.value = 'お疲れ様です、ページを更新してください。';
-                quizFormPrevAnsText.value = prevAns;
-                quizFormPrevSecText.value = `前問の秒数:${sec.toFixed(2)} ${diffStr}`;
-            }
-        })
-        .catch((err) => {
-            alert('通信に失敗しました:' + err);
-        });
+        quizFormPrevAnsText.value = prevAns;
+        quizFormPrevSecText.value = `前問の秒数:${sec.toFixed(2)} ${diffStr}`;
+    } else {
+        quizIndHidden.value = `このセッションで解いた問題数:${nextInd}`;
+        quizFormLettersText.value = 'お疲れ様です、ページを更新してください。';
+        quizFormPrevAnsText.value = prevAns;
+        quizFormPrevSecText.value = `前問の秒数:${sec.toFixed(2)} ${diffStr}`;
+    }
 };
 
 // 問題リストは、全問か、それとも自分で設定した問題のみか
@@ -337,9 +335,6 @@ const init = () => {
 
     // 同じ3-style手順を3回回して復元するのではなく、1回ずつだけ回すモード
     const onlyOnce = urlObj.query['onlyOnce'] === 'true';
-    if (onlyOnce) {
-        alert('onlyOnceモードです。手順を3回ではなく1回回したら「わかった」を押してください\nより実際のソルブに近い形での練習ができ、しかも通常の1/3の時間で練習できますが、キューブが崩れたまま次の手順に進むので、手順が間違っているかどうか分からない点にご注意ください。');
-    }
 
     // ロード時に埋める
     renderSettings(days, solved, onlyOnce);
@@ -493,13 +488,21 @@ const init = () => {
                                             hintText.style.display = 'none';
                                             hintText.value = hints.join('\nまたは\n');
 
-                                            quizFormStartUnixTimeHidden.value = String(new Date().getTime());
                                             okBtn.addEventListener('click', () => submit(part, letterPairs, numberings, selectedThreeStyles, 1, quizLogRes, onlyOnce));
                                             ngBtn.addEventListener('click', () => submit(part, letterPairs, numberings, selectedThreeStyles, 0, quizLogRes, onlyOnce));
                                             hintBtn.addEventListener('click', showHint);
 
                                             // 左右のキーのショートカット
                                             document.onkeyup = keyUpAction(part, letterPairs, numberings, selectedThreeStyles, quizLogRes, onlyOnce);
+
+                                            // これを前に持ってくるとウィンドウを表示している間にロードが進まないので、
+                                            // ロードが終わった後に表示するようにした
+                                            if (onlyOnce) {
+                                                alert('onlyOnceモードです。手順を3回ではなく1回回したら「わかった」を押してください\nより実際のソルブに近い形での練習ができ、しかも通常の1/3の時間で練習できますが、キューブが崩れたまま次の手順に進むので、手順が間違っているかどうか分からない点にご注意ください。');
+                                            }
+
+                                            // 注意書きを表示した後でタイマーを計測開始
+                                            quizFormStartUnixTimeHidden.value = String(new Date().getTime());
                                         })
                                         .catch((err) => {
                                             alert('1' + err);
