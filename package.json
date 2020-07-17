@@ -56,7 +56,7 @@
     "cubejs": "1.1.0",
     "giiker": "2.0.1",
     "handsontable": "^7.4.2",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "moment": "^2.24.0",
     "net": "1.0.2",
     "prop-types": "^15.7.2",
