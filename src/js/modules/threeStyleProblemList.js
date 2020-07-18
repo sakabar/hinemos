@@ -401,6 +401,7 @@ export const threeStyleProblemListReducer = handleActions(
 
             return {
                 ...state,
+                isCheckedSelectAll: false,
                 problemLists,
                 problemListsIndsStr: problemLists.map(d => String(d.ind)).join(','),
             };

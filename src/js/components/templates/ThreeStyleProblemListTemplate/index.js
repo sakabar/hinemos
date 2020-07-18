@@ -104,8 +104,8 @@ const ThreeStyleProblemListTemplate = (
                 <br/>
                 <Textbox placeholder="リスト名" value={titles} onChange={(e) => inputTitles(e.target.value)}/><Button value="作成" onClick={(e) => sagaCreateProblemLists() }/><br/>
 
-                <Checkbox text="全て選択" checked={isCheckedSelectAll} onChange={(e) => { toggleSelectAll(); }}/>
-            選択したリストを<Button value="削除" onClick={(e) => sagaDeleteProblemLists() }/><br/>
+                <Checkbox text="全て選択" checked={isCheckedSelectAll} onChange={(e) => { toggleSelectAll(); }}/><br/>
+                <span>選択したリストを</span><Button value="削除" onClick={(e) => sagaDeleteProblemLists() }/><br/>
 
                 {
                     (() => {
