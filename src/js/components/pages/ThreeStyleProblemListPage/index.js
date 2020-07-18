@@ -31,6 +31,8 @@ const mapStateToProps = ({
     userName,
     titles,
     problemLists,
+    problemListsIndsStr,
+    isCheckedSelectAll,
 }) => {
     return {
         url,
@@ -39,6 +41,8 @@ const mapStateToProps = ({
         userName,
         titles,
         problemLists,
+        problemListsIndsStr,
+        isCheckedSelectAll,
     };
 };
 
