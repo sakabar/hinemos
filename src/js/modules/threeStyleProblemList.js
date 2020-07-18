@@ -49,6 +49,9 @@ export const sagaDeleteProblemLists = createAction(SAGA_DELETE_PROBLEM_LISTS);
 const DELETE_PROBLEM_LISTS = 'DELETE_PROBLEM_LISTS';
 const deleteProblemLists = createAction(DELETE_PROBLEM_LISTS);
 
+const TOGGLE_SELECT_ALL = 'TOGGLE_SELECT_ALL';
+export const toggleSelectAll = createAction(TOGGLE_SELECT_ALL);
+
 const requestPostProblemListName = (part, titles) => {
     const options = {
         url: `${config.apiRoot}/postThreeStyleQuizProblemListName/${part.name}`,
@@ -290,6 +293,7 @@ const initialState = {
     ],
 
     problemListsIndsStr: '',
+    isCheckedSelectAll: false,
 };
 
 export const threeStyleProblemListReducer = handleActions(
@@ -399,6 +403,32 @@ export const threeStyleProblemListReducer = handleActions(
                 ...state,
                 problemLists,
                 problemListsIndsStr: problemLists.map(d => String(d.ind)).join(','),
+            };
+        },
+        [toggleSelectAll]: (state, action) => {
+            // threeStyleProblemListDetailのtoggleSelectAll()とほぼ同じ
+            const newIsCheckedSelectAll = !state.isCheckedSelectAll;
+
+            const searchBox = document.querySelector('.sortable-table .search-box .search');
+            const searchWord = searchBox ? searchBox.value : '';
+
+            // 画面に見えている問題リスト全てのチェック状態を、newIsCheckedSelectAllと同じにする
+            // ただし、isSelectableがtrueの問題リストのみ。 (ここがthreeStyleProblemListDetailと違うところ)
+            const newProblemLists = state.problemLists
+                .map((row, i) => {
+                    if (row.isSelectable && threeStyleQuizListUtils.isSelectedRow(searchWord, row)) {
+                        row.isSelected = newIsCheckedSelectAll;
+                        return row;
+                    } else {
+                        return row;
+                    }
+                });
+
+            return {
+                ...state,
+                isCheckedSelectAll: newIsCheckedSelectAll,
+                problemLists: newProblemLists,
+                problemListsIndsStr: newProblemLists.map(d => String(d.ind)).join(','),
             };
         },
     },

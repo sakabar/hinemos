@@ -3,7 +3,7 @@ React,
 { useEffect, } from 'react';
 import PropTypes from 'prop-types';
 import Button from '../../atoms/Button';
-// import Checkbox from '../../atoms/Checkbox';
+import Checkbox from '../../atoms/Checkbox';
 import Heading2 from '../../atoms/Heading2';
 import Textbox from '../../atoms/Textbox';
 import LinkTdFactory from '../../molecules/LinkTd';
@@ -55,6 +55,7 @@ const ThreeStyleProblemListTemplate = (
         userName,
         titles,
         problemLists,
+        isCheckedSelectAll,
 
         setLoadWillSkipped,
         inputTitles,
@@ -63,6 +64,7 @@ const ThreeStyleProblemListTemplate = (
         sagaSortTable,
         selectRow,
         sagaDeleteProblemLists,
+        toggleSelectAll,
     }
 ) => {
     // 第二引数として[]を渡しているので、コンポーネントのマウント/アンマウント時に発火
@@ -102,7 +104,8 @@ const ThreeStyleProblemListTemplate = (
                 <br/>
                 <Textbox placeholder="リスト名" value={titles} onChange={(e) => inputTitles(e.target.value)}/><Button value="作成" onClick={(e) => sagaCreateProblemLists() }/><br/>
 
-        [ ] 全て選択 選択したリストを<Button value="削除" onClick={(e) => sagaDeleteProblemLists() }/><br/>
+                <Checkbox text="全て選択" checked={isCheckedSelectAll} onChange={(e) => { toggleSelectAll(); }}/>
+            選択したリストを<Button value="削除" onClick={(e) => sagaDeleteProblemLists() }/><br/>
 
                 {
                     (() => {
@@ -169,6 +172,7 @@ ThreeStyleProblemListTemplate.propTypes = {
     userName: PropTypes.string.isRequired,
     titles: PropTypes.string,
     problemLists: PropTypes.array,
+    isCheckedSelectAll: PropTypes.bool,
 
     setLoadWillSkipped: PropTypes.func.isRequired,
     inputTitles: PropTypes.func.isRequired,
@@ -177,6 +181,7 @@ ThreeStyleProblemListTemplate.propTypes = {
     sagaSortTable: PropTypes.func.isRequired,
     selectRow: PropTypes.func.isRequired,
     sagaDeleteProblemLists: PropTypes.func.isRequired,
+    toggleSelectAll: PropTypes.func.isRequired,
 };
 
 export default ThreeStyleProblemListTemplate;

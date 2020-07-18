@@ -17,6 +17,7 @@ import {
     sagaSortTable,
     selectRow,
     sagaDeleteProblemLists,
+    toggleSelectAll,
 
     threeStyleProblemListReducer,
     rootSaga,
@@ -62,6 +63,9 @@ const mapDispatchToProps = (dispatch) => {
         },
         sagaDeleteProblemLists: () => {
             dispatch(sagaDeleteProblemLists());
+        },
+        toggleSelectAll: () => {
+            dispatch(toggleSelectAll());
         },
     };
 };
