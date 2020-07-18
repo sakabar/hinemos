@@ -58,6 +58,7 @@ const mapDispatchToProps = (dispatch) => {
         },
         sagaAutoCreateProblemLists: () => {
             dispatch(sagaAutoCreateProblemLists());
+        },
         sagaSortTable: (dKey, nAsc) => {
             dispatch(sagaSortTable({ dKey, nAsc, }));
         },

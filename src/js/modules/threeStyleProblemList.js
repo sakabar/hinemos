@@ -15,6 +15,8 @@ import {
 // } from 'redux-saga';
 const _ = require('lodash');
 const moment = require('moment');
+const rp = require('request-promise');
+const config = require('../config');
 const constant = require('../constant');
 const threeStyleUtils = require('../threeStyleUtils');
 const threeStyleQuizProblemListUtils = require('../threeStyleQuizProblemListUtils');
@@ -54,23 +56,6 @@ const deleteProblemLists = createAction(DELETE_PROBLEM_LISTS);
 
 const TOGGLE_SELECT_ALL = 'TOGGLE_SELECT_ALL';
 export const toggleSelectAll = createAction(TOGGLE_SELECT_ALL);
-
-const requestPostProblemListName = (part, titles) => {
-    const options = {
-        url: `${config.apiRoot}/postThreeStyleQuizProblemListName/${part.name}`,
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        json: true,
-        form: {
-            titles,
-            token: localStorage.token,
-        },
-    };
-
-    return rp(options);
-};
 
 function * handleLoadThreeStyleQuizProblemList () {
     while (true) {
@@ -136,6 +121,12 @@ function * handleCreateProblemLists () {
 function * handleAutoCreateProblemLists () {
     while (true) {
         yield take(sagaAutoCreateProblemLists);
+
+        const confirmed = confirm('全手順を覚えるための問題リストを自動作成します。\n作成には20秒ほどかかります。よろしいですか?');
+        if (!confirmed) {
+            continue;
+        }
+
         const part = yield select(state => state.part);
         // Algの2層回し変換アルゴリズムは3x3キューブのみに対応している
         const convertWideMove = (part === constant.partType.corner) || (part === constant.partType.edgeMiddle);
@@ -249,6 +240,8 @@ function * handleAutoCreateProblemLists () {
             newProblemLists: newProblemLists.map((problemList, i) => {
                 return {
                     ...problemList,
+                    isSelectable: true,
+                    isSelected: false,
                     createdAt: moment(problemList.createdAt, moment.ISO_8601),
                     updatedAt: moment(problemList.updatedAt, moment.ISO_8601),
                     numberOfAlgs: i + 1,
@@ -400,7 +393,6 @@ function * handleDeleteProblemList () {
     }
 }
 
-
 const initialState = {
     url: null,
     loadWillSkipped: false,
@@ -548,7 +540,7 @@ export const threeStyleProblemListReducer = handleActions(
             // ただし、isSelectableがtrueの問題リストのみ。 (ここがthreeStyleProblemListDetailと違うところ)
             const newProblemLists = state.problemLists
                 .map((row, i) => {
-                    if (row.isSelectable && threeStyleQuizListUtils.isSelectedRow(searchWord, row)) {
+                    if (row.isSelectable && threeStyleQuizProblemListUtils.isSelectedRow(searchWord, row)) {
                         row.isSelected = newIsCheckedSelectAll;
                         return row;
                     } else {
