@@ -44,6 +44,11 @@ export const sagaSortTable = createAction(SAGA_SORT_TABLE);
 const SELECT_ROW = 'SELECT_ROW';
 export const selectRow = createAction(SELECT_ROW);
 
+const SAGA_DELETE_PROBLEM_LISTS = 'SAGA_DELETE_PROBLEM_LISTS';
+export const sagaDeleteProblemLists = createAction(SAGA_DELETE_PROBLEM_LISTS);
+const DELETE_PROBLEM_LISTS = 'DELETE_PROBLEM_LISTS';
+const deleteProblemLists = createAction(DELETE_PROBLEM_LISTS);
+
 const requestPostProblemListName = (part, titles) => {
     const options = {
         url: `${config.apiRoot}/postThreeStyleQuizProblemListName/${part.name}`,
@@ -228,6 +233,40 @@ function * handleSortTable () {
     }
 }
 
+const requestDeleteProblemListName = (part, problemListIds) => {
+    const options = {
+        url: `${config.apiRoot}/deleteThreeStyleQuizProblemListName/${part.name}`,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {
+            problemListIdsStr: problemListIds.join(','),
+            token: localStorage.token,
+        },
+    };
+
+    return rp(options);
+};
+
+function * handleDeleteProblemList () {
+    while (true) {
+        yield take(sagaDeleteProblemLists);
+        const part = yield select(state => state.part);
+        const problemLists = yield select(state => state.problemLists);
+
+        const selectedProblemLists = problemLists.filter(rec => rec.isSelected);
+
+        // パフォーマンス向上のため、削除処理は非同期に行う
+        const problemListIds = selectedProblemLists.map(rec => rec.problemListId);
+        requestDeleteProblemListName(part, problemListIds);
+
+        const payload = {};
+        yield put(deleteProblemLists(payload));
+    }
+}
+
 const initialState = {
     url: null,
     loadWillSkipped: false,
@@ -349,6 +388,19 @@ export const threeStyleProblemListReducer = handleActions(
                 problemListsIndsStr: problemLists.map(d => String(d.ind)).join(','),
             };
         },
+        [deleteProblemLists]: (state, action) => {
+            // DB内のデータの削除リクエストはhandleDeleteProblemList()で行われているので、
+            // このReducer内では単に非表示にさせるだけ
+            // indの振り直しはしない
+
+            const problemLists = state.problemLists.filter(rec => !rec.isSelected);
+
+            return {
+                ...state,
+                problemLists,
+                problemListsIndsStr: problemLists.map(d => String(d.ind)).join(','),
+            };
+        },
     },
     initialState
 );
@@ -357,4 +409,5 @@ export function * rootSaga () {
     yield fork(handleCreateProblemLists);
     yield fork(handleLoadThreeStyleQuizProblemList);
     yield fork(handleSortTable);
+    yield fork(handleDeleteProblemList);
 };
