@@ -2,14 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Checkbox from '../../atoms/Checkbox';
 
-const CheckboxTdFactory = (selectAlgorithm) => {
+const CheckboxTdFactory = (selectRow) => {
     const CheckboxTd = ({
         tdData,
         rowData,
         field,
     }) => (
         <td>
-            <Checkbox text='' checked={rowData.isSelected} onChange={(e) => { selectAlgorithm(rowData.pInd, e.target.checked); }}/>
+            <Checkbox text='' checked={rowData.isSelected} disabled={!rowData.isSelectable} onChange={(e) => { selectRow(rowData.pInd, e.target.checked); }}/>
         </td>
     );
 

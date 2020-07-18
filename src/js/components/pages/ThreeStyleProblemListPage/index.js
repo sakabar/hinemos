@@ -14,6 +14,10 @@ import {
     inputTitles,
     sagaLoadThreeStyleQuizProblemList,
     sagaCreateProblemLists,
+    sagaSortTable,
+    selectRow,
+    sagaDeleteProblemLists,
+    toggleSelectAll,
 
     threeStyleProblemListReducer,
     rootSaga,
@@ -50,6 +54,18 @@ const mapDispatchToProps = (dispatch) => {
         },
         sagaCreateProblemLists: () => {
             dispatch(sagaCreateProblemLists());
+        },
+        sagaSortTable: (dKey, nAsc) => {
+            dispatch(sagaSortTable({ dKey, nAsc, }));
+        },
+        selectRow: (pInd, newIsSelected) => {
+            dispatch(selectRow({ pInd, newIsSelected, }));
+        },
+        sagaDeleteProblemLists: () => {
+            dispatch(sagaDeleteProblemLists());
+        },
+        toggleSelectAll: () => {
+            dispatch(toggleSelectAll());
         },
     };
 };
