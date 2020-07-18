@@ -61,6 +61,7 @@ const ThreeStyleProblemListTemplate = (
         inputTitles,
         sagaLoadThreeStyleQuizProblemList,
         sagaCreateProblemLists,
+        sagaAutoCreateProblemLists,
         sagaSortTable,
         selectRow,
         sagaDeleteProblemLists,
@@ -104,6 +105,7 @@ const ThreeStyleProblemListTemplate = (
                 <br/>
                 <Textbox placeholder="リスト名" value={titles} onChange={(e) => inputTitles(e.target.value)}/><Button value="作成" onClick={(e) => sagaCreateProblemLists() }/><br/>
 
+                <Button value="リスト自動作成" onClick={(e) => sagaAutoCreateProblemLists() }/><br/>
                 <Checkbox text="全て選択" checked={isCheckedSelectAll} onChange={(e) => { toggleSelectAll(); }}/><br/>
                 <span>選択したリストを</span><Button value="削除" onClick={(e) => sagaDeleteProblemLists() }/><br/>
 
@@ -178,6 +180,7 @@ ThreeStyleProblemListTemplate.propTypes = {
     inputTitles: PropTypes.func.isRequired,
     sagaLoadThreeStyleQuizProblemList: PropTypes.func.isRequired,
     sagaCreateProblemLists: PropTypes.func.isRequired,
+    sagaAutoCreateProblemLists: PropTypes.func.isRequired,
     sagaSortTable: PropTypes.func.isRequired,
     selectRow: PropTypes.func.isRequired,
     sagaDeleteProblemLists: PropTypes.func.isRequired,

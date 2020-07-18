@@ -104,7 +104,7 @@ const ThreeStyleProblemListDetailTemplate = (
         }
     });
 
-    const showLength = 10;
+    const showLength = 30;
 
     const threeStyleQuizProblemListOptions = [
         [ -1, '[選択してください]', ],
@@ -135,7 +135,7 @@ const ThreeStyleProblemListDetailTemplate = (
             if (problemListId) {
                 return showingProblemList.length === 1 ? showingProblemList[0].title : '';
             } else {
-                return 'system_全手順'; // FIXME これ、複数の場所に現れている
+                return 'system_all_全手順'; // FIXME これ、複数の場所に現れている
             }
         }
     })();
