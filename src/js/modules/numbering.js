@@ -34,6 +34,12 @@ export const setLoadWillSkipped = createAction(SET_LOAD_WILL_SKIPPED);
 // const SAVE_NUMBERING = 'SAVE_NUMBERING';
 // const saveNumbering = createAction(SAVE_NUMBERING);
 
+const WingEdgeSystem = {
+    UFr: 'UFr',
+    FUr: 'FUr',
+    unknown: 'unknown',
+};
+
 function * handleLoadNumbering () {
     while (true) {
         // const action = yield take(sagaLoadNumbering);
@@ -115,6 +121,9 @@ const initialState = {
 
         return obj;
     })(),
+
+    // UFr系 or FUr系
+    wingEdgeSystem: WingEdgeSystem.unknown,
 };
 
 export const numberingReducer = handleActions(
@@ -134,9 +143,68 @@ export const numberingReducer = handleActions(
                 };
             }
 
+            // WingEdgeで、系が異なるステッカーをdisableにする
+            let wingEdgeSystem = state.wingEdgeSystem;
+            if (partName === constant.partType.edgeWing.name && wingEdgeSystem === WingEdgeSystem.unknown) {
+                if (constant.edgesFUr.includes(sticker)) {
+                    wingEdgeSystem = WingEdgeSystem.FUr;
+
+                    constant.edgesUFr.map(wingEdge => {
+                        numbering[partName][wingEdge] = {
+                            letter: '',
+                            disabled: true,
+                        };
+                    });
+                } else if (constant.edgesUFr.includes(sticker)) {
+                    wingEdgeSystem = WingEdgeSystem.UFr;
+
+                    constant.edgesFUr.map(wingEdge => {
+                        numbering[partName][wingEdge] = {
+                            letter: '',
+                            disabled: true,
+                        };
+                    });
+                } else {
+                    throw new Error(`Unexpected WingEdge: ${sticker}`);
+                }
+            }
+
+            // WingEdgeで、何も入力されていない状態の時はdisableを解除する
+            if (partName === constant.partType.edgeWing.name && letter === '' && wingEdgeSystem !== WingEdgeSystem.unknown) {
+                if (wingEdgeSystem === WingEdgeSystem.FUr) {
+                    const allEmpty = constant.edgesFUr.map(wingEdge => numbering[partName][wingEdge] || { letter: '', }).every(w => w.letter === '');
+                    if (allEmpty) {
+                        wingEdgeSystem = WingEdgeSystem.unknown;
+
+                        constant.edgesUFr.map(wingEdge => {
+                            numbering[partName][wingEdge] = {
+                                letter: '',
+                                disabled: false,
+                            };
+                        });
+                    }
+                } else if (wingEdgeSystem === WingEdgeSystem.UFr) {
+                    const allEmpty = constant.edgesUFr.map(wingEdge => numbering[partName][wingEdge] || { letter: '', }).every(w => w.letter === '');
+
+                    if (allEmpty) {
+                        wingEdgeSystem = WingEdgeSystem.unknown;
+
+                        constant.edgesFUr.map(wingEdge => {
+                            numbering[partName][wingEdge] = {
+                                letter: '',
+                                disabled: false,
+                            };
+                        });
+                    }
+                } else {
+                    throw new Error(`Unexpected WingEdge: ${sticker}`);
+                }
+            }
+
             return {
                 ...state,
                 numbering,
+                wingEdgeSystem,
             };
         },
         [setLoadWillSkipped]: (state, action) => {
