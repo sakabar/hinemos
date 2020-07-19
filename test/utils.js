@@ -485,4 +485,28 @@ describe('utils.js', () => {
             assert.throws(actual, Error);
         });
     });
+
+    describe('makeWingSticker()', () => {
+        it('正常系', () => {
+            const actual = utils.makeWingSticker('U', 'F', 'R');
+            const expected = 'UFr';
+            assert.deepStrictEqual(actual, expected);
+        });
+    });
+
+    describe('makeXcenterSticker()', () => {
+        it('正常系', () => {
+            const actual = utils.makeXcenterSticker('U', 'F', 'R');
+            const expected = 'Ufr';
+            assert.deepStrictEqual(actual, expected);
+        });
+    });
+
+    describe('makeTcenterSticker()', () => {
+        it('正常系', () => {
+            const actual = utils.makeTcenterSticker('U', 'F');
+            const expected = 'Uf';
+            assert.deepStrictEqual(actual, expected);
+        });
+    });
 });

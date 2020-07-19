@@ -368,6 +368,22 @@ const readThreeStyles = (s) => {
     throw new Error('ThreeStyleCorner parse error');
 };
 
+const makeWingSticker = (face1, face2, face3) => {
+    const edge = `${face1}${face2}`.toUpperCase();
+    const sliceFace = face3.toLowerCase();
+
+    return `${edge}${sliceFace}`;
+};
+
+const makeXcenterSticker = (face1, face2, face3) => {
+    const s = sortSticker(`${face1}${face2}${face3}`).toLowerCase();
+    return `${s[0].toUpperCase()}${s.slice(1)}`;
+};
+
+const makeTcenterSticker = (face1, face2) => {
+    return `${face1.toUpperCase()}${face2.toLowerCase()}`;
+};
+
 exports.corners = corners;
 exports.edges = edges;
 exports.cornerParts = cornerParts;
@@ -389,3 +405,6 @@ exports.chunkAndShuffle = chunkAndShuffle;
 exports.ThreeStyleType = ThreeStyleType;
 exports.getThreeStyleType = getThreeStyleType;
 exports.readThreeStyles = readThreeStyles;
+exports.makeWingSticker = makeWingSticker;
+exports.makeXcenterSticker = makeXcenterSticker;
+exports.makeTcenterSticker = makeTcenterSticker;
