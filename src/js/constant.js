@@ -9,7 +9,7 @@ const partType = {
 // .nameや.japaneseを備えた値を初期値として入れておくため
 const dummyPartType = {
     value: -1,
-    name: '',
+    name: 'dummyPartType',
     japanese: '',
 };
 

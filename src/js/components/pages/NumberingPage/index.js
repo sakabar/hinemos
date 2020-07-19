@@ -10,6 +10,7 @@ import {
 import createSagaMiddleware from 'redux-saga';
 import NumberingTemplate from '../../templates/NumberingTemplate';
 import {
+    updateNumbering,
     // setLoadWillSkipped,
     // selectAlgorithm,
     // sagaLoadInitially,
@@ -23,16 +24,27 @@ import {
 } from '../../../modules/numbering';
 
 const mapStateToProps = ({
-    dummyyyyyyyyy,
+    loadWillSkipped,
+    userName,
+    numbering,
 }) => {
     return {
-        dummyyyyyyyyy,
+        loadWillSkipped,
+        userName,
+        numbering,
     };
 };
 
 const mapDispatchToProps = (dispatch) => {
     return {
-
+        updateNumbering: (partName, sticker, letter) => {
+            const payload = {
+                partName,
+                sticker,
+                letter,
+            };
+            dispatch(updateNumbering(payload));
+        },
     };
 };
 

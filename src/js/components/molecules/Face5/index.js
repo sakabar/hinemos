@@ -14,7 +14,8 @@ const Face5 = ({
     right,
     left,
     isHidden,
-    // onChange,
+    numbering,
+    updateNumbering,
 }) => {
     const style = (() => {
         // true/false以外の値が入っている可能性があるので、if(isHidden)ではなく === を使った判定にしている
@@ -89,7 +90,8 @@ const Face5 = ({
         const nodesInner = zpInner.map((tupleInner, k) => {
             const part = tupleInner[0];
             const sticker = tupleInner[1];
-            return (<Facelet part={part} sticker={sticker} value={sticker} onChange={null} key={`${i}_${k}`}/>);
+
+            return (<Facelet part={part} sticker={sticker} value={sticker} numbering={numbering} updateNumbering={updateNumbering} disabled={(part === dummyPt)} key={`${i}_${k}`} />);
         });
 
         return [ ...nodesInner, <br key={`br_${i}`} />, ];
@@ -105,12 +107,14 @@ const Face5 = ({
 };
 
 Face5.propTypes = {
-    front: PropTypes.string,
-    up: PropTypes.string,
-    down: PropTypes.string,
-    right: PropTypes.string,
-    left: PropTypes.string,
+    front: PropTypes.string.isRequired,
+    up: PropTypes.string.isRequired,
+    down: PropTypes.string.isRequired,
+    right: PropTypes.string.isRequired,
+    left: PropTypes.string.isRequired,
     isHidden: PropTypes.bool,
+    numbering: PropTypes.object.isRequired,
+    updateNumbering: PropTypes.func.isRequired,
 };
 
 export default Face5;
