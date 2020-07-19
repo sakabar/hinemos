@@ -8,9 +8,9 @@ const Facelet = ({
     sticker,
     numbering,
     updateNumbering,
-    disabled,
 }) => {
-    const value = numbering[part.name][sticker] || '';
+    const value = numbering[part.name][sticker] ? numbering[part.name][sticker].letter : '';
+    const disabled = numbering[part.name][sticker] ? numbering[part.name][sticker].disabled : false;
     const onChange = (e) => updateNumbering(part.name, sticker, e.target.value);
     return (<Textbox value={value} onChange={onChange} size={1} disabled={disabled}/>);
 };
@@ -20,7 +20,6 @@ Facelet.propTypes = {
     sticker: PropTypes.string.isRequired,
     numbering: PropTypes.object.isRequired,
     updateNumbering: PropTypes.func.isRequired,
-    disabled: PropTypes.bool,
 };
 
 export default Facelet;

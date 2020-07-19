@@ -91,7 +91,7 @@ const Face5 = ({
             const part = tupleInner[0];
             const sticker = tupleInner[1];
 
-            return (<Facelet part={part} sticker={sticker} value={sticker} numbering={numbering} updateNumbering={updateNumbering} disabled={(part === dummyPt)} key={`${i}_${k}`} />);
+            return (<Facelet part={part} sticker={sticker} value={sticker} numbering={numbering} updateNumbering={updateNumbering} key={`${i}_${k}`} />);
         });
 
         return [ ...nodesInner, <br key={`br_${i}`} />, ];

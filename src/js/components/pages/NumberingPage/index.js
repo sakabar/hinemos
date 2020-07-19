@@ -11,13 +11,8 @@ import createSagaMiddleware from 'redux-saga';
 import NumberingTemplate from '../../templates/NumberingTemplate';
 import {
     updateNumbering,
-    // setLoadWillSkipped,
-    // selectAlgorithm,
-    // sagaLoadInitially,
-    // selectProblemList,
-    // sagaAddToProblemList,
-    // toggleSelectAll,
-    // sagaSortTable,
+    sagaLoadNumbering,
+    setLoadWillSkipped,
 
     numberingReducer,
     rootSaga,
@@ -44,6 +39,13 @@ const mapDispatchToProps = (dispatch) => {
                 letter,
             };
             dispatch(updateNumbering(payload));
+        },
+
+        sagaLoadNumbering: () => {
+            dispatch(sagaLoadNumbering());
+        },
+        setLoadWillSkipped: (loadWillSkipped) => {
+            dispatch(setLoadWillSkipped({ loadWillSkipped, }));
         },
     };
 };
