@@ -11,9 +11,8 @@ import {
     select,
 } from 'redux-saga/effects';
 const _ = require('lodash');
-// const moment = require('moment');
-// const rp = require('request-promise');
-// const config = require('../config');
+const rp = require('request-promise');
+const config = require('../config');
 const constant = require('../constant');
 const numberingUtils = require('../numberingUtils');
 const utils = require('../utils');
@@ -29,8 +28,8 @@ const loadNumbering = createAction(LOAD_NUMBERING);
 const SET_LOAD_WILL_SKIPPED = 'SET_LOAD_WILL_SKIPPED';
 export const setLoadWillSkipped = createAction(SET_LOAD_WILL_SKIPPED);
 
-// const SAGA_SAVE_NUMBERING = 'SAGA_SAVE_NUMBERING';
-// export const sagaSaveNumbering = createAction(SAGA_SAVE_NUMBERING);
+const SAGA_SAVE_NUMBERING = 'SAGA_SAVE_NUMBERING';
+export const sagaSaveNumbering = createAction(SAGA_SAVE_NUMBERING);
 // const SAVE_NUMBERING = 'SAVE_NUMBERING';
 // const saveNumbering = createAction(SAVE_NUMBERING);
 
@@ -42,7 +41,6 @@ const WingEdgeSystem = {
 
 function * handleLoadNumbering () {
     while (true) {
-        // const action = yield take(sagaLoadNumbering);
         yield take(sagaLoadNumbering);
 
         const userName = yield select(state => state.userName);
@@ -59,7 +57,7 @@ function * handleLoadNumbering () {
                 const letter = numbering.letter;
                 stateNumbering[partType.name][sticker] = {
                     letter,
-                    disabled: true,
+                    disabled: false,
                 };
             });
 
@@ -89,17 +87,95 @@ function * handleLoadNumbering () {
             }
         }
 
+        let wingEdgeSystem = WingEdgeSystem.unknown;
+        const edgeWingStickers = Object.keys(stateNumbering[constant.partType.edgeWing.name]);
+        if (edgeWingStickers.every(s => constant.edgesFUr.includes(s))) {
+            wingEdgeSystem = WingEdgeSystem.FUr;
+        } else if (edgeWingStickers.every(s => constant.edgesUFr.includes(s))) {
+            wingEdgeSystem = WingEdgeSystem.UFr;
+        } else {
+            throw new Error(`Unexpected WingEdge: ${edgeWingStickers}`);
+        }
         const payload = {
             numbering: stateNumbering,
+            wingEdgeSystem,
         };
 
         yield put(loadNumbering(payload));
     }
 }
 
+const postNumberings = (token, part, numberings) => {
+    const numberingOptions = {
+        url: `${config.apiRoot}/numbering/${part.name}`,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {
+            numberings,
+            token,
+        },
+    };
+
+    return rp(numberingOptions);
+};
+
+function * handleSaveNumbering () {
+    while (true) {
+        yield take(sagaSaveNumbering);
+
+        const stateNumbering = yield select(state => state.numbering);
+        const token = yield select(state => state.token);
+
+        // 3BLDのナンバリングは別ページで登録するので、
+        // ここでは登録しない
+        const partTypes = [
+            constant.partType.edgeWing,
+            constant.partType.centerX,
+            constant.partType.centerT,
+        ];
+
+        const STICKER_SIZE_DICT = {};
+        STICKER_SIZE_DICT[constant.partType.edgeWing.name] = 24;
+        STICKER_SIZE_DICT[constant.partType.centerX.name] = 24;
+        STICKER_SIZE_DICT[constant.partType.centerT.name] = 24;
+
+        for (let i = 0; i < partTypes.length; i++) {
+            const partType = partTypes[i];
+
+            const stickers = Object.keys(stateNumbering[partType.name]);
+
+            const numberings = [];
+            stickers.map(sticker => {
+                const letter = stateNumbering[partType.name][sticker].letter;
+
+                if (letter !== '') {
+                    const instance = {
+                        sticker,
+                        letter,
+                    };
+                    numberings.push(instance);
+                }
+            });
+
+            if (numberings.length === STICKER_SIZE_DICT[partType.name]) {
+                try {
+                    yield call(postNumberings, token, partType, numberings);
+                    alert(`${partType.japanese}のナンバリングを保存しました`);
+                } catch {
+                    alert(`ERROR: ${partType.japanese}のナンバリングの保存に失敗しました`);
+                }
+            }
+        }
+    }
+}
+
 const initialState = {
     loadWillSkipped: false,
     userName: localStorage.userName,
+    token: localStorage.token,
 
     // part => sticker => { letters, disabled, }
     numbering: (() => {
@@ -219,10 +295,30 @@ export const numberingReducer = handleActions(
             // 現状のStateに対する部分更新だと、どこまでがDBに登録されているのかがわかりにくくなる
 
             const numbering = action.payload.numbering;
+            const wingEdgeSystem = action.payload.wingEdgeSystem;
+
+            // WingEdgeで、系が異なるステッカーをdisableにする
+            // TODO FIXME これ自体をアクションにしたほうがいいかも
+            if (wingEdgeSystem === WingEdgeSystem.FUr) {
+                constant.edgesUFr.map(wingEdge => {
+                    numbering[constant.partType.edgeWing.name][wingEdge] = {
+                        letter: '',
+                        disabled: true,
+                    };
+                });
+            } else if (wingEdgeSystem === WingEdgeSystem.UFr) {
+                constant.edgesFUr.map(wingEdge => {
+                    numbering[constant.partType.edgeWing.name][wingEdge] = {
+                        letter: '',
+                        disabled: true,
+                    };
+                });
+            }
 
             return {
                 ...state,
                 numbering,
+                wingEdgeSystem,
             };
         },
     },
@@ -231,4 +327,5 @@ export const numberingReducer = handleActions(
 
 export function * rootSaga () {
     yield fork(handleLoadNumbering);
+    yield fork(handleSaveNumbering);
 };

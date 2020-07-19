@@ -1,16 +1,10 @@
 import
 React,
 { useEffect, } from 'react';
-// import {
-//     Link,
-// } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import Button from '../../atoms/Button';
 import Header from '../../organisms/Header';
 import Face5 from '../../molecules/Face5';
-// const config = require('../../../config');
-// const path = require('path');
-
-// const urlRoot = path.basename(config.urlRoot);
 
 const NumberingTemplate = (
     {
@@ -21,6 +15,7 @@ const NumberingTemplate = (
         updateNumbering,
         sagaLoadNumbering,
         setLoadWillSkipped,
+        sagaSaveNumbering,
     }
 ) => {
     // 第二引数として[]を渡しているので、コンポーネントのマウント/アンマウント時に発火
@@ -54,6 +49,8 @@ const NumberingTemplate = (
                 <Face5 front="X" up="X" down="X" right="X" left="X" isHidden={true} numbering={numbering} updateNumbering={updateNumbering}/>
                 <span>&nbsp;</span>
                 <Face5 front="D" up="F" down="B" right="R" left="L" numbering={numbering} updateNumbering={updateNumbering}/><br/>
+
+                <Button value='保存' onClick={(e) => { sagaSaveNumbering(); }}/><br/>
             </main>
         </div>
     );
@@ -67,5 +64,6 @@ NumberingTemplate.propTypes = {
     updateNumbering: PropTypes.func.isRequired,
     sagaLoadNumbering: PropTypes.func.isRequired,
     setLoadWillSkipped: PropTypes.func.isRequired,
+    sagaSaveNumbering: PropTypes.func.isRequired,
 };
 export default NumberingTemplate;

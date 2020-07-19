@@ -5,8 +5,6 @@ import _ from 'lodash';
 const constant = require('../../../constant');
 const utils = require('../../../utils');
 
-// onChange(constant.partType.corner, '')
-
 const Face5 = ({
     front,
     up,

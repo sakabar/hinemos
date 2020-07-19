@@ -13,6 +13,7 @@ import {
     updateNumbering,
     sagaLoadNumbering,
     setLoadWillSkipped,
+    sagaSaveNumbering,
 
     numberingReducer,
     rootSaga,
@@ -22,11 +23,13 @@ const mapStateToProps = ({
     loadWillSkipped,
     userName,
     numbering,
+    wingEdgeSystem,
 }) => {
     return {
         loadWillSkipped,
         userName,
         numbering,
+        wingEdgeSystem,
     };
 };
 
@@ -46,6 +49,9 @@ const mapDispatchToProps = (dispatch) => {
         },
         setLoadWillSkipped: (loadWillSkipped) => {
             dispatch(setLoadWillSkipped({ loadWillSkipped, }));
+        },
+        sagaSaveNumbering: () => {
+            dispatch(sagaSaveNumbering());
         },
     };
 };
