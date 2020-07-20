@@ -160,13 +160,36 @@ function * handleSaveNumbering () {
                 }
             });
 
-            if (numberings.length === STICKER_SIZE_DICT[partType.name]) {
-                try {
-                    yield call(postNumberings, token, partType, numberings);
-                    alert(`${partType.japanese}のナンバリングを保存しました`);
-                } catch {
-                    alert(`ERROR: ${partType.japanese}のナンバリングの保存に失敗しました`);
+            const isEnoughSize = numberings.length === STICKER_SIZE_DICT[partType.name];
+            if (!isEnoughSize) {
+                alert(`ERROR: ${partType.japanese}のナンバリングが${STICKER_SIZE_DICT[partType.name]}文字ではありません。\n${partType.japanese}の保存をスキップしました`);
+                continue;
+            }
+
+            const countDict = _.countBy(numberings, (numbering) => numbering.letter);
+            const letters = Object.keys(countDict);
+            for (let i = 0; i < letters.length; i++) {
+                const letter = letters[i];
+                const cnt = countDict[letter];
+
+                if (cnt > 1) {
+                    alert(`ERROR: ${partType.japanese}内に「${letter}」が複数存在します。\n${partType.japanese}の保存をスキップしました`);
+                    continue;
                 }
+            }
+
+            const bufferStickers = numberings.filter(rec => rec.letter === '@');
+            if (bufferStickers.length !== 1) {
+                alert(`ERROR: ${partType.japanese}内でバッファ「@」が指定されていません。\n${partType.japanese}の保存をスキップしました`);
+                continue;
+            }
+
+            // ここまででバリデーションは済んでいる (引っかかった場合はここに到達しない) 想定
+            try {
+                yield call(postNumberings, token, partType, numberings);
+                alert(`${partType.japanese}のナンバリングを保存しました`);
+            } catch {
+                alert(`ERROR: ${partType.japanese}のナンバリングの保存に失敗しました`);
             }
         }
     }
