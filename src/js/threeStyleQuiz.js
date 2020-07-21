@@ -311,17 +311,12 @@ const init = () => {
     // URLのオプションでpart=(corner|edgeMiddle)という形式で、パートが渡される
     // それ以外の場合はエラー
     const partQuery = urlObj.query.part;
-    let part;
-    if (partQuery === 'corner') {
-        part = constant.partType.corner;
-        h2Part.appendChild(document.createTextNode('コーナー'));
-    } else if (partQuery === 'edgeMiddle') {
-        part = constant.partType.edgeMiddle;
-        h2Part.appendChild(document.createTextNode('エッジ'));
-    } else {
-        alert('URLが不正です: part=corner か part=edgeMiddle のどちらかを指定してください');
+    const part = constant.partType[partQuery];
+    if (!part) {
+        alert('URLが不正です: part=(corner|edgeMiddle|edgeWing|centerX|centerT) のいずれかを指定してください');
         return;
     }
+    h2Part.appendChild(document.createTextNode(part.japanese));
 
     const days = urlObj.query.days ? parseFloat(urlObj.query.days) : 28; // 「n日間に」
     const solved = urlObj.query.solved === 'true'; // 解いた or 解いていない問題
