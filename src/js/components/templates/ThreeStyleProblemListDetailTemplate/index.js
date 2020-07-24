@@ -18,12 +18,6 @@ const config = require('../../../config');
 
 const urlRoot = path.basename(config.urlRoot);
 
-const Msg = (props) => (
-    <ul>
-        <li>3-style手順を一覧で確認できます</li>
-    </ul>
-);
-
 // テキストボックスの値をJSの機能で変えた時にイベントを発火させるには、ひと手間必要
 // https://github.com/facebook/react/issues/10135
 // TODO: 同じコードがbldTimerにも書いてあるので共通化する
@@ -149,7 +143,11 @@ const ThreeStyleProblemListDetailTemplate = (
                 <Link to={parentUrl}>問題リスト一覧に戻る</Link>
                 <Heading2>{problemListTitle}</Heading2>
 
-                <Msg />
+                <ul>
+                    <li>3-style手順を一覧で確認できます</li>
+                    <li><a href={`${config.urlRoot}/threeStyle/quiz.html?part=${part.name}&problemListType=problemList&sort=acc&problemListId=${problemListId}`} target='_blank' rel='noreferrer noopener'>{'3-styleクイズへ'}</a></li>
+                    <li><a href={`${config.urlRoot}/threeStyle/quiz.html?part=${part.name}&problemListType=problemList&sort=acc&problemListId=${problemListId}&onlyOnce=true`} target='_blank' rel='noreferrer noopener'>{'3-styleクイズ (onlyOnceモード) へ'}</a></li>
+                </ul><br/>
 
         選択した手順を
                 <Select options={threeStyleQuizProblemListOptions} defaultValue={null} onChange={(e) => {
