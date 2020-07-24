@@ -282,6 +282,13 @@ const readThreeStyles = (s) => {
     // 似たような文字や、複数個のスペースを置換
     const replacedStr = s.trim().replace(/[;；：]/g, ':').replace(/[‘’´｀`]/g, '\'').replace(/[，、]/g, ',').replace(/,/g, ' , ').replace(/:/g, ' : ').replace(/[({【「]/g, '[').replace(/[」】}]/g, ']').replace(/\s+/g, ' ').replace(/ *,/g, ',').replace(/ *:/g, ':').replace(/\s+]/g, ']').replace(/]\s+/g, ']').replace(/\[\s+/g, '[').replace(/,\[/g, ', [').replace(/:\[/g, ': [');
 
+    // 過去の仕様との互換性のための特例として、1手順だけの場合は[A B C]型の記述を許容
+    const bracketSeqMatch = replacedStr.match(/^\[([^\[\],:]+)\]$/);
+    if (bracketSeqMatch) {
+        const seqTypeNotationStr = bracketSeqMatch[1];
+        return readThreeStyles(seqTypeNotationStr);
+    }
+
     // 複数の場合
     // 最初が'['で始まっていない場合は、type=seq確定なのでその部分を切り取って再帰
     const pluralSeqMatch = replacedStr.match(/^([^\[\],]*), (.+)$/);

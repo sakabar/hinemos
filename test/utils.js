@@ -353,6 +353,15 @@ describe('utils.js', () => {
             assert.deepStrictEqual(utils.readThreeStyles('D U R'), [ expected, ]);
         });
 
+        it('正常系: seq [D U R] (1手順だけなら[]型のSeqを許容)', () => {
+            const expected = {
+                setup: 'D U R',
+                move1: '',
+                move2: '',
+            };
+            assert.deepStrictEqual(utils.readThreeStyles('[D U R]'), [ expected, ]);
+        });
+
         it('正常系: setup [D, [U, R D R’]] (全角プライム)', () => {
             const expected = {
                 setup: 'D',
@@ -473,6 +482,23 @@ describe('utils.js', () => {
 
             const expected = [ ts1, ts2, ts3, ];
             assert.deepStrictEqual(utils.readThreeStyles('[S : [R, U]], R L, [R, U]'), expected);
+        });
+
+        it('正常系: 複数', () => {
+            const ts1 = {
+                setup: 'S',
+                move1: 'R',
+                move2: 'U',
+            };
+
+            const ts2 = {
+                setup: 'R L',
+                move1: '',
+                move2: '',
+            };
+
+            const expected = [ ts1, ts2, ];
+            assert.deepStrictEqual(utils.readThreeStyles('[S : [R, U]], [R L]'), expected);
         });
 
         it('異常系: パースに失敗した場合はエラー', () => {
