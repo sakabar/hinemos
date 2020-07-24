@@ -168,19 +168,33 @@ function * handleSaveNumbering () {
 
             const countDict = _.countBy(numberings, (numbering) => numbering.letter);
             const letters = Object.keys(countDict);
+            let isOK = true;
             for (let i = 0; i < letters.length; i++) {
                 const letter = letters[i];
                 const cnt = countDict[letter];
 
                 if (cnt > 1) {
                     alert(`ERROR: ${partType.japanese}内に「${letter}」が複数存在します。\n${partType.japanese}の保存をスキップしました`);
-                    continue;
+                    isOK = false;
+                    break;
                 }
+            }
+            if (!isOK) {
+                continue;
             }
 
             const bufferStickers = numberings.filter(rec => rec.letter === '@');
             if (bufferStickers.length !== 1) {
                 alert(`ERROR: ${partType.japanese}内でバッファ「@」が指定されていません。\n${partType.japanese}の保存をスキップしました`);
+                continue;
+            }
+
+            const cornerCharacterTypes = numberings
+                .map(r => r.letter)
+                .filter(s => s !== '@' && typeof s !== 'undefined')
+                .map(s => utils.getCharacterType(s));
+            if (new Set(cornerCharacterTypes).size !== 1) {
+                alert('ひらがなとアルファベットが混在しています。(Use only Japanese or Alphabet.)');
                 continue;
             }
 
