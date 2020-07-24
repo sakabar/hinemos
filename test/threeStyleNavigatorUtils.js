@@ -1009,8 +1009,6 @@ describe('threeStyleNavigatorUtils', () => {
                 },
             ];
 
-            console.log(JSON.stringify(actual));
-
             assert.deepStrictEqual(actual, expected);
         });
     });
