@@ -404,7 +404,15 @@ const init = () => {
     if (exportBtn) {
         exportBtn.addEventListener('click', () => {
             const newUrl = exportNumbering();
-            alert(`現在入力されているナンバリングを意味するURL:\n${newUrl}`);
+            const toBeCopied = confirm(`現在入力されているナンバリングを意味するURLをコピーしますか?\n\n${newUrl}`);
+            if (toBeCopied) {
+                const input = document.createElement('input');
+                document.body.appendChild(input);
+                input.value = newUrl;
+                input.select();
+                document.execCommand('copy');
+                document.body.removeChild(input);
+            }
         });
     }
 };
