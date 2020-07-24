@@ -189,6 +189,15 @@ function * handleSaveNumbering () {
                 continue;
             }
 
+            const cornerCharacterTypes = numberings
+                .map(r => r.letter)
+                .filter(s => s !== '@' && typeof s !== 'undefined')
+                .map(s => utils.getCharacterType(s));
+            if (new Set(cornerCharacterTypes).size !== 1) {
+                alert('ひらがなとアルファベットが混在しています。(Use only Japanese or Alphabet.)');
+                continue;
+            }
+
             // ここまででバリデーションは済んでいる (引っかかった場合はここに到達しない) 想定
             try {
                 yield call(postNumberings, token, partType, numberings);
