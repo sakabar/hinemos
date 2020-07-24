@@ -12,6 +12,7 @@ import Select from '../../molecules/Select';
 import Header from '../../organisms/Header';
 import CheckboxTdFactory from '../../molecules/CheckboxTd';
 import SortableTbl from 'react-sort-search-table';
+const _ = require('lodash');
 const path = require('path');
 const constant = require('../../../constant');
 const config = require('../../../config');
@@ -134,6 +135,24 @@ const ThreeStyleProblemListDetailTemplate = (
         }
     })();
 
+    const statsDiv = (() => {
+        const succ = threeStyleQuizProblemListDetail.filter(rec => rec.acc === 1.0).length;
+        const all = threeStyleQuizProblemListDetail.length;
+        const avgSec = _.meanBy(threeStyleQuizProblemListDetail.filter(rec => rec.acc > 0.0).map(rec => rec.avgSec));
+        const avgTps = _.meanBy(threeStyleQuizProblemListDetail.filter(rec => rec.acc > 0.0).map(rec => rec.tps));
+
+        return (
+            <div>
+                <p>統計情報</p>
+                <ul>
+                    <li>3回連続成功: {succ}/{all}手順</li>
+                    <li>平均タイム: {avgSec.toFixed(2)}秒</li>
+                    <li>平均tps: {avgTps.toFixed(2)}</li>
+                </ul>
+            </div>
+        );
+    })();
+
     return (
         <div>
             <Header title="3-style 一覧" />
@@ -144,10 +163,11 @@ const ThreeStyleProblemListDetailTemplate = (
                 <Heading2>{problemListTitle}</Heading2>
 
                 <ul>
-                    <li>3-style手順を一覧で確認できます</li>
                     <li><a href={`${config.urlRoot}/threeStyle/quiz.html?part=${part.name}&problemListType=problemList&sort=acc&problemListId=${problemListId}`} target='_blank' rel='noreferrer noopener'>{'3-styleクイズへ'}</a></li>
                     <li><a href={`${config.urlRoot}/threeStyle/quiz.html?part=${part.name}&problemListType=problemList&sort=acc&problemListId=${problemListId}&onlyOnce=true`} target='_blank' rel='noreferrer noopener'>{'3-styleクイズ (onlyOnceモード) へ'}</a></li>
                 </ul><br/>
+
+                {statsDiv}
 
         選択した手順を
                 <Select options={threeStyleQuizProblemListOptions} defaultValue={null} onChange={(e) => {
