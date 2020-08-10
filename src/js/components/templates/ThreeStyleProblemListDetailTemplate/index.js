@@ -194,10 +194,10 @@ const ThreeStyleProblemListDetailTemplate = (
                                 letters: record.dispLetters,
                                 stickers: record.stickers,
                                 moves: record.moves,
-                                acc: record.acc === null ? null : record.acc.toFixed(2),
+                                acc: record.acc === null ? 'N/A' : record.acc.toFixed(2),
                                 // avgSecが0の場合は出力しない
-                                avgSec: record.avgSec ? parseFloat(record.avgSec.toFixed(2)) : null,
-                                tps: record.tps === null ? null : parseFloat(record.tps.toFixed(2)),
+                                avgSec: record.avgSec ? parseFloat(record.avgSec.toFixed(2)) : 'N/A',
+                                tps: record.tps === null ? 'N/A' : parseFloat(record.tps.toFixed(2)),
                                 createdAt: record.createdAt ? record.createdAt.format('YYYY/MM/DD HH:mm') : null,
                                 operation: '[削除]',
                             };
