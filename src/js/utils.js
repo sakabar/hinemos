@@ -167,8 +167,9 @@ const isValidMoves = (moveStr, partType) => {
     if (partType.name === 'corner' || partType.name === 'edgeMiddle') {
         reg  = new RegExp('^([BDFLRU]w?|[EMS]|[xyz])\'?2?$');
     } else {
-        reg  = new RegExp('^([2-4]?[BbDdFfLlRrUu]w?|[EMS]|[xyz])\'?2?$');
+        reg  = new RegExp('^[2-4]?([BDFLRU]w?|[bdflru]|[EMS]|[xyz])\'?2?$');
     }
+
     return moveStr.split(' ').every(s => reg.test(s));
 };
 
@@ -202,7 +203,7 @@ const makeThreeStyle = (buffer, sticker1, sticker2, setup, move1, move2, partTyp
 
     // replacedMove1とreplacedMove2が両方埋まっている場合
     if (okCond1) {
-        if (replacedSetup !== '' && !isValidMoves(replacedSetup)) {
+        if (replacedSetup !== '' && !isValidMoves(replacedSetup, partType)) {
             throw new Error('セットアップの手順の記法に誤りがあります。各操作の間にはスペースを入れてください。\n例: y Lw\'2 E U');
         }
 

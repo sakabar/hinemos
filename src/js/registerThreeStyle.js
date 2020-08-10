@@ -95,7 +95,7 @@ const saveThreeStyle = (part) => {
             // バリデーションを行いつつ3-styleのオブジェクトを生成
             let newThreeStyle;
             try {
-                newThreeStyle = utils.makeThreeStyle(buffer, sticker1, sticker2, setup, move1, move2);
+                newThreeStyle = utils.makeThreeStyle(buffer, sticker1, sticker2, setup, move1, move2, part);
             } catch (e) {
                 alert(e);
                 return;
