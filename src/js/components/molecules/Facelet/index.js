@@ -12,7 +12,7 @@ const Facelet = ({
     const value = numbering[part.name][sticker] ? numbering[part.name][sticker].letter : '';
     const disabled = numbering[part.name][sticker] ? numbering[part.name][sticker].disabled : false;
     const onChange = (e) => updateNumbering(part.name, sticker, e.target.value);
-    return (<Textbox value={value} onChange={onChange} size={1} disabled={disabled}/>);
+    return (<Textbox value={value} onChange={onChange} size={1} maxLength={1} disabled={disabled}/>);
 };
 
 Facelet.propTypes = {
