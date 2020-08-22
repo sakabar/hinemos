@@ -156,8 +156,22 @@ const isInSameParts = (sticker1, sticker2) => {
     return s1 === s2;
 };
 
-const isValidMoves = (moveStr) => {
-    const reg = new RegExp('^([BDFLRU]w?|[EMS]|[xyz])\'?2?$');
+const isValidMoves = (moveStr, partType) => {
+    // 5BLD対応時にパートの引数を増やしたので、
+    // 以前のコードを変更をしなくていいようにデフォルト引数にした
+    if (!partType) {
+        partType = constant.partType.corner;
+    }
+
+    let reg;
+    if (partType.name === 'corner' || partType.name === 'edgeMiddle') {
+        reg = new RegExp('^([BDFLRU]w?|[EMS]|[xyz])\'?2?$');
+    } else if (partType.name === 'edgeWing' || partType.name === 'centerX') {
+        reg = new RegExp('^3?([BDFLRU]w?|[bdflru]|[xyz])\'?2?$');
+    } else {
+        throw new Error(`Unexpected part type : ${partType}`);
+    }
+
     return moveStr.split(' ').every(s => reg.test(s));
 };
 
@@ -172,10 +186,16 @@ const replaceMoves = (moveStr) => {
 
 // validationしつつ、3-styleのオブジェクトを生成
 // validationにエラーがあった場合は、値を返さずエラー
-const makeThreeStyle = (buffer, sticker1, sticker2, setup, move1, move2) => {
+const makeThreeStyle = (buffer, sticker1, sticker2, setup, move1, move2, partType) => {
     const replacedSetup = replaceMoves(setup);
     const replacedMove1 = replaceMoves(move1);
     const replacedMove2 = replaceMoves(move2);
+
+    // 5BLD対応時にパートの引数を増やしたので、
+    // 以前のコードを変更をしなくていいようにデフォルト引数にした
+    if (!partType) {
+        partType = constant.partType.corner;
+    }
 
     const okCond1 = (replacedMove1 !== '' && replacedMove2 !== '');
     const okCond2 = (replacedMove1 === '' && replacedMove2 === '' && replacedSetup !== '');
@@ -185,21 +205,21 @@ const makeThreeStyle = (buffer, sticker1, sticker2, setup, move1, move2) => {
 
     // replacedMove1とreplacedMove2が両方埋まっている場合
     if (okCond1) {
-        if (replacedSetup !== '' && !isValidMoves(replacedSetup)) {
+        if (replacedSetup !== '' && !isValidMoves(replacedSetup, partType)) {
             throw new Error('セットアップの手順の記法に誤りがあります。各操作の間にはスペースを入れてください。\n例: y Lw\'2 E U');
         }
 
-        if (!isValidMoves(replacedMove1)) {
+        if (!isValidMoves(replacedMove1, partType)) {
             throw new Error('手順1の記法に誤りがあります。各操作の間にはスペースを入れてください。\n例: y Lw\'2 E U');
         }
 
-        if (!isValidMoves(replacedMove2)) {
+        if (!isValidMoves(replacedMove2, partType)) {
             throw new Error('手順2の記法に誤りがあります。各操作の間にはスペースを入れてください。\n例: y Lw\'2 E U');
         }
     }
 
     // replacedMove1とreplacedMove2が両方空の場合 → replacedSetupのみチェック
-    if (okCond2 && !isValidMoves(replacedSetup)) {
+    if (okCond2 && !isValidMoves(replacedSetup, partType)) {
         throw new Error('セットアップの手順の記法に誤りがあります。各操作の間にはスペースを入れてください。\n例: y Lw\'2 E U');
     }
 
@@ -274,9 +294,15 @@ const getThreeStyleType = (s) => {
 
 // 3-style記法の文字列をパースして、オブジェクトを返す
 // 正規表現が複雑になるのを避けるため、まずgetThreeStyleTypeで判定してから更にふるいにかける
-const readThreeStyles = (s) => {
+const readThreeStyles = (s, partType) => {
     if (s.match(/^\s*$/)) {
         return [];
+    }
+
+    // 5BLD対応で引数を増やしたので、引数が足りない時にも動くように
+    // デフォルト引数のような動きにする
+    if (!partType) {
+        partType = constant.partType.corner;
     }
 
     // 似たような文字や、複数個のスペースを置換
@@ -296,8 +322,8 @@ const readThreeStyles = (s) => {
         const hd = pluralSeqMatch[1];
         const tl = pluralSeqMatch[2];
 
-        const hdArr = readThreeStyles(hd.replace(/,$/, ''));
-        const tlArr = readThreeStyles(tl.replace(/^, /, ''));
+        const hdArr = readThreeStyles(hd.replace(/,$/, ''), partType);
+        const tlArr = readThreeStyles(tl.replace(/^, /, ''), partType);
         return [ ...hdArr, ...tlArr, ];
     }
 
@@ -308,8 +334,8 @@ const readThreeStyles = (s) => {
         const hd = pluralMatch[1];
         const tl = pluralMatch[2];
 
-        const hdArr = readThreeStyles(hd.replace(/,$/, ''));
-        const tlArr = readThreeStyles(tl.replace(/^, /, ''));
+        const hdArr = readThreeStyles(hd.replace(/,$/, ''), partType);
+        const tlArr = readThreeStyles(tl.replace(/^, /, ''), partType);
         return [ ...hdArr, ...tlArr, ];
     }
 
@@ -321,7 +347,7 @@ const readThreeStyles = (s) => {
             throw new Error('Unexpected pureMatch pattern');
         }
 
-        if (!isValidMoves(pureMatch[1]) || !isValidMoves(pureMatch[2])) {
+        if (!isValidMoves(pureMatch[1], partType) || !isValidMoves(pureMatch[2], partType)) {
             throw new Error(`Invalid Moves in: ${s}`);
         }
 
@@ -340,7 +366,7 @@ const readThreeStyles = (s) => {
             throw new Error('Unexpected setupMatch pattern');
         }
 
-        if (!isValidMoves(setupMatch[1]) || !isValidMoves(setupMatch[2]) || !isValidMoves(setupMatch[3])) {
+        if (!isValidMoves(setupMatch[1], partType) || !isValidMoves(setupMatch[2], partType) || !isValidMoves(setupMatch[3], partType)) {
             throw new Error(`Invalid Move in: ${s}`);
         }
 
@@ -359,7 +385,7 @@ const readThreeStyles = (s) => {
             throw new Error('Unexpected seqMatch pattern');
         }
 
-        if (!isValidMoves(seqMatch[1])) {
+        if (!isValidMoves(seqMatch[1], partType)) {
             throw new Error(`Invalid Move in: ${s}`);
         }
 

@@ -83,7 +83,7 @@ const saveThreeStyleTable = (hot, part, numbering) => {
     const colLn = col0.length;
 
     // ヘッダ行のフォーマットは"あ (UFR)"のような文字列になっている前提
-    const headerRegExp = new RegExp(/^(.) \(([A-Z]+)\)$/);
+    const headerRegExp = new RegExp(/^(.) \(([A-Za-z]+)\)$/);
 
     const threeStyleTable = [];
     for (let c = 1; c < colLn; c++) {
@@ -111,7 +111,7 @@ const saveThreeStyleTable = (hot, part, numbering) => {
             const cellStr = hot.getDataAtCell(r, c) || '';
             let threeStyles = [];
             try {
-                threeStyles = utils.readThreeStyles(cellStr);
+                threeStyles = utils.readThreeStyles(cellStr, part);
             } catch (e) {
                 alert(`${e}\nステッカー: ${letter1}${letter2}\n例\n[U, R D R\']\nまたは\n[D: [U, R D R\']]\nまたは\nD Rw2 U R U\' Rw2 D R\' D2`);
                 saveBtn.disabled = false;
@@ -179,18 +179,16 @@ const init = () => {
 
     const visualType = urlObj.query.visualType;
 
-    // URLのオプションでpart=(corner|edgeMiddle)という形式で、パートが渡される
+    // URLのオプションでpart=(corner|edgeMiddle|edgeWing|centerX|centerT)という形式で、パートが渡される
     // それ以外の場合はエラー
     const partQuery = urlObj.query.part;
     let part;
-    if (partQuery === 'corner') {
-        part = constant.partType.corner;
-        h2Part.appendChild(document.createTextNode('コーナー'));
-    } else if (partQuery === 'edgeMiddle') {
-        part = constant.partType.edgeMiddle;
-        h2Part.appendChild(document.createTextNode('エッジ'));
+    if (constant.partType[partQuery]) {
+        const partType = constant.partType[partQuery];
+        h2Part.appendChild(document.createTextNode(partType.japanese));
+        part = partType;
     } else {
-        alert('URLが不正です: part=corner か part=edgeMiddle のどちらかを指定してください');
+        alert('URLが不正です: part=(corner|edgeMiddle|edgeWing|centerX|centerT)のいずれかを指定してください');
         return;
     }
 
