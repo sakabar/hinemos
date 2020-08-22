@@ -165,9 +165,11 @@ const isValidMoves = (moveStr, partType) => {
 
     let reg;
     if (partType.name === 'corner' || partType.name === 'edgeMiddle') {
-        reg  = new RegExp('^([BDFLRU]w?|[EMS]|[xyz])\'?2?$');
+        reg = new RegExp('^([BDFLRU]w?|[EMS]|[xyz])\'?2?$');
+    } else if (partType.name === 'edgeWing' || partType.name === 'centerX') {
+        reg = new RegExp('^3?([BDFLRU]w?|[bdflru]|[xyz])\'?2?$');
     } else {
-        reg  = new RegExp('^[2-4]?([BDFLRU]w?|[bdflru]|[EMS]|[xyz])\'?2?$');
+        throw new Error(`Unexpected part type : ${partType}`);
     }
 
     return moveStr.split(' ').every(s => reg.test(s));
