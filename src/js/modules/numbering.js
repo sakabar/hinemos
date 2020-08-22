@@ -52,12 +52,13 @@ function * handleLoadNumbering () {
             const partType = partTypes[i];
             const numberings = yield call(numberingUtils.getNumbering, userName, partType);
 
+            const disabled = partType === constant.partType.corner || partType === constant.partType.edgeMiddle;
             numberings.map(numbering => {
                 const sticker = numbering.sticker;
                 const letter = numbering.letter;
                 stateNumbering[partType.name][sticker] = {
                     letter,
-                    disabled: false,
+                    disabled,
                 };
             });
 
