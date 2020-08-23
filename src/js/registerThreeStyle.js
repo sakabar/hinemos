@@ -95,7 +95,7 @@ const saveThreeStyle = (part) => {
             // バリデーションを行いつつ3-styleのオブジェクトを生成
             let newThreeStyle;
             try {
-                newThreeStyle = utils.makeThreeStyle(buffer, sticker1, sticker2, setup, move1, move2);
+                newThreeStyle = utils.makeThreeStyle(buffer, sticker1, sticker2, setup, move1, move2, part);
             } catch (e) {
                 alert(e);
                 return;
@@ -406,17 +406,12 @@ const init = () => {
     // URLのオプションでpart=(corner|edgeMiddle)という形式で、パートが渡される
     // それ以外の場合はエラー
     const partQuery = urlObj.query.part;
-    let part;
-    if (partQuery === 'corner') {
-        part = constant.partType.corner;
-        h2Part.appendChild(document.createTextNode('コーナー'));
-    } else if (partQuery === 'edgeMiddle') {
-        part = constant.partType.edgeMiddle;
-        h2Part.appendChild(document.createTextNode('エッジ'));
-    } else {
-        alert('URLが不正です: part=corner か part=edgeMiddle のどちらかを指定してください');
+    const part = constant.partType[partQuery];
+    if (!part) {
+        alert('URLが不正です: part=(corner|edgeMiddle|edgeWing|centerX|centerT) のいずれかを指定してください');
         return;
     }
+    h2Part.appendChild(document.createTextNode(part.japanese));
 
     // URLのオプションでletters=hoge形式で渡された場合、自動的にlettersTextの値として入力
     const lettersQuery = urlObj.query.letters;
@@ -455,6 +450,7 @@ const init = () => {
     });
 
     const bldLifeLinkButton = document.querySelector('.registerThreeStyleForm__bldLifeLinkBtn');
+    bldLifeLinkButton.disabled = !(part === constant.partType.corner || part === constant.partType.edgeMiddle);
     bldLifeLinkButton.addEventListener('click', () => openBldLife(part));
 };
 

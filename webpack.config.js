@@ -10,6 +10,7 @@ module.exports = {
         auth: './auth.js',
         errorPage: './errorPage.js',
         editThreeStyleQuizList: './editThreeStyleQuizList.js',
+        importThreeStyle: './importThreeStyle.js',
         index: './index.js',
         letterPairTable: './letterPairTable.js',
         letterPairQuiz: './letterPairQuiz.js',

@@ -144,6 +144,11 @@ function * handleLoadInitially () {
                     dispLetters += '【重複】';
                 }
 
+                const na = 'N/A';
+                const dispAcc = acc === null ? na : acc.toFixed(2);
+                const dispAvgSec = avgSec ? parseFloat(avgSec.toFixed(2)) : na;
+                const dispTps = tps === null ? na : parseFloat(tps.toFixed(2));
+
                 const record = {
                     ...detail,
                     moves,
@@ -156,6 +161,9 @@ function * handleLoadInitially () {
                     // 「全て選択」の際、フィルタ条件に"「"が入っている時も正しく処理ができるように、
                     // 表示表にテーブルに渡したカッコ付きの文字列をstateでも持っておく
                     dispLetters,
+                    dispAcc,
+                    dispAvgSec,
+                    dispTps,
                     createdAt,
                     updatedAt,
                 };

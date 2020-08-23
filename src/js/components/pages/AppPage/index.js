@@ -14,6 +14,7 @@ import MemoTrainingMbldPage from '../MemoTrainingMbldPage';
 import MemoTrainingCardsPage from '../MemoTrainingCardsPage';
 import MemoTrainingNumbersPage from '../MemoTrainingNumbersPage';
 import MemoTrainingResultPage from '../MemoTrainingResultPage';
+import NumberingPage from '../NumberingPage';
 const appPageUtils = require('../../../appPageUtils');
 const config = require('../../../config');
 const path = require('path');
@@ -23,6 +24,7 @@ const urlRoot = path.basename(config.urlRoot);
 const routeDict = {
     bldSmartTimer: BldTimerPage,
     faq: FaqPage,
+    numbering: NumberingPage,
     threeStyle: {
         problemList: ThreeStyleProblemListPage,
         problemListDetail: ThreeStyleProblemListDetailPage,
