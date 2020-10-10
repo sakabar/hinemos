@@ -90,12 +90,17 @@ function * handleLoadNumbering () {
 
         let wingEdgeSystem = WingEdgeSystem.unknown;
         const edgeWingStickers = Object.keys(stateNumbering[constant.partType.edgeWing.name]);
-        if (edgeWingStickers.every(s => constant.edgesFUr.includes(s))) {
-            wingEdgeSystem = WingEdgeSystem.FUr;
-        } else if (edgeWingStickers.every(s => constant.edgesUFr.includes(s))) {
-            wingEdgeSystem = WingEdgeSystem.UFr;
-        } else {
-            throw new Error(`Unexpected WingEdge: ${edgeWingStickers}`);
+
+        // edgeWingStickersが空の場合はスキップしないと、every()の結果がtrueになってしまって
+        // 何も入力していないのにFUr系になってしまう
+        if (edgeWingStickers.length > 0) {
+            if (edgeWingStickers.every(s => constant.edgesFUr.includes(s))) {
+                wingEdgeSystem = WingEdgeSystem.FUr;
+            } else if (edgeWingStickers.every(s => constant.edgesUFr.includes(s))) {
+                wingEdgeSystem = WingEdgeSystem.UFr;
+            } else {
+                throw new Error(`Unexpected WingEdge: ${edgeWingStickers}`);
+            }
         }
         const payload = {
             numbering: stateNumbering,
