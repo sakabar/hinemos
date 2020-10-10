@@ -11,16 +11,16 @@ const utils = require('./utils');
 const detectStickers = (part, bufferSticker, setup, move1, move2) => {
     try {
         if (part === constant.partType.corner) {
-            const alg = Algorithm333.makeThreeStyle(setup, move1, move2);
+            const alg = (move1 === '' && move2 === '') ? new Algorithm333(setup) : Algorithm333.makeThreeStyle(setup, move1, move2);
             return alg.detectThreeStyleCornerStickers(bufferSticker);
         } else if (part === constant.partType.edgeMiddle) {
-            const alg = Algorithm333.makeThreeStyle(setup, move1, move2);
+            const alg = (move1 === '' && move2 === '') ? new Algorithm333(setup) : Algorithm333.makeThreeStyle(setup, move1, move2);
             return alg.detectThreeStyleEdgeStickers(bufferSticker);
         } else if (part === constant.partType.edgeWing) {
-            const alg = Algorithm444.makeThreeStyle(setup, move1, move2);
+            const alg = (move1 === '' && move2 === '') ? new Algorithm444(setup) : Algorithm444.makeThreeStyle(setup, move1, move2);
             return alg.detectThreeStyleWingEdgeStickers(bufferSticker);
         } else if (part === constant.partType.centerX) {
-            const alg = Algorithm444.makeThreeStyle(setup, move1, move2);
+            const alg = (move1 === '' && move2 === '') ? new Algorithm444(setup) : Algorithm444.makeThreeStyle(setup, move1, move2);
             return alg.detectThreeStyleXCenterStickers(bufferSticker);
         } else if (part === constant.partType.centerT) {
             // throw new Error(`Unexpected part : ${JSON.stringify(part)}`);
