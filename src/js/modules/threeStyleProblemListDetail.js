@@ -145,9 +145,9 @@ function * handleLoadInitially () {
                 }
 
                 const na = 'N/A';
-                const dispAcc = acc === null ? na : acc.toFixed(2);
+                const dispAcc = acc === null ? (0).toFixed(2) : acc.toFixed(2);
                 const dispAvgSec = avgSec ? parseFloat(avgSec.toFixed(2)) : na;
-                const dispTps = tps === null ? na : parseFloat(tps.toFixed(2));
+                const dispTps = tps === null ? (0).toFixed(2) : tps.toFixed(2);
 
                 const record = {
                     ...detail,
