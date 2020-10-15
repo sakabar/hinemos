@@ -374,6 +374,7 @@ export const threeStyleProblemListDetailReducer = handleActions(
                 ...state,
                 url,
                 loadWillSkipped: true,
+                isCheckedSelectAll: false,
                 part,
                 problemListId,
                 threeStyleQuizProblemLists,
