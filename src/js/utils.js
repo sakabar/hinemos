@@ -314,6 +314,9 @@ const readThreeStyles = (s, partType) => {
         m = s.match(doubleRegExp);
     }
 
+    // X2'をX'2に置換
+    s = s.replace(/2'/g, '\'2');
+
     // [A: B]の時はnormalize
     if (s.match(/^\[[^\]\[]+:[^\]\[]+\]$/)) {
         s = normalize(s);

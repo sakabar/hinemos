@@ -506,6 +506,24 @@ describe('utils.js', () => {
             assert.deepStrictEqual(utils.readThreeStyles('[M : (U M U M\')2]'), [ expected, ]);
         });
 
+        it('正常系: seq [U2\']', () => {
+            const expected = {
+                setup: 'U\'2',
+                move1: '',
+                move2: '',
+            };
+            assert.deepStrictEqual(utils.readThreeStyles('[U2\']'), [ expected, ]);
+        });
+
+        it('正常系: seq [U\'2]', () => {
+            const expected = {
+                setup: 'U\'2',
+                move1: '',
+                move2: '',
+            };
+            assert.deepStrictEqual(utils.readThreeStyles('[U\'2]'), [ expected, ]);
+        });
+
         it('正常系: 複数', () => {
             const ts1 = {
                 setup: 'S',
