@@ -305,6 +305,18 @@ const readThreeStyles = (s, partType) => {
         partType = constant.partType.corner;
     }
 
+    // 3BLDのパートであるコーナー・エッジの場合はrやlをRwやLwに置き換える
+    // 4BLDの場合はrやlを単層回しと見なすのでダメ
+    if (partType === constant.partType.corner || partType === constant.partType.edgeMiddle) {
+        s = s
+            .replace(/r/g, 'Rw')
+            .replace(/l/g, 'Lw')
+            .replace(/u/g, 'Uw')
+            .replace(/d/g, 'Dw')
+            .replace(/f/g, 'Fw')
+            .replace(/b/g, 'Bw');
+    }
+
     // 似たような文字や、複数個のスペースを置換
     const replacedStr = s.trim().replace(/[;；：]/g, ':').replace(/[‘’´｀`]/g, '\'').replace(/[，、]/g, ',').replace(/,/g, ' , ').replace(/:/g, ' : ').replace(/[({【「]/g, '[').replace(/[」】}]/g, ']').replace(/\s+/g, ' ').replace(/ *,/g, ',').replace(/ *:/g, ':').replace(/\s+]/g, ']').replace(/]\s+/g, ']').replace(/\[\s+/g, '[').replace(/,\[/g, ', [').replace(/:\[/g, ': [');
 

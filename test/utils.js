@@ -461,6 +461,15 @@ describe('utils.js', () => {
             assert.deepStrictEqual(utils.readThreeStyles('[R U ; [U ,R D R’]]'), [ expected, ]);
         });
 
+        it('正常系 [l\': [U, l\' E l]] (lをLwに置換)', () => {
+            const expected = {
+                setup: 'Lw\'',
+                move1: 'U',
+                move2: 'Lw\' E Lw',
+            };
+            assert.deepStrictEqual(utils.readThreeStyles('[l\': [U, l\' E l]]'), [ expected, ]);
+        });
+
         it('正常系: 複数', () => {
             const ts1 = {
                 setup: 'S',
