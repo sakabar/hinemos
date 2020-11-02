@@ -317,6 +317,14 @@ const readThreeStyles = (s, partType) => {
             .replace(/b/g, 'Bw');
     }
 
+    // (A B)2 や (A B)*2 を A B A Bに変換
+    const doubleRegExp = /\(([^)]*)\)\*?2/;
+    let m = s.match(doubleRegExp);
+    while (m) {
+        s = s.replace(doubleRegExp, ' $1 $1 ');
+        m = s.match(doubleRegExp);
+    }
+
     // 似たような文字や、複数個のスペースを置換
     const replacedStr = s.trim().replace(/[;；：]/g, ':').replace(/[‘’´｀`]/g, '\'').replace(/[，、]/g, ',').replace(/,/g, ' , ').replace(/:/g, ' : ').replace(/[({【「]/g, '[').replace(/[」】}]/g, ']').replace(/\s+/g, ' ').replace(/ *,/g, ',').replace(/ *:/g, ':').replace(/\s+]/g, ']').replace(/]\s+/g, ']').replace(/\[\s+/g, '[').replace(/,\[/g, ', [').replace(/:\[/g, ': [');
 
