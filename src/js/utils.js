@@ -1,5 +1,6 @@
 const chunk = require('chunk');
 const Cube = require('cubejs');
+const normalize = require('cube-notation-normalizer');
 const shuffle = require('shuffle-array');
 const constant = require('./constant');
 
@@ -305,8 +306,22 @@ const readThreeStyles = (s, partType) => {
         partType = constant.partType.corner;
     }
 
+    // (A B)2 や (A B)*2 を A B A Bに変換
+    const doubleRegExp = /\(([^)]*)\)\*?2/;
+    let m = s.match(doubleRegExp);
+    while (m) {
+        s = s.replace(doubleRegExp, ' $1 $1 ');
+        m = s.match(doubleRegExp);
+    }
+
+    // [A: B]の時はnormalize
+    if (s.match(/^\[[^\]\[]+:[^\]\[]+\]$/)) {
+        s = normalize(s);
+    }
+
     // 3BLDのパートであるコーナー・エッジの場合はrやlをRwやLwに置き換える
     // 4BLDの場合はrやlを単層回しと見なすのでダメ
+    // normalize()でUwなどがuのような1文字に変換されてしまうので、その後に変換
     if (partType === constant.partType.corner || partType === constant.partType.edgeMiddle) {
         s = s
             .replace(/r/g, 'Rw')
@@ -315,14 +330,6 @@ const readThreeStyles = (s, partType) => {
             .replace(/d/g, 'Dw')
             .replace(/f/g, 'Fw')
             .replace(/b/g, 'Bw');
-    }
-
-    // (A B)2 や (A B)*2 を A B A Bに変換
-    const doubleRegExp = /\(([^)]*)\)\*?2/;
-    let m = s.match(doubleRegExp);
-    while (m) {
-        s = s.replace(doubleRegExp, ' $1 $1 ');
-        m = s.match(doubleRegExp);
     }
 
     // 似たような文字や、複数個のスペースを置換

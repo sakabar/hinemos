@@ -470,7 +470,7 @@ describe('utils.js', () => {
             assert.deepStrictEqual(utils.readThreeStyles('[l\': [U, l\' E l]]'), [ expected, ]);
         });
 
-        it('正常系 (M\' U M U)2', () => {
+        it('正常系: (M\' U M U)2', () => {
             const expected = {
                 setup: 'M\' U M U M\' U M U',
                 move1: '',
@@ -479,13 +479,22 @@ describe('utils.js', () => {
             assert.deepStrictEqual(utils.readThreeStyles('(M\' U M U)2'), [ expected, ]);
         });
 
-        it('正常系 (M\' U M U)*2', () => {
+        it('正常系: (M\' U M U)*2', () => {
             const expected = {
                 setup: 'M\' U M U M\' U M U',
                 move1: '',
                 move2: '',
             };
             assert.deepStrictEqual(utils.readThreeStyles('(M\' U M U)*2'), [ expected, ]);
+        });
+
+        it('正常系: [L\' u : M\' u2 M\' u2]', () => {
+            const expected = {
+                setup: 'L\' Uw M\' Uw2 M\' Uw L',
+                move1: '',
+                move2: '',
+            };
+            assert.deepStrictEqual(utils.readThreeStyles('[L\' u : M\' u2 M\' u2]'), [ expected, ]);
         });
 
         it('正常系: 複数', () => {
