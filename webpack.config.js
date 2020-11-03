@@ -6,12 +6,14 @@ const ExtendedDefinePlugin = require('extended-define-webpack-plugin');
 module.exports = {
     cache: true,
     context: path.join(__dirname, '/src/js'),
+    target: 'node',
     entry: {
         auth: './auth.js',
         errorPage: './errorPage.js',
         editThreeStyleQuizList: './editThreeStyleQuizList.js',
         importThreeStyle: './importThreeStyle.js',
         index: './index.js',
+        factorize: './factorize.js',
         letterPairTable: './letterPairTable.js',
         letterPairQuiz: './letterPairQuiz.js',
         listThreeStyle: './listThreeStyle.js',
