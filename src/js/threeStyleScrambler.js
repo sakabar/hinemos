@@ -6,6 +6,7 @@ const config = require('./config');
 const constant = require('./constant');
 const rp = require('request-promise');
 const threeStyleUtils = require('./threeStyleUtils');
+const threeStyleQuizProblemListUtils = require('./threeStyleQuizProblemListUtils');
 const utils = require('./utils');
 
 // sticker1とsticker2のパーツを、若い順に並べる
@@ -226,9 +227,14 @@ const scrambleType = {
     threeStyleList: { value: 1, name: 'threeStyleList', },
     random: { value: 2, name: 'random', },
     none: { value: 3, name: 'none', },
+    threeStyleListName: { value: 4, name: 'threeStyleListName', },
 };
 
 const readScrambleType = (s) => {
+    if (s.startsWith('threeStyleListName')) {
+        return scrambleType.threeStyleListName;
+    }
+
     switch (s) {
     case 'threeStyle':
         return scrambleType.threeStyle;
@@ -248,8 +254,8 @@ const submit = (threeStylesCorner, threeStylesEdgeMiddle, threeStyleQuizListCorn
     const selectCorner = document.querySelector('.scrambleTypeSelect--corner');
     const selectEdge = document.querySelector('.scrambleTypeSelect--edgeMiddle');
 
-    const scrambleTypeCorner = readScrambleType(selectCorner.value);
-    const scrambleTypeEdgeMiddle = readScrambleType(selectEdge.value);
+    let scrambleTypeCorner = readScrambleType(selectCorner.value);
+    let scrambleTypeEdgeMiddle = readScrambleType(selectEdge.value);
 
     const tmpCnt = parseInt(numText.value);
     let cnt = 12; // デフォルト値は12とする (ao12を計るため)
@@ -265,33 +271,80 @@ const submit = (threeStylesCorner, threeStylesEdgeMiddle, threeStyleQuizListCorn
         cnt = tmpCnt;
     }
 
+    // threeStyleListNameの時は、引数のthreeStyleListCornerやthreeStyleListEdgeMiddleをそのリストの内容で上書きする
+    const cornerPromise = (() => {
+        if (scrambleTypeCorner === scrambleType.threeStyleListName) {
+            const problemListCornerId = parseInt(selectCorner.value.split('-')[1]);
+            return threeStyleQuizProblemListUtils.requestGetThreeStyleQuizProblemListDetail(constant.partType.corner, problemListCornerId)
+                .then(ans => {
+                    return ans.result;
+                });
+        } else {
+            return Promise.resolve(threeStyleQuizListCorner);
+        }
+    })();
+
+    const edgePromise = (() => {
+        if (scrambleTypeEdgeMiddle === scrambleType.threeStyleListName) {
+            const problemListEdgeMiddleId = parseInt(selectEdge.value.split('-')[1]);
+            return threeStyleQuizProblemListUtils.requestGetThreeStyleQuizProblemListDetail(constant.partType.edgeMiddle, problemListEdgeMiddleId)
+                .then(ans => {
+                    return ans.result;
+                });
+        } else {
+            return Promise.resolve(threeStyleQuizListEdgeMiddle);
+        }
+    })();
+
     // 3-style (問題リスト) が選ばれている場合、ここで登録済の3-styleを問題リストに登録されているものだけに絞り込んでおく
-    const threeStyleQuizListCornerStickers = threeStyleQuizListCorner.map(x => x.stickers);
-    const filteredThreeStylesCorner = scrambleTypeCorner === scrambleType.threeStyleList ? threeStylesCorner.filter(x => threeStyleQuizListCornerStickers.includes(x.stickers)) : threeStylesCorner;
+    return cornerPromise
+        .then(threeStyleQuizListCorner => {
+            if (scrambleTypeCorner === scrambleType.threeStyleListName) {
+                scrambleTypeCorner = scrambleType.threeStyleList;
+            }
 
-    const threeStyleQuizListEdgeMiddleStickers = threeStyleQuizListEdgeMiddle.map(x => x.stickers);
-    const filteredThreeStylesEdgeMiddle = scrambleTypeEdgeMiddle === scrambleType.threeStyleList ? threeStylesEdgeMiddle.filter(x => threeStyleQuizListEdgeMiddleStickers.includes(x.stickers)) : threeStylesEdgeMiddle;
+            const threeStyleQuizListCornerStickers = threeStyleQuizListCorner.map(x => x.stickers);
+            const filteredThreeStylesCorner = scrambleTypeCorner === scrambleType.threeStyleList ? threeStylesCorner.filter(x => threeStyleQuizListCornerStickers.includes(x.stickers)) : threeStylesCorner;
 
-    const scrambles = getScrambles(cnt, scrambleTypeCorner, scrambleTypeEdgeMiddle, filteredThreeStylesCorner, filteredThreeStylesEdgeMiddle, appearOnce);
+            return edgePromise
+                .then(threeStyleQuizListEdgeMiddle => {
+                    if (scrambleTypeEdgeMiddle === scrambleType.threeStyleListName) {
+                        scrambleTypeEdgeMiddle = scrambleType.threeStyleList;
+                    }
 
-    // まず消す
-    const scramblesContainer = document.querySelector('.scrambles');
-    while (scramblesContainer.firstChild) {
-        scramblesContainer.removeChild(scramblesContainer.firstChild);
-    };
+                    const threeStyleQuizListEdgeMiddleStickers = threeStyleQuizListEdgeMiddle.map(x => x.stickers);
+                    const filteredThreeStylesEdgeMiddle = scrambleTypeEdgeMiddle === scrambleType.threeStyleList ? threeStylesEdgeMiddle.filter(x => threeStyleQuizListEdgeMiddleStickers.includes(x.stickers)) : threeStylesEdgeMiddle;
 
-    // ノードに追加
-    for (let i = 0; i < scrambles.length; i++) {
-        const scramble = scrambles[i];
-        const scrambleNode = document.createElement('li');
-        scrambleNode.appendChild(document.createTextNode(scramble));
-        scramblesContainer.appendChild(scrambleNode);
-    }
+                    const scrambles = getScrambles(cnt, scrambleTypeCorner, scrambleTypeEdgeMiddle, filteredThreeStylesCorner, filteredThreeStylesEdgeMiddle, appearOnce);
+
+                    // まず消す
+                    const scramblesContainer = document.querySelector('.scrambles');
+                    while (scramblesContainer.firstChild) {
+                        scramblesContainer.removeChild(scramblesContainer.firstChild);
+                    };
+
+                    // ノードに追加
+                    for (let i = 0; i < scrambles.length; i++) {
+                        const scramble = scrambles[i];
+                        const scrambleNode = document.createElement('li');
+                        scrambleNode.appendChild(document.createTextNode(scramble));
+                        scramblesContainer.appendChild(scrambleNode);
+                    }
+                })
+                .catch((err) => {
+                    alert(`エラー:${err}`);
+                });
+        })
+        .catch((err) => {
+            alert(`エラー:${err}`);
+        });
 };
 
 const init = () => {
     const userName = localStorage.userName;
     const button = document.querySelector('.scrambleForm__submitBtn');
+    const cornerSelectNode = document.querySelector('.scrambleTypeSelect--corner');
+    const edgeSelectNode = document.querySelector('.scrambleTypeSelect--edgeMiddle');
 
     // 以下は、テストの時には実行しない
     if (!button) {
@@ -348,8 +401,42 @@ const init = () => {
                                                 .then((allThreeStyleQuizListEdgeMiddle) => {
                                                     const threeStyleQuizListEdgeMiddle = allThreeStyleQuizListEdgeMiddle.filter(a => a.buffer === edgeMiddleBufferSticker);
 
-                                                    button.addEventListener('click', () => submit(threeStylesCorner, threeStylesEdgeMiddle, threeStyleQuizListCorner, threeStyleQuizListEdgeMiddle, appearOnce));
-                                                    button.disabled = false;
+                                                    return threeStyleQuizProblemListUtils.requestGetThreeStyleQuizProblemList(constant.partType.corner)
+                                                        .then((tmpProblemListNamesCorner) => {
+                                                            const problemListNamesCorner = tmpProblemListNamesCorner.success.result;
+
+                                                            for (let i = 0; i < problemListNamesCorner.length; i++) {
+                                                                const problemListNameCorner = problemListNamesCorner[i];
+
+                                                                const optionNode = document.createElement('option');
+                                                                optionNode.appendChild(document.createTextNode(problemListNameCorner.title));
+                                                                optionNode.value = `threeStyleListName-${problemListNameCorner.problemListId}`;
+                                                                cornerSelectNode.appendChild(optionNode);
+                                                            }
+
+                                                            return threeStyleQuizProblemListUtils.requestGetThreeStyleQuizProblemList(constant.partType.edgeMiddle)
+                                                                .then((tmpProblemListNamesEdgeMiddle) => {
+                                                                    const problemListNamesEdgeMiddle = tmpProblemListNamesEdgeMiddle.success.result;
+
+                                                                    for (let i = 0; i < problemListNamesEdgeMiddle.length; i++) {
+                                                                        const problemListNameEdgeMiddle = problemListNamesEdgeMiddle[i];
+
+                                                                        const optionNode = document.createElement('option');
+                                                                        optionNode.appendChild(document.createTextNode(problemListNameEdgeMiddle.title));
+                                                                        optionNode.value = `threeStyleListName-${problemListNameEdgeMiddle.problemListId}`;
+                                                                        edgeSelectNode.appendChild(optionNode);
+                                                                    }
+
+                                                                    button.addEventListener('click', () => submit(threeStylesCorner, threeStylesEdgeMiddle, threeStyleQuizListCorner, threeStyleQuizListEdgeMiddle, appearOnce));
+                                                                    button.disabled = false;
+                                                                })
+                                                                .catch((err) => {
+                                                                    alert(`エラー:${err}`);
+                                                                });
+                                                        })
+                                                        .catch((err) => {
+                                                            alert(`エラー:${err}`);
+                                                        });
                                                 })
                                                 .catch((err) => {
                                                     alert(`エラー:${err}`);
