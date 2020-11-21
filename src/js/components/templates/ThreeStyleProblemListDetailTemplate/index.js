@@ -57,6 +57,7 @@ const ThreeStyleProblemListDetailTemplate = (
         part,
         userName,
         problemListId,
+        isCheckedAddAncestors,
         isCheckedSelectAll,
         threeStyleQuizProblemLists,
         selectedThreeStyleQuizListId,
@@ -68,6 +69,7 @@ const ThreeStyleProblemListDetailTemplate = (
         sagaLoadInitially,
         selectProblemList,
         sagaAddToProblemList,
+        toggleAddAncestors,
         toggleSelectAll,
         sagaSortTable,
     }
@@ -181,6 +183,8 @@ const ThreeStyleProblemListDetailTemplate = (
                 <br/>
              選択した手順をリストから[削除]
                 <br/>
+                <Checkbox text="セットアップ先の手順も併せて追加 (要:問題リスト自動作成)" checked={isCheckedAddAncestors} onChange={(e) => { toggleAddAncestors(); }}/>
+                <br/>
                 <Checkbox text="全て選択" checked={isCheckedSelectAll} onChange={(e) => { toggleSelectAll(); }}/>
                 <br/>
 
@@ -253,6 +257,7 @@ ThreeStyleProblemListDetailTemplate.propTypes = {
     part: PropTypes.oneOf([ ...Object.values(constant.partType), constant.dummyPartType, ]),
     userName: PropTypes.string.isRequired,
     problemListId: PropTypes.number,
+    isCheckedAddAncestors: PropTypes.bool.isRequired,
     isCheckedSelectAll: PropTypes.bool.isRequired,
     threeStyleQuizProblemLists: PropTypes.array,
     selectedThreeStyleQuizListId: PropTypes.number,
@@ -264,6 +269,7 @@ ThreeStyleProblemListDetailTemplate.propTypes = {
     sagaLoadInitially: PropTypes.func.isRequired,
     selectProblemList: PropTypes.func.isRequired,
     sagaAddToProblemList: PropTypes.func.isRequired,
+    toggleAddAncestors: PropTypes.func.isRequired,
     toggleSelectAll: PropTypes.func.isRequired,
     sagaSortTable: PropTypes.func.isRequired,
 };
