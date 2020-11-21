@@ -12,6 +12,11 @@ main textArea {
     font-size: 17px;
 }
 
+/* iPhoneで見た時に、ズームされるのを防ぐ */
+main {
+    touch-action: manipulation;
+}
+
 .header__bar {
     border-bottom: solid 1px #000000;
 
