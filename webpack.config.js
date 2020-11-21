@@ -19,6 +19,7 @@ module.exports = {
         mypage: './mypage.js',
         numbering3: './numbering3.js',
         oldPochmannMethod: './oldPochmannMethod.js',
+        orozcoMethod: './orozcoMethod.js',
         registerFaceColor: './registerFaceColor.js',
         registerLetterPair: './registerLetterPair.js',
         registerThreeStyle: './registerThreeStyle.js',

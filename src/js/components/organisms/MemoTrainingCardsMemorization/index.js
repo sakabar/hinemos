@@ -40,10 +40,11 @@ const MemoTrainingCardsMemorization = ({
                 })()
             }
 
-            <div>
+            {/* touchAction: 'manipulation' → iPhoneのダブルタップでズームされるのを抑制 */}
+            <div style={{ touchAction: 'manipulation', }}>
                 <Button color="primary" value="←←" onClick={(e) => sagaGoToDeckHead()} disabled={deckInd === 0 && pairInd === 0} />
-                <Button color="primary" value="←" onClick={(e) => sagaGoToPrevPair()} disabled={deckInd === 0 && pairInd === 0}/>
-                <Button color="primary" value="→" onClick={(e) => sagaGoToNextPair()} disabled={deckInd === decks.length - 1 && pairInd === decks[deckInd].length - 1}/>
+                <Button color="primary" value="←" style={{ minWidth: '72px', }} onClick={(e) => sagaGoToPrevPair()} disabled={deckInd === 0 && pairInd === 0}/>
+                <Button color="primary" value="→" style={{ minWidth: '72px', }} onClick={(e) => sagaGoToNextPair()} disabled={deckInd === decks.length - 1 && pairInd === decks[deckInd].length - 1}/>
                 <Button color="primary" value="→→" onClick={(e) => sagaGoToNextDeck()} disabled={deckInd === decks.length - 1}/>
                 <MemoTimer timeVisible={timeVisible} timerMiliUnixtime={timerMiliUnixtime} sagaToggleTimer={sagaToggleTimer}/>
                 <Br/>

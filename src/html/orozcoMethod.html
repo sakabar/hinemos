@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ja">
   <head>
-    <script type="text/javascript" src="./auth.bundle.js?version=v1.7.6"></script>
+    <script type="text/javascript" src="./auth.bundle.js?version=v1.12.0"></script>
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-119101911-1"></script>
     <script>
@@ -18,7 +18,7 @@
       }
     </script>
 
-    <title>Old Pochmann法 手順表</title>
+    <title>Orozco method手順表</title>
     <meta charset="UTF-8">
     <meta name="robots" content="noindex,nofollow,noarchive">
     <meta http-equiv="pragma" content="no-store">
@@ -28,8 +28,7 @@
     <link rel="shortcut icon" href="./icon_bw.png">
     <link rel="stylesheet" type="text/css" href="normalize.css">
     <link rel="stylesheet" type="text/css" href="common.css?version=v1.12.0">
-    <!-- M2法のCSSと設定を共有しているので注意 -->
-    <link rel="stylesheet" type="text/css" href="m2Method.css?version=v1.7.6">
+    <link rel="stylesheet" type="text/css" href="m2Method.css?version=v1.12.0">
   </head>
 
   <body>
@@ -41,22 +40,36 @@
         </ul>
       </div>
 
-      <a href="mypage.html"><img class="logo__img--rectangle" src="./tw_header.jpg?version=v1.7.6" alt="ロゴ"></a>
+      <a href="mypage.html"><img class="logo__img--rectangle" src="./tw_header.jpg?version=v1.12.0" alt="ロゴ"></a>
     </header>
 
     <main>
-      <h1>Old Pochmann法 手順表</h1>
-      <div class="oldPochmannMethod">
+      <h1>Orozco method手順表</h1>
+      <div class="m2Method">
+        <p>詳しくは<a href="https://mstblog.hatenablog.com/entry/2019/12/20/173048">中級者向け3BLD解法 Orozco Method</a>(外部サイト)をご覧ください</p>
+
         <p>まず<a href="numbering3.html">ナンバリング</a>を登録して下さい</p>
         <ul>
-          <li><a href="https://ameblo.jp/shin2179/entry-12294462304.html">コーナーOld Pochmann法の拡張について (外部リンク)</a>のように、R面のどこかにセットアップしています</li>
+          <li>偶数文字目の時は、表に書かれている手順の逆手順を回します</li>
+          <li>エッジの分析文字列が奇数文字の時は、エッジ実行が終わったらパリティ処理手順を回します</li>
           <ul>
-            <li>hinemos管理者は、最初からR面のどこかにセットアップするやり方を覚えたほうが、逆セットアップのミスが減ってよいと考えています</li>
+            <li>R U2 R' U2 R' F R U R U2 R' U' R U R' F'</li>
           </ul>
-          <li>手順は一例であり、他のセットアップも存在する場合があります</li>
         </ul>
 
-        <table class="oldPochmannMethod__table" border="1">
+        <h2>エッジ</h2>
+        <table class="orozcoMethod__table--edge" border="1">
+          <tr>
+            <th>ステッカー</th>
+            <th>ナンバリング</th>
+            <th>手順</th>
+            <th>備考</th>
+          </tr>
+        </table>
+        <br>
+
+        <h2>コーナー</h2>
+        <table class="orozcoMethod__table--corner" border="1">
           <tr>
             <th>ステッカー</th>
             <th>ナンバリング</th>
@@ -68,6 +81,6 @@
       </div>
     </main>
 
-    <script type="text/javascript" src="./oldPochmannMethod.bundle.js?version=v1.7.6"></script>
+    <script type="text/javascript" src="./orozcoMethod.bundle.js?version=v1.12.0"></script>
   </body>
 </html>

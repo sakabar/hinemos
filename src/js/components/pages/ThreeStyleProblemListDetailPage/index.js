@@ -15,6 +15,7 @@ import {
     sagaLoadInitially,
     selectProblemList,
     sagaAddToProblemList,
+    toggleAddAncestors,
     toggleSelectAll,
     sagaSortTable,
 
@@ -28,6 +29,7 @@ const mapStateToProps = ({
     part,
     userName,
     problemListId,
+    isCheckedAddAncestors,
     isCheckedSelectAll,
     threeStyleQuizProblemLists,
     selectedThreeStyleQuizListId,
@@ -40,6 +42,7 @@ const mapStateToProps = ({
         part,
         userName,
         problemListId,
+        isCheckedAddAncestors,
         isCheckedSelectAll,
         threeStyleQuizProblemLists,
         selectedThreeStyleQuizListId,
@@ -64,6 +67,9 @@ const mapDispatchToProps = (dispatch) => {
         },
         sagaAddToProblemList: () => {
             dispatch(sagaAddToProblemList());
+        },
+        toggleAddAncestors: () => {
+            dispatch(toggleAddAncestors());
         },
         toggleSelectAll: () => {
             dispatch(toggleSelectAll());

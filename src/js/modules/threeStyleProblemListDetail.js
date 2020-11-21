@@ -16,6 +16,7 @@ import {
 const constant = require('../constant');
 const threeStyleQuizProblemListUtils = require('../threeStyleQuizProblemListUtils');
 const utils = require('../utils');
+const numberingUtils = require('../numberingUtils.js');
 const threeStyleUtils = require('../threeStyleUtils');
 const _ = require('lodash');
 const moment = require('moment');
@@ -38,6 +39,9 @@ export const sagaAddToProblemList = createAction(SAGA_ADD_TO_PROBLEM_LIST);
 
 const DELETE_FROM_PROBLEM_LIST = 'DELETE_FROM_PROBLEM_LIST';
 export const deleteFromProblemList = createAction(DELETE_FROM_PROBLEM_LIST);
+
+const TOGGLE_ADD_ANCESTORS = 'TOGGLE_ADD_ANCESTORS';
+export const toggleAddAncestors = createAction(TOGGLE_ADD_ANCESTORS);
 
 const CHANGE_SELECT_ALL = 'CHANGE_SELECT_ALL';
 export const toggleSelectAll = createAction(CHANGE_SELECT_ALL);
@@ -145,9 +149,9 @@ function * handleLoadInitially () {
                 }
 
                 const na = 'N/A';
-                const dispAcc = acc === null ? na : acc.toFixed(2);
+                const dispAcc = acc === null ? (0).toFixed(2) : acc.toFixed(2);
                 const dispAvgSec = avgSec ? parseFloat(avgSec.toFixed(2)) : na;
-                const dispTps = tps === null ? na : parseFloat(tps.toFixed(2));
+                const dispTps = tps === null ? (0).toFixed(2) : tps.toFixed(2);
 
                 const record = {
                     ...detail,
@@ -203,21 +207,81 @@ function * handleAddToProblemList () {
 
         const threeStyleQuizProblemListDetail = yield select(state => state.threeStyleQuizProblemListDetail);
 
-        const targetStickers = threeStyleQuizProblemListDetail
-            .filter(alg => alg.isSelected)
-            .map(alg => alg.stickers);
-
         if (!selectedProblemListId) {
             alert('対象の問題リストが選択されていません');
             continue;
         }
 
-        if (targetStickers.length === 0) {
+        const targetAlgs = threeStyleQuizProblemListDetail
+            .filter(alg => alg.isSelected);
+        const targetStickersList = targetAlgs.map(alg => alg.stickers);
+
+        if (targetAlgs.length === 0) {
             alert('手順が選択されていません');
             continue;
         }
 
-        const stickersStr = targetStickers.join(',');
+        // 「セットアップ先の手順も併せて追加」にチェックが付いている場合は、
+        // 問題リスト一覧を参照して親手順を追加
+        // 高々数百手順見ればOKなのでそれほど時間はかからない想定
+        const isCheckedAddAncestors = yield select(state => state.isCheckedAddAncestors);
+        if (isCheckedAddAncestors) {
+            const threeStyleQuizProblemLists = yield select(state => state.threeStyleQuizProblemLists);
+
+            // 注: system_auto_がマジックナンバーだ
+            // 例: system_auto_041_むさ_as_[D:にさ]
+            const threeStyleQuizProblemListNames = threeStyleQuizProblemLists
+                .map(lst => lst.title)
+                .filter(title => title.startsWith('system_auto_'))
+                .filter(title => !title.endsWith('_as_new'));
+
+            const parentDict = {};
+            for (let i = 0; i < threeStyleQuizProblemListNames.length; i++) {
+                const title = threeStyleQuizProblemListNames[i];
+
+                const letter = title.split('_')[3];
+                const m = title.match(/\[.*:(.*)\]/);
+                if (!m) {
+                    continue;
+                }
+
+                const parent = m[1];
+                parentDict[letter] = parent;
+            }
+
+            // ナンバリングはstateに保存するほどではないか?
+            const userName = yield select(state => state.userName);
+            const numberings = yield call(numberingUtils.getNumbering, userName, part);
+            const letterToSticker = {};
+
+            for (let i = 0; i < numberings.length; i++) {
+                const numbering = numberings[i];
+                const letter = numbering.letter;
+                const sticker = numbering.sticker;
+
+                letterToSticker[letter] = sticker;
+            }
+            const bufferSticker = letterToSticker['@'];
+
+            const q = targetAlgs.map(alg => alg.letters);
+            // どこかで_as_newの手順にたどり着くので、有限回のループで止まる
+            while (q.length > 0) {
+                const childLetters = q.pop();
+                const parentLetters = parentDict[childLetters];
+                if (!parentLetters) {
+                    continue;
+                }
+
+                const sticker1 = letterToSticker[parentLetters[0]];
+                const sticker2 = letterToSticker[parentLetters[1]];
+                const stickers = `${bufferSticker} ${sticker1} ${sticker2}`;
+
+                targetStickersList.push(stickers);
+                q.push(parentLetters);
+            }
+        }
+
+        const stickersStr = targetStickersList.join(',');
 
         const promiseFunc = (part, selectedProblemListId, stickersStr) => {
             return threeStyleQuizProblemListUtils.requestPostThreeStyleQuizProblemListDetail(part, selectedProblemListId, stickersStr)
@@ -353,6 +417,7 @@ const initialState = {
     part: constant.dummyPartType,
     userName: localStorage.userName,
     problemListId: null,
+    isCheckedAddAncestors: true,
     isCheckedSelectAll: false,
     threeStyleQuizProblemLists: [], // [ { problemListId: , title: , } ]
     selectedProblemListId: null,
@@ -374,6 +439,7 @@ export const threeStyleProblemListDetailReducer = handleActions(
                 ...state,
                 url,
                 loadWillSkipped: true,
+                isCheckedSelectAll: false,
                 part,
                 problemListId,
                 threeStyleQuizProblemLists,
@@ -419,6 +485,12 @@ export const threeStyleProblemListDetailReducer = handleActions(
             return {
                 ...state,
                 selectedProblemListId,
+            };
+        },
+        [toggleAddAncestors]: (state, action) => {
+            return {
+                ...state,
+                isCheckedAddAncestors: !state.isCheckedAddAncestors,
             };
         },
         [toggleSelectAll]: (state, action) => {
