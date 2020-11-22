@@ -108,6 +108,7 @@ const ThreeStyleProblemListDetailTemplate = (
     ];
     threeStyleQuizProblemLists
         .filter(threeStyleQuizProblemList => threeStyleQuizProblemList.problemListId !== problemListId)
+        .filter(threeStyleQuizProblemList => !threeStyleQuizProblemList.title.startsWith('system_auto_'))
         .map(threeStyleQuizProblemList => {
             const title = threeStyleQuizProblemList.title;
             const omittedTitle = (title.length <= showLength) ? title : `${threeStyleQuizProblemList.title.slice(0, showLength - 3)}...`;
