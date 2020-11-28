@@ -1,6 +1,6 @@
 {
   "name": "hinemos",
-  "version": "1.12.0",
+  "version": "1.12.1",
   "description": "Website for speedcube blindfolded players",
   "main": "index.js",
   "private": true,
@@ -55,7 +55,7 @@
     "count-array-values": "^1.2.1",
     "cube-notation-normalizer": "^1.0.0",
     "cubejs": "1.1.0",
-    "cuberyl": "0.0.7",
+    "cuberyl": "0.0.8",
     "giiker": "2.0.1",
     "handsontable": "^7.4.2",
     "lodash": "^4.17.19",
