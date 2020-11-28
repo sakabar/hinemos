@@ -125,7 +125,9 @@ function * handleLoadInitially () {
         details.map(detail => {
             const stickers = detail.stickers;
 
-            const acc = ((stickers in stickersToQuizLog) && stickersToQuizLog[stickers].tried > 0) ? 1.0 * stickersToQuizLog[stickers].solved / stickersToQuizLog[stickers].tried : null;
+            const tryCnt = (stickers in stickersToQuizLog) ? stickersToQuizLog[stickers].tried : 0;
+            const solveCnt = (stickers in stickersToQuizLog) ? stickersToQuizLog[stickers].solved : 0;
+            const acc = (tryCnt > 0) ? 1.0 * solveCnt / tryCnt : null;
             const avgSec = (stickers in stickersToQuizLog) ? stickersToQuizLog[stickers].avgSec : null;
             const letters = detail.letters;
 
@@ -149,7 +151,10 @@ function * handleLoadInitially () {
                 }
 
                 const na = 'N/A';
-                const dispAcc = acc === null ? (0).toFixed(2) : acc.toFixed(2);
+                // FIXME マジックナンバーがクイズのページとここに分散している
+                const MAX_TRY_CNT = 3;
+                // テーブルの検索窓でフィルタしやすいように、充分に覚えていない手順についてはaccに*印を付ける
+                const dispAcc = (acc === 1.0 && tryCnt >= MAX_TRY_CNT) ? acc.toFixed(2) : (acc === null ? `${(0).toFixed(2)}*` : `${acc.toFixed(2)}*`);
                 const dispAvgSec = avgSec ? parseFloat(avgSec.toFixed(2)) : na;
                 const dispTps = tps === null ? (0).toFixed(2) : tps.toFixed(2);
 
