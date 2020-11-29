@@ -343,6 +343,7 @@ const registerAllLetterPairs = (userName) => {
                                     const suggested = getAllLetterPairs(letterPairCount, myLetterPairs, lettersSet, skipRegisteredLetters);
                                     const letterPairTable = suggested.letterPairs;
                                     const notFoundLetters = suggested.notFoundLetters;
+                                    notFoundLetters.sort();
 
                                     if (notFoundLetters.length > 1) {
                                         alert(`次のひらがなは、単語をサジェストできませんでした。\n${JSON.stringify(notFoundLetters)}`);
