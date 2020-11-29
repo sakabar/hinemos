@@ -139,7 +139,9 @@ const ThreeStyleProblemListDetailTemplate = (
     })();
 
     const statsDiv = (() => {
-        const succ = threeStyleQuizProblemListDetail.filter(rec => rec.acc === 1.0).length;
+        // FIXME マジックナンバーが複数の場所に現れている
+        const MAX_TRY_CNT = 3;
+        const succ = threeStyleQuizProblemListDetail.filter(rec => rec.acc === 1.0 && rec.tryCnt >= MAX_TRY_CNT).length;
         const all = threeStyleQuizProblemListDetail.length;
         const avgSec = _.meanBy(threeStyleQuizProblemListDetail.filter(rec => rec.acc > 0.0).map(rec => rec.avgSec));
         const avgTps = _.meanBy(threeStyleQuizProblemListDetail.filter(rec => rec.acc > 0.0).map(rec => rec.tps));

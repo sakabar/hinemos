@@ -169,6 +169,8 @@ function * handleLoadInitially () {
                     letters,
                     // 「全て選択」の際、フィルタ条件に"「"が入っている時も正しく処理ができるように、
                     // 表示表にテーブルに渡したカッコ付きの文字列をstateでも持っておく
+                    tryCnt,
+                    solveCnt,
                     dispLetters,
                     dispAcc,
                     dispAvgSec,
