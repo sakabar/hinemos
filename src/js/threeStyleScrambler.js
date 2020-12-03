@@ -249,10 +249,13 @@ const readScrambleType = (s) => {
     }
 };
 
-const submit = (threeStylesCorner, threeStylesEdgeMiddle, threeStyleQuizListCorner, threeStyleQuizListEdgeMiddle, appearOnce) => {
+const submit = (threeStylesCorner, threeStylesEdgeMiddle, threeStyleQuizListCorner, threeStyleQuizListEdgeMiddle) => {
     const numText = document.querySelector('.scramblerForm__numText');
     const selectCorner = document.querySelector('.scrambleTypeSelect--corner');
     const selectEdge = document.querySelector('.scrambleTypeSelect--edgeMiddle');
+
+    const appearOnceBox = document.querySelector('.scrambleForm__appearOnceBox');
+    const appearOnce = appearOnceBox.checked;
 
     let scrambleTypeCorner = readScrambleType(selectCorner.value);
     let scrambleTypeEdgeMiddle = readScrambleType(selectEdge.value);
@@ -353,9 +356,6 @@ const init = () => {
 
     Cube.initSolver();
 
-    const appearOnceBox = document.querySelector('.scrambleForm__appearOnceBox');
-    const appearOnce = appearOnceBox.checked;
-
     // 現在のバッファの手順のみを使うために、ナンバリングを取得
     const numberingCornerOptions = {
         url: `${config.apiRoot}/numbering/corner/${userName}`,
@@ -427,7 +427,7 @@ const init = () => {
                                                                         edgeSelectNode.appendChild(optionNode);
                                                                     }
 
-                                                                    button.addEventListener('click', () => submit(threeStylesCorner, threeStylesEdgeMiddle, threeStyleQuizListCorner, threeStyleQuizListEdgeMiddle, appearOnce));
+                                                                    button.addEventListener('click', () => submit(threeStylesCorner, threeStylesEdgeMiddle, threeStyleQuizListCorner, threeStyleQuizListEdgeMiddle));
                                                                     button.disabled = false;
                                                                 })
                                                                 .catch((err) => {
