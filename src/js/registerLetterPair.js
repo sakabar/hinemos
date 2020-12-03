@@ -185,7 +185,7 @@ const filterLetterPairCount = (letterPairCount, rankMax = null) => {
 };
 
 // POSTするためのデータを作って返す
-const getAllLetterPairs = (letterPairCount, myLetterPairs, lettersSet) => {
+const getAllLetterPairs = (letterPairCount, myLetterPairs, lettersSet, skipRegisteredLetters) => {
     // 自分が登録したレターペアは必ず残すようにする
     // POST /letterPairTable を使うため、自分が登録したレターペアを入れておかないと、
     // 上書きされて消えてしまう
@@ -195,6 +195,20 @@ const getAllLetterPairs = (letterPairCount, myLetterPairs, lettersSet) => {
     // letterPairCountはuserCountの降順に並んでいるので、wordToLettersListHashの中身もuserCountの降順になっている
     const wordToLettersListHash = _.groupBy(letterPairCount, (record) => record.word);
     const myWordToLettersListHash = getWordToLettersListHash(myLetterPairs);
+
+    // letters => [Words]
+    const myLetterPairHash = {};
+    for (let i = 0; i < myLetterPairs.length; i++) {
+        const myLetterPair = myLetterPairs[i];
+        const letters = myLetterPair.letters;
+        const word = myLetterPair.word;
+
+        if (letters in myLetterPairHash) {
+            myLetterPairHash[letters].push(word);
+        } else {
+            myLetterPairHash[letters] = [ word, ];
+        }
+    }
 
     // 1つの単語が複数のひらがなに割り当てられていた場合は、採用数が多いほうを採用
     // letters => [Words]
@@ -228,14 +242,25 @@ const getAllLetterPairs = (letterPairCount, myLetterPairs, lettersSet) => {
     const lettersList = Array.from(lettersSet);
     for (let i = 0; i < lettersList.length; i++) {
         const letters = lettersList[i];
-        if (letters in letterPairHash) {
+
+        if (!(letters in letterPairHash)) {
+            notFoundLetters.push(letters);
+            continue;
+        }
+
+        if (skipRegisteredLetters && (letters in myLetterPairHash)) {
+            // 自分のレターペアだけを登録
+            const letterPair = {
+                letters,
+                words: myLetterPairHash[letters],
+            };
+            ans.push(letterPair);
+        } else {
             const letterPair = {
                 letters,
                 words: letterPairHash[letters],
             };
             ans.push(letterPair);
-        } else {
-            notFoundLetters.push(letters);
         }
     }
 
@@ -248,6 +273,9 @@ const getAllLetterPairs = (letterPairCount, myLetterPairs, lettersSet) => {
 const registerAllLetterPairs = (userName) => {
     const registerAllLetterPairsBtn = document.querySelector('.registerAllLetterPairsForm__btn');
     registerAllLetterPairsBtn.disabled = true; // 連打を防ぐ
+
+    const skipRegisteredLettersCheckbox = document.querySelector('.registerAllLetterPairsForm__checkBox');
+    const skipRegisteredLetters = skipRegisteredLettersCheckbox.checked;
 
     const allLetterPairCountOptions = {
         url: `${config.apiRoot}/letterPairCount`,
@@ -312,9 +340,10 @@ const registerAllLetterPairs = (userName) => {
 
                                     const lettersSet = getLettersSet(cornerNumberings, edgeNumberings);
 
-                                    const suggested = getAllLetterPairs(letterPairCount, myLetterPairs, lettersSet);
+                                    const suggested = getAllLetterPairs(letterPairCount, myLetterPairs, lettersSet, skipRegisteredLetters);
                                     const letterPairTable = suggested.letterPairs;
                                     const notFoundLetters = suggested.notFoundLetters;
+                                    notFoundLetters.sort();
 
                                     if (notFoundLetters.length > 1) {
                                         alert(`次のひらがなは、単語をサジェストできませんでした。\n${JSON.stringify(notFoundLetters)}`);

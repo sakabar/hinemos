@@ -4,7 +4,7 @@ const registerLetterPairJS = require('../src/js/registerLetterPair');
 describe('registerLetterPair.js', () => {
     describe('getAllLetterPairs()', () => {
         it('正常系: setが空の場合', () => {
-            const actual = registerLetterPairJS.getAllLetterPairs([], [], new Set());
+            const actual = registerLetterPairJS.getAllLetterPairs([], [], new Set(), false);
             assert.deepStrictEqual(actual.letterPairs, []);
             assert.deepStrictEqual(actual.notFoundLetters, []);
         });
@@ -23,7 +23,7 @@ describe('registerLetterPair.js', () => {
             const expected = [
                 { letters: 'ぬつ', words: [ '陸奥', ], },
             ];
-            const actual = registerLetterPairJS.getAllLetterPairs(allLetterPairs, myLetterPairs, lettersSet);
+            const actual = registerLetterPairJS.getAllLetterPairs(allLetterPairs, myLetterPairs, lettersSet, false);
             assert.deepStrictEqual(actual.letterPairs, expected);
             assert.deepStrictEqual(actual.notFoundLetters, []);
         });
@@ -42,9 +42,37 @@ describe('registerLetterPair.js', () => {
             const expected = [
                 { letters: 'ぬつ', words: [ '陸奥', ], },
             ];
-            const actual = registerLetterPairJS.getAllLetterPairs(allLetterPairs, myLetterPairs, lettersSet);
+            const actual = registerLetterPairJS.getAllLetterPairs(allLetterPairs, myLetterPairs, lettersSet, false);
             assert.deepStrictEqual(actual.letterPairs, expected);
             assert.deepStrictEqual(actual.notFoundLetters, [ 'むつ', ]);
+        });
+
+        it('正常系: 登録済みの文字をスキップ', () => {
+            const allLetterPairs = [
+                { userName: 'user1', letters: 'あい', word: 'アリ', },
+                { userName: 'user2', letters: 'あい', word: 'アイス', },
+                { userName: 'user2', letters: 'あえ', word: '亜鉛', },
+                { userName: 'me', letters: 'あい', word: 'アイマスク', },
+            ];
+            const myLetterPairs = [
+                { letters: 'あい', word: 'アイコス', },
+            ];
+            const lettersSet = new Set([ 'あい', 'あえ', ]);
+
+            // レターペア登録済みの文字はスキップ
+            const skipRegisteredLetters = true;
+
+            const expected = [
+                // 「あい」は追加されない
+                { letters: 'あい', words: [ 'アイコス', ], },
+
+                // 「あえ」は追加される
+                { letters: 'あえ', words: [ '亜鉛', ], },
+            ];
+
+            const actual = registerLetterPairJS.getAllLetterPairs(allLetterPairs, myLetterPairs, lettersSet, skipRegisteredLetters);
+            assert.deepStrictEqual(actual.letterPairs, expected);
+            assert.deepStrictEqual(actual.notFoundLetters, []);
         });
     });
 });
