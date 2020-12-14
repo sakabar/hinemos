@@ -240,27 +240,53 @@ const getAllLetterPairs = (letterPairCount, myLetterPairs, lettersSet, skipRegis
     const notFoundLetters = []; // サジェストできなかったひらがな
 
     const lettersList = Array.from(lettersSet);
-    for (let i = 0; i < lettersList.length; i++) {
-        const letters = lettersList[i];
+    if (lettersList.length === 0) {
+        return {
+            letterPairs: [],
+            notFoundLetters: [],
+        };
+    }
 
-        if (!(letters in letterPairHash)) {
-            notFoundLetters.push(letters);
-            continue;
-        }
+    const characterType = utils.getCharacterType(lettersList[0][0]);
+    const characters = utils.getCharacters(characterType);
 
-        if (skipRegisteredLetters && (letters in myLetterPairHash)) {
+    for (let i = 0; i < characters.length; i++) {
+        for (let j = 0; j < characters.length; j++) {
+            const letters = `${characters[i]}${characters[j]}`;
+
+            // ナンバリングに無い文字
+            // 既に登録してある単語は保護
+            if (!lettersList.includes(letters)) {
+                if (letters in myLetterPairHash) {
+                    const letterPair = {
+                        letters,
+                        words: myLetterPairHash[letters],
+                    };
+                    ans.push(letterPair);
+                }
+
+                continue;
+            }
+
+            if (lettersList.includes(letters) && !(letters in letterPairHash)) {
+                notFoundLetters.push(letters);
+                continue;
+            }
+
+            if (skipRegisteredLetters && (letters in myLetterPairHash)) {
             // 自分のレターペアだけを登録
-            const letterPair = {
-                letters,
-                words: myLetterPairHash[letters],
-            };
-            ans.push(letterPair);
-        } else {
-            const letterPair = {
-                letters,
-                words: letterPairHash[letters],
-            };
-            ans.push(letterPair);
+                const letterPair = {
+                    letters,
+                    words: myLetterPairHash[letters],
+                };
+                ans.push(letterPair);
+            } else {
+                const letterPair = {
+                    letters,
+                    words: letterPairHash[letters],
+                };
+                ans.push(letterPair);
+            }
         }
     }
 
