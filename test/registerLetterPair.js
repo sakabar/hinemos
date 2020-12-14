@@ -14,14 +14,17 @@ describe('registerLetterPair.js', () => {
                 { userName: 'user1', letters: 'むつ', word: '陸奥', },
                 { userName: 'user2', letters: 'むつ', word: '陸奥', },
                 { userName: 'me', letters: 'ぬつ', word: '陸奥', },
+                { userName: 'me', letters: 'のな', word: 'ナンバリングに無いけど登録してある', },
             ];
             const myLetterPairs = [
                 { letters: 'ぬつ', word: '陸奥', },
+                { letters: 'のな', word: 'ナンバリングに無いけど登録してある', },
             ];
             const lettersSet = new Set([ 'ぬつ', ]);
 
             const expected = [
                 { letters: 'ぬつ', words: [ '陸奥', ], },
+                { letters: 'のな', words: [ 'ナンバリングに無いけど登録してある', ], },
             ];
             const actual = registerLetterPairJS.getAllLetterPairs(allLetterPairs, myLetterPairs, lettersSet, false);
             assert.deepStrictEqual(actual.letterPairs, expected);
@@ -33,14 +36,17 @@ describe('registerLetterPair.js', () => {
                 { userName: 'user1', letters: 'むつ', word: '陸奥', },
                 { userName: 'user2', letters: 'むつ', word: '陸奥', },
                 { userName: 'me', letters: 'ぬつ', word: '陸奥', },
+                { userName: 'me', letters: 'のな', word: 'ナンバリングに無いけど登録してある', },
             ];
             const myLetterPairs = [
                 { letters: 'ぬつ', word: '陸奥', },
+                { letters: 'のな', word: 'ナンバリングに無いけど登録してある', },
             ];
             const lettersSet = new Set([ 'ぬつ', 'むつ', ]);
 
             const expected = [
                 { letters: 'ぬつ', words: [ '陸奥', ], },
+                { letters: 'のな', words: [ 'ナンバリングに無いけど登録してある', ], },
             ];
             const actual = registerLetterPairJS.getAllLetterPairs(allLetterPairs, myLetterPairs, lettersSet, false);
             assert.deepStrictEqual(actual.letterPairs, expected);
@@ -53,9 +59,11 @@ describe('registerLetterPair.js', () => {
                 { userName: 'user2', letters: 'あい', word: 'アイス', },
                 { userName: 'user2', letters: 'あえ', word: '亜鉛', },
                 { userName: 'me', letters: 'あい', word: 'アイマスク', },
+                { userName: 'me', letters: 'のな', word: 'ナンバリングに無いけど登録してある', },
             ];
             const myLetterPairs = [
                 { letters: 'あい', word: 'アイコス', },
+                { letters: 'のな', word: 'ナンバリングに無いけど登録してある', },
             ];
             const lettersSet = new Set([ 'あい', 'あえ', ]);
 
@@ -68,6 +76,9 @@ describe('registerLetterPair.js', () => {
 
                 // 「あえ」は追加される
                 { letters: 'あえ', words: [ '亜鉛', ], },
+
+                // ナンバリングに無いが元から登録してあった単語は残る
+                { letters: 'のな', words: [ 'ナンバリングに無いけど登録してある', ], },
             ];
 
             const actual = registerLetterPairJS.getAllLetterPairs(allLetterPairs, myLetterPairs, lettersSet, skipRegisteredLetters);
