@@ -14,6 +14,7 @@ import {
     setDeckSize,
     setPairSize,
     setIsLefty,
+    setHandSuits,
 
     sagaGoToNextPair,
     sagaGoToPrevPair,
@@ -115,6 +116,10 @@ const mapDispatchToProps = (dispatch) => {
         },
         setIsLefty: (isLefty) => {
             dispatch(setIsLefty({ isLefty, }));
+        },
+        setHandSuits: (handSuits) => {
+            // FIXME 文字列("C,D,H,S")から配列への変換をここでやっているので注意
+            dispatch(setHandSuits({ handSuits: handSuits.split(','), }));
         },
         sagaGoToNextPair: () => {
             dispatch(sagaGoToNextPair());

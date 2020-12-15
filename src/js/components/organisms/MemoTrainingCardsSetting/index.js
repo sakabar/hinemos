@@ -8,6 +8,7 @@ import Button from '../../atoms/Button';
 import Select from '../../molecules/Select';
 import ModeDecisionButtons from '../../molecules/ModeDecisionButtons';
 import MemoShortcutModal from '../../molecules/MemoShortcutModal';
+const memoTrainingUtils = require('../../../memoTrainingUtils');
 const config = require('../../../config');
 const path = require('path');
 
@@ -21,11 +22,34 @@ const isLeftyOptions = [
     [ 'false', '←', ],
 ];
 
+// https://qiita.com/kanpou0108/items/b6c7a38a755dd60fd77f
+const permutation = (xs, k = xs.length, pres = []) =>
+    (k === 0) ? [ pres, ]
+        : xs.flatMap((e, i) => [ ...permutation(xs.filter((_, j) => j !== i), k - 1, [ ...pres, e, ]), ]);
+
+const suitPerms = permutation([
+    memoTrainingUtils.Suit.club,
+    memoTrainingUtils.Suit.diamond,
+    memoTrainingUtils.Suit.heart,
+    memoTrainingUtils.Suit.spade,
+]);
+
+const suitOptions = suitPerms.map((suits, ind) => {
+    const val = suits.join(',');
+
+    const disp = String(ind + 1) + '. ' + suits.map(suit => {
+        return memoTrainingUtils.suitMarkDict[suit];
+    }).join(',');
+
+    return [ val, disp, ];
+});
+
 const MemoTrainingCardsSetting = ({
     deckSize,
     deckNum,
     pairSize,
     isLefty,
+    handSuits,
 
     isOpenMemoShortcutModal,
 
@@ -33,6 +57,7 @@ const MemoTrainingCardsSetting = ({
     setDeckSize,
     setPairSize,
     setIsLefty,
+    setHandSuits,
 
     sagaStartMemorizationPhase,
 
@@ -59,7 +84,10 @@ const MemoTrainingCardsSetting = ({
                 <Br/>
             同時に表示する枚数: <Select options={pairSizeList} defaultValue={pairSize || '1'} onChange={(e) => setPairSize(parseInt(e.target.value))} />
                 <Br/>
+        スート: <Select options={suitOptions} defaultValue={typeof handSuits === 'undefined' ? 'H,S,D,C' : handSuits } onChange={(e) => setHandSuits(e.target.value)} />
+                <Br/>
             方向: <Select options={isLeftyOptions} defaultValue={typeof isLefty === 'undefined' ? 'true' : String(isLefty)} onChange={(e) => setIsLefty(e.target.value === 'true')} />
+                <Br/>
             </div>
 
             <div>
@@ -86,12 +114,15 @@ MemoTrainingCardsSetting.propTypes = {
     deckSize: PropTypes.number,
     pairSize: PropTypes.number,
     isLefty: PropTypes.bool,
+    handSuits: PropTypes.array,
+
     isOpenMemoShortcutModal: PropTypes.bool.isRequired,
 
     setDeckNum: PropTypes.func.isRequired,
     setDeckSize: PropTypes.func.isRequired,
     setPairSize: PropTypes.func.isRequired,
     setIsLefty: PropTypes.func.isRequired,
+    setHandSuits: PropTypes.func.isRequired,
 
     sagaStartMemorizationPhase: PropTypes.func.isRequired,
 

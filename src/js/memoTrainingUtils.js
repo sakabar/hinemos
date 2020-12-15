@@ -467,14 +467,14 @@ export const generateCardsDecks = (deckNum, deckSize, pairSize) => {
     return ans;
 };
 
-export const cardTagToMarkStr = (tag) => {
-    const suitMarkDict = {
-        C: String.fromCharCode(parseInt('2663', 16)),
-        D: String.fromCharCode(parseInt('2666', 16)),
-        H: String.fromCharCode(parseInt('2665', 16)),
-        S: String.fromCharCode(parseInt('2660', 16)),
-    };
+export const suitMarkDict = {
+    C: String.fromCharCode(parseInt('2663', 16)),
+    D: String.fromCharCode(parseInt('2666', 16)),
+    H: String.fromCharCode(parseInt('2665', 16)),
+    S: String.fromCharCode(parseInt('2660', 16)),
+};
 
+export const cardTagToMarkStr = (tag) => {
     const num = parseInt(`${tag[2]}${tag[3]}`);
     const numStr = (() => {
         if (num === 1) {
