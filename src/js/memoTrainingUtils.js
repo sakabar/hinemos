@@ -581,7 +581,7 @@ export const getHoleNextCoordinate = (decks, deckInd, pairInd, posInd, solution)
     }
 
     // 次のholeが空いていない場合は、再帰でさらに次を探す
-    return getDeckNextCoordinate(decks, nextDeckInd, nextPairInd, nextPosInd);
+    return getHoleNextCoordinate(decks, nextDeckInd, nextPairInd, nextPosInd, solution);
 };
 
 // 数字記憶の画面に表示するために、decksを1桁1イメージに変換する
