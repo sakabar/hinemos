@@ -128,6 +128,20 @@ const MemoTrainingCardsRecall = ({
                 })()
             }
             <Br/>
+
+            <div>
+                {
+                    (() => {
+                        // 設定画面で充分に下スクロールできるように空白を設けた
+                        // FIXME レイアウトのためのbrはバッドノウハウ
+                        return [ ...Array(5).keys(), ].map(i => {
+                            return (<Br key={i} />);
+                        });
+                    })()
+                }
+            </div>
+            <Br/>
+
         </div>
     );
 };
