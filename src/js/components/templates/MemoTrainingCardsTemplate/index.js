@@ -39,6 +39,7 @@ const MemoTrainingCardsTemplate = (
         setDeckSize,
         setPairSize,
         setIsLefty,
+        setHandSuits,
 
         sagaStartMemorizationPhase,
         sagaFinishMemorizationPhase,
@@ -69,7 +70,7 @@ const MemoTrainingCardsTemplate = (
             {
                 (() => {
                     if (phase === memoTrainingUtils.TrainingPhase.setting) {
-                        return (<MemoTrainingCardsSetting deckNum={deckNum} deckSize={deckSize} pairSize={pairSize} isLefty={isLefty} isOpenMemoShortcutModal={isOpenMemoShortcutModal} setDeckNum={setDeckNum} setDeckSize={setDeckSize} setPairSize={setPairSize} setIsLefty={setIsLefty} sagaStartMemorizationPhase={sagaStartMemorizationPhase} toggleShortcutModal={toggleShortcutModal}/>);
+                        return (<MemoTrainingCardsSetting deckNum={deckNum} deckSize={deckSize} pairSize={pairSize} isLefty={isLefty} isOpenMemoShortcutModal={isOpenMemoShortcutModal} setDeckNum={setDeckNum} setDeckSize={setDeckSize} setPairSize={setPairSize} setIsLefty={setIsLefty} setHandSuits={setHandSuits} sagaStartMemorizationPhase={sagaStartMemorizationPhase} toggleShortcutModal={toggleShortcutModal}/>);
                     } else if (phase === memoTrainingUtils.TrainingPhase.memorization) {
                         return (<MemoTrainingCardsMemorization startMemoMiliUnixtime={startMemoMiliUnixtime} startRecallMiliUnixtime={startRecallMiliUnixtime} timerMiliUnixtime={timerMiliUnixtime} timeVisible={timeVisible} isLefty={isLefty} decks={decks} deckInd={deckInd} pairInd={pairInd} sagaFinishMemorizationPhase={sagaFinishMemorizationPhase} sagaGoToNextPair={sagaGoToNextPair} sagaGoToPrevPair={sagaGoToPrevPair} sagaGoToDeckHead={sagaGoToDeckHead} sagaGoToNextDeck={sagaGoToNextDeck} sagaToggleTimer={sagaToggleTimer}/>);
                     } else if (phase === memoTrainingUtils.TrainingPhase.recall) {
@@ -119,6 +120,7 @@ MemoTrainingCardsTemplate.propTypes = {
     setDeckSize: PropTypes.func.isRequired,
     setPairSize: PropTypes.func.isRequired,
     setIsLefty: PropTypes.func.isRequired,
+    setHandSuits: PropTypes.func.isRequired,
 
     sagaStartMemorizationPhase: PropTypes.func.isRequired,
     sagaFinishMemorizationPhase: PropTypes.func.isRequired,

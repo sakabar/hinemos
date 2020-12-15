@@ -24,6 +24,7 @@ const SET_DIGITS_PER_IMAGE = 'SET_DIGITS_PER_IMAGE';
 const SET_PAIR_SIZE = 'SET_PAIR_SIZE';
 const SET_IS_LEFTY = 'SET_IS_LEFTY';
 const SET_IS_UNIQ_IN_DECK = 'SET_IS_UNIQ_IN_DECK';
+const SET_HAND_SUITS = 'SET_HAND_SUITS';
 
 export const setDeckNum = createAction(SET_DECK_NUM);
 export const setDeckSize = createAction(SET_DECK_SIZE);
@@ -31,6 +32,7 @@ export const setDigitsPerImage = createAction(SET_DIGITS_PER_IMAGE);
 export const setPairSize = createAction(SET_PAIR_SIZE);
 export const setIsLefty = createAction(SET_IS_LEFTY);
 export const setIsUniqInDeck = createAction(SET_IS_UNIQ_IN_DECK);
+export const setHandSuits = createAction(SET_HAND_SUITS);
 
 // モード選択系のアクション
 const START_MEMORIZATION_PHASE = 'START_MEMORIZATION_PHASE';
@@ -160,7 +162,8 @@ const initialState = {
     posInd: 0,
 
     handDict: {}, // Cardsで手元に残っているカードを表す辞書。deckInd => tag => bool
-    // 手札のスート順。将来はこれを自由に設定できるようにする予定 FIXME
+
+    // 手札のスート順
     handSuits: [
         memoTrainingUtils.Suit.heart,
         memoTrainingUtils.Suit.spade,
@@ -847,6 +850,14 @@ export const memoTrainingReducer = handleActions(
             return {
                 ...state,
                 isLefty: action.payload.isLefty,
+            };
+        },
+        [setHandSuits]: (state, action) => {
+            return {
+                ...state,
+                // "C,D,H,S"のような文字列から[ 'C', 'D', 'H', 'S', ]のような配列への変換は
+                // PagesでActionを発火させる時にやっている
+                handSuits: action.payload.handSuits,
             };
         },
         [setIsUniqInDeck]: (state, action) => {
