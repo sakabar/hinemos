@@ -266,6 +266,9 @@ describe('memoTrainingUtils.js', () => {
         const c4 = new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 4);
         const c5 = new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 5);
         const c6 = new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 6);
+        const c7 = new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 7);
+        const c8 = new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 8);
+        const c9 = new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 9);
 
         const decks = [
             // デッキ0
@@ -278,6 +281,8 @@ describe('memoTrainingUtils.js', () => {
             [
                 // ペア
                 [ c5, c6, ],
+                [ c7, c8, ],
+                [ c9, ],
             ],
         ];
 
@@ -292,6 +297,8 @@ describe('memoTrainingUtils.js', () => {
             [
                 // ペア
                 [ null, c6, ],
+                [ c7, null, ],
+                [ c9, ],
             ],
         ];
 
@@ -315,22 +322,32 @@ describe('memoTrainingUtils.js', () => {
             assert.deepStrictEqual(actual, expected);
         });
 
-        it('正常系: 終端', () => {
-            const actual = memoTrainingUtils.getHoleNextCoordinate(decks, 1, 0, 1, solution);
+        it('正常系: 次のHoleが埋まっている その2', () => {
+            const actual = memoTrainingUtils.getHoleNextCoordinate(decks, 1, 0, 0, solution);
             const expected = {
                 deckInd: 1,
-                pairInd: 0,
+                pairInd: 1,
                 posInd: 1,
             };
             assert.deepStrictEqual(actual, expected);
         });
 
-        it('正常系: 空きを探して終端にたどり着いた', () => {
-            const actual = memoTrainingUtils.getHoleNextCoordinate(decks, 1, 0, 0, solution);
+        it('正常系: 終端', () => {
+            const actual = memoTrainingUtils.getHoleNextCoordinate(decks, 1, 2, 0, solution);
             const expected = {
                 deckInd: 1,
-                pairInd: 0,
-                posInd: 1,
+                pairInd: 2,
+                posInd: 0,
+            };
+            assert.deepStrictEqual(actual, expected);
+        });
+
+        it('正常系: 空きを探して終端にたどり着いた', () => {
+            const actual = memoTrainingUtils.getHoleNextCoordinate(decks, 1, 1, 1, solution);
+            const expected = {
+                deckInd: 1,
+                pairInd: 2,
+                posInd: 0,
             };
             assert.deepStrictEqual(actual, expected);
         });
