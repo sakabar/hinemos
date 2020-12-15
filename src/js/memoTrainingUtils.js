@@ -467,14 +467,14 @@ export const generateCardsDecks = (deckNum, deckSize, pairSize) => {
     return ans;
 };
 
-export const cardTagToMarkStr = (tag) => {
-    const suitMarkDict = {
-        C: String.fromCharCode(parseInt('2663', 16)),
-        D: String.fromCharCode(parseInt('2666', 16)),
-        H: String.fromCharCode(parseInt('2665', 16)),
-        S: String.fromCharCode(parseInt('2660', 16)),
-    };
+export const suitMarkDict = {
+    C: String.fromCharCode(parseInt('2663', 16)),
+    D: String.fromCharCode(parseInt('2666', 16)),
+    H: String.fromCharCode(parseInt('2665', 16)),
+    S: String.fromCharCode(parseInt('2660', 16)),
+};
 
+export const cardTagToMarkStr = (tag) => {
     const num = parseInt(`${tag[2]}${tag[3]}`);
     const numStr = (() => {
         if (num === 1) {
@@ -581,7 +581,7 @@ export const getHoleNextCoordinate = (decks, deckInd, pairInd, posInd, solution)
     }
 
     // 次のholeが空いていない場合は、再帰でさらに次を探す
-    return getDeckNextCoordinate(decks, nextDeckInd, nextPairInd, nextPosInd);
+    return getHoleNextCoordinate(decks, nextDeckInd, nextPairInd, nextPosInd, solution);
 };
 
 // 数字記憶の画面に表示するために、decksを1桁1イメージに変換する
