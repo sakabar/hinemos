@@ -10,6 +10,7 @@ import {
     take,
     select,
 } from 'redux-saga/effects';
+import Cookies from 'js-cookie';
 const _ = require('lodash');
 const rp = require('request-promise');
 const config = require('../config');
@@ -51,6 +52,15 @@ function * handleLoadNumbering () {
         for (let i = 0; i < partTypes.length; i++) {
             const partType = partTypes[i];
             const numberings = yield call(numberingUtils.getNumbering, userName, partType);
+
+            // go ahead用にクッキーにナンバリング情報を追加する
+            const numberingsForGoAhead = numberings.map(numbering => {
+                return {
+                    sticker: numbering.sticker,
+                    letter: numbering.letter,
+                };
+            });
+            saveCookieForGoAhead(partType, numberingsForGoAhead);
 
             const disabled = partType === constant.partType.corner || partType === constant.partType.edgeMiddle;
             numberings.map(numbering => {
@@ -102,6 +112,7 @@ function * handleLoadNumbering () {
                 throw new Error(`Unexpected WingEdge: ${edgeWingStickers}`);
             }
         }
+
         const payload = {
             numbering: stateNumbering,
             wingEdgeSystem,
@@ -207,6 +218,10 @@ function * handleSaveNumbering () {
             // ここまででバリデーションは済んでいる (引っかかった場合はここに到達しない) 想定
             try {
                 yield call(postNumberings, token, partType, numberings);
+
+                // go ahead用にクッキーにナンバリング情報を追加する
+                saveCookieForGoAhead(partType, numberings);
+
                 alert(`${partType.japanese}のナンバリングを保存しました`);
             } catch {
                 alert(`ERROR: ${partType.japanese}のナンバリングの保存に失敗しました`);
@@ -214,6 +229,33 @@ function * handleSaveNumbering () {
         }
     }
 }
+
+const saveCookieForGoAhead = (partType, numberings) => {
+    const pt = (() => {
+        if (partType === constant.partType.corner) {
+            return 'Corner';
+        } else if (partType === constant.partType.edgeMiddle) {
+            return 'Medge';
+        } else if (partType === constant.partType.edgeWing) {
+            return 'Edge';
+        } else if (partType === constant.partType.centerX) {
+            return 'Center';
+        } else if (partType === constant.partType.centerT) {
+            return 'Tcenter';
+        }
+        return 'Dummy';
+    })();
+
+    for (let i = 0; i < numberings.length; i++) {
+        const numbering = numberings[i];
+        const sticker = partType === constant.partType.edgeWing ? `${numbering.sticker[0]}${numbering.sticker[1]}` : numbering.sticker;
+        const letter = numbering.letter;
+
+        const cookieName = `${pt}_${sticker.toUpperCase()}`;
+        const cookieValue = letter;
+        Cookies.set(cookieName, cookieValue, { path: '/BLD/go_ahead', expires: 399, });
+    }
+};
 
 const initialState = {
     loadWillSkipped: false,
