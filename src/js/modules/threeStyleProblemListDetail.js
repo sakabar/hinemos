@@ -477,10 +477,6 @@ export const threeStyleProblemListDetailReducer = handleActions(
             };
             threeStyleQuizProblemListDetail[ind] = newData;
 
-            if (state.selectedProblemListId === null) {
-                alert('追加先となる問題リストを選択してください');
-            }
-
             return {
                 ...state,
                 threeStyleQuizProblemListDetail,
