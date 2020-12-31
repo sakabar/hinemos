@@ -379,10 +379,21 @@ const requestDeleteProblemListName = (part, problemListIds) => {
 function * handleDeleteProblemList () {
     while (true) {
         yield take(sagaDeleteProblemLists);
+
         const part = yield select(state => state.part);
         const problemLists = yield select(state => state.problemLists);
 
         const selectedProblemLists = problemLists.filter(rec => rec.isSelected);
+
+        const cnt = selectedProblemLists.length;
+        if (cnt === 0) {
+            continue;
+        }
+
+        const confirmed = confirm(`${cnt}件の問題リストを削除します。よろしいですか?`);
+        if (!confirmed) {
+            continue;
+        }
 
         // パフォーマンス向上のため、削除処理は非同期に行う
         const problemListIds = selectedProblemLists.map(rec => rec.problemListId);

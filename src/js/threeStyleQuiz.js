@@ -199,7 +199,15 @@ const submit = (part, letterPairs, numberings, selectedThreeStyles, isRecalled, 
     // レスポンスを利用しないので、非同期に通信する
     axios(options);
 
-    const prevAns = '前問の答え\n' + moves.join('\n');
+    const prevAns = (() => {
+        // FIXME '[, ]' という表現がいかにもマジックナンバーなのでなんとかしたい
+        if (moves[0] === '[, ]') {
+            return '前問の答え: (手順未登録)';
+        } else {
+            return '前問の答え\n' + moves.join('\n');
+        }
+    })();
+
     if (isRecalled === 0) {
         alert(prevAns);
     }
