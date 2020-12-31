@@ -134,6 +134,11 @@ const renderSettings = (days, solved) => {
 // 画面での配置を変えた時にはこれも変えないといけない
 const keyUpAction = (selectedLetterPairs) => {
     return (evt) => {
+        // 日数のテキストボックスにフォーカスしている間は、何もしない
+        if (document.activeElement.className === 'settingForm__daysText') {
+            return;
+        }
+
         if (evt.which === 37 || evt.which === 32) {
             // 左キー or Space
             submit(selectedLetterPairs, 1);
