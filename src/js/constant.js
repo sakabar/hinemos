@@ -1,6 +1,6 @@
 const partType = {
     corner: { value: 0, name: 'corner', japanese: 'コーナー', },
-    edgeMiddle: { value: 1, name: 'edgeMiddle', japanese: 'ミドルエッジ', },
+    edgeMiddle: { value: 1, name: 'edgeMiddle', japanese: 'エッジ', },
     edgeWing: { value: 2, name: 'edgeWing', japanese: 'ウイングエッジ', },
     centerX: { value: 3, name: 'centerX', japanese: 'Xセンター', },
     centerT: { value: 4, name: 'centerT', japanese: '+センター', },
