@@ -1,5 +1,6 @@
 const assert = require('assert');
 const utils = require('../src/js/utils');
+const constant = require('../src/js/constant');
 
 describe('utils.js', () => {
     describe('showMove()', () => {
@@ -172,6 +173,14 @@ describe('utils.js', () => {
 
         it('正常系: False: R  U (スペース2つ)', () => {
             assert.deepStrictEqual(utils.isValidMoves('R  U'), false);
+        });
+
+        it('正常系: False : 4BLD : E', () => {
+            assert.deepStrictEqual(utils.isValidMoves('E', constant.partType.edgeWing), false);
+        });
+
+        it('正常系: True : 5BLD : 4Rw', () => {
+            assert.deepStrictEqual(utils.isValidMoves('4Rw', constant.partType.centerT), true);
         });
     });
 

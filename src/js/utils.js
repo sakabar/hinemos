@@ -169,6 +169,8 @@ const isValidMoves = (moveStr, partType) => {
         reg = new RegExp('^([BDFLRU]w?|[EMS]|[xyz])\'?2?$');
     } else if (partType.name === 'edgeWing' || partType.name === 'centerX') {
         reg = new RegExp('^3?([BDFLRU]w?|[bdflru]|[xyz])\'?2?$');
+    } else if (partType.name === 'centerT') {
+        reg = new RegExp('^[34]?([BDFLRU]w?|[EMS]|[bdflru]|[xyz])\'?2?$');
     } else {
         throw new Error(`Unexpected part type : ${partType}`);
     }
