@@ -1,6 +1,10 @@
 import Handsontable from 'handsontable';
 import 'handsontable.css';
-const { Algorithm333, Algorithm444, } = require('cuberyl');
+const {
+    Algorithm333,
+    Algorithm444,
+    Algorithm555,
+} = require('cuberyl');
 const rp = require('request-promise');
 const config = require('./config');
 const constant = require('./constant');
@@ -23,8 +27,8 @@ const detectStickers = (part, bufferSticker, setup, move1, move2) => {
             const alg = (move1 === '' && move2 === '') ? new Algorithm444(setup) : Algorithm444.makeThreeStyle(setup, move1, move2);
             return alg.detectThreeStyleXCenterStickers(bufferSticker);
         } else if (part === constant.partType.centerT) {
-            // throw new Error(`Unexpected part : ${JSON.stringify(part)}`);
-            return [];
+            const alg = (move1 === '' && move2 === '') ? new Algorithm555(setup) : Algorithm555.makeThreeStyle(setup, move1, move2);
+            return alg.detectThreeStyleTCenterStickers(bufferSticker);
         } else {
             // throw new Error(`Unexpected part : ${JSON.stringify(part)}`);
             return [];
