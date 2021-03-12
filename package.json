@@ -1,6 +1,6 @@
 {
   "name": "hinemos",
-  "version": "1.13.0",
+  "version": "1.13.1",
   "description": "Website for speedcube blindfolded players",
   "main": "index.js",
   "private": true,
@@ -49,7 +49,7 @@
   },
   "dependencies": {
     "@datastructures-js/priority-queue": "^4.1.2",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "babel-polyfill": "^6.26.0",
     "chunk": "^0.0.3",
     "count-array-values": "^1.2.1",
