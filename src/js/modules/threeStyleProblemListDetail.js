@@ -183,14 +183,18 @@ function * handleLoadInitially () {
             });
         });
 
+        // tps順asc, タイムdesc, ナンバリングascでソートする
         // indの情報はレコードの数が確定してから追加する必要があるので最後にやっている
-        const detailsWithInd = threeStyleQuizProblemListDetail.map((rec, ind) => {
-            return {
-                ...rec,
-                ind,
-                pInd: ind + 1, // 1-origin (positive ind)
-            };
-        });
+        const detailsWithInd = _.orderBy(threeStyleQuizProblemListDetail,
+            [ 'dispTps', 'dispAvgSec', 'dispLetters', ],
+            [ 'asc', 'desc', 'asc', ])
+            .map((rec, ind) => {
+                return {
+                    ...rec,
+                    ind,
+                    pInd: ind + 1, // 1-origin (positive ind)
+                };
+            });
 
         const payload = {
             url,
