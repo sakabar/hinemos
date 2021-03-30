@@ -377,6 +377,33 @@ const init = () => {
         form: {},
     };
 
+    const copyBtn = document.querySelector('.scrambleForm__copyBtn');
+    if (copyBtn) {
+        copyBtn.addEventListener('click', () => {
+            const scramblesOlTag = document.querySelector('.scrambles');
+            const scrambleCnt = scramblesOlTag.children.length;
+
+            if (scrambleCnt === 0) {
+                return;
+            }
+
+            let scrambleText = '';
+            for (let i = 0; i < scramblesOlTag.children.length; i++) {
+                scrambleText += scramblesOlTag.children[i].textContent + '\n';
+            }
+
+            const toBeCopied = confirm(`以下のスクランブルをコピーしますか?\n${scrambleText}`);
+            if (toBeCopied) {
+                const textArea = document.createElement('textarea');
+                document.body.appendChild(textArea);
+                textArea.value = scrambleText;
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+            }
+        });
+    }
+
     return rp(numberingCornerOptions)
         .then((numberingCorner) => {
             const cornerBufferSticker = numberingCorner.success.result.filter(a => a.letter === '@')[0].sticker;
@@ -429,6 +456,7 @@ const init = () => {
 
                                                                     button.addEventListener('click', () => submit(threeStylesCorner, threeStylesEdgeMiddle, threeStyleQuizListCorner, threeStyleQuizListEdgeMiddle));
                                                                     button.disabled = false;
+                                                                    copyBtn.disabled = false;
                                                                 })
                                                                 .catch((err) => {
                                                                     alert(`エラー:${err}`);
