@@ -154,7 +154,33 @@ function * handleAutoCreateProblemLists () {
 
         const threeStyles = yield call(threeStyleUtils.getThreeStyles, userName, part, buffer);
 
-        const unOrderedAlgs = threeStyles.map(threeStyle => {
+        // 手順を覚える上で、1つのレターペアに複数の手順が登録してあったとしても、
+        // その全てを覚えたいから複数登録しているというケースは少ない。
+        // (例外: グリップの状態によって手順を使い分ける人々)
+        // そこで1つの手順を選び取ることにする。
+        // ここで、新しい手順を登録したということは、少なくとも前の手順より悪くはなっていない可能性が高いため、
+        // 同じレターペアに複数の手順を登録してある場合には、新しいほうの手順だけを採用する。
+
+        // letters => alg
+        const newerAlgDict = {};
+
+        for (let i = 0; i < threeStyles.length; i++) {
+            const threeStyle = threeStyles[i];
+            const letters = stickersToDetails[threeStyle.stickers].letters;
+
+            if (!(letters in newerAlgDict)) {
+                newerAlgDict[letters] = threeStyle;
+                continue;
+            }
+
+            if (threeStyle.createdAt >= newerAlgDict[letters].createdAt) {
+                newerAlgDict[letters] = threeStyle;
+            }
+        }
+
+        const uniqedThreeStyles = Object.values(newerAlgDict);
+
+        const unOrderedAlgs = uniqedThreeStyles.map(threeStyle => {
             const letters = stickersToDetails[threeStyle.stickers].letters;
 
             if (threeStyle.move1 === '' && threeStyle.move2 === '') {
@@ -188,9 +214,9 @@ function * handleAutoCreateProblemLists () {
             };
 
             return new threeStyleNavigatorUtils.Alg(arg, convertWideMove);
-        }); ;
+        });
 
-        const orderedAlgTuples = threeStyleNavigatorUtils.orderAlgsByEasiness(unOrderedAlgs);
+        const orderedAlgTuples = threeStyleNavigatorUtils.orderAlgsByEasinessDFS(unOrderedAlgs);
 
         const titles = orderedAlgTuples.map((tuple, i) => {
             const numStr = `${i + 1}`.padStart(3, '0');

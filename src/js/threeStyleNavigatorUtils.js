@@ -759,3 +759,102 @@ export const orderAlgsByEasiness = (inputAlgs) => {
 
     return results;
 };
+
+// orderAlgsByEasiness (BFS) とは逆に、似た手順がまとまって出現するアルゴリズム
+// BFSでのアルゴリズムを考えていた時はモールス符号のKoch法を土台に考えていたので似た手順を同時にやると混同しそうだと考えていたが、
+// モールス符号と違ってキューブの3-styleには理論があるので、今は似た手順は一度に学んだほうが覚える際の負荷が少ないと考えている
+export const orderAlgsByEasinessDFS = (inputAlgs) => {
+    const algs = inputAlgs.slice();
+    const extracted = extractBasicAlgs(algs);
+    const unOrderedBasicAlgs = extracted.basicAlgs;
+    const { similarAlgsDict, } = extracted;
+
+    const isDifficultBasicAlg = (basicAlg) => {
+        return basicAlg.setup.length > 0 || !basicAlg.isFactorized;
+    };
+
+    const basicAlgs = orderBasicAlgsByEasiness(unOrderedBasicAlgs);
+    const results = [];
+
+    // まずbasicAlgsを順に回る
+    // basicAlgsのうち、セットアップが必要な手順と、因数分解できなかった手順はスキップ
+    for (let i = 0; i < basicAlgs.length; i++) {
+        const basicAlg = basicAlgs[i];
+
+        if (isDifficultBasicAlg(basicAlg)) {
+            continue;
+        }
+
+        const tuple = {
+            alg: basicAlg,
+            parAlg: null,
+            appended: null,
+        };
+
+        results.push(tuple);
+    }
+
+    // 次に、similarAlgsDictを巡る
+    // basicAlgはsimilarAlgsDictの1要素目とは限らないので注意
+
+    for (let basicAlgsInd = 0; basicAlgsInd < basicAlgs.length; basicAlgsInd++) {
+        const basicAlg = basicAlgs[basicAlgsInd];
+
+        const key = makeDictKey(basicAlg);
+        const basicAlgSeq = basicAlg.sequence.join(' ');
+
+        const similarAlgs = similarAlgsDict[key];
+
+        // 因数分解できなかった手順はsimilarAlgsDictに含まれない
+        if (!similarAlgs) {
+            const tuple = {
+                alg: basicAlg,
+                parAlg: null,
+                appended: null,
+            };
+
+            results.push(tuple);
+            continue;
+        }
+
+        for (let similarAlgsInd = 0; similarAlgsInd < similarAlgs.length; similarAlgsInd++) {
+            const { setup, revSetup, alg, } = similarAlgs[similarAlgsInd];
+
+            // basicAlgの中で簡単な手順は最初に全てリストに加えたのでスキップ
+            const seq = alg.sequence.join(' ');
+            if (seq === basicAlgSeq && !isDifficultBasicAlg(basicAlg)) {
+                continue;
+            }
+
+            if (similarAlgsInd === 0) {
+                const tuple = {
+                    alg,
+                    parAlg: null,
+                    appended: null,
+                };
+
+                results.push(tuple);
+                continue;
+            }
+
+            // similarAlgsの中で、これまで出てきた手順(0~similarAlgsInd-1まで)で
+            // セットアップが途中まで一致している手順を探す
+            const parentAlgTuple = searchParentAlg(similarAlgs, similarAlgsInd - 1, alg, setup, revSetup);
+
+            if (parentAlgTuple === null) {
+                const tuple = {
+                    alg,
+                    parAlg: null,
+                    appended: null,
+                };
+
+                results.push(tuple);
+                continue;
+            }
+
+            results.push(parentAlgTuple);
+        }
+    }
+
+    return results;
+};
