@@ -216,7 +216,7 @@ function * handleAutoCreateProblemLists () {
             return new threeStyleNavigatorUtils.Alg(arg, convertWideMove);
         });
 
-        const orderedAlgTuples = threeStyleNavigatorUtils.orderAlgsByEasiness(unOrderedAlgs);
+        const orderedAlgTuples = threeStyleNavigatorUtils.orderAlgsByEasinessDFS(unOrderedAlgs);
 
         const titles = orderedAlgTuples.map((tuple, i) => {
             const numStr = `${i + 1}`.padStart(3, '0');
