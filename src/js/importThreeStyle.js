@@ -66,12 +66,28 @@ const importThreeStyleTable = (hot, part, bufferSticker, origThreeStyles) => {
             // バックスペースだけ押してセルを削除し、すぐに表の外にフォーカスを移した場合は
             // cellStrはnullになる
             const cellStr = hot.getDataAtCell(r, c) || '';
+            if (cellStr === '') {
+                continue;
+            }
 
             let threeStyles = [];
+
             try {
                 threeStyles = utils.readThreeStyles(cellStr, part);
             } catch (e) {
-                // ignore error
+                // 読み込めなかった場合は、1セルの中に複数のセルの情報が
+                // 収まっている可能性があるので、TABで分解する
+                const cells = cellStr.split('\t');
+
+                for (let i = 0; i < cells.length; i++) {
+                    const s = cells[i];
+                    try {
+                        const algs = utils.readThreeStyles(s, part);
+                        Array.prototype.push.apply(threeStyles, algs);
+                    } catch (e) {
+                        // ignore error
+                    }
+                }
             }
 
             // 空のセルに関してはpushしない
