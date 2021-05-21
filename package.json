@@ -1,6 +1,6 @@
 {
   "name": "hinemos",
-  "version": "1.14.0",
+  "version": "1.14.1",
   "description": "Website for speedcube blindfolded players",
   "main": "index.js",
   "private": true,
