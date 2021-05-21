@@ -79,6 +79,6 @@
     "request-promise": "^4.2.6",
     "shuffle-array": "~1.0.1",
     "tls": "0.0.1",
-    "underscore": "^1.12.0"
+    "underscore": "^1.12.1"
   }
 }
