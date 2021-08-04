@@ -59,6 +59,7 @@ const MemoTrainingResultTemplate = (
         memoLogs,
         recallLogs,
         trialId,
+        elementIdToElement,
 
         sagaFetchScores,
         sagaDecideTrial,
@@ -149,8 +150,6 @@ const MemoTrainingResultTemplate = (
                             return [];
                         }
 
-                        // FIXME ここをcamlCaseにする方法を求む
-                        // FIXME 結果をelementごとにaggする
                         const tmpMyData = memoLogs
                             .filter(log => log['memo_trial_deck'].trialId === trialId)
                             .map(log => {
@@ -215,18 +214,22 @@ const MemoTrainingResultTemplate = (
 
                                 recallLogHash[log.deckInd][log.pairInd][log.posInd] = {
                                     losingMemorySec: log.losingMemorySec,
+                                    // elementId: log.elementId,
+                                    solutionElementId: log.solutionElementId,
                                     isCorrect: log.isCorrect,
                                 };
                             });
 
-                        // losingMemorySecとisCorrentを付与
+                        // リコールの情報を付与 (losingMemorySec, solutionElementId, isCorrent)
                         const MyData = groupedMyData.map(log => {
                             const losingMemorySec = _.get(recallLogHash, `[${log.deckInd}][${log.pairInd}][${log.posInd}].losingMemorySec`, null);
+                            const solutionElementId = _.get(recallLogHash, `[${log.deckInd}][${log.pairInd}][${log.posInd}].solutionElementId`, null);
                             const isCorrect = _.get(recallLogHash, `[${log.deckInd}][${log.pairInd}][${log.posInd}].isCorrect`, null);
 
                             return {
                                 ...log,
                                 losingMemorySec,
+                                solutionElementId,
                                 isCorrect,
                             };
                         });
@@ -268,12 +271,12 @@ const MemoTrainingResultTemplate = (
                         }
 
                         if (MyData.length % 2 === 0) {
-                            // 要素が偶数個の場合は中央に近い2つの値の平均を取る
+                            // elementが偶数個の場合は中央に近い2つの値の平均を取る
                             const ind1 = MyData.length / 2 - 1;
                             const ind2 = MyData.length / 2;
                             return (MyData[ind1].memoSec + MyData[ind2].memoSec) / 2.0;
                         } else {
-                            // 要素が奇数個の場合はそのまま中央の順位の値
+                            // elementが奇数個の場合はそのまま中央の順位の値
                             const ind = (MyData.length - 1) / 2;
                             return MyData[ind].memoSec;
                         }
@@ -282,6 +285,8 @@ const MemoTrainingResultTemplate = (
                     const showData = MyData.map(log => {
                         const ok = String.fromCharCode(parseInt('25EF', 16));
                         const ng = String.fromCharCode(parseInt('274C', 16));
+
+                        const solutionTag = elementIdToElement[log.solutionElementId] ? elementIdToElement[log.solutionElementId].tag : null;
 
                         return {
                             ...log,
@@ -292,6 +297,7 @@ const MemoTrainingResultTemplate = (
                             pairInd: `pair=${log.pairInd + 1}`,
                             posInd: `pos=${log.posInd + 1}`,
                             tag: event === memoTrainingUtils.MemoEvent.cards ? `${log.tag} (${memoTrainingUtils.cardTagToMarkStr(log.tag)})` : log.tag,
+                            solutionTag: solutionTag ? (event === memoTrainingUtils.MemoEvent.cards ? `${solutionTag} (${memoTrainingUtils.cardTagToMarkStr(solutionTag)})` : solutionTag) : '',
                             memoSec: parseFloat(log.memoSec.toFixed(2)),
                             losingMemorySec: log.losingMemorySec ? parseFloat(log.losingMemorySec.toFixed(1)) : '',
                             isCorrect: log.isCorrect !== null ? [ ng, ok, ][log.isCorrect] : '',
@@ -305,6 +311,7 @@ const MemoTrainingResultTemplate = (
                         '組',
                         '位置',
                         'element',
+                        '解答',
                         '記憶時間',
                         '忘却時間',
                         '正解?',
@@ -318,6 +325,7 @@ const MemoTrainingResultTemplate = (
                         'pairInd',
                         'posInd',
                         'tag',
+                        'solutionTag',
                         'memoSec',
                         'losingMemorySec',
                         'isCorrect',
@@ -326,7 +334,7 @@ const MemoTrainingResultTemplate = (
 
                     return (
                         <div>
-                            <h2>要素ごとの結果</h2>
+                            <h2>elementごとの結果</h2>
                             <Txt>記憶時間平均: {`${meanMemoSec.toFixed(2)}`}</Txt>
                             <Txt>標準偏差: {`${sd.toFixed(2)}`}</Txt>
                             <Txt>記憶時間中央値: {`${medianMemoSec.toFixed(2)}`}</Txt>
@@ -356,6 +364,7 @@ MemoTrainingResultTemplate.propTypes = {
     memoLogs: PropTypes.array.isRequired,
     recallLogs: PropTypes.array.isRequired,
     trialId: PropTypes.number,
+    elementIdToElement: PropTypes.object.isRequired,
 
     sagaFetchScores: PropTypes.func.isRequired,
     sagaDecideTrial: PropTypes.func.isRequired,

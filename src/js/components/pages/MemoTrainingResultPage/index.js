@@ -25,6 +25,7 @@ const mapStateToProps = ({
     memoLogs,
     recallLogs,
     trialId,
+    elementIdToElement,
 }) => {
     return {
         event,
@@ -33,6 +34,7 @@ const mapStateToProps = ({
         memoLogs,
         recallLogs,
         trialId,
+        elementIdToElement,
     };
 };
 
