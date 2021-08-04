@@ -9,7 +9,7 @@ import {
     take,
     select,
 } from 'redux-saga/effects';
-// const memoTrainingUtils = require('../memoTrainingUtils');
+const memoTrainingUtils = require('../memoTrainingUtils');
 const config = require('../config');
 const rp = require('request-promise');
 
@@ -34,6 +34,7 @@ const initialState = {
     memoLogs: [],
     recallLogs: [],
     trialId: undefined,
+    elementIdToElement: {},
 };
 
 const fetchScore = (userName, event, mode) => {
@@ -116,6 +117,7 @@ function * handleFetchScores () {
                 scores: undefined,
                 memoLogs: undefined,
                 recallLogs: undefined,
+                elementIdToElement: {},
             };
             yield put(fetchScores(payload));
             continue;
@@ -126,6 +128,13 @@ function * handleFetchScores () {
             throw new Error('Error fetchScores()');
         }
         const scores = resFetchScore.success.result.scores;
+
+        // elementId => element
+        // 種目選択するたびにロードするのは無駄だが、そんなに時間はかからないので問題ない見込み
+        const elementIdToElement = yield call(memoTrainingUtils.loadElementIdToElement);
+        if (Object.keys(elementIdToElement).length === 0) {
+            throw new Error('load failed : elementIdToElement');
+        }
 
         // 最初はこのタイミングでログを取得していたが、
         // 全件取得で遅くなるのでやめた
@@ -138,6 +147,7 @@ function * handleFetchScores () {
             scores,
             memoLogs,
             recallLogs,
+            elementIdToElement,
         };
 
         yield put(fetchScores(payload));
@@ -183,6 +193,7 @@ export const memoTrainingResultReducer = handleActions(
                 memoLogs: action.payload.memoLogs ? action.payload.memoLogs : state.memoLogs,
                 recallLogs: action.payload.recallLogs ? action.payload.recallLogs : state.recallLogs,
                 trialId: undefined,
+                elementIdToElement: action.payload.elementIdToElement,
             };
         },
         [decideTrial]: (state, action) => {
