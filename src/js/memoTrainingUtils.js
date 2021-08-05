@@ -104,6 +104,34 @@ export async function loadElementIdsDict () {
     return ans;
 }
 
+export async function loadElementIdToElement () {
+    const options = {
+        url: `${config.apiRoot}/memoElement`,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {},
+    };
+
+    const res = await rp(options)
+        .catch(() => {
+            return {};
+        });
+
+    const ans = {};
+    res.success.result.map(element => {
+        ans[element.elementId] = {
+            type: element.type,
+            tag: element.tag,
+            length: element.length,
+        };
+    });
+
+    return ans;
+}
+
 export const postDeck = (elementIdsList) => {
     const options = {
         url: `${config.apiRoot}/memoDeck`,

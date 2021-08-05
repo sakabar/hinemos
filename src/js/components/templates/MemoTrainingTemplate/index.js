@@ -2,6 +2,7 @@ import React from 'react';
 import {
     Link,
 } from 'react-router-dom';
+import Br from '../../atoms/Br';
 import Header from '../../organisms/Header';
 const config = require('../../../config');
 const path = require('path');
@@ -23,11 +24,19 @@ const MemoTrainingTemplate = () => (
 
         <main>
             <ul>
-                <li><Link to={`/${urlRoot}/memoTraining/mbld/trial.html`}>MBLD</Link></li>
-                <li><Link to={`/${urlRoot}/memoTraining/cards/trial.html`}>Cards</Link></li>
-                <li><Link to={`/${urlRoot}/memoTraining/numbers/trial.html`}>Numbers</Link></li>
+                <li>練習</li>
+                <ul>
+                    <li><Link to={`/${urlRoot}/memoTraining/mbld/trial.html`}>MBLD</Link></li>
+                    <li><Link to={`/${urlRoot}/memoTraining/cards/trial.html`}>Cards</Link></li>
+                    <li><Link to={`/${urlRoot}/memoTraining/numbers/trial.html`}>Numbers</Link></li>
+                </ul>
+
+                <li>結果確認</li>
+                <ul>
+                    <Link to={`/${urlRoot}/memoTraining/result.html`}>試技ごと</Link><Br/>
+                    <Link to={`/${urlRoot}/memoTraining/stats.html`}>統計情報</Link><Br/>
+                </ul>
             </ul>
-            <Link to={`/${urlRoot}/memoTraining/result.html`}>結果ページへ</Link>
         </main>
     </div>
 );

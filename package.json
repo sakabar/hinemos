@@ -1,6 +1,6 @@
 {
   "name": "hinemos",
-  "version": "1.14.1",
+  "version": "1.15.0",
   "description": "Website for speedcube blindfolded players",
   "main": "index.js",
   "private": true,
@@ -59,7 +59,7 @@
     "giiker": "2.0.1",
     "handsontable": "^7.4.2",
     "js-cookie": "^2.2.1",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "ml-hclust": "^3.0.0",
     "ml-matrix": "^6.5.3",
     "moment": "^2.29.1",
@@ -79,6 +79,6 @@
     "request-promise": "^4.2.6",
     "shuffle-array": "~1.0.1",
     "tls": "0.0.1",
-    "underscore": "^1.12.0"
+    "underscore": "^1.12.1"
   }
 }
