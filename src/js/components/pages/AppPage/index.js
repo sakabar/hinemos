@@ -14,6 +14,7 @@ import MemoTrainingMbldPage from '../MemoTrainingMbldPage';
 import MemoTrainingCardsPage from '../MemoTrainingCardsPage';
 import MemoTrainingNumbersPage from '../MemoTrainingNumbersPage';
 import MemoTrainingResultPage from '../MemoTrainingResultPage';
+import MemoTrainingStatsPage from '../MemoTrainingStatsPage';
 import NumberingPage from '../NumberingPage';
 const appPageUtils = require('../../../appPageUtils');
 const config = require('../../../config');
@@ -50,6 +51,7 @@ const routeDict = {
             // stats:
         },
         result: MemoTrainingResultPage,
+        stats: MemoTrainingStatsPage,
     },
 };
 
