@@ -112,8 +112,8 @@ const MemoTrainingStatsTemplate = (
                         '位置',
                         'element',
 
-                        '変換',
                         '記憶',
+                        '変換',
                         '(記憶-変換)',
 
                         '正解率',
@@ -126,8 +126,8 @@ const MemoTrainingStatsTemplate = (
                         'posInd',
                         'element',
 
-                        'transformation',
                         'memorization',
+                        'transformation',
                         'diff',
 
                         'acc',
