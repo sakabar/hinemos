@@ -78,7 +78,9 @@ const MemoTrainingStatsTemplate = (
 
                             transformation: rec.transformation ? parseFloat(rec.transformation.toFixed(2)) : '',
                             memorization: rec.memorization ? parseFloat(rec.memorization.toFixed(2)) : '',
+                            diff: rec.memorization && rec.transformation ? parseFloat((rec.memorization - rec.transformation).toFixed(2)) : '',
                             acc: rec.acc ? parseFloat(rec.acc.toFixed(2)) : 0.0,
+                            mistakeCnt: rec.mistakeCnt,
                             mistakes: mistakeStrs.join(', '),
                         };
                     });
@@ -90,9 +92,11 @@ const MemoTrainingStatsTemplate = (
 
                         '変換',
                         '記憶',
+                        '(記憶-変換)',
 
                         '正解率',
-                        '間違い',
+                        '誤答回数',
+                        '間違い方',
                     ];
 
                     const col = [
@@ -102,7 +106,10 @@ const MemoTrainingStatsTemplate = (
 
                         'transformation',
                         'memorization',
+                        'diff',
+
                         'acc',
+                        'mistakeCnt',
                         'mistakes',
                     ];
 
