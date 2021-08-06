@@ -11,6 +11,8 @@ import createSagaMiddleware from 'redux-saga';
 import MemoTrainingStatsTemplate from '../../templates/MemoTrainingStatsTemplate';
 import {
     sagaFetchStats,
+    setStartDate,
+    setEndDate,
 
     memoTrainingStatsReducer,
     rootSaga,
@@ -37,6 +39,12 @@ const mapDispatchToProps = (dispatch) => {
     return {
         sagaFetchStats: (event) => {
             dispatch(sagaFetchStats({ event, }));
+        },
+        setStartDate: (dateStr) => {
+            dispatch(setStartDate({ startDate: dateStr, }));
+        },
+        setEndDate: (dateStr) => {
+            dispatch(setEndDate({ endDate: dateStr, }));
         },
     };
 };

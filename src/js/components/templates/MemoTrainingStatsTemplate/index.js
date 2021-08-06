@@ -8,12 +8,13 @@ import Br from '../../atoms/Br';
 import Header from '../../organisms/Header';
 import Select from '../../molecules/Select';
 // import DecideTrialButtonTdFactory from '../../molecules/DecideTrialButtonTd';
+import DateTimePicker from 'react-datetime-picker';
 import SortableTbl from 'react-sort-search-table';
 const config = require('../../../config');
 const path = require('path');
 const memoTrainingUtils = require('../../../memoTrainingUtils');
 // const _ = require('lodash');
-// const moment = require('moment');
+const moment = require('moment');
 
 const urlRoot = path.basename(config.urlRoot);
 
@@ -33,6 +34,8 @@ const MemoTrainingStatsTemplate = (
         elementIdToElement,
 
         sagaFetchStats,
+        setStartDate,
+        setEndDate,
     }
 ) => (
     <div>
@@ -42,7 +45,27 @@ const MemoTrainingStatsTemplate = (
             <Link to={`/${urlRoot}/memoTraining/index.html`}>記憶トレーニング トップ</Link>
             <Br/>
             <div>
-                <Select options={eventOptions} defaultValue={event || ''} onChange={(e) => { sagaFetchStats(e.target.value); }}/>
+                <Select options={eventOptions} defaultValue={event || ''} onChange={(e) => { sagaFetchStats(e.target.value); }}/><Br/>
+        開始日: <DateTimePicker
+                    format={'yyyy/MM/dd'}
+                    returnValue={'start'}
+                    disableClock={true}
+                    value={new Date(startDate)}
+                    onChange={ (value) => {
+                        setStartDate(value ? moment(value).format('YYYY/MM/DD') : null);
+                    }}
+                /><Br/>
+
+    終了日: <DateTimePicker
+                    format={'yyyy/MM/dd'}
+                    returnValue={'end'}
+                    disableClock={true}
+                    value={new Date(endDate)}
+                    onChange={ (value) => {
+                        setEndDate(value ? moment(value).format('YYYY/MM/DD') : null);
+                    }}
+                /><Br/>
+
             </div>
 
             <Br/>
@@ -140,6 +163,8 @@ MemoTrainingStatsTemplate.propTypes = {
     elementIdToElement: PropTypes.object.isRequired,
 
     sagaFetchStats: PropTypes.func.isRequired,
+    setStartDate: PropTypes.func.isRequired,
+    setEndDate: PropTypes.func.isRequired,
 };
 
 export default MemoTrainingStatsTemplate;
