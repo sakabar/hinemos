@@ -104,23 +104,25 @@ function * handleFetchStats () {
 
                 const transformation = posElementObj.transformation;
                 const memorization = posElementObj.memorization;
-                // const recallSum = posElementObj.recallSum;
+                const recallSum = posElementObj.recallSum;
                 const recallData = posElementObj.recallData;
 
                 const sortedRecallData = _.sortBy(recallData, (rec) => { return -rec.count; });
 
                 let acc = 0.0;
+                let mistakeCnt = recallSum;
                 const mistakes = [];
 
                 for (let n = 0; n < sortedRecallData.length; n++) {
                     const recallDatum = sortedRecallData[n];
 
                     const solutionElementId = recallDatum.solutionElementId;
-                    // const count = recallDatum.count;
+                    const count = recallDatum.count;
                     const rate = recallDatum.rate;
 
                     if (solutionElementId === parseInt(elementId)) {
                         acc = rate;
+                        mistakeCnt -= count;
                         continue;
                     } else {
                         mistakes.push(recallDatum);
@@ -138,6 +140,7 @@ function * handleFetchStats () {
                     transformation,
                     memorization,
                     acc,
+                    mistakeCnt,
                     mistakes,
                 };
 
