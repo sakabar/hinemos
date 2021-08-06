@@ -45,8 +45,7 @@ const MemoTrainingStatsTemplate = (
             <Link to={`/${urlRoot}/memoTraining/index.html`}>記憶トレーニング トップ</Link>
             <Br/>
             <div>
-                <Select options={eventOptions} defaultValue={event || ''} onChange={(e) => { sagaFetchStats(e.target.value); }}/><Br/>
-        開始日: <DateTimePicker
+            開始日: <DateTimePicker
                     format={'yyyy/MM/dd'}
                     returnValue={'start'}
                     disableClock={true}
@@ -65,7 +64,7 @@ const MemoTrainingStatsTemplate = (
                         setEndDate(value ? moment(value).format('YYYY/MM/DD') : null);
                     }}
                 /><Br/>
-
+                <Select options={eventOptions} defaultValue={event || ''} onChange={(e) => { sagaFetchStats(e.target.value); }} onClick={(e) => { sagaFetchStats(e.target.value); }}/><Br/>
             </div>
 
             <Br/>
