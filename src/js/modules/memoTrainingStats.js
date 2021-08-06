@@ -13,7 +13,7 @@ const memoTrainingUtils = require('../memoTrainingUtils');
 const config = require('../config');
 const rp = require('request-promise');
 
-// const moment = require('moment');
+const moment = require('moment-timezone');
 const _ = require('lodash');
 
 const FETCH_STATS = 'FETCH_STATS';
@@ -22,12 +22,18 @@ const fetchStats = createAction(FETCH_STATS);
 const SAGA_FETCH_STATS = 'SAGA_FETCH_STATS';
 export const sagaFetchStats = createAction(SAGA_FETCH_STATS);
 
+const SET_START_DATE = 'SET_START_DATE';
+export const setStartDate = createAction(SET_START_DATE);
+
+const SET_END_DATE = 'SET_END_DATE';
+export const setEndDate = createAction(SET_END_DATE);
+
 const initialState = {
     userName: localStorage.userName,
 
     event: '',
-    startDate: undefined,
-    endDate: undefined,
+    startDate: moment().subtract(7 * 13 - 1, 'days').format('YYYY/MM/DD'),
+    endDate: moment().format('YYYY/MM/DD'),
 
     stats: [],
     elementIdToElement: {},
@@ -44,8 +50,8 @@ const requestFetchStats = (userName, event, startDate, endDate) => {
         form: {
             userName,
             event,
-            startDate,
-            endDate,
+            startDate: moment(startDate, 'YYYY/MM/DD').toISOString(),
+            endDate: moment(endDate, 'YYYY/MM/DD').toISOString(),
             token: localStorage.token,
         },
     };
@@ -166,6 +172,22 @@ export const memoTrainingStatsReducer = handleActions(
                 event: action.payload.event,
                 stats: action.payload.stats,
                 elementIdToElement: action.payload.elementIdToElement,
+            };
+        },
+        [setStartDate]: (state, action) => {
+            const startDate = action.payload.startDate ? action.payload.startDate : moment().subtract(7 * 13 - 1, 'days').format('YYYY/MM/DD');
+
+            return {
+                ...state,
+                startDate,
+            };
+        },
+        [setEndDate]: (state, action) => {
+            const endDate = action.payload.endDate ? action.payload.endDate : moment().format('YYYY/MM/DD');
+
+            return {
+                ...state,
+                endDate,
             };
         },
     },
