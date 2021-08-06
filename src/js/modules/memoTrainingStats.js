@@ -180,6 +180,9 @@ export const memoTrainingStatsReducer = handleActions(
             return {
                 ...state,
                 startDate,
+                // 日付を更新するだけでは統計データを更新しないので、
+                // 誤解を招かないようにデータをリセット
+                stats: [],
             };
         },
         [setEndDate]: (state, action) => {
@@ -188,6 +191,9 @@ export const memoTrainingStatsReducer = handleActions(
             return {
                 ...state,
                 endDate,
+                // 日付を更新するだけでは統計データを更新しないので、
+                // 誤解を招かないようにデータをリセット
+                stats: [],
             };
         },
     },
