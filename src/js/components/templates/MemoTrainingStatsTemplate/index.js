@@ -95,7 +95,7 @@ const MemoTrainingStatsTemplate = (
 
                         return {
                             event: rec.event,
-                            posInd: rec.posInd + 1,
+                            posInd: `pos=${rec.posInd + 1}`,
                             element: tag,
 
                             transformation: rec.transformation ? parseFloat(rec.transformation.toFixed(2)) : '',
