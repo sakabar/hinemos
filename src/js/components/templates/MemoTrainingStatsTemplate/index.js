@@ -8,12 +8,13 @@ import Br from '../../atoms/Br';
 import Header from '../../organisms/Header';
 import Select from '../../molecules/Select';
 // import DecideTrialButtonTdFactory from '../../molecules/DecideTrialButtonTd';
+import DateTimePicker from 'react-datetime-picker';
 import SortableTbl from 'react-sort-search-table';
 const config = require('../../../config');
 const path = require('path');
 const memoTrainingUtils = require('../../../memoTrainingUtils');
 // const _ = require('lodash');
-// const moment = require('moment');
+const moment = require('moment');
 
 const urlRoot = path.basename(config.urlRoot);
 
@@ -33,6 +34,8 @@ const MemoTrainingStatsTemplate = (
         elementIdToElement,
 
         sagaFetchStats,
+        setStartDate,
+        setEndDate,
     }
 ) => (
     <div>
@@ -42,7 +45,26 @@ const MemoTrainingStatsTemplate = (
             <Link to={`/${urlRoot}/memoTraining/index.html`}>記憶トレーニング トップ</Link>
             <Br/>
             <div>
-                <Select options={eventOptions} defaultValue={event || ''} onChange={(e) => { sagaFetchStats(e.target.value); }}/>
+            開始日: <DateTimePicker
+                    format={'yyyy/MM/dd'}
+                    returnValue={'start'}
+                    disableClock={true}
+                    value={new Date(startDate)}
+                    onChange={ (value) => {
+                        setStartDate(value ? moment(value).format('YYYY/MM/DD') : null);
+                    }}
+                /><Br/>
+
+    終了日: <DateTimePicker
+                    format={'yyyy/MM/dd'}
+                    returnValue={'end'}
+                    disableClock={true}
+                    value={new Date(endDate)}
+                    onChange={ (value) => {
+                        setEndDate(value ? moment(value).format('YYYY/MM/DD') : null);
+                    }}
+                /><Br/>
+                <Select options={eventOptions} defaultValue={event || ''} onChange={(e) => { sagaFetchStats(e.target.value); }} onClick={(e) => { sagaFetchStats(e.target.value); }}/><Br/>
             </div>
 
             <Br/>
@@ -78,7 +100,9 @@ const MemoTrainingStatsTemplate = (
 
                             transformation: rec.transformation ? parseFloat(rec.transformation.toFixed(2)) : '',
                             memorization: rec.memorization ? parseFloat(rec.memorization.toFixed(2)) : '',
+                            diff: rec.memorization && rec.transformation ? parseFloat((rec.memorization - rec.transformation).toFixed(2)) : '',
                             acc: rec.acc ? parseFloat(rec.acc.toFixed(2)) : 0.0,
+                            mistakeCnt: rec.mistakeCnt,
                             mistakes: mistakeStrs.join(', '),
                         };
                     });
@@ -90,9 +114,11 @@ const MemoTrainingStatsTemplate = (
 
                         '変換',
                         '記憶',
+                        '(記憶-変換)',
 
                         '正解率',
-                        '間違い',
+                        '誤答回数',
+                        '間違い方',
                     ];
 
                     const col = [
@@ -102,7 +128,10 @@ const MemoTrainingStatsTemplate = (
 
                         'transformation',
                         'memorization',
+                        'diff',
+
                         'acc',
+                        'mistakeCnt',
                         'mistakes',
                     ];
 
@@ -133,6 +162,8 @@ MemoTrainingStatsTemplate.propTypes = {
     elementIdToElement: PropTypes.object.isRequired,
 
     sagaFetchStats: PropTypes.func.isRequired,
+    setStartDate: PropTypes.func.isRequired,
+    setEndDate: PropTypes.func.isRequired,
 };
 
 export default MemoTrainingStatsTemplate;
