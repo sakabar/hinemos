@@ -51,7 +51,7 @@ const requestFetchStats = (userName, event, startDate, endDate) => {
             userName,
             event,
             startDate: moment(startDate, 'YYYY/MM/DD').toISOString(),
-            endDate: moment(endDate, 'YYYY/MM/DD').toISOString(),
+            endDate: moment(endDate, 'YYYY/MM/DD').hour(23).minute(59).second(59).toISOString(),
             token: localStorage.token,
         },
     };
