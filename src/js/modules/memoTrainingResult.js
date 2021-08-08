@@ -37,25 +37,6 @@ const initialState = {
     elementIdToElement: {},
 };
 
-const fetchScore = (userName, event, mode) => {
-    const options = {
-        url: `${config.apiRoot}/getMemoScore`,
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        json: true,
-        form: {
-            userName,
-            event,
-            mode,
-            token: localStorage.token,
-        },
-    };
-
-    return rp(options);
-};
-
 const fetchMemoLog = (userName, trialId) => {
     const form = {
         userName,
@@ -123,7 +104,7 @@ function * handleFetchScores () {
             continue;
         }
 
-        const resFetchScore = yield call(fetchScore, userName, event, mode);
+        const resFetchScore = yield call(memoTrainingUtils.fetchScore, userName, event, mode);
         if (!resFetchScore.success) {
             throw new Error('Error fetchScores()');
         }
