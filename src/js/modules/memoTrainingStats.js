@@ -10,8 +10,6 @@ import {
     select,
 } from 'redux-saga/effects';
 const memoTrainingUtils = require('../memoTrainingUtils');
-const config = require('../config');
-const rp = require('request-promise');
 
 const moment = require('moment-timezone');
 
@@ -37,26 +35,6 @@ const initialState = {
     stats: [],
     scores: [],
     elementIdToElement: {},
-};
-
-const requestFetchStats = (userName, event, startDate, endDate) => {
-    const options = {
-        url: `${config.apiRoot}/getMemoLogStats`,
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        json: true,
-        form: {
-            userName,
-            event,
-            startDate: moment(startDate, 'YYYY/MM/DD').toISOString(),
-            endDate: moment(endDate, 'YYYY/MM/DD').hour(23).minute(59).second(59).toISOString(),
-            token: localStorage.token,
-        },
-    };
-
-    return rp(options);
 };
 
 function * handleFetchStats () {
@@ -92,7 +70,7 @@ function * handleFetchStats () {
         }
         const scores = resFetchScore.success.result.scores;
 
-        const resFetchStats = yield call(requestFetchStats, userName, event, startDate, endDate);
+        const resFetchStats = yield call(memoTrainingUtils.requestFetchStats, userName, event, startDate, endDate);
         if (!resFetchStats.success) {
             throw new Error('Error fetchStats()');
         }
