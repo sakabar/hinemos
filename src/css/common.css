@@ -95,3 +95,7 @@ header .logo__img--rectangle {
 .bldTimerTemplateMain:focus {
     outline: none;
 }
+
+.cursor-hide {
+    cursor: none;
+}
