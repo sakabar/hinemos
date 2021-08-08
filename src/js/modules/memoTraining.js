@@ -200,7 +200,7 @@ function * handleStartMemorizationPhase () {
                 return 52;
             }
             if (memoEvent === memoTrainingUtils.MemoEvent.numbers) {
-                return 100;
+                return 80;
             }
             throw new Error('Unexpected event');
         })();
