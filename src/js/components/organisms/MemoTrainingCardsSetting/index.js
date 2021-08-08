@@ -84,7 +84,7 @@ const MemoTrainingCardsSetting = ({
                 <Br/>
             同時に表示する枚数: <Select options={pairSizeList} defaultValue={pairSize || '1'} onChange={(e) => setPairSize(parseInt(e.target.value))} />
                 <Br/>
-        スート: <Select options={suitOptions} defaultValue={typeof handSuits === 'undefined' ? 'H,S,D,C' : handSuits } onChange={(e) => setHandSuits(e.target.value)} />
+        回答用カードの順番: <Select options={suitOptions} defaultValue={typeof handSuits === 'undefined' ? 'H,S,D,C' : handSuits } onChange={(e) => setHandSuits(e.target.value)} />
                 <Br/>
             方向: <Select options={isLeftyOptions} defaultValue={typeof isLefty === 'undefined' ? 'true' : String(isLefty)} onChange={(e) => setIsLefty(e.target.value === 'true')} />
                 <Br/>

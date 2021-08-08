@@ -517,7 +517,7 @@ describe('memoTrainingUtils.js', () => {
             assert.deepStrictEqual(actual, expected);
         });
 
-        it('正常系: solutionをマージする際、解答していないholeがあってnullの場合 (解答していない部分は全てnullになっている想定)', () => {
+        it('正常系: solutionをマージする際、回答していないholeがあってnullの場合 (回答していない部分は全てnullになっている想定)', () => {
             const oneImageDecks = [
                 [
                     [
