@@ -182,10 +182,6 @@ const initialState = {
 
 function * handleStartMemorizationPhase () {
     while (true) {
-        // 記憶練習の邪魔にならないように、カーソルを消す
-        const bodyElements = document.getElementsByTagName('body');
-        bodyElements[0].classList.add('cursor-hide');
-
         const action = yield take(sagaStartMemorizationPhase);
 
         const currentMiliUnixtime = parseInt(moment().format('x'));
@@ -311,6 +307,10 @@ function * handleStartMemorizationPhase () {
 
         // <main>にフォーカスすることで、ショートカットキーをすぐに使えるようにする
         document.querySelector('.memoTraining__main').focus();
+
+        // 記憶練習の邪魔にならないように、カーソルを消す
+        const bodyElements = document.getElementsByTagName('body');
+        bodyElements[0].classList.add('cursor-hide');
 
         yield put(startMemorizationPhase(payload));
     }
