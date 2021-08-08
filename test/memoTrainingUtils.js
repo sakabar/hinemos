@@ -679,4 +679,68 @@ describe('memoTrainingUtils.js', () => {
             assert.deepStrictEqual(actual, expected);
         });
     });
+
+    describe('transformStatsJSONtoArray()', () => {
+        it('正常系', () => {
+            const statsJSON = {
+                '0': {
+                    '2': {
+                        event: 'cards',
+                        transformation: 2.0,
+                        memorization: 4.0,
+                        recallSum: 3,
+                        recallData: [
+                            {
+                                solutionElementId: 2,
+                                count: 1,
+                                rate: 1.0 / 3,
+                            },
+                            {
+                                solutionElementId: 3,
+                                count: 2,
+                                rate: 2.0 / 3,
+                            },
+                        ],
+                    },
+                },
+                '1': {
+                    '3': {
+                        event: 'numbers',
+                        transformation: 1.0,
+                        memorization: 3.0,
+                        recallSum: 2,
+                        recallData: [
+                            {
+                                solutionElementId: 5,
+                                count: 2,
+                                rate: 1.0,
+                            },
+                        ],
+                    },
+                },
+            };
+
+            const actual = memoTrainingUtils.transformStatsJSONtoArray(statsJSON, 'cards');
+            const expected = [
+                {
+                    event: 'cards',
+                    posInd: 0,
+                    elementId: 2,
+                    transformation: 2.0,
+                    memorization: 4.0,
+                    acc: 1.0 / 3,
+                    mistakeCnt: 2,
+                    mistakes: [
+                        {
+                            solutionElementId: 3,
+                            count: 2,
+                            rate: 2.0 / 3,
+                        },
+                    ],
+                },
+            ];
+
+            assert.deepStrictEqual(actual, expected);
+        });
+    });
 });
