@@ -676,3 +676,69 @@ export const mergeLastRecallMiliUnixtimePairsList = (lastRecallMiliUnixtimePairs
         });
     });
 };
+
+export const transformStatsJSONtoArray = (statsJSON, event) => {
+    const stats = [];
+
+    const posInds = Object.keys(statsJSON);
+    for (let i = 0; i < posInds.length; i++) {
+        const posInd = posInds[i];
+        const posObj = statsJSON[posInd];
+
+        const elementIds = Object.keys(posObj);
+        for (let k = 0; k < elementIds.length; k++) {
+            const elementId = elementIds[k];
+            const posElementObj = posObj[elementId];
+
+            const recEvent = posElementObj.event;
+            if (recEvent !== event) {
+                continue;
+            }
+
+            const transformation = posElementObj.transformation;
+            const memorization = posElementObj.memorization;
+            const recallSum = posElementObj.recallSum;
+            const recallData = posElementObj.recallData;
+
+            const sortedRecallData = _.sortBy(recallData, (rec) => { return -rec.count; });
+
+            let acc = 0.0;
+            let mistakeCnt = recallSum;
+            const mistakes = [];
+
+            for (let n = 0; n < sortedRecallData.length; n++) {
+                const recallDatum = sortedRecallData[n];
+
+                const solutionElementId = recallDatum.solutionElementId;
+                const count = recallDatum.count;
+                const rate = recallDatum.rate;
+
+                if (solutionElementId === parseInt(elementId)) {
+                    acc = rate;
+                    mistakeCnt -= count;
+                    continue;
+                } else {
+                    mistakes.push(recallDatum);
+                }
+
+                if (mistakes.length >= 3) {
+                    break;
+                }
+            }
+
+            const rec = {
+                event: recEvent,
+                posInd: parseInt(posInd),
+                elementId: parseInt(elementId),
+                transformation,
+                memorization,
+                acc,
+                mistakeCnt,
+                mistakes,
+            };
+
+            stats.push(rec);
+        }
+    }
+    return stats;
+};
