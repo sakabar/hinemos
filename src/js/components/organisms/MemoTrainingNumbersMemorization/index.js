@@ -24,7 +24,7 @@ const MemoTrainingNumbersMemorization = ({
     sagaToggleTimer,
 }) => {
     return (
-        <div>
+        <div style={{ minHeight: '800px', }}>
             <Button color="primary" value="記憶終了" onClick={(e) => sagaFinishMemorizationPhase()}/>
             <Br/>
 
