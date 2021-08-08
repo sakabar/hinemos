@@ -36,6 +36,7 @@ const initialState = {
     endDate: moment().format('YYYY/MM/DD'),
 
     stats: [],
+    scores: [],
     elementIdToElement: {},
 };
 
@@ -72,6 +73,7 @@ function * handleFetchStats () {
             const payload = {
                 event,
                 stats: [],
+                scores: [],
                 elementIdToElement: {},
             };
             yield put(fetchStats(payload));
@@ -84,6 +86,12 @@ function * handleFetchStats () {
         if (Object.keys(elementIdToElement).length === 0) {
             throw new Error('load failed : elementIdToElement');
         }
+
+        const resFetchScore = yield call(memoTrainingUtils.fetchScore, userName, event, 'memorization');
+        if (!resFetchScore.success) {
+            throw new Error('Error fetchScores()');
+        }
+        const scores = resFetchScore.success.result.scores;
 
         const resFetchStats = yield call(requestFetchStats, userName, event, startDate, endDate);
         if (!resFetchStats.success) {
@@ -157,6 +165,7 @@ function * handleFetchStats () {
         const payload = {
             event,
             stats,
+            scores,
             elementIdToElement,
         };
 
@@ -171,6 +180,7 @@ export const memoTrainingStatsReducer = handleActions(
                 ...state,
                 event: action.payload.event,
                 stats: action.payload.stats,
+                scores: action.payload.scores,
                 elementIdToElement: action.payload.elementIdToElement,
             };
         },
@@ -183,6 +193,7 @@ export const memoTrainingStatsReducer = handleActions(
                 // 日付を更新するだけでは統計データを更新しないので、
                 // 誤解を招かないようにデータをリセット
                 stats: [],
+                scores: [],
             };
         },
         [setEndDate]: (state, action) => {
@@ -194,6 +205,7 @@ export const memoTrainingStatsReducer = handleActions(
                 // 日付を更新するだけでは統計データを更新しないので、
                 // 誤解を招かないようにデータをリセット
                 stats: [],
+                scores: [],
             };
         },
     },

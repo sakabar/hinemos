@@ -24,6 +24,7 @@ const mapStateToProps = ({
     startDate,
     endDate,
     stats,
+    scores,
     elementIdToElement,
 }) => {
     return {
@@ -31,6 +32,7 @@ const mapStateToProps = ({
         startDate,
         endDate,
         stats,
+        scores,
         elementIdToElement,
     };
 };
