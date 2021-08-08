@@ -15,6 +15,7 @@ import {
     Label,
 } from 'recharts';
 import Br from '../../atoms/Br';
+import Button from '../../atoms/Button';
 // import Txt from '../../atoms/Txt';
 import Header from '../../organisms/Header';
 import Select from '../../molecules/Select';
@@ -30,7 +31,7 @@ const moment = require('moment');
 const urlRoot = path.basename(config.urlRoot);
 
 const eventOptions = [
-    [ '', '種目', ],
+    [ '', '', ],
     [ 'mbld', 'MBLD', ],
     [ 'cards', 'Cards', ],
     [ 'numbers', 'Numbers', ],
@@ -76,7 +77,8 @@ const MemoTrainingStatsTemplate = (
                         setEndDate(value ? moment(value).format('YYYY/MM/DD') : null);
                     }}
                 /><Br/>
-                <Select options={eventOptions} defaultValue={event || ''} onChange={(e) => { sagaFetchStats(e.target.value); }} onClick={(e) => { sagaFetchStats(e.target.value); }}/><Br/>
+        種目: <Select options={eventOptions} defaultValue={event || ''} onChange={(e) => { sagaFetchStats(e.target.value); }} /><Br/>
+                <Button value="リロード" onClick={(e) => { sagaFetchStats(event); }}/><Br/>
             </div>
 
             <Br/>
