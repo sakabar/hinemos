@@ -9,8 +9,8 @@ const memoTrainingUtils = require('../../../memoTrainingUtils');
 const _ = require('lodash');
 
 const MemoTrainingNumbersRecall = ({
-    // startMemoMiliUnixtime,
-    // startRecallMiliUnixtime,
+    startMemoMiliUnixtime,
+    startRecallMiliUnixtime,
     timerMiliUnixtime,
     timeVisible,
     isLefty,
@@ -36,6 +36,9 @@ const MemoTrainingNumbersRecall = ({
     return (
         <div>
             <Button color="primary" value="回答終了" onClick={(e) => sagaFinishRecallPhase()}/>
+            <Br/>
+
+            <Txt>記憶時間:{Math.floor((startRecallMiliUnixtime - startMemoMiliUnixtime) / 1000.0)}秒</Txt>
             <Br/>
 
             <Txt>{deckInd + 1}束目</Txt>
@@ -123,6 +126,9 @@ const MemoTrainingNumbersRecall = ({
 };
 
 MemoTrainingNumbersRecall.propTypes = {
+    startMemoMiliUnixtime: PropTypes.number.isRequired,
+    startRecallMiliUnixtime: PropTypes.number.isRequired,
+
     timerMiliUnixtime: PropTypes.number.isRequired,
     timeVisible: PropTypes.bool.isRequired,
 

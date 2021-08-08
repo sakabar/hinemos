@@ -134,7 +134,7 @@ const selectHand = createAction(SELECT_HAND);
 const initialState = {
     userName: localStorage.userName, // ユーザ名
     startMemoMiliUnixtime: 0, // 記憶を開始したミリUnixtime
-    startRecallMiliUnixtime: 0, // 記憶を開始したミリUnixtime
+    startRecallMiliUnixtime: 0, // 回答を開始したミリUnixtime
     timerMiliUnixtime: 0,
     timeVisible: false,
     isLefty: true,

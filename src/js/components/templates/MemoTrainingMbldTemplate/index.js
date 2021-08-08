@@ -66,7 +66,7 @@ const MemoTrainingMbldTemplate = (
                     } else if (phase === memoTrainingUtils.TrainingPhase.memorization) {
                         return (<MemoTrainingMbldMemorization startMemoMiliUnixtime={startMemoMiliUnixtime} startRecallMiliUnixtime={startRecallMiliUnixtime} timerMiliUnixtime={timerMiliUnixtime} timeVisible={timeVisible} decks={decks} deckInd={deckInd} pairInd={pairInd} sagaFinishMemorizationPhase={sagaFinishMemorizationPhase} sagaGoToNextPair={sagaGoToNextPair} sagaGoToPrevPair={sagaGoToPrevPair} sagaGoToDeckHead={sagaGoToDeckHead} sagaGoToNextDeck={sagaGoToNextDeck} sagaToggleTimer={sagaToggleTimer}/>);
                     } else if (phase === memoTrainingUtils.TrainingPhase.recall) {
-                        return (<MemoTrainingMbldRecall decks={decks} pairSize={pairSize} solution={solution} sagaFinishRecallPhase={sagaFinishRecallPhase} sagaUpdateMbldSolution={sagaUpdateMbldSolution}/>);
+                        return (<MemoTrainingMbldRecall startMemoMiliUnixtime={startMemoMiliUnixtime} startRecallMiliUnixtime={startRecallMiliUnixtime} decks={decks} pairSize={pairSize} solution={solution} sagaFinishRecallPhase={sagaFinishRecallPhase} sagaUpdateMbldSolution={sagaUpdateMbldSolution}/>);
                     } else if (phase === memoTrainingUtils.TrainingPhase.result) {
                         return (
                             <div>
