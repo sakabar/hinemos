@@ -3,6 +3,17 @@ import PropTypes from 'prop-types';
 import {
     Link,
 } from 'react-router-dom';
+import {
+    ScatterChart,
+    Scatter,
+    XAxis,
+    YAxis,
+    ZAxis,
+    CartesianGrid,
+    Tooltip,
+    Legend,
+    Label,
+} from 'recharts';
 import Br from '../../atoms/Br';
 // import Txt from '../../atoms/Txt';
 import Header from '../../organisms/Header';
@@ -31,6 +42,7 @@ const MemoTrainingStatsTemplate = (
         startDate,
         endDate,
         stats,
+        scores,
         elementIdToElement,
 
         sagaFetchStats,
@@ -71,6 +83,78 @@ const MemoTrainingStatsTemplate = (
 
             {
                 (() => {
+                    const standardScores = scores
+                        .map(score => {
+                            return {
+                                ...score,
+                                createdAt: moment(score.createdAt),
+                            };
+                        })
+                        .filter(score => {
+                            if (score.createdAt < moment(startDate, 'YYYY/MM/DD') || moment(endDate, 'YYYY/MM/DD').add(1, 'days') <= score.createdAt) {
+                                return false;
+                            }
+
+                            if (event === memoTrainingUtils.MemoEvent.cards) {
+                                // FIXME 1カード1イメージである想定
+                                return score.allDeckNum === 1 && score.allElementNum === 52;
+                            } else if (event === memoTrainingUtils.MemoEvent.numbers) {
+                                // FIXME 2桁1イメージである想定
+                                return score.allDeckNum === 1 && score.allElementNum === 40;
+                            } else if (event === memoTrainingUtils.MemoEvent.mbld) {
+                                // MBLDの場合はイメージ数を限定しない
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        })
+                        .map(score => {
+                            return {
+                                totalMemoSec: score.totalMemoSec,
+                                allElementAcc: score.allElementAcc,
+                                createdAt: score.createdAt.format('YYYY/MM/DD HH:mm'),
+                            };
+                        });
+
+                    const successfulTrials = standardScores
+                        .filter(score => {
+                            return score.allElementAcc === 1;
+                        });
+
+                    const badTrials = standardScores
+                        .filter(score => {
+                            return score.allElementAcc !== 1;
+                        });
+
+                    return (
+                        <ScatterChart
+                            width={400}
+                            height={400}
+                            margin={{
+                                top: 20,
+                                right: 20,
+                                bottom: 20,
+                                left: 20,
+                            }}
+                        >
+
+                            <CartesianGrid />
+                            <XAxis type="number" dataKey="totalMemoSec" name="記憶時間" tickCount={11} interval={0} domain={[ (dataMin) => Math.floor(dataMin), (dataMax) => Math.ceil(dataMax), ]}>
+                                <Label value="タイムと正解率 (Cardsは52枚、Numbersは80桁)" offset={0} position="insideBottom"/>
+                            </XAxis>
+                            <YAxis type="number" dataKey="allElementAcc" name="正解率" tickCount={11} interval={0} domain={[ 0.0, 1.0, ]}/>
+                            <ZAxis type="category" dataKey="createdAt" name="日時" />
+                            <Tooltip cursor={{ strokeDasharray: '3 3', }} />
+                            <Legend />
+                            <Scatter name="Successful" data={successfulTrials} fill="#82ca9d" shape="circle" />
+                            <Scatter name="Bad" data={badTrials} fill="#8884d8" shape="triangle" />
+                        </ScatterChart>
+                    );
+                })()
+            }
+
+            {
+                (() => {
                     const MyData = stats.map(rec => {
                         const tmpTag = elementIdToElement[rec.elementId] ? elementIdToElement[rec.elementId].tag : null;
                         const tag = rec.event === memoTrainingUtils.MemoEvent.cards ? `${tmpTag} (${memoTrainingUtils.cardTagToMarkStr(tmpTag)})` : tmpTag;
@@ -95,7 +179,7 @@ const MemoTrainingStatsTemplate = (
 
                         return {
                             event: rec.event,
-                            posInd: rec.posInd + 1,
+                            posInd: `pos=${rec.posInd + 1}`,
                             element: tag,
 
                             transformation: rec.transformation ? parseFloat(rec.transformation.toFixed(2)) : '',
@@ -112,8 +196,8 @@ const MemoTrainingStatsTemplate = (
                         '位置',
                         'element',
 
-                        '変換',
                         '記憶',
+                        '変換',
                         '(記憶-変換)',
 
                         '正解率',
@@ -126,8 +210,8 @@ const MemoTrainingStatsTemplate = (
                         'posInd',
                         'element',
 
-                        'transformation',
                         'memorization',
+                        'transformation',
                         'diff',
 
                         'acc',
@@ -159,6 +243,7 @@ MemoTrainingStatsTemplate.propTypes = {
     startDate: PropTypes.string,
     endDate: PropTypes.string,
     stats: PropTypes.array.isRequired,
+    scores: PropTypes.array.isRequired,
     elementIdToElement: PropTypes.object.isRequired,
 
     sagaFetchStats: PropTypes.func.isRequired,

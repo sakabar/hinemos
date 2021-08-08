@@ -134,7 +134,7 @@ const selectHand = createAction(SELECT_HAND);
 const initialState = {
     userName: localStorage.userName, // ユーザ名
     startMemoMiliUnixtime: 0, // 記憶を開始したミリUnixtime
-    startRecallMiliUnixtime: 0, // 記憶を開始したミリUnixtime
+    startRecallMiliUnixtime: 0, // 回答を開始したミリUnixtime
     timerMiliUnixtime: 0,
     timeVisible: false,
     isLefty: true,
@@ -307,6 +307,10 @@ function * handleStartMemorizationPhase () {
 
         // <main>にフォーカスすることで、ショートカットキーをすぐに使えるようにする
         document.querySelector('.memoTraining__main').focus();
+
+        // 記憶練習の邪魔にならないように、カーソルを消す
+        const bodyElements = document.getElementsByTagName('body');
+        bodyElements[0].classList.add('cursor-hide');
 
         yield put(startMemorizationPhase(payload));
     }
@@ -1394,4 +1398,19 @@ export function * rootSaga () {
     yield fork(handleSelectHand);
 
     // yield fork(handleInitLoad);
+
+    // 記憶練習の邪魔にならないように、カーソルを最後に動かしてから3秒経ったら消す
+    // 記憶練習ページからReactのLinkタグで別のページに遷移してもこの機能は残ってしまうが、
+    // 記憶練習ページから3-styleのページへのLinkタグは用意していないので問題ない見込み
+    let hideCursorTimer = null;
+    const bodyElements = document.getElementsByTagName('body');
+
+    bodyElements[0].addEventListener('mousemove', () => {
+        clearTimeout(hideCursorTimer);
+
+        bodyElements[0].classList.remove('cursor-hide');
+        hideCursorTimer = setTimeout(() => {
+            bodyElements[0].classList.add('cursor-hide');
+        }, 3000);
+    });
 };

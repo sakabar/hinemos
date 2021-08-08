@@ -311,7 +311,7 @@ const MemoTrainingResultTemplate = (
                         '組',
                         '位置',
                         'element',
-                        '解答',
+                        '回答',
                         '記憶時間',
                         '忘却時間',
                         '正解?',
