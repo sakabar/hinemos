@@ -56,7 +56,7 @@ const MemoTrainingNumbersSetting = ({
             <div>
             挑戦する束数: <Select options={deckNumOptions} defaultValue={deckNum || '1' } onChange={(e) => setDeckNum(parseInt(e.target.value))} />
                 <Br/>
-            1束あたりの桁数: <Select options={deckSizeOptions} defaultValue={deckSize || '100'} onChange={(e) => setDeckSize(parseInt(e.target.value))}/>
+            1束あたりの桁数: <Select options={deckSizeOptions} defaultValue={deckSize || '80'} onChange={(e) => setDeckSize(parseInt(e.target.value))}/>
                 <Br/>
             1イメージの桁数: <Select options={digitsPerImageOptions} defaultValue={digitsPerImage || '2'} onChange={(e) => setDigitsPerImage(parseInt(e.target.value))}/>
                 <Br/>
