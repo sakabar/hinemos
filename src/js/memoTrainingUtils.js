@@ -149,6 +149,25 @@ export const postDeck = (elementIdsList) => {
     return rp(options);
 };
 
+export const fetchScore = (userName, event, mode) => {
+    const options = {
+        url: `${config.apiRoot}/getMemoScore`,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {
+            userName,
+            event,
+            mode,
+            token: localStorage.token,
+        },
+    };
+
+    return rp(options);
+};
+
 export const postTrial = (userName, event, mode, deckIds) => {
     const options = {
         url: `${config.apiRoot}/memoTrial`,
