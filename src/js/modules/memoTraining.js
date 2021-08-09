@@ -192,6 +192,8 @@ const initialState = {
     poorKey: 'memorization', // どの観点で苦手と見るか
     startDate: moment().subtract(7 * 13 - 1, 'days').format('YYYY/MM/DD'),
     endDate: moment().format('YYYY/MM/DD'),
+    evacuatedDeckNum: null, // poorDeckを採用した場合に、元のdeckNumを保持しておくための変数。記憶練習終了時に戻す。
+    evacuatedDeckSize: null, // poorDeckを採用した場合に、元のdeckSizeを保持しておくための変数。記憶練習終了時に戻す。
 };
 
 function * handleStartMemorizationPhase () {
@@ -338,11 +340,16 @@ function * handleStartMemorizationPhase () {
             trialDeckIds,
             deckElementIdPairsList,
             currentMiliUnixtime,
-            deckSize,
+            // poorDeckの場合はdeckSizeから変化する
+            deckNum: poorDeckNum > 0 ? decks.length : deckNum,
+            // poorDeckの場合はdeckSizeはpairSizeと等しい
+            deckSize: poorDeckNum > 0 ? pairSize : deckSize,
             digitsPerImage,
             pairSize,
             decks,
             elementIdsDict,
+            evacuatedDeckNum: poorDeckNum > 0 ? deckNum : null,
+            evacuatedDeckSize: poorDeckNum > 0 ? deckSize : null,
         };
 
         // <main>にフォーカスすることで、ショートカットキーをすぐに使えるようにする
@@ -936,6 +943,7 @@ export const memoTrainingReducer = handleActions(
                     switchedPairMiliUnixtime: action.payload.currentMiliUnixtime,
 
                     memoEvent: action.payload.memoEvent,
+                    deckNum: action.payload.deckNum,
                     deckSize: action.payload.deckSize,
                     digitsPerImage: action.payload.digitsPerImage,
                     decks,
@@ -945,6 +953,9 @@ export const memoTrainingReducer = handleActions(
                     elementIdsDict: action.payload.elementIdsDict,
 
                     lastMemoMiliUnixtimePairsList,
+
+                    evacuatedDeckNum: action.payload.evacuatedDeckNum,
+                    evacuatedDeckSize: action.payload.evacuatedDeckSize,
                 };
             }
 
@@ -1038,8 +1049,9 @@ export const memoTrainingReducer = handleActions(
             return {
                 ...initialState,
                 // 一部の設定は引き継ぐ
-                deckNum: state.deckNum,
-                deckSize: state.deckSize,
+                // poorDeckの場合、evacuatedDeckNumに元のdeckNumが退避されているので戻す
+                deckNum: state.evacuatedDeckNum || state.deckNum,
+                deckSize: state.evacuatedDeckSize || state.deckSize,
                 pairSize: state.pairSize,
                 isLefty: state.isLefty,
 
