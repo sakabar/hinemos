@@ -679,4 +679,286 @@ describe('memoTrainingUtils.js', () => {
             assert.deepStrictEqual(actual, expected);
         });
     });
+
+    describe('transformStatsJSONtoArray()', () => {
+        it('正常系', () => {
+            const statsJSON = {
+                '0': {
+                    '2': {
+                        event: 'cards',
+                        transformation: 2.0,
+                        memorization: 4.0,
+                        recallSum: 3,
+                        recallData: [
+                            {
+                                solutionElementId: 2,
+                                count: 1,
+                                rate: 1.0 / 3,
+                            },
+                            {
+                                solutionElementId: 3,
+                                count: 2,
+                                rate: 2.0 / 3,
+                            },
+                        ],
+                    },
+                },
+                '1': {
+                    '3': {
+                        event: 'numbers',
+                        transformation: 1.0,
+                        memorization: 3.0,
+                        recallSum: 2,
+                        recallData: [
+                            {
+                                solutionElementId: 5,
+                                count: 2,
+                                rate: 1.0,
+                            },
+                        ],
+                    },
+                },
+            };
+
+            const actual = memoTrainingUtils.transformStatsJSONtoArray(statsJSON, 'cards');
+            const expected = [
+                {
+                    event: 'cards',
+                    posInd: 0,
+                    elementId: 2,
+                    transformation: 2.0,
+                    memorization: 4.0,
+                    acc: 1.0 / 3,
+                    mistakeCnt: 2,
+                    mistakes: [
+                        {
+                            solutionElementId: 3,
+                            count: 2,
+                            rate: 2.0 / 3,
+                        },
+                    ],
+                },
+            ];
+
+            assert.deepStrictEqual(actual, expected);
+        });
+    });
+    describe('generatePoorDecks()', () => {
+        it('正常系: posIndごとに苦手なelementがシャッフルされていること。同じelementが1つのdeck内に複数含まれないこと', () => {
+            const pairSize = 3;
+            const poorDeckNum = 3;
+            const poorKey = 'memorization';
+            const statsArray = [
+                {
+                    event: 'cards',
+                    posInd: 0,
+                    elementId: 0,
+                    transformation: 0.5,
+                    memorization: 0.5,
+                    acc: 1.0,
+                    mistakeCnt: 0,
+                    mistakes: [],
+                },
+                {
+                    event: 'cards',
+                    posInd: 0,
+                    elementId: 1,
+                    transformation: 2.0,
+                    memorization: 1.0,
+                    acc: 0.3,
+                    mistakeCnt: 2,
+                    mistakes: [],
+                },
+                {
+                    event: 'cards',
+                    posInd: 0,
+                    elementId: 2,
+                    transformation: 3.0,
+                    memorization: 2.0,
+                    acc: 0.1,
+                    mistakeCnt: 2,
+                    mistakes: [],
+                },
+                {
+                    event: 'cards',
+                    posInd: 0,
+                    elementId: 3,
+                    transformation: 1.0,
+                    memorization: 3.0,
+                    acc: 0.2,
+                    mistakeCnt: 2,
+                    mistakes: [],
+                },
+                // ここからposInd === 1
+                {
+                    event: 'cards',
+                    posInd: 1,
+                    elementId: 0,
+                    transformation: 0.5,
+                    memorization: 0.5,
+                    acc: 1.0,
+                    mistakeCnt: 0,
+                    mistakes: [],
+                },
+                {
+                    event: 'cards',
+                    posInd: 1,
+                    elementId: 1,
+                    transformation: 2.0,
+                    memorization: 1.0,
+                    acc: 0.3,
+                    mistakeCnt: 2,
+                    mistakes: [],
+                },
+                {
+                    event: 'cards',
+                    posInd: 1,
+                    elementId: 2,
+                    transformation: 3.0,
+                    memorization: 2.0,
+                    acc: 0.1,
+                    mistakeCnt: 2,
+                    mistakes: [],
+                },
+                {
+                    event: 'cards',
+                    posInd: 1,
+                    elementId: 3,
+                    transformation: 1.0,
+                    memorization: 3.0,
+                    acc: 0.2,
+                    mistakeCnt: 2,
+                    mistakes: [],
+                },
+                // ここからposInd === 2
+                {
+                    event: 'cards',
+                    posInd: 2,
+                    elementId: 0,
+                    transformation: 0.5,
+                    memorization: 0.5,
+                    acc: 1.0,
+                    mistakeCnt: 0,
+                    mistakes: [],
+                },
+                {
+                    event: 'cards',
+                    posInd: 2,
+                    elementId: 1,
+                    transformation: 2.0,
+                    memorization: 1.0,
+                    acc: 0.3,
+                    mistakeCnt: 2,
+                    mistakes: [],
+                },
+                {
+                    event: 'cards',
+                    posInd: 2,
+                    elementId: 2,
+                    transformation: 3.0,
+                    memorization: 2.0,
+                    acc: 0.1,
+                    mistakeCnt: 2,
+                    mistakes: [],
+                },
+                {
+                    event: 'cards',
+                    posInd: 2,
+                    elementId: 3,
+                    transformation: 1.0,
+                    memorization: 3.0,
+                    acc: 0.2,
+                    mistakeCnt: 2,
+                    mistakes: [],
+                },
+            ];
+
+            const c1 = new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 1);
+            const c2 = new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 2);
+            const c3 = new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.club, 3);
+            const dummy = new memoTrainingUtils.CardElement(memoTrainingUtils.Suit.diamond, 1);
+
+            const elementIdToElement = {
+                '0': dummy,
+                '1': c1,
+                '2': c2,
+                '3': c3,
+            };
+
+            const actualDecks = memoTrainingUtils.generatePoorDecks(pairSize, poorDeckNum, poorKey, statsArray, elementIdToElement);
+
+            // 検証項目
+            // 1. actualを順に見て、同じdeck内に同じelementが存在しないこと
+            // 2. c1, c2, c3が網羅されていること
+
+            // ランダム要素があるので直接は比較できないが、例えばこんな出力
+            // const expected = [
+            //     [ c1, c2, c3, ],
+            //     [ c3, c1, c2, ],
+            //     [ c2, c3, c1, ],
+            // ];
+
+            let isUniqInDeck = true;
+
+            const expectedPosTagSet = new Set();
+            const expectedTags = [ 'C-01', 'C-02', 'C-03', ];
+            for (let i = 0; i < pairSize; i++) {
+                for (let k = 0; k < expectedTags.length; k++) {
+                    const tag = expectedTags[k];
+                    const posTag = `${i},${tag}`;
+                    expectedPosTagSet.add(posTag);
+                }
+            }
+
+            const actualPosTagSet = new Set();
+            for (let actualDeckInd = 0; actualDeckInd < actualDecks.length; actualDeckInd++) {
+                const actualDeck = actualDecks[actualDeckInd];
+
+                // poorDeckは、1つのデッキの中に含まれる1ペア数は1つのみという仕様
+                const actualPair = actualDeck[0];
+                // console.log(JSON.stringify(actualPair, null, 4));
+
+                const actualTagSet = new Set();
+                for (let indInPair = 0; indInPair < actualPair.length; indInPair++) {
+                    const actualElement = actualPair[indInPair];
+                    const tag = actualElement.tag;
+
+                    if (actualTagSet.has(tag)) {
+                        isUniqInDeck = false;
+                    }
+
+                    const posInd = indInPair % pairSize;
+                    const posTag = `${posInd},${tag}`;
+                    actualPosTagSet.add(posTag);
+                }
+            }
+
+            // 1つのDeckの中に被りが無いこと
+            assert.deepStrictEqual(isUniqInDeck, true);
+
+            // Set大きさが0より大きく9以下であり、期待していない要素が入っていないこと
+            // シャッフルがランダムなので、9未満になることがある
+            const sizeAssertionGt0 = 0 < actualPosTagSet.size;
+            if (!sizeAssertionGt0) {
+                console.log('actualPosTagSet.size === 0');
+            }
+            assert.deepStrictEqual(sizeAssertionGt0, true);
+
+            const sizeAssertion = actualPosTagSet.size <= expectedPosTagSet.size;
+            if (!sizeAssertion) {
+                console.log(`${actualPosTagSet.size} > ${expectedPosTagSet.size}`);
+            }
+            assert.deepStrictEqual(sizeAssertion, true);
+
+            const actualPosTags = Array.from(actualPosTagSet);
+            for (let i = 0; i < actualPosTags.length; i++) {
+                const actualPosTag = actualPosTags[i];
+                const actual = expectedPosTagSet.has(actualPosTag);
+                if (!actual) {
+                    console.log(`${actualPosTag} not in ${Array.from(expectedPosTagSet)}`);
+                }
+                assert.deepStrictEqual(actual, true);
+            }
+        });
+    });
 });
