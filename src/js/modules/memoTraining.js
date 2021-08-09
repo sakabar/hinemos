@@ -1015,8 +1015,9 @@ export const memoTrainingReducer = handleActions(
                 return {
                     ...initialState,
                     // 一部の設定は引き継ぐ
-                    deckNum: state.deckNum,
-                    deckSize: state.deckSize,
+                    // poorDeckの場合、evacuatedDeckNumに元のdeckNumが退避されているので戻す
+                    deckNum: state.evacuatedDeckNum || state.deckNum,
+                    deckSize: state.evacuatedDeckSize || state.deckSize,
                     pairSize: state.pairSize,
                     isLefty: state.isLefty,
                     isUniqInDeck: state.isUniqInDeck,
