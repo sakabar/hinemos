@@ -552,21 +552,21 @@ export const generatePoorDecks = (pairSize, poorDeckNum, poorKey, statsArray, el
         poorStatsDict[tmpPosInd] = [];
     }
 
-    // 中に入れる
+    // posIndごとにpoorStatsDict[posInd]の中に入れていく
     for (let i = 0; i < sortedStatsArray.length; i++) {
         const stat = sortedStatsArray[i];
         const posInd = stat.posInd;
 
         // 普段2in1の人が気まぐれでPAOの練習をすると、statの中にはposInd=2のデータがある場合が考えられる
         // 2in1での練習の際には、このようなデータは無視
-        if (posInd >= pairSize || poorStatsDict[posInd].length > poorDeckNum) {
+        if (posInd >= pairSize || poorStatsDict[posInd].length >= poorDeckNum) {
             continue;
         }
 
         poorStatsDict[posInd].push(stat);
         let allFilled = true;
         for (let tmpPosInd = 0; tmpPosInd < pairSize; tmpPosInd++) {
-            allFilled = poorStatsDict[tmpPosInd].length === poorDeckNum;
+            allFilled = allFilled && poorStatsDict[tmpPosInd].length === poorDeckNum;
         }
 
         if (allFilled) {
