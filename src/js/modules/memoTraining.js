@@ -285,7 +285,11 @@ function * handleStartMemorizationPhase () {
                 }
             } else if (memoEvent === memoTrainingUtils.MemoEvent.numbers) {
                 try {
-                    return memoTrainingUtils.generateNumbersDecks(deckNum, deckSize, digitsPerImage, pairSize, isUniqInDeck);
+                    if (poorDeckNum > 0) {
+                        return memoTrainingUtils.generatePoorDecks(pairSize, poorDeckNum, poorKey, statsArray, elementIdToElement);
+                    } else {
+                        return memoTrainingUtils.generateNumbersDecks(deckNum, deckSize, digitsPerImage, pairSize, isUniqInDeck);
+                    }
                 } catch (e) {
                     alert(e);
                     return [];

@@ -14,6 +14,7 @@ import {
     setDeckSize,
     setDigitsPerImage,
     setPairSize,
+
     setIsLefty,
     setIsUniqInDeck,
 
@@ -39,6 +40,11 @@ import {
     goToNextDeckRecall,
     sagaSelectHand,
 
+    setPoorDeckNum,
+    setPoorKey,
+    setStartDate,
+    setEndDate,
+
     memoTrainingReducer,
     rootSaga,
 } from '../../../modules/memoTraining';
@@ -63,6 +69,7 @@ const mapStateToProps = ({
     deckSize,
     digitsPerImage,
     pairSize,
+
     memoEvent,
     mode,
     phase,
@@ -74,6 +81,11 @@ const mapStateToProps = ({
 
     handDict,
     handSuits,
+
+    poorDeckNum,
+    poorKey,
+    startDate,
+    endDate,
 }) => {
     return {
         userName,
@@ -105,6 +117,11 @@ const mapStateToProps = ({
 
         handDict,
         handSuits,
+
+        poorDeckNum,
+        poorKey,
+        startDate,
+        endDate,
     };
 };
 
@@ -127,6 +144,18 @@ const mapDispatchToProps = (dispatch) => {
         },
         setIsUniqInDeck: (isUniqInDeck) => {
             dispatch(setIsUniqInDeck({ isUniqInDeck, }));
+        },
+        setPoorDeckNum: (poorDeckNum) => {
+            dispatch(setPoorDeckNum({ poorDeckNum, }));
+        },
+        setPoorKey: (poorKey) => {
+            dispatch(setPoorKey({ poorKey, }));
+        },
+        setStartDate: (dateStr) => {
+            dispatch(setStartDate({ startDate: dateStr, }));
+        },
+        setEndDate: (dateStr) => {
+            dispatch(setEndDate({ endDate: dateStr, }));
         },
         sagaGoToNextPair: () => {
             dispatch(sagaGoToNextPair());
