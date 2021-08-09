@@ -33,6 +33,11 @@ const MemoTrainingMbldTemplate = (
         // handDict,
         // handSuits,
 
+        poorDeckNum,
+        poorKey,
+        startDate,
+        endDate,
+
         setDeckNum,
         // setDeckSize,
         setPairSize,
@@ -53,6 +58,11 @@ const MemoTrainingMbldTemplate = (
         sagaOnKeyDown,
 
         toggleShortcutModal,
+
+        setPoorDeckNum,
+        setPoorKey,
+        setStartDate,
+        setEndDate,
     }
 ) => (
     <div>
@@ -62,7 +72,7 @@ const MemoTrainingMbldTemplate = (
             {
                 (() => {
                     if (phase === memoTrainingUtils.TrainingPhase.setting) {
-                        return (<MemoTrainingMbldSetting deckNum={deckNum} pairSize={pairSize} isOpenMemoShortcutModal={isOpenMemoShortcutModal} setDeckNum={setDeckNum} setPairSize={setPairSize} sagaStartMemorizationPhase={sagaStartMemorizationPhase} toggleShortcutModal={toggleShortcutModal}/>);
+                        return (<MemoTrainingMbldSetting deckNum={deckNum} pairSize={pairSize} isOpenMemoShortcutModal={isOpenMemoShortcutModal} poorDeckNum={poorDeckNum} poorKey={poorKey} startDate={startDate} endDate={endDate} setDeckNum={setDeckNum} setPairSize={setPairSize} sagaStartMemorizationPhase={sagaStartMemorizationPhase} toggleShortcutModal={toggleShortcutModal} setPoorDeckNum={setPoorDeckNum} setPoorKey={setPoorKey} setStartDate={setStartDate} setEndDate={setEndDate}/>);
                     } else if (phase === memoTrainingUtils.TrainingPhase.memorization) {
                         return (<MemoTrainingMbldMemorization startMemoMiliUnixtime={startMemoMiliUnixtime} startRecallMiliUnixtime={startRecallMiliUnixtime} timerMiliUnixtime={timerMiliUnixtime} timeVisible={timeVisible} decks={decks} deckInd={deckInd} pairInd={pairInd} sagaFinishMemorizationPhase={sagaFinishMemorizationPhase} sagaGoToNextPair={sagaGoToNextPair} sagaGoToPrevPair={sagaGoToPrevPair} sagaGoToDeckHead={sagaGoToDeckHead} sagaGoToNextDeck={sagaGoToNextDeck} sagaToggleTimer={sagaToggleTimer}/>);
                     } else if (phase === memoTrainingUtils.TrainingPhase.recall) {
@@ -111,6 +121,11 @@ MemoTrainingMbldTemplate.propTypes = {
     // handDict: PropTypes.object.isRequired,
     // handSuits: PropTypes.array.isRequired,
 
+    poorDeckNum: PropTypes.number.isRequired,
+    poorKey: PropTypes.string.isRequired,
+    startDate: PropTypes.string.isRequired,
+    endDate: PropTypes.string.isRequired,
+
     setDeckNum: PropTypes.func.isRequired,
     // setDeckSize: PropTypes.func.isRequired,
     setPairSize: PropTypes.func.isRequired,
@@ -131,6 +146,11 @@ MemoTrainingMbldTemplate.propTypes = {
     sagaOnKeyDown: PropTypes.func.isRequired,
 
     toggleShortcutModal: PropTypes.func.isRequired,
+
+    setPoorDeckNum: PropTypes.func.isRequired,
+    setPoorKey: PropTypes.func.isRequired,
+    setStartDate: PropTypes.func.isRequired,
+    setEndDate: PropTypes.func.isRequired,
 };
 
 export default MemoTrainingMbldTemplate;

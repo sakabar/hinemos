@@ -275,21 +275,17 @@ function * handleStartMemorizationPhase () {
         // これで、上の構想を実現する時にもテーブルに矛盾は起こらないはず
 
         const decks = (() => {
+            if (poorDeckNum > 0) {
+                return memoTrainingUtils.generatePoorDecks(pairSize, poorDeckNum, poorKey, statsArray, elementIdToElement);
+            }
+
             if (memoEvent === memoTrainingUtils.MemoEvent.mbld) {
                 return memoTrainingUtils.generateMbldDecks(numberingCorner, numberingEdge, deckNum, pairSize);
             } else if (memoEvent === memoTrainingUtils.MemoEvent.cards) {
-                if (poorDeckNum > 0) {
-                    return memoTrainingUtils.generatePoorDecks(pairSize, poorDeckNum, poorKey, statsArray, elementIdToElement);
-                } else {
-                    return memoTrainingUtils.generateCardsDecks(deckNum, deckSize, pairSize);
-                }
+                return memoTrainingUtils.generateCardsDecks(deckNum, deckSize, pairSize);
             } else if (memoEvent === memoTrainingUtils.MemoEvent.numbers) {
                 try {
-                    if (poorDeckNum > 0) {
-                        return memoTrainingUtils.generatePoorDecks(pairSize, poorDeckNum, poorKey, statsArray, elementIdToElement);
-                    } else {
-                        return memoTrainingUtils.generateNumbersDecks(deckNum, deckSize, digitsPerImage, pairSize, isUniqInDeck);
-                    }
+                    return memoTrainingUtils.generateNumbersDecks(deckNum, deckSize, digitsPerImage, pairSize, isUniqInDeck);
                 } catch (e) {
                     alert(e);
                     return [];
