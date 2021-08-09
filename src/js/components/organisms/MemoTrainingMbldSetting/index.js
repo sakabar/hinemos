@@ -22,7 +22,7 @@ const poorDeckNumOptions = [ ...Array(11).keys(), ].map(ind => [ String(ind), St
 const poorKeyOptions = [
     [ 'memorization', '記憶が遅い', ],
     [ 'transformation', '変換が遅い', ],
-    [ 'acc', '正確性が低い', ],
+    [ 'acc', '正解率が低い', ],
 ];
 
 const MemoTrainingMbldSetting = ({
