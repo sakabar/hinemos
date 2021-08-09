@@ -3,6 +3,7 @@ const constant = require('./constant');
 const numbering3 = require('./numbering3');
 const utils = require('./utils');
 const _ = require('lodash');
+const moment = require('moment-timezone');
 const shuffle = require('shuffle-array');
 const rp = require('request-promise');
 
@@ -161,6 +162,26 @@ export const fetchScore = (userName, event, mode) => {
             userName,
             event,
             mode,
+            token: localStorage.token,
+        },
+    };
+
+    return rp(options);
+};
+
+export const requestFetchStats = (userName, event, startDate, endDate) => {
+    const options = {
+        url: `${config.apiRoot}/getMemoLogStats`,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {
+            userName,
+            event,
+            startDate: moment(startDate, 'YYYY/MM/DD').toISOString(),
+            endDate: moment(endDate, 'YYYY/MM/DD').hour(23).minute(59).second(59).toISOString(),
             token: localStorage.token,
         },
     };
@@ -514,6 +535,118 @@ export const generateCardsDecks = (deckNum, deckSize, pairSize) => {
     return ans;
 };
 
+export const generatePoorDecks = (pairSize, poorDeckNum, poorKey, statsArray, elementIdToElement) => {
+    // accの場合は昇順、それ以外は降順
+    const sortedStatsArray = (() => {
+        if (poorKey === 'acc') {
+            return _.sortBy(statsArray.filter(rec => rec[poorKey] !== null), (rec) => { return rec[poorKey]; });
+        } else {
+            return _.sortBy(statsArray.filter(rec => rec[poorKey] !== null), (rec) => { return -rec[poorKey]; });
+        }
+    })();
+
+    // posInd => poorStats
+    const poorStatsDict = {};
+    // 初期化
+    for (let tmpPosInd = 0; tmpPosInd < pairSize; tmpPosInd++) {
+        poorStatsDict[tmpPosInd] = [];
+    }
+
+    // posIndごとにpoorStatsDict[posInd]の中に入れていく
+    for (let i = 0; i < sortedStatsArray.length; i++) {
+        const stat = sortedStatsArray[i];
+        const posInd = stat.posInd;
+
+        // 普段2in1の人が気まぐれでPAOの練習をすると、statの中にはposInd=2のデータがある場合が考えられる
+        // 2in1での練習の際には、このようなデータは無視
+        if (posInd >= pairSize || poorStatsDict[posInd].length >= poorDeckNum) {
+            continue;
+        }
+
+        poorStatsDict[posInd].push(stat);
+        let allFilled = true;
+        for (let tmpPosInd = 0; tmpPosInd < pairSize; tmpPosInd++) {
+            allFilled = allFilled && poorStatsDict[tmpPosInd].length === poorDeckNum;
+        }
+
+        if (allFilled) {
+            break;
+        }
+    }
+
+    // posIndごとのpoorStatsのどれかがpoorDeckNum以下のまま全舐めしてループを抜けた可能性があるので、
+    // poorDeckとしてはfillされた最少値を設定する
+    const minPoorDeckNum = (() => {
+        let minPoorDeckNum = poorStatsDict[0].length;
+        for (let tmpPosInd = 0; tmpPosInd < pairSize; tmpPosInd++) {
+            minPoorDeckNum = _.min([ minPoorDeckNum, poorStatsDict[tmpPosInd].length, ]);
+        }
+        return minPoorDeckNum;
+    })();
+
+    // サイズをminPoorDeckNumで揃えつつ、中身をシャッフルする
+    for (let tmpPosInd = 0; tmpPosInd < pairSize; tmpPosInd++) {
+        poorStatsDict[tmpPosInd] = _.shuffle(poorStatsDict[tmpPosInd].slice(0, minPoorDeckNum));
+    }
+
+    // 1つのペア内で重ならないようにしつつ選び取る
+    // pop()の計算量をえて、poorStatsDict[tmpPosInd]の後ろから見ていく
+
+    const ansDecks = [];
+    for (let deckNumInd = 0; deckNumInd < minPoorDeckNum; deckNumInd++) {
+        const pair = [];
+        const tagSetInPair = new Set();
+
+        for (let tmpPosInd = 0; tmpPosInd < pairSize; tmpPosInd++) {
+            const skippedStatStack = [];
+
+            // 注意! pop()する際の効率を考えて、後ろから見ていく
+            while (poorStatsDict[tmpPosInd].length > 0) {
+                const candStat = poorStatsDict[tmpPosInd].pop();
+                const candElement = elementIdToElement[candStat.elementId];
+
+                // pairを既に入っていなければ入れる
+                if (tagSetInPair.has(candElement.tag)) {
+                    // 被ってしまった場合 →次(前)を見る
+                    skippedStatStack.push(candStat);
+                    continue;
+                } else {
+                    // 被っていない場合
+                    pair.push(candElement);
+                    tagSetInPair.add(candElement.tag);
+
+                    // skippedStatStackから元に戻す
+                    while (skippedStatStack.length > 0) {
+                        const st = skippedStatStack.pop();
+                        poorStatsDict[tmpPosInd].push(st);
+                    }
+
+                    break;
+                }
+            }
+
+            // ここに来た時に skippedStatStack が空ではない場合は、
+            // 全ての候補を見ても被っていたので無理
+            // 処理をここで止めてリターンする
+            if (skippedStatStack.length > 0) {
+                return ansDecks;
+            }
+        }
+
+        if (pair.length === pairSize) {
+            // 必ず1ペアのみのデッキとする
+            const deck = [ pair, ];
+            ansDecks.push(deck);
+        } else {
+            // 中途半端な状態になってしまったので
+            // 処理をここで止めてリターンする
+            return ansDecks;
+        }
+    }
+
+    return ansDecks;
+};
+
 export const suitMarkDict = {
     C: String.fromCharCode(parseInt('2663', 16)),
     D: String.fromCharCode(parseInt('2666', 16)),
@@ -675,4 +808,70 @@ export const mergeLastRecallMiliUnixtimePairsList = (lastRecallMiliUnixtimePairs
             });
         });
     });
+};
+
+export const transformStatsJSONtoArray = (statsJSON, event) => {
+    const stats = [];
+
+    const posInds = Object.keys(statsJSON);
+    for (let i = 0; i < posInds.length; i++) {
+        const posInd = posInds[i];
+        const posObj = statsJSON[posInd];
+
+        const elementIds = Object.keys(posObj);
+        for (let k = 0; k < elementIds.length; k++) {
+            const elementId = elementIds[k];
+            const posElementObj = posObj[elementId];
+
+            const recEvent = posElementObj.event;
+            if (recEvent !== event) {
+                continue;
+            }
+
+            const transformation = posElementObj.transformation;
+            const memorization = posElementObj.memorization;
+            const recallSum = posElementObj.recallSum;
+            const recallData = posElementObj.recallData;
+
+            const sortedRecallData = _.sortBy(recallData, (rec) => { return -rec.count; });
+
+            let acc = 0.0;
+            let mistakeCnt = recallSum;
+            const mistakes = [];
+
+            for (let n = 0; n < sortedRecallData.length; n++) {
+                const recallDatum = sortedRecallData[n];
+
+                const solutionElementId = recallDatum.solutionElementId;
+                const count = recallDatum.count;
+                const rate = recallDatum.rate;
+
+                if (solutionElementId === parseInt(elementId)) {
+                    acc = rate;
+                    mistakeCnt -= count;
+                    continue;
+                } else {
+                    mistakes.push(recallDatum);
+                }
+
+                if (mistakes.length >= 3) {
+                    break;
+                }
+            }
+
+            const rec = {
+                event: recEvent,
+                posInd: parseInt(posInd),
+                elementId: parseInt(elementId),
+                transformation,
+                memorization,
+                acc,
+                mistakeCnt,
+                mistakes,
+            };
+
+            stats.push(rec);
+        }
+    }
+    return stats;
 };

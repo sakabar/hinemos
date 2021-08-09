@@ -10,11 +10,8 @@ import {
     select,
 } from 'redux-saga/effects';
 const memoTrainingUtils = require('../memoTrainingUtils');
-const config = require('../config');
-const rp = require('request-promise');
 
 const moment = require('moment-timezone');
-const _ = require('lodash');
 
 const FETCH_STATS = 'FETCH_STATS';
 const fetchStats = createAction(FETCH_STATS);
@@ -38,26 +35,6 @@ const initialState = {
     stats: [],
     scores: [],
     elementIdToElement: {},
-};
-
-const requestFetchStats = (userName, event, startDate, endDate) => {
-    const options = {
-        url: `${config.apiRoot}/getMemoLogStats`,
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        json: true,
-        form: {
-            userName,
-            event,
-            startDate: moment(startDate, 'YYYY/MM/DD').toISOString(),
-            endDate: moment(endDate, 'YYYY/MM/DD').hour(23).minute(59).second(59).toISOString(),
-            token: localStorage.token,
-        },
-    };
-
-    return rp(options);
 };
 
 function * handleFetchStats () {
@@ -93,74 +70,12 @@ function * handleFetchStats () {
         }
         const scores = resFetchScore.success.result.scores;
 
-        const resFetchStats = yield call(requestFetchStats, userName, event, startDate, endDate);
+        const resFetchStats = yield call(memoTrainingUtils.requestFetchStats, userName, event, startDate, endDate);
         if (!resFetchStats.success) {
             throw new Error('Error fetchStats()');
         }
         const statsJSON = resFetchStats.success.result;
-
-        const stats = [];
-
-        const posInds = Object.keys(statsJSON);
-        for (let i = 0; i < posInds.length; i++) {
-            const posInd = posInds[i];
-            const posObj = statsJSON[posInd];
-
-            const elementIds = Object.keys(posObj);
-            for (let k = 0; k < elementIds.length; k++) {
-                const elementId = elementIds[k];
-                const posElementObj = posObj[elementId];
-
-                const recEvent = posElementObj.event;
-                if (recEvent !== event) {
-                    continue;
-                }
-
-                const transformation = posElementObj.transformation;
-                const memorization = posElementObj.memorization;
-                const recallSum = posElementObj.recallSum;
-                const recallData = posElementObj.recallData;
-
-                const sortedRecallData = _.sortBy(recallData, (rec) => { return -rec.count; });
-
-                let acc = 0.0;
-                let mistakeCnt = recallSum;
-                const mistakes = [];
-
-                for (let n = 0; n < sortedRecallData.length; n++) {
-                    const recallDatum = sortedRecallData[n];
-
-                    const solutionElementId = recallDatum.solutionElementId;
-                    const count = recallDatum.count;
-                    const rate = recallDatum.rate;
-
-                    if (solutionElementId === parseInt(elementId)) {
-                        acc = rate;
-                        mistakeCnt -= count;
-                        continue;
-                    } else {
-                        mistakes.push(recallDatum);
-                    }
-
-                    if (mistakes.length >= 3) {
-                        break;
-                    }
-                }
-
-                const rec = {
-                    event: recEvent,
-                    posInd: parseInt(posInd),
-                    elementId: parseInt(elementId),
-                    transformation,
-                    memorization,
-                    acc,
-                    mistakeCnt,
-                    mistakes,
-                };
-
-                stats.push(rec);
-            }
-        }
+        const stats = memoTrainingUtils.transformStatsJSONtoArray(statsJSON, event);
 
         const payload = {
             event,

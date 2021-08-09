@@ -31,6 +31,11 @@ import {
 
     toggleShortcutModal,
 
+    setPoorDeckNum,
+    setPoorKey,
+    setStartDate,
+    setEndDate,
+
     memoTrainingReducer,
     rootSaga,
 } from '../../../modules/memoTraining';
@@ -54,6 +59,11 @@ const mapStateToProps = ({
     deckInd,
     pairInd,
     // posInd,
+
+    poorDeckNum,
+    poorKey,
+    startDate,
+    endDate,
 }) => {
     return {
         userName,
@@ -73,6 +83,11 @@ const mapStateToProps = ({
         deckInd,
         pairInd,
         // posInd,
+
+        poorDeckNum,
+        poorKey,
+        startDate,
+        endDate,
     };
 };
 
@@ -86,6 +101,18 @@ const mapDispatchToProps = (dispatch) => {
         // },
         setPairSize: (pairSize) => {
             dispatch(setPairSize({ pairSize, }));
+        },
+        setPoorDeckNum: (poorDeckNum) => {
+            dispatch(setPoorDeckNum({ poorDeckNum, }));
+        },
+        setPoorKey: (poorKey) => {
+            dispatch(setPoorKey({ poorKey, }));
+        },
+        setStartDate: (dateStr) => {
+            dispatch(setStartDate({ startDate: dateStr, }));
+        },
+        setEndDate: (dateStr) => {
+            dispatch(setEndDate({ endDate: dateStr, }));
         },
         sagaGoToNextPair: () => {
             dispatch(sagaGoToNextPair());

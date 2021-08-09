@@ -3,6 +3,7 @@ import {
     Link,
 } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import DateTimePicker from 'react-datetime-picker';
 import Br from '../../atoms/Br';
 import Button from '../../atoms/Button';
 import Select from '../../molecules/Select';
@@ -10,6 +11,7 @@ import ModeDecisionButtons from '../../molecules/ModeDecisionButtons';
 import MemoShortcutModal from '../../molecules/MemoShortcutModal';
 const memoTrainingUtils = require('../../../memoTrainingUtils');
 const config = require('../../../config');
+const moment = require('moment');
 const path = require('path');
 
 const urlRoot = path.basename(config.urlRoot);
@@ -20,6 +22,12 @@ const pairSizeList = [ ...Array(4).keys(), ].map(ind => [ String(ind + 1), Strin
 const isLeftyOptions = [
     [ 'true', '→', ],
     [ 'false', '←', ],
+];
+const poorDeckNumOptions = [ ...Array(11).keys(), ].map(ind => [ String(ind), String(ind), ]);
+const poorKeyOptions = [
+    [ 'memorization', '記憶が遅い', ],
+    [ 'transformation', '変換が遅い', ],
+    [ 'acc', '正解率が低い', ],
 ];
 
 // https://qiita.com/kanpou0108/items/b6c7a38a755dd60fd77f
@@ -48,20 +56,32 @@ const MemoTrainingCardsSetting = ({
     deckSize,
     deckNum,
     pairSize,
+
     isLefty,
     handSuits,
 
     isOpenMemoShortcutModal,
 
+    poorDeckNum,
+    poorKey,
+    startDate,
+    endDate,
+
     setDeckNum,
     setDeckSize,
     setPairSize,
+
     setIsLefty,
     setHandSuits,
 
     sagaStartMemorizationPhase,
 
     toggleShortcutModal,
+
+    setPoorDeckNum,
+    setPoorKey,
+    setStartDate,
+    setEndDate,
 }) => {
     return (
         <div>
@@ -88,6 +108,31 @@ const MemoTrainingCardsSetting = ({
                 <Br/>
             方向: <Select options={isLeftyOptions} defaultValue={typeof isLefty === 'undefined' ? 'true' : String(isLefty)} onChange={(e) => setIsLefty(e.target.value === 'true')} />
                 <Br/>
+
+                <DateTimePicker
+                    format={'yyyy/MM/dd'}
+                    returnValue={'start'}
+                    disableClock={true}
+                    value={new Date(startDate)}
+                    onChange={ (value) => {
+                        setStartDate(value ? moment(value).format('YYYY/MM/DD') : null);
+                    }}
+                />
+から
+                <DateTimePicker
+                    format={'yyyy/MM/dd'}
+                    returnValue={'end'}
+                    disableClock={true}
+                    value={new Date(endDate)}
+                    onChange={ (value) => {
+                        setEndDate(value ? moment(value).format('YYYY/MM/DD') : null);
+                    }}
+                />
+            までの
+                <Select options={poorKeyOptions} defaultValue={poorKey || 'memorization' } onChange={(e) => setPoorKey(e.target.value)} />
+                <Select options={poorDeckNumOptions} defaultValue={poorDeckNum || '0' } onChange={(e) => setPoorDeckNum(parseInt(e.target.value))} />
+        枚ずつに絞って練習する
+                <Br/>
             </div>
 
             <div>
@@ -113,10 +158,16 @@ MemoTrainingCardsSetting.propTypes = {
     deckNum: PropTypes.number,
     deckSize: PropTypes.number,
     pairSize: PropTypes.number,
+
     isLefty: PropTypes.bool,
     handSuits: PropTypes.array,
 
     isOpenMemoShortcutModal: PropTypes.bool.isRequired,
+
+    poorDeckNum: PropTypes.number.isRequired,
+    poorKey: PropTypes.string.isRequired,
+    startDate: PropTypes.string.isRequired,
+    endDate: PropTypes.string.isRequired,
 
     setDeckNum: PropTypes.func.isRequired,
     setDeckSize: PropTypes.func.isRequired,
@@ -127,6 +178,11 @@ MemoTrainingCardsSetting.propTypes = {
     sagaStartMemorizationPhase: PropTypes.func.isRequired,
 
     toggleShortcutModal: PropTypes.func.isRequired,
+
+    setPoorDeckNum: PropTypes.func.isRequired,
+    setPoorKey: PropTypes.func.isRequired,
+    setStartDate: PropTypes.func.isRequired,
+    setEndDate: PropTypes.func.isRequired,
 };
 
 export default MemoTrainingCardsSetting;

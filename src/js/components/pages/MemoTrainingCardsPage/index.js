@@ -13,6 +13,7 @@ import {
     setDeckNum,
     setDeckSize,
     setPairSize,
+
     setIsLefty,
     setHandSuits,
 
@@ -38,6 +39,11 @@ import {
     goToNextDeckRecall,
     sagaSelectHand,
 
+    setPoorDeckNum,
+    setPoorKey,
+    setStartDate,
+    setEndDate,
+
     memoTrainingReducer,
     rootSaga,
 } from '../../../modules/memoTraining';
@@ -60,6 +66,7 @@ const mapStateToProps = ({
     deckNum,
     deckSize,
     pairSize,
+
     memoEvent,
     mode,
     phase,
@@ -71,6 +78,11 @@ const mapStateToProps = ({
 
     handDict,
     handSuits,
+
+    poorDeckNum,
+    poorKey,
+    startDate,
+    endDate,
 }) => {
     return {
         userName,
@@ -89,6 +101,7 @@ const mapStateToProps = ({
         deckNum,
         deckSize,
         pairSize,
+
         memoEvent,
         mode,
         phase,
@@ -100,6 +113,11 @@ const mapStateToProps = ({
 
         handDict,
         handSuits,
+
+        poorDeckNum,
+        poorKey,
+        startDate,
+        endDate,
     };
 };
 
@@ -120,6 +138,18 @@ const mapDispatchToProps = (dispatch) => {
         setHandSuits: (handSuits) => {
             // FIXME 文字列("C,D,H,S")から配列への変換をここでやっているので注意
             dispatch(setHandSuits({ handSuits: handSuits.split(','), }));
+        },
+        setPoorDeckNum: (poorDeckNum) => {
+            dispatch(setPoorDeckNum({ poorDeckNum, }));
+        },
+        setPoorKey: (poorKey) => {
+            dispatch(setPoorKey({ poorKey, }));
+        },
+        setStartDate: (dateStr) => {
+            dispatch(setStartDate({ startDate: dateStr, }));
+        },
+        setEndDate: (dateStr) => {
+            dispatch(setEndDate({ endDate: dateStr, }));
         },
         sagaGoToNextPair: () => {
             dispatch(sagaGoToNextPair());
