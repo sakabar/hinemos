@@ -25,6 +25,10 @@ const SET_PAIR_SIZE = 'SET_PAIR_SIZE';
 const SET_IS_LEFTY = 'SET_IS_LEFTY';
 const SET_IS_UNIQ_IN_DECK = 'SET_IS_UNIQ_IN_DECK';
 const SET_HAND_SUITS = 'SET_HAND_SUITS';
+const SET_POOR_DECK_NUM = 'SET_POOR_DECK_NUM';
+const SET_POOR_KEY = 'SET_POOR_KEY';
+const SET_START_DATE = 'SET_START_DATE';
+const SET_END_DATE = 'SET_END_DATE';
 
 export const setDeckNum = createAction(SET_DECK_NUM);
 export const setDeckSize = createAction(SET_DECK_SIZE);
@@ -33,6 +37,10 @@ export const setPairSize = createAction(SET_PAIR_SIZE);
 export const setIsLefty = createAction(SET_IS_LEFTY);
 export const setIsUniqInDeck = createAction(SET_IS_UNIQ_IN_DECK);
 export const setHandSuits = createAction(SET_HAND_SUITS);
+export const setPoorDeckNum = createAction(SET_POOR_DECK_NUM);
+export const setPoorKey = createAction(SET_POOR_KEY);
+export const setStartDate = createAction(SET_START_DATE);
+export const setEndDate = createAction(SET_END_DATE);
 
 // モード選択系のアクション
 const START_MEMORIZATION_PHASE = 'START_MEMORIZATION_PHASE';
@@ -152,6 +160,7 @@ const initialState = {
     deckSize: undefined, // 1束の枚数。UIで指定されなかった場合は記憶/分析の開始時に種目ごとのデフォルト値に設定する。数字記憶の場合は「桁数」であり、イメージ数ではない。
     digitsPerImage: undefined, // 1イメージを構成する桁数
     pairSize: 1, // 何イメージをペアにするか
+
     memoEvent: undefined, // 'cards, numbers,'
     mode: undefined, // 'transformation, memorization'
     phase: memoTrainingUtils.TrainingPhase.setting,
@@ -178,6 +187,11 @@ const initialState = {
 
     lastMemoMiliUnixtimePairsList: [ [], ], // そのelementを最後に覚えたミリunixtimestamp
     lastRecallMiliUnixtimePairsList: [ [], ], // そのelementを最後に思い出したミリunixtimestamp
+
+    poorDeckNum: 0, // 苦手なイメージを何ペア練習するか。Cardsにおいて1つのイメージが1つのデッキ内に複数出現するのは変なので、デッキを分けることにする。
+    poorKey: 'memorization', // どの観点で苦手と見るか
+    startDate: moment().subtract(7 * 13 - 1, 'days').format('YYYY/MM/DD'),
+    endDate: moment().format('YYYY/MM/DD'),
 };
 
 function * handleStartMemorizationPhase () {
@@ -232,6 +246,28 @@ function * handleStartMemorizationPhase () {
         const numberingCorner = yield call(memoTrainingUtils.fetchNumberingCorner, userName);
         const numberingEdge = yield call(memoTrainingUtils.fetchNumberingEdge, userName);
 
+        // elementId => element
+        // 種目選択するたびにロードするのは無駄だが、そんなに時間はかからないので問題ない見込み
+        const elementIdToElement = yield call(memoTrainingUtils.loadElementIdToElement);
+        if (Object.keys(elementIdToElement).length === 0) {
+            throw new Error('load failed : elementIdToElement');
+        }
+
+        let statsArray = [];
+        const poorDeckNum = yield select(state => state.poorDeckNum);
+        const poorKey = yield select(state => state.poorKey);
+        if (poorDeckNum > 0) {
+            const startDate = yield select(state => state.startDate);
+            const endDate = yield select(state => state.endDate);
+
+            const resFetchStats = yield call(memoTrainingUtils.requestFetchStats, userName, memoEvent, startDate, endDate);
+            if (!resFetchStats.success) {
+                throw new Error('Error fetchStats()');
+            }
+            const statsJSON = resFetchStats.success.result;
+            statsArray = memoTrainingUtils.transformStatsJSONtoArray(statsJSON, memoEvent);
+        }
+
         // 本来は複数人が同じスクランブルをやる時のために、
         // 最初に[[element]] を生成してからその人のpairSizeごとに分割するべきだが、
         // それはまだ構想段階なので今はやらない。
@@ -242,7 +278,11 @@ function * handleStartMemorizationPhase () {
             if (memoEvent === memoTrainingUtils.MemoEvent.mbld) {
                 return memoTrainingUtils.generateMbldDecks(numberingCorner, numberingEdge, deckNum, pairSize);
             } else if (memoEvent === memoTrainingUtils.MemoEvent.cards) {
-                return memoTrainingUtils.generateCardsDecks(deckNum, deckSize, pairSize);
+                if (poorDeckNum > 0) {
+                    return memoTrainingUtils.generatePoorDecks(pairSize, poorDeckNum, poorKey, statsArray, elementIdToElement);
+                } else {
+                    return memoTrainingUtils.generateCardsDecks(deckNum, deckSize, pairSize);
+                }
             } else if (memoEvent === memoTrainingUtils.MemoEvent.numbers) {
                 try {
                     return memoTrainingUtils.generateNumbersDecks(deckNum, deckSize, digitsPerImage, pairSize, isUniqInDeck);
@@ -969,6 +1009,11 @@ export const memoTrainingReducer = handleActions(
                     pairSize: state.pairSize,
                     isLefty: state.isLefty,
                     isUniqInDeck: state.isUniqInDeck,
+
+                    poorKey: state.poorKey,
+                    poorDeckNum: state.poorDeckNum,
+                    startDate: state.startDate,
+                    endDate: state.endDate,
                 };
             } else if (state.mode === memoTrainingUtils.TrainingMode.memorization) {
                 return {
@@ -997,6 +1042,11 @@ export const memoTrainingReducer = handleActions(
                 deckSize: state.deckSize,
                 pairSize: state.pairSize,
                 isLefty: state.isLefty,
+
+                poorKey: state.poorKey,
+                poorDeckNum: state.poorDeckNum,
+                startDate: state.startDate,
+                endDate: state.endDate,
             };
         },
         [mergeDecks]: (state, action) => {
@@ -1373,6 +1423,34 @@ export const memoTrainingReducer = handleActions(
                 solution: newSolution,
                 handDict: newHandDict,
                 lastRecallMiliUnixtimePairsList: newLastRecallMiliUnixtimePairsList,
+            };
+        },
+        [setPoorDeckNum]: (state, action) => {
+            return {
+                ...state,
+                poorDeckNum: action.payload.poorDeckNum,
+            };
+        },
+        [setPoorKey]: (state, action) => {
+            return {
+                ...state,
+                poorKey: action.payload.poorKey,
+            };
+        },
+        [setStartDate]: (state, action) => {
+            const startDate = action.payload.startDate ? action.payload.startDate : moment().subtract(7 * 13 - 1, 'days').format('YYYY/MM/DD');
+
+            return {
+                ...state,
+                startDate,
+            };
+        },
+        [setEndDate]: (state, action) => {
+            const endDate = action.payload.endDate ? action.payload.endDate : moment().format('YYYY/MM/DD');
+
+            return {
+                ...state,
+                endDate,
             };
         },
     },

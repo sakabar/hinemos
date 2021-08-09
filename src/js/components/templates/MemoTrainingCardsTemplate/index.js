@@ -35,6 +35,11 @@ const MemoTrainingCardsTemplate = (
         handDict,
         handSuits,
 
+        poorDeckNum,
+        poorKey,
+        startDate,
+        endDate,
+
         setDeckNum,
         setDeckSize,
         setPairSize,
@@ -62,6 +67,11 @@ const MemoTrainingCardsTemplate = (
         goToPrevDeckRecall,
         goToNextDeckRecall,
         sagaSelectHand,
+
+        setPoorDeckNum,
+        setPoorKey,
+        setStartDate,
+        setEndDate,
     }
 ) => (
     <div>
@@ -70,7 +80,7 @@ const MemoTrainingCardsTemplate = (
             {
                 (() => {
                     if (phase === memoTrainingUtils.TrainingPhase.setting) {
-                        return (<MemoTrainingCardsSetting deckNum={deckNum} deckSize={deckSize} pairSize={pairSize} isLefty={isLefty} isOpenMemoShortcutModal={isOpenMemoShortcutModal} setDeckNum={setDeckNum} setDeckSize={setDeckSize} setPairSize={setPairSize} setIsLefty={setIsLefty} setHandSuits={setHandSuits} sagaStartMemorizationPhase={sagaStartMemorizationPhase} toggleShortcutModal={toggleShortcutModal}/>);
+                        return (<MemoTrainingCardsSetting deckNum={deckNum} deckSize={deckSize} pairSize={pairSize} isLefty={isLefty} isOpenMemoShortcutModal={isOpenMemoShortcutModal} poorDeckNum={poorDeckNum} poorKey={poorKey} startDate={startDate} endDate={endDate} setDeckNum={setDeckNum} setDeckSize={setDeckSize} setPairSize={setPairSize} setIsLefty={setIsLefty} setHandSuits={setHandSuits} sagaStartMemorizationPhase={sagaStartMemorizationPhase} toggleShortcutModal={toggleShortcutModal} setPoorDeckNum={setPoorDeckNum} setPoorKey={setPoorKey} setStartDate={setStartDate} setEndDate={setEndDate}/>);
                     } else if (phase === memoTrainingUtils.TrainingPhase.memorization) {
                         return (<MemoTrainingCardsMemorization startMemoMiliUnixtime={startMemoMiliUnixtime} startRecallMiliUnixtime={startRecallMiliUnixtime} timerMiliUnixtime={timerMiliUnixtime} timeVisible={timeVisible} isLefty={isLefty} decks={decks} deckInd={deckInd} pairInd={pairInd} sagaFinishMemorizationPhase={sagaFinishMemorizationPhase} sagaGoToNextPair={sagaGoToNextPair} sagaGoToPrevPair={sagaGoToPrevPair} sagaGoToDeckHead={sagaGoToDeckHead} sagaGoToNextDeck={sagaGoToNextDeck} sagaToggleTimer={sagaToggleTimer}/>);
                     } else if (phase === memoTrainingUtils.TrainingPhase.recall) {
@@ -116,6 +126,11 @@ MemoTrainingCardsTemplate.propTypes = {
     handDict: PropTypes.object.isRequired,
     handSuits: PropTypes.array.isRequired,
 
+    poorDeckNum: PropTypes.number.isRequired,
+    poorKey: PropTypes.string.isRequired,
+    startDate: PropTypes.string.isRequired,
+    endDate: PropTypes.string.isRequired,
+
     setDeckNum: PropTypes.func.isRequired,
     setDeckSize: PropTypes.func.isRequired,
     setPairSize: PropTypes.func.isRequired,
@@ -143,6 +158,11 @@ MemoTrainingCardsTemplate.propTypes = {
     goToPrevDeckRecall: PropTypes.func.isRequired,
     goToNextDeckRecall: PropTypes.func.isRequired,
     sagaSelectHand: PropTypes.func.isRequired,
+
+    setPoorDeckNum: PropTypes.func.isRequired,
+    setPoorKey: PropTypes.func.isRequired,
+    setStartDate: PropTypes.func.isRequired,
+    setEndDate: PropTypes.func.isRequired,
 };
 
 export default MemoTrainingCardsTemplate;
