@@ -1367,6 +1367,8 @@ export const memoTrainingReducer = handleActions(
             return {
                 ...state,
                 deckInd: deckInd === 0 ? 0 : deckInd - 1,
+                pairInd: 0,
+                posInd: 0,
             };
         },
         [goToNextDeckRecall]: (state, action) => {
@@ -1374,6 +1376,8 @@ export const memoTrainingReducer = handleActions(
             return {
                 ...state,
                 deckInd: deckInd === state.decks.length - 1 ? state.deckInd : state.deckInd + 1,
+                pairInd: 0,
+                posInd: 0,
             };
         },
         [selectHand]: (state, action) => {
