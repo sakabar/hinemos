@@ -191,6 +191,7 @@ const MemoTrainingStatsTemplate = (
                             memorization: rec.memorization ? parseFloat(rec.memorization.toFixed(2)) : '',
                             diff: rec.memorization && rec.transformation ? parseFloat((rec.memorization - rec.transformation).toFixed(2)) : '',
                             acc: rec.acc ? parseFloat(rec.acc.toFixed(2)) : 0.0,
+                            recallSum: rec.recallSum,
                             mistakeCnt: rec.mistakeCnt,
                             mistakes: mistakeStrs.join(', '),
                         };
@@ -209,6 +210,7 @@ const MemoTrainingStatsTemplate = (
 
                         '正解率',
                         '誤答回数',
+                        '記憶回数',
                         '間違い方',
                     ];
 
@@ -223,6 +225,7 @@ const MemoTrainingStatsTemplate = (
 
                         'acc',
                         'mistakeCnt',
+                        'recallSum',
                         'mistakes',
                     ];
 
