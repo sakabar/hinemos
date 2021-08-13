@@ -866,6 +866,7 @@ export const transformStatsJSONtoArray = (statsJSON, event) => {
                 transformation,
                 memorization,
                 acc,
+                recallSum,
                 mistakeCnt,
                 mistakes,
             };

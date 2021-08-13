@@ -730,6 +730,7 @@ describe('memoTrainingUtils.js', () => {
                     memorization: 4.0,
                     acc: 1.0 / 3,
                     mistakeCnt: 2,
+                    recallSum: 3,
                     mistakes: [
                         {
                             solutionElementId: 3,
