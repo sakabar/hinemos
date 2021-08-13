@@ -16,7 +16,7 @@ import {
 } from 'recharts';
 import Br from '../../atoms/Br';
 import Button from '../../atoms/Button';
-// import Txt from '../../atoms/Txt';
+import Txt from '../../atoms/Txt';
 import Header from '../../organisms/Header';
 import Select from '../../molecules/Select';
 // import DecideTrialButtonTdFactory from '../../molecules/DecideTrialButtonTd';
@@ -25,7 +25,7 @@ import SortableTbl from 'react-sort-search-table';
 const config = require('../../../config');
 const path = require('path');
 const memoTrainingUtils = require('../../../memoTrainingUtils');
-// const _ = require('lodash');
+const _ = require('lodash');
 const moment = require('moment');
 
 const urlRoot = path.basename(config.urlRoot);
@@ -129,28 +129,31 @@ const MemoTrainingStatsTemplate = (
                         });
 
                     return (
-                        <ScatterChart
-                            width={400}
-                            height={400}
-                            margin={{
-                                top: 20,
-                                right: 20,
-                                bottom: 20,
-                                left: 20,
-                            }}
-                        >
+                        <div>
+                            <Txt>成功率: {successfulTrials.length}/{successfulTrials.length + badTrials.length} = {(1.0 * successfulTrials.length / (successfulTrials.length + badTrials.length) * 100).toFixed(2)}%</Txt>
+                            <ScatterChart
+                                width={400}
+                                height={400}
+                                margin={{
+                                    top: 20,
+                                    right: 20,
+                                    bottom: 20,
+                                    left: 20,
+                                }}
+                            >
 
-                            <CartesianGrid />
-                            <XAxis type="number" dataKey="totalMemoSec" name="記憶時間" tickCount={11} interval={0} domain={[ (dataMin) => Math.floor(dataMin), (dataMax) => Math.ceil(dataMax), ]}>
-                                <Label value="タイムと正解率 (Cardsは52枚、Numbersは80桁)" offset={0} position="insideBottom"/>
-                            </XAxis>
-                            <YAxis type="number" dataKey="allElementAcc" name="正解率" tickCount={11} interval={0} domain={[ 0.0, 1.0, ]}/>
-                            <ZAxis type="category" dataKey="createdAt" name="日時" />
-                            <Tooltip cursor={{ strokeDasharray: '3 3', }} />
-                            <Legend />
-                            <Scatter name="Successful" data={successfulTrials} fill="#82ca9d" shape="circle" />
-                            <Scatter name="Bad" data={badTrials} fill="#8884d8" shape="triangle" />
-                        </ScatterChart>
+                                <CartesianGrid />
+                                <XAxis type="number" dataKey="totalMemoSec" name="記憶時間" tickCount={11} interval={0} domain={[ (dataMin) => Math.floor(dataMin), (dataMax) => Math.ceil(dataMax), ]}>
+                                    <Label value="タイムと正解率 (Cardsは52枚、Numbersは80桁)" offset={0} position="insideBottom"/>
+                                </XAxis>
+                                <YAxis type="number" dataKey="allElementAcc" name="正解率" tickCount={11} interval={0} domain={[ 0.0, 1.0, ]}/>
+                                <ZAxis type="category" dataKey="createdAt" name="日時" />
+                                <Tooltip cursor={{ strokeDasharray: '3 3', }} />
+                                <Legend />
+                                <Scatter name="Successful" data={successfulTrials} fill="#82ca9d" shape="circle" />
+                                <Scatter name="Bad" data={badTrials} fill="#8884d8" shape="triangle" />
+                            </ScatterChart>
+                        </div>
                     );
                 })()
             }
@@ -193,6 +196,8 @@ const MemoTrainingStatsTemplate = (
                         };
                     });
 
+                    const avgMemorizationSec = _.mean(MyData.filter(rec => rec.memorization !== '').map(rec => rec.memorization));
+
                     const tHead = [
                         '種目',
                         '位置',
@@ -223,6 +228,8 @@ const MemoTrainingStatsTemplate = (
 
                     return (
                         <div>
+                            <Txt>1イメージあたりの平均記憶時間: {avgMemorizationSec.toFixed(2)}秒</Txt>
+
                             <SortableTbl tblData={MyData}
                                 tHead={tHead}
                                 dKey={col}
