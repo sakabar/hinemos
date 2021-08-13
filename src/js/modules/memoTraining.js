@@ -1015,8 +1015,9 @@ export const memoTrainingReducer = handleActions(
                 return {
                     ...initialState,
                     // 一部の設定は引き継ぐ
-                    deckNum: state.deckNum,
-                    deckSize: state.deckSize,
+                    // poorDeckの場合、evacuatedDeckNumに元のdeckNumが退避されているので戻す
+                    deckNum: state.evacuatedDeckNum || state.deckNum,
+                    deckSize: state.evacuatedDeckSize || state.deckSize,
                     pairSize: state.pairSize,
                     isLefty: state.isLefty,
                     isUniqInDeck: state.isUniqInDeck,
@@ -1366,6 +1367,8 @@ export const memoTrainingReducer = handleActions(
             return {
                 ...state,
                 deckInd: deckInd === 0 ? 0 : deckInd - 1,
+                pairInd: 0,
+                posInd: 0,
             };
         },
         [goToNextDeckRecall]: (state, action) => {
@@ -1373,6 +1376,8 @@ export const memoTrainingReducer = handleActions(
             return {
                 ...state,
                 deckInd: deckInd === state.decks.length - 1 ? state.deckInd : state.deckInd + 1,
+                pairInd: 0,
+                posInd: 0,
             };
         },
         [selectHand]: (state, action) => {
