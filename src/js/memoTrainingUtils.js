@@ -866,6 +866,7 @@ export const transformStatsJSONtoArray = (statsJSON, event) => {
                 transformation,
                 memorization,
                 acc,
+                recallSum,
                 mistakeCnt,
                 mistakes,
             };
@@ -874,4 +875,34 @@ export const transformStatsJSONtoArray = (statsJSON, event) => {
         }
     }
     return stats;
+};
+
+// Sub60できない人も成長過程を可視化できるように、4分以内にパーフェクトを取った場合はMemoryLeagueと違ってScores Componentが負になることを認める
+// 種目や出題数が異なる場合はnullを返す
+export const calcScoresComponent = (event, totalMemoSec, totalRecallSec, allDeckNum, successDeckNum, allElementNum) => {
+    if (allDeckNum !== 1 || successDeckNum !== 1) {
+        return null;
+    }
+
+    // 変換練習の場合はtotalRecallSecがnull
+    if (!totalRecallSec || totalRecallSec > 240.0) {
+        return null;
+    }
+
+    // FIXME ここ、Cardsの1枚1イメージ、Numbersで2桁1イメージを前提としているので注意
+    if (!(event === MemoEvent.cards && allElementNum === 52) && !(event === MemoEvent.numbers && allElementNum === 40)) {
+        return null;
+    }
+
+    const scoreML = (() => {
+        if (event === MemoEvent.cards) {
+            return Math.floor(5.0 * (60.0 - totalMemoSec));
+        } else if (event === MemoEvent.numbers) {
+            return Math.floor(5.0 * (60.0 - totalMemoSec));
+        }
+
+        return null;
+    })();
+
+    return scoreML;
 };

@@ -730,6 +730,7 @@ describe('memoTrainingUtils.js', () => {
                     memorization: 4.0,
                     acc: 1.0 / 3,
                     mistakeCnt: 2,
+                    recallSum: 3,
                     mistakes: [
                         {
                             solutionElementId: 3,
@@ -959,6 +960,43 @@ describe('memoTrainingUtils.js', () => {
                 }
                 assert.deepStrictEqual(actual, true);
             }
+        });
+    });
+
+    describe('calcScoresComponent()', () => {
+        it('正常系: Cards', () => {
+            const actual = memoTrainingUtils.calcScoresComponent('cards', 12.34, 230, 1, 1, 52);
+
+            // floor(5.0 * (60 - 12.34))
+            const expected = 238;
+
+            assert.deepStrictEqual(actual, expected);
+        });
+
+        it('正常系: Numbers', () => {
+            const actual = memoTrainingUtils.calcScoresComponent('numbers', 12.34, 230, 1, 1, 40);
+
+            // floor(5.0 * (60 - 12.34))
+            const expected = 238;
+
+            assert.deepStrictEqual(actual, expected);
+        });
+
+        it('正常系: 変換練習のscoresComponentはnull点', () => {
+            const actual = memoTrainingUtils.calcScoresComponent('numbers', 12.34, null, 1, 1, 40);
+
+            const expected = null;
+
+            assert.deepStrictEqual(actual, expected);
+        });
+
+        it('正常系: 60秒をオーバーしている場合は負の点数になる', () => {
+            const actual = memoTrainingUtils.calcScoresComponent('numbers', 68.9, 230, 1, 1, 40);
+
+            // floor(5.0 * (60 - 68.9))
+            const expected = -45;
+
+            assert.deepStrictEqual(actual, expected);
         });
     });
 });
