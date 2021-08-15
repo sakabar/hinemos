@@ -254,7 +254,6 @@ function * handleStartMemorizationPhase () {
         // 初回のみは実際にロードし、state内にキャッシュしておく。その後はstate内のキャッシュを利用。
         let elementIdToElement = yield select(state => state.elementIdToElement);
         if (Object.keys(elementIdToElement).length === 0) {
-            alert('load');
             elementIdToElement = yield call(memoTrainingUtils.loadElementIdToElement);
         }
 
@@ -262,19 +261,26 @@ function * handleStartMemorizationPhase () {
             throw new Error('load failed : elementIdToElement');
         }
 
-        let statsArray = [];
+        let statsArray = yield select(state => state.statsArray);
         const poorDeckNum = yield select(state => state.poorDeckNum);
         const poorKey = yield select(state => state.poorKey);
         if (poorDeckNum > 0) {
-            const startDate = yield select(state => state.startDate);
-            const endDate = yield select(state => state.endDate);
+            // action.payload.memoEventはイベント発火時に種目に応じてHogeSettingのcomponentが埋め込む値
+            // state.memoEventはstateが更新される時にaction.payload.memoEventが保存される
+            // とはいえ、NumbersPageのStateとCardsPageのStateは独立しているから気にしなくてよさそう。でも念のため…
+            const stateEvent = yield select(state => state.memoEvent);
+            if (statsArray.length === 0 || memoEvent !== stateEvent) {
+                const startDate = yield select(state => state.startDate);
+                const endDate = yield select(state => state.endDate);
 
-            const resFetchStats = yield call(memoTrainingUtils.requestFetchStats, userName, memoEvent, startDate, endDate);
-            if (!resFetchStats.success) {
-                throw new Error('Error fetchStats()');
+                const resFetchStats = yield call(memoTrainingUtils.requestFetchStats, userName, memoEvent, startDate, endDate);
+                if (!resFetchStats.success) {
+                    throw new Error('Error fetchStats()');
+                }
+
+                const statsJSON = resFetchStats.success.result;
+                statsArray = memoTrainingUtils.transformStatsJSONtoArray(statsJSON, memoEvent);
             }
-            const statsJSON = resFetchStats.success.result;
-            statsArray = memoTrainingUtils.transformStatsJSONtoArray(statsJSON, memoEvent);
         }
 
         // 本来は複数人が同じスクランブルをやる時のために、
@@ -1031,6 +1037,7 @@ export const memoTrainingReducer = handleActions(
                     ...initialState,
                     // 一部の設定は引き継ぐ
                     // poorDeckの場合、evacuatedDeckNumに元のdeckNumが退避されているので戻す
+                    memoEvent: state.memoEvent,
                     deckNum: state.evacuatedDeckNum || state.deckNum,
                     deckSize: state.evacuatedDeckSize || state.deckSize,
                     pairSize: state.pairSize,
@@ -1070,6 +1077,7 @@ export const memoTrainingReducer = handleActions(
                 ...initialState,
                 // 一部の設定は引き継ぐ
                 // poorDeckの場合、evacuatedDeckNumに元のdeckNumが退避されているので戻す
+                memoEvent: state.memoEvent,
                 deckNum: state.evacuatedDeckNum || state.deckNum,
                 deckSize: state.evacuatedDeckSize || state.deckSize,
                 pairSize: state.pairSize,
@@ -1483,6 +1491,7 @@ export const memoTrainingReducer = handleActions(
             return {
                 ...state,
                 startDate,
+                statsArray: [],
             };
         },
         [setEndDate]: (state, action) => {
@@ -1491,6 +1500,7 @@ export const memoTrainingReducer = handleActions(
             return {
                 ...state,
                 endDate,
+                statsArray: [],
             };
         },
     },
