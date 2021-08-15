@@ -309,7 +309,10 @@ function * handleStartMemorizationPhase () {
         }
 
         const elementsList = memoTrainingUtils.decksToElementsList(decks);
-        const elementIdsDict = yield call(memoTrainingUtils.loadElementIdsDict);
+        let elementIdsDict = yield select(state => state.elementIdsDict);
+        if (Object.keys(elementIdsDict).length === 0) {
+            elementIdsDict = yield call(memoTrainingUtils.loadElementIdsDict);
+        }
         if (Object.keys(elementIdsDict).length === 0) {
             throw new Error('load failed : elementIdsDict');
         }
@@ -1034,6 +1037,8 @@ export const memoTrainingReducer = handleActions(
                     isLefty: state.isLefty,
                     isUniqInDeck: state.isUniqInDeck,
 
+                    elementIdsDict: state.elementIdsDict,
+
                     poorKey: state.poorKey,
                     poorDeckNum: state.poorDeckNum,
                     startDate: state.startDate,
@@ -1069,6 +1074,8 @@ export const memoTrainingReducer = handleActions(
                 deckSize: state.evacuatedDeckSize || state.deckSize,
                 pairSize: state.pairSize,
                 isLefty: state.isLefty,
+
+                elementIdsDict: state.elementIdsDict,
 
                 poorKey: state.poorKey,
                 poorDeckNum: state.poorDeckNum,
