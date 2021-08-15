@@ -194,6 +194,8 @@ const initialState = {
     endDate: moment().format('YYYY/MM/DD'),
     evacuatedDeckNum: null, // poorDeckを採用した場合に、元のdeckNumを保持しておくための変数。記憶練習終了時に戻す。
     evacuatedDeckSize: null, // poorDeckを採用した場合に、元のdeckSizeを保持しておくための変数。記憶練習終了時に戻す。
+    elementIdToElement: {}, // elementId => Elementの辞書。動的に更新されることはほぼ無いので、キャッシュをstateで持つ。
+    statsArray: [], // 試技の統計情報。startDate, endDate, eventのいずれかが更新されるまではstateで持っているキャッシュを利用する
 };
 
 function * handleStartMemorizationPhase () {
@@ -249,8 +251,13 @@ function * handleStartMemorizationPhase () {
         const numberingEdge = yield call(memoTrainingUtils.fetchNumberingEdge, userName);
 
         // elementId => element
-        // 種目選択するたびにロードするのは無駄だが、そんなに時間はかからないので問題ない見込み
-        const elementIdToElement = yield call(memoTrainingUtils.loadElementIdToElement);
+        // 初回のみは実際にロードし、state内にキャッシュしておく。その後はstate内のキャッシュを利用。
+        let elementIdToElement = yield select(state => state.elementIdToElement);
+        if (Object.keys(elementIdToElement).length === 0) {
+            alert('load');
+            elementIdToElement = yield call(memoTrainingUtils.loadElementIdToElement);
+        }
+
         if (Object.keys(elementIdToElement).length === 0) {
             throw new Error('load failed : elementIdToElement');
         }
@@ -350,6 +357,8 @@ function * handleStartMemorizationPhase () {
             elementIdsDict,
             evacuatedDeckNum: poorDeckNum > 0 ? deckNum : null,
             evacuatedDeckSize: poorDeckNum > 0 ? deckSize : null,
+            elementIdToElement,
+            statsArray,
         };
 
         // <main>にフォーカスすることで、ショートカットキーをすぐに使えるようにする
@@ -956,6 +965,9 @@ export const memoTrainingReducer = handleActions(
 
                     evacuatedDeckNum: action.payload.evacuatedDeckNum,
                     evacuatedDeckSize: action.payload.evacuatedDeckSize,
+
+                    elementIdToElement: action.payload.elementIdToElement,
+                    statsArray: action.payload.statsArray,
                 };
             }
 
@@ -1026,6 +1038,8 @@ export const memoTrainingReducer = handleActions(
                     poorDeckNum: state.poorDeckNum,
                     startDate: state.startDate,
                     endDate: state.endDate,
+                    elementIdToElement: state.elementIdToElement,
+                    statsArray: state.statsArray,
                 };
             } else if (state.mode === memoTrainingUtils.TrainingMode.memorization) {
                 return {
@@ -1060,6 +1074,8 @@ export const memoTrainingReducer = handleActions(
                 poorDeckNum: state.poorDeckNum,
                 startDate: state.startDate,
                 endDate: state.endDate,
+                elementIdToElement: state.elementIdToElement,
+                statsArray: state.statsArray,
             };
         },
         [mergeDecks]: (state, action) => {
