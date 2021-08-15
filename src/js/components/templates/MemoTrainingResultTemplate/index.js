@@ -47,8 +47,9 @@ const formatTime = (sec) => {
     const hour = String(Math.floor(sec / 3600.0)).padStart(2, '0');
     const minute = String(Math.floor((sec - 3600 * hour) / 60.0)).padStart(2, '0');
     const remainSec = String(Math.floor(sec - 3600 * hour - 60 * minute)).padStart(2, '0');
+    const remainSecDecimal = (sec - 3600 * hour - 60 * minute - remainSec).toFixed(2).split('.')[1];
 
-    return `${hour}:${minute}:${remainSec}`;
+    return `${hour}:${minute}:${remainSec}.${remainSecDecimal}`;
 };
 
 const MemoTrainingResultTemplate = (
