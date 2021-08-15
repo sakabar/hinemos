@@ -194,6 +194,8 @@ const initialState = {
     endDate: moment().format('YYYY/MM/DD'),
     evacuatedDeckNum: null, // poorDeckを採用した場合に、元のdeckNumを保持しておくための変数。記憶練習終了時に戻す。
     evacuatedDeckSize: null, // poorDeckを採用した場合に、元のdeckSizeを保持しておくための変数。記憶練習終了時に戻す。
+    elementIdToElement: {}, // elementId => Elementの辞書。動的に更新されることはほぼ無いので、キャッシュをstateで持つ。
+    statsArray: [], // 試技の統計情報。startDate, endDate, eventのいずれかが更新されるまではstateで持っているキャッシュを利用する
 };
 
 function * handleStartMemorizationPhase () {
@@ -249,25 +251,36 @@ function * handleStartMemorizationPhase () {
         const numberingEdge = yield call(memoTrainingUtils.fetchNumberingEdge, userName);
 
         // elementId => element
-        // 種目選択するたびにロードするのは無駄だが、そんなに時間はかからないので問題ない見込み
-        const elementIdToElement = yield call(memoTrainingUtils.loadElementIdToElement);
+        // 初回のみは実際にロードし、state内にキャッシュしておく。その後はstate内のキャッシュを利用。
+        let elementIdToElement = yield select(state => state.elementIdToElement);
+        if (Object.keys(elementIdToElement).length === 0) {
+            elementIdToElement = yield call(memoTrainingUtils.loadElementIdToElement);
+        }
+
         if (Object.keys(elementIdToElement).length === 0) {
             throw new Error('load failed : elementIdToElement');
         }
 
-        let statsArray = [];
+        let statsArray = yield select(state => state.statsArray);
         const poorDeckNum = yield select(state => state.poorDeckNum);
         const poorKey = yield select(state => state.poorKey);
         if (poorDeckNum > 0) {
-            const startDate = yield select(state => state.startDate);
-            const endDate = yield select(state => state.endDate);
+            // action.payload.memoEventはイベント発火時に種目に応じてHogeSettingのcomponentが埋め込む値
+            // state.memoEventはstateが更新される時にaction.payload.memoEventが保存される
+            // とはいえ、NumbersPageのStateとCardsPageのStateは独立しているから気にしなくてよさそう。でも念のため…
+            const stateEvent = yield select(state => state.memoEvent);
+            if (statsArray.length === 0 || memoEvent !== stateEvent) {
+                const startDate = yield select(state => state.startDate);
+                const endDate = yield select(state => state.endDate);
 
-            const resFetchStats = yield call(memoTrainingUtils.requestFetchStats, userName, memoEvent, startDate, endDate);
-            if (!resFetchStats.success) {
-                throw new Error('Error fetchStats()');
+                const resFetchStats = yield call(memoTrainingUtils.requestFetchStats, userName, memoEvent, startDate, endDate);
+                if (!resFetchStats.success) {
+                    throw new Error('Error fetchStats()');
+                }
+
+                const statsJSON = resFetchStats.success.result;
+                statsArray = memoTrainingUtils.transformStatsJSONtoArray(statsJSON, memoEvent);
             }
-            const statsJSON = resFetchStats.success.result;
-            statsArray = memoTrainingUtils.transformStatsJSONtoArray(statsJSON, memoEvent);
         }
 
         // 本来は複数人が同じスクランブルをやる時のために、
@@ -302,7 +315,10 @@ function * handleStartMemorizationPhase () {
         }
 
         const elementsList = memoTrainingUtils.decksToElementsList(decks);
-        const elementIdsDict = yield call(memoTrainingUtils.loadElementIdsDict);
+        let elementIdsDict = yield select(state => state.elementIdsDict);
+        if (Object.keys(elementIdsDict).length === 0) {
+            elementIdsDict = yield call(memoTrainingUtils.loadElementIdsDict);
+        }
         if (Object.keys(elementIdsDict).length === 0) {
             throw new Error('load failed : elementIdsDict');
         }
@@ -350,6 +366,8 @@ function * handleStartMemorizationPhase () {
             elementIdsDict,
             evacuatedDeckNum: poorDeckNum > 0 ? deckNum : null,
             evacuatedDeckSize: poorDeckNum > 0 ? deckSize : null,
+            elementIdToElement,
+            statsArray,
         };
 
         // <main>にフォーカスすることで、ショートカットキーをすぐに使えるようにする
@@ -956,6 +974,9 @@ export const memoTrainingReducer = handleActions(
 
                     evacuatedDeckNum: action.payload.evacuatedDeckNum,
                     evacuatedDeckSize: action.payload.evacuatedDeckSize,
+
+                    elementIdToElement: action.payload.elementIdToElement,
+                    statsArray: action.payload.statsArray,
                 };
             }
 
@@ -1016,16 +1037,21 @@ export const memoTrainingReducer = handleActions(
                     ...initialState,
                     // 一部の設定は引き継ぐ
                     // poorDeckの場合、evacuatedDeckNumに元のdeckNumが退避されているので戻す
+                    memoEvent: state.memoEvent,
                     deckNum: state.evacuatedDeckNum || state.deckNum,
                     deckSize: state.evacuatedDeckSize || state.deckSize,
                     pairSize: state.pairSize,
                     isLefty: state.isLefty,
                     isUniqInDeck: state.isUniqInDeck,
 
+                    elementIdsDict: state.elementIdsDict,
+
                     poorKey: state.poorKey,
                     poorDeckNum: state.poorDeckNum,
                     startDate: state.startDate,
                     endDate: state.endDate,
+                    elementIdToElement: state.elementIdToElement,
+                    statsArray: state.statsArray,
                 };
             } else if (state.mode === memoTrainingUtils.TrainingMode.memorization) {
                 return {
@@ -1051,15 +1077,20 @@ export const memoTrainingReducer = handleActions(
                 ...initialState,
                 // 一部の設定は引き継ぐ
                 // poorDeckの場合、evacuatedDeckNumに元のdeckNumが退避されているので戻す
+                memoEvent: state.memoEvent,
                 deckNum: state.evacuatedDeckNum || state.deckNum,
                 deckSize: state.evacuatedDeckSize || state.deckSize,
                 pairSize: state.pairSize,
                 isLefty: state.isLefty,
 
+                elementIdsDict: state.elementIdsDict,
+
                 poorKey: state.poorKey,
                 poorDeckNum: state.poorDeckNum,
                 startDate: state.startDate,
                 endDate: state.endDate,
+                elementIdToElement: state.elementIdToElement,
+                statsArray: state.statsArray,
             };
         },
         [mergeDecks]: (state, action) => {
@@ -1460,6 +1491,7 @@ export const memoTrainingReducer = handleActions(
             return {
                 ...state,
                 startDate,
+                statsArray: [],
             };
         },
         [setEndDate]: (state, action) => {
@@ -1468,6 +1500,7 @@ export const memoTrainingReducer = handleActions(
             return {
                 ...state,
                 endDate,
+                statsArray: [],
             };
         },
     },
