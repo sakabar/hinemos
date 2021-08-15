@@ -114,6 +114,7 @@ const MemoTrainingStatsTemplate = (
                             return {
                                 totalMemoSec: score.totalMemoSec,
                                 allElementAcc: score.allElementAcc,
+                                scoresComponent: memoTrainingUtils.calcScoresComponent(event, score.totalMemoSec, score.totalRecallSec, score.allDeckNum, score.successDeckNum, score.allElementNum),
                                 createdAt: score.createdAt.format('YYYY/MM/DD HH:mm'),
                             };
                         });
@@ -128,9 +129,83 @@ const MemoTrainingStatsTemplate = (
                             return score.allElementAcc !== 1;
                         });
 
+                    let recentBestScoresComponents = standardScores
+                        .filter(score => score.scoresComponent !== null)
+                        .map(score => {
+                            return {
+                                totalMemoSec: score.totalMemoSec,
+                                scoresComponent: score.scoresComponent,
+                                createdAt: score.createdAt,
+                            };
+                        });
+
+                    // タイムの昇順ソート
+                    const RECENT_TOP_CNT = 5;
+                    recentBestScoresComponents.sort((a, b) => a.totalMemoSec - b.totalMemoSec);
+                    recentBestScoresComponents = recentBestScoresComponents.slice(0, RECENT_TOP_CNT);
+
+                    while (recentBestScoresComponents.length < RECENT_TOP_CNT) {
+                        const rec = {
+                            totalMemoSec: 61.0 * 60,
+                            scoresComponent: Math.floor(5.0 * (60.0 - 61.0 * 60)),
+                            createdAt: '9999/12/31 23:59',
+                        };
+
+                        recentBestScoresComponents.push(rec);
+                    }
+
+                    const scoresComponentsSum = _.sum(recentBestScoresComponents.map(rec => rec.scoresComponent));
+
+                    const paddingStyle = {
+                        padding: '5px 10px',
+                    };
+
+                    const tableNode = (() => {
+                        if (event !== 'cards' && event !== 'numbers') {
+                            return (
+                                <div />
+                            );
+                        }
+
+                        return (
+                            <div>
+                                <Txt>Top 5 Scores Componentの合計: {scoresComponentsSum}</Txt>
+
+                                <table border="1">
+                                    <thead>
+                                        <tr>
+                                            <th style={paddingStyle} align="right">Time</th>
+                                            <th style={paddingStyle} align="right">Date</th>
+                                            <th style={paddingStyle} align="right">Scores Component</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+
+                                        {
+                                            recentBestScoresComponents.map((rec, key) => {
+                                                return (
+                                                    <tr key={key}>
+                                                        <td style={paddingStyle} align="right">{rec.totalMemoSec.toFixed(2)}s</td>
+                                                        <td style={paddingStyle} align="right">{rec.createdAt}</td>
+                                                        <td style={paddingStyle} align="right">{rec.scoresComponent}</td>
+                                                    </tr>
+                                                );
+                                            })
+                                        }
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        );
+                    })();
+
                     return (
                         <div>
                             <Txt>成功率: {successfulTrials.length}/{successfulTrials.length + badTrials.length} = {(1.0 * successfulTrials.length / (successfulTrials.length + badTrials.length) * 100).toFixed(2)}%</Txt>
+
+                            {tableNode}
+
                             <ScatterChart
                                 width={400}
                                 height={400}

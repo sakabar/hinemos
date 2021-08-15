@@ -86,11 +86,13 @@ const MemoTrainingResultTemplate = (
 
                 (() => {
                     const MyData = scores.map(score => {
+                        const sc = memoTrainingUtils.calcScoresComponent(event, score.totalMemoSec, score.totalRecallSec, score.allDeckNum, score.successDeckNum, score.allElementNum);
                         return {
                             createdAt: moment(score.createdAt).format('YYYY-MM-DD HH:mm:ss'),
                             trialId: score.trialId,
                             totalMemoTime: formatTime(score.totalMemoSec),
                             totalRecallTime: formatTime(score.totalRecallSec),
+                            scoresComponent: sc === null ? '' : sc,
 
                             triedDecks: formatAcc(score.successDeckNum, score.triedDeckNum, score.triedDeckAcc),
                             allDecks: formatAcc(score.successDeckNum, score.allDeckNum, score.allDeckAcc),
@@ -104,6 +106,7 @@ const MemoTrainingResultTemplate = (
                         '日時',
                         '記憶時間',
                         '回答時間',
+                        'ML Scores Component',
 
                         '挑戦(束)',
                         '全体(束)',
@@ -117,6 +120,7 @@ const MemoTrainingResultTemplate = (
                         'createdAt',
                         'totalMemoTime',
                         'totalRecallTime',
+                        'scoresComponent',
 
                         'triedDecks',
                         'allDecks',
