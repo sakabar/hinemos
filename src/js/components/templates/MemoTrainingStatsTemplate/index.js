@@ -231,6 +231,7 @@ const MemoTrainingStatsTemplate = (
 
                     return (
                         <div>
+                            <Txt>合計{MyData.length}イメージ</Txt>
                             <Txt>1イメージあたりの平均記憶時間: {avgMemorizationSec.toFixed(2)}秒</Txt>
 
                             <SortableTbl tblData={MyData}
