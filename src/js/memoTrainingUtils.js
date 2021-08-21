@@ -37,6 +37,13 @@ export const Suit = {
     spade: 'S',
 };
 
+export const PoorKey = {
+    memorization: 'memorization',
+    transformation: 'transformation',
+    acc: 'acc',
+    rare: 'rare',
+};
+
 function Element (type, size, tag) {
     this.type = type;
     this.size = size;
@@ -535,10 +542,100 @@ export const generateCardsDecks = (deckNum, deckSize, pairSize) => {
     return ans;
 };
 
+export const generateRareElementDecks = (pairSize, poorDeckNum, statsArray, elementIdToElement, allElements) => {
+    const posToAppearedTagSet = {};
+    for (let posInd = 0; posInd < pairSize; posInd++) {
+        posToAppearedTagSet[posInd] = new Set();
+    }
+
+    // statsにあるelementを記録
+    for (let i = 0; i < statsArray.length; i++) {
+        const stat = statsArray[i];
+        const posInd = stat.posInd;
+        const elementId = stat.elementId;
+        const element = elementIdToElement[elementId];
+        const tag = element.tag;
+
+        if (posInd < pairSize) {
+            posToAppearedTagSet[posInd].add(tag);
+        }
+    }
+
+    const posToNotAppearedElements = [];
+    for (let posInd = 0; posInd < pairSize; posInd++) {
+        posToNotAppearedElements.push([]);
+    }
+
+    // allElementsを全て見て、statsに存在しないものだけを追加
+    for (let posInd = 0; posInd < pairSize; posInd++) {
+        for (let i = 0; i < allElements.length; i++) {
+            const element = allElements[i];
+
+            if (!posToAppearedTagSet[posInd].has(element.tag)) {
+                posToNotAppearedElements[posInd].push(element);
+            }
+        }
+    }
+
+    // let cnt = 0;
+    // for (let posInd = 0; posInd < pairSize; posInd++) {
+    //     cnt += posToNotAppearedElements[posInd].length;
+    // }
+    // alert(`残りelement数: ${cnt}`);
+
+    // posIndごとに見て一番大きな値に揃える
+    // その後、poorDeckNum以下になるようにする
+    let generatedDeckNum = 0;
+    for (let posInd = 0; posInd < pairSize; posInd++) {
+        generatedDeckNum = Math.max(generatedDeckNum, posToNotAppearedElements[posInd].length);
+    }
+    generatedDeckNum = Math.min(generatedDeckNum, poorDeckNum);
+
+    // ランダムに並び替える
+    for (let posInd = 0; posInd < pairSize; posInd++) {
+        posToNotAppearedElements[posInd] = _.shuffle(posToNotAppearedElements[posInd]);
+    }
+
+    // 答えを詰めて返す
+    const decks = [];
+
+    // Rubyのredoを実現したいので、forループではなくwhileループで回す
+    let i = 0;
+    while (i < generatedDeckNum) {
+        const pair = [];
+        const pairTagSet = new Set();
+        for (let posInd = 0; posInd < pairSize; posInd++) {
+            const element = i < posToNotAppearedElements[posInd].length ? posToNotAppearedElements[posInd][i]
+                : allElements[_.random(0, allElements.length - 1)];
+
+            pair.push(element);
+            pairTagSet.add(element.tag);
+        }
+
+        // pairの中に重複があったら再抽選
+        if (pairTagSet.size !== pair.length) {
+            continue;
+        }
+
+        const deck = [ pair, ];
+        decks.push(deck);
+
+        // whileループなので忘れずにインクリメント
+        i++;
+    }
+
+    return decks;
+};
+
 export const generatePoorDecks = (pairSize, poorDeckNum, poorKey, statsArray, elementIdToElement) => {
+    // PoorKey.rareの場合はallElements引数が増えるので、generateRareElementDecks()という関数を別に用意している
+    if (poorKey === PoorKey.rare) {
+        return [];
+    }
+
     // accの場合は昇順、それ以外は降順
     const sortedStatsArray = (() => {
-        if (poorKey === 'acc') {
+        if (poorKey === PoorKey.acc) {
             return _.sortBy(statsArray.filter(rec => rec[poorKey] !== null), (rec) => { return rec[poorKey]; });
         } else {
             return _.sortBy(statsArray.filter(rec => rec[poorKey] !== null), (rec) => { return -rec[poorKey]; });
@@ -674,9 +771,21 @@ export const cardTagToMarkStr = (tag) => {
     return `${suitMarkDict[tag[0]]}${numStr}`;
 };
 
+export const getAllCardElements = () => {
+    return _.range(1, 52 + 1).map(num => numToCardElement(num));
+};
+
+export const getAllNumberElements = (digitsPerImage) => {
+    return _.range(0, 10 ** digitsPerImage)
+        .map(num => {
+            const numStr = String(num).padStart(digitsPerImage, '0');
+            return new NumberElement(numStr);
+        });
+};
+
 export const cardsDefaultHand = (deckNum) => {
     const ans = {};
-    const elements = _.range(1, 52 + 1).map(num => numToCardElement(num));
+    const elements = getAllCardElements();
 
     for (let deckInd = 0; deckInd < deckNum; deckInd++) {
         if (!ans[deckInd]) {

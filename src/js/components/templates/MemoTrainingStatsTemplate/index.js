@@ -176,7 +176,7 @@ const MemoTrainingStatsTemplate = (
                                         <tr>
                                             <th style={paddingStyle} align="right">Time</th>
                                             <th style={paddingStyle} align="right">Date</th>
-                                            <th style={paddingStyle} align="right">Scores Component</th>
+                                            <th style={paddingStyle} align="right">ML Scores Component</th>
                                         </tr>
                                     </thead>
 
@@ -200,9 +200,16 @@ const MemoTrainingStatsTemplate = (
                         );
                     })();
 
+                    const trialAcc = 1.0 * successfulTrials.length / (successfulTrials.length + badTrials.length);
+                    const bo5Acc = 1.0 - (1.0 - trialAcc) ** 5;
+                    const ao5Acc = 5.0 * (1.0 - trialAcc) * (trialAcc ** 4) + (trialAcc ** 5);
+
                     return (
                         <div>
-                            <Txt>成功率: {successfulTrials.length}/{successfulTrials.length + badTrials.length} = {(1.0 * successfulTrials.length / (successfulTrials.length + badTrials.length) * 100).toFixed(2)}%</Txt>
+                            <Txt>成功率: {successfulTrials.length}/{successfulTrials.length + badTrials.length} = {(trialAcc * 100).toFixed(2)}%</Txt>
+                            <Txt>5回中1回以上成功する確率: 1 - (1 - {trialAcc.toFixed(2)})^5 = {(bo5Acc * 100).toFixed(2)}%</Txt>
+                            <Txt>5回中4回以上成功する確率: 5 * (1 - {trialAcc.toFixed(2)}) * {trialAcc.toFixed(2)}^4 + {trialAcc.toFixed(2)}^5 = {(ao5Acc * 100).toFixed(2)}%</Txt>
+                            <Br/>
 
                             {tableNode}
 
