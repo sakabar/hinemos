@@ -269,7 +269,7 @@ function * handleStartMemorizationPhase () {
             // state.memoEventはstateが更新される時にaction.payload.memoEventが保存される
             // とはいえ、NumbersPageのStateとCardsPageのStateは独立しているから気にしなくてよさそう。でも念のため…
             const stateEvent = yield select(state => state.memoEvent);
-            if (statsArray.length === 0 || memoEvent !== stateEvent) {
+            if (statsArray.length === 0 || memoEvent !== stateEvent || poorKey === memoTrainingUtils.PoorKey.rare) {
                 const startDate = yield select(state => state.startDate);
                 const endDate = yield select(state => state.endDate);
 
@@ -291,6 +291,25 @@ function * handleStartMemorizationPhase () {
 
         const decks = (() => {
             if (poorDeckNum > 0) {
+                if (poorKey === memoTrainingUtils.PoorKey.rare) {
+                    if (memoEvent === memoTrainingUtils.MemoEvent.mbld) {
+                        // FIXME 未実装
+                        alert('機能が実装されていません');
+                        return [];
+                    } else if (memoEvent === memoTrainingUtils.MemoEvent.cards || memoEvent === memoTrainingUtils.MemoEvent.numbers) {
+                        let allElements = [];
+                        if (memoEvent === memoTrainingUtils.MemoEvent.cards) {
+                            allElements = memoTrainingUtils.getAllCardElements();
+                        } else if (memoEvent === memoTrainingUtils.MemoEvent.numbers) {
+                            allElements = memoTrainingUtils.getAllNumberElements(digitsPerImage);
+                        }
+
+                        return memoTrainingUtils.generateRareElementDecks(pairSize, poorDeckNum, statsArray, elementIdToElement, allElements);
+                    } else {
+                        return [];
+                    }
+                }
+
                 return memoTrainingUtils.generatePoorDecks(pairSize, poorDeckNum, poorKey, statsArray, elementIdToElement);
             }
 
@@ -311,6 +330,7 @@ function * handleStartMemorizationPhase () {
         })();
 
         if (decks.length === 0) {
+            alert('出題するelementがありません');
             continue;
         }
 
