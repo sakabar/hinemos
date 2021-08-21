@@ -28,6 +28,7 @@ const poorKeyOptions = [
     [ 'memorization', '記憶が遅い', ],
     [ 'transformation', '変換が遅い', ],
     [ 'acc', '正解率が低い', ],
+    [ 'rare', '出現していない', ],
 ];
 
 // https://qiita.com/kanpou0108/items/b6c7a38a755dd60fd77f

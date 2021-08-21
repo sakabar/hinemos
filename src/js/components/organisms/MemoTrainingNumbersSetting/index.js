@@ -26,6 +26,7 @@ const poorKeyOptions = [
     [ 'memorization', '記憶が遅い', ],
     [ 'transformation', '変換が遅い', ],
     [ 'acc', '正解率が低い', ],
+    [ 'rare', '出現していない', ],
 ];
 
 const MemoTrainingNumbersSetting = ({
