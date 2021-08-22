@@ -54,8 +54,11 @@ function * handleFetchStats () {
         }
 
         // elementId => element
-        // 種目選択するたびにロードするのは無駄だが、そんなに時間はかからないので問題ない見込み
-        const elementIdToElement = yield call(memoTrainingUtils.loadElementIdToElement);
+        // 初回のみは実際にロードし、state内にキャッシュしておく。その後はstate内のキャッシュを利用。
+        let elementIdToElement = yield select(state => state.elementIdToElement);
+        if (Object.keys(elementIdToElement).length === 0) {
+            elementIdToElement = yield call(memoTrainingUtils.loadElementIdToElement);
+        }
         if (Object.keys(elementIdToElement).length === 0) {
             throw new Error('load failed : elementIdToElement');
         }
