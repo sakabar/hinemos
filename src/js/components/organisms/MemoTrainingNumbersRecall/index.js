@@ -100,7 +100,7 @@ const MemoTrainingNumbersRecall = ({
             <div>
                 {
                     (() => {
-                        return _.range(0, 10).map(numberInd => {
+                        return [ ..._.range(1, 10), 0, ].map(numberInd => {
                             const element = new memoTrainingUtils.NumberElement(String(numberInd));
                             return (<Button color="light" value={String(numberInd)} style={ { width: '4em', height: '3em', fontFamily: [ 'Courier New', 'monospace', ], }} key={`${numberInd}`} disabled={false} onClick={ () => { sagaSelectHand(element); }}/>);
                         });
