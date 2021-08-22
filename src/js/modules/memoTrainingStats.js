@@ -39,19 +39,8 @@ function * handleFetchStats () {
         const startDate = action.payload.startDate;
         const endDate = action.payload.endDate;
 
-        // 入力の情報が足りていない時は状態の更新だけ行う
-        if (userName === '' || event === '') {
-            const payload = {
-                event,
-                startDate,
-                endDate,
-                stats: [],
-                scores: [],
-                elementIdToElement: {},
-            };
-            yield put(fetchStats(payload));
-            continue;
-        }
+        const startDateMoment = moment(startDate, 'YYYY/MM/DD');
+        const endDateMoment = moment(endDate, 'YYYY/MM/DD');
 
         // elementId => element
         // 初回のみは実際にロードし、state内にキャッシュしておく。その後はstate内のキャッシュを利用。
@@ -61,6 +50,20 @@ function * handleFetchStats () {
         }
         if (Object.keys(elementIdToElement).length === 0) {
             throw new Error('load failed : elementIdToElement');
+        }
+
+        // 入力の情報が足りていない時は状態の更新だけ行う
+        if (userName === '' || event === '' || !startDateMoment.isSameOrBefore(endDateMoment)) {
+            const payload = {
+                event,
+                startDate,
+                endDate,
+                stats: [],
+                scores: [],
+                elementIdToElement,
+            };
+            yield put(fetchStats(payload));
+            continue;
         }
 
         const resFetchScore = yield call(memoTrainingUtils.fetchScore, userName, event, 'memorization');
