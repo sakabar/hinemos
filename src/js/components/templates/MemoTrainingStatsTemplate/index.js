@@ -313,6 +313,7 @@ const MemoTrainingStatsTemplate = (
 
                     return (
                         <div>
+                            <Button value="リロード" onClick={(e) => { sagaFetchStats(event); }}/><Br/>
                             <Txt>合計{MyData.length}イメージ</Txt>
                             <Txt>1イメージあたりの平均記憶時間: {avgMemorizationSec.toFixed(2)}秒</Txt>
 
