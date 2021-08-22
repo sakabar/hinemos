@@ -47,8 +47,6 @@ const MemoTrainingStatsTemplate = (
         elementIdToElement,
 
         sagaFetchStats,
-        setStartDate,
-        setEndDate,
     }
 ) => (
     <div>
@@ -64,7 +62,8 @@ const MemoTrainingStatsTemplate = (
                     disableClock={true}
                     value={new Date(startDate)}
                     onChange={ (value) => {
-                        setStartDate(value ? moment(value).format('YYYY/MM/DD') : null);
+                        const newStartDate = value ? moment(value).format('YYYY/MM/DD') : moment().subtract(7 * 13 - 1, 'days').format('YYYY/MM/DD');
+                        sagaFetchStats(event, newStartDate, endDate);
                     }}
                 /><Br/>
 
@@ -74,11 +73,12 @@ const MemoTrainingStatsTemplate = (
                     disableClock={true}
                     value={new Date(endDate)}
                     onChange={ (value) => {
-                        setEndDate(value ? moment(value).format('YYYY/MM/DD') : null);
+                        const newEndDate = value ? moment(value).format('YYYY/MM/DD') : moment().format('YYYY/MM/DD');
+                        sagaFetchStats(event, startDate, newEndDate);
                     }}
                 /><Br/>
-        種目: <Select options={eventOptions} defaultValue={event || ''} onChange={(e) => { sagaFetchStats(e.target.value); }} /><Br/>
-                <Button value="リロード" onClick={(e) => { sagaFetchStats(event); }}/><Br/>
+        種目: <Select options={eventOptions} defaultValue={event || ''} onChange={(e) => { sagaFetchStats(e.target.value, startDate, endDate); }} /><Br/>
+                <Button value="リロード" onClick={(e) => { sagaFetchStats(event, startDate, endDate); }}/><Br/>
             </div>
 
             <Br/>
@@ -319,7 +319,7 @@ const MemoTrainingStatsTemplate = (
 
                     return (
                         <div>
-                            <Button value="リロード" onClick={(e) => { sagaFetchStats(event); }}/><Br/>
+                            <Button value="リロード" onClick={(e) => { sagaFetchStats(event, startDate, endDate); }}/><Br/>
                             <Txt>合計{MyData.length}イメージ</Txt>
                             <Txt>1イメージあたりの平均記憶時間: {avgMemorizationSec.toFixed(2)}秒</Txt>
                             <Txt>1イメージあたりの平均変換時間: {avgTransformationSec.toFixed(2)}秒</Txt>
@@ -352,8 +352,6 @@ MemoTrainingStatsTemplate.propTypes = {
     elementIdToElement: PropTypes.object.isRequired,
 
     sagaFetchStats: PropTypes.func.isRequired,
-    setStartDate: PropTypes.func.isRequired,
-    setEndDate: PropTypes.func.isRequired,
 };
 
 export default MemoTrainingStatsTemplate;
