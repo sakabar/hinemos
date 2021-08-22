@@ -939,6 +939,7 @@ export const transformStatsJSONtoArray = (statsJSON, event) => {
 
             const transformation = posElementObj.transformation;
             const memorization = posElementObj.memorization;
+            const transformationSum = posElementObj.transformationSum;
             const recallSum = posElementObj.recallSum;
             const recallData = posElementObj.recallData;
 
@@ -976,6 +977,7 @@ export const transformStatsJSONtoArray = (statsJSON, event) => {
                 memorization,
                 acc,
                 recallSum,
+                transformationSum,
                 mistakeCnt,
                 mistakes,
             };

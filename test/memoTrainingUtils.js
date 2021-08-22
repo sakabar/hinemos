@@ -689,6 +689,7 @@ describe('memoTrainingUtils.js', () => {
                         transformation: 2.0,
                         memorization: 4.0,
                         recallSum: 3,
+                        transformationSum: 6,
                         recallData: [
                             {
                                 solutionElementId: 2,
@@ -709,6 +710,7 @@ describe('memoTrainingUtils.js', () => {
                         transformation: 1.0,
                         memorization: 3.0,
                         recallSum: 2,
+                        transformationSum: 5,
                         recallData: [
                             {
                                 solutionElementId: 5,
@@ -730,6 +732,7 @@ describe('memoTrainingUtils.js', () => {
                     memorization: 4.0,
                     acc: 1.0 / 3,
                     mistakeCnt: 2,
+                    transformationSum: 6,
                     recallSum: 3,
                     mistakes: [
                         {

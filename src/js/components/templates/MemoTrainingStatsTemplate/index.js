@@ -274,12 +274,11 @@ const MemoTrainingStatsTemplate = (
                             diff: rec.memorization && rec.transformation ? parseFloat((rec.memorization - rec.transformation).toFixed(2)) : '',
                             acc: rec.acc ? parseFloat(rec.acc.toFixed(2)) : 0.0,
                             recallSum: rec.recallSum,
+                            transformationSum: rec.transformationSum,
                             mistakeCnt: rec.mistakeCnt,
                             mistakes: mistakeStrs.join(', '),
                         };
                     });
-
-                    const avgMemorizationSec = _.mean(MyData.filter(rec => rec.memorization !== '').map(rec => rec.memorization));
 
                     const tHead = [
                         '種目',
@@ -293,6 +292,7 @@ const MemoTrainingStatsTemplate = (
                         '正解率',
                         '誤答回数',
                         '記憶回数',
+                        '変換回数',
                         '間違い方',
                     ];
 
@@ -308,14 +308,23 @@ const MemoTrainingStatsTemplate = (
                         'acc',
                         'mistakeCnt',
                         'recallSum',
+                        'transformationSum',
                         'mistakes',
                     ];
+
+                    const avgMemorizationSec = _.mean(MyData.filter(rec => rec.memorization !== '').map(rec => rec.memorization));
+                    const avgTransformationSec = _.mean(MyData.filter(rec => rec.transformation !== '').map(rec => rec.transformation));
+                    const recallCountSum = _.sum(MyData.map(rec => rec.recallSum));
+                    const transformationCountSum = _.sum(MyData.map(rec => rec.transformationSum));
 
                     return (
                         <div>
                             <Button value="リロード" onClick={(e) => { sagaFetchStats(event); }}/><Br/>
                             <Txt>合計{MyData.length}イメージ</Txt>
                             <Txt>1イメージあたりの平均記憶時間: {avgMemorizationSec.toFixed(2)}秒</Txt>
+                            <Txt>1イメージあたりの平均変換時間: {avgTransformationSec.toFixed(2)}秒</Txt>
+                            <Txt>記憶練習した合計イメージ数: {recallCountSum}</Txt>
+                            <Txt>変換練習した合計イメージ数: {transformationCountSum}</Txt>
 
                             <SortableTbl tblData={MyData}
                                 tHead={tHead}
