@@ -85,7 +85,7 @@ const MemoTrainingStatsTemplate = (
                         sagaFetchStats(event, startDate, newEndDate);
                     }}
                 /><Br/>
-        種目: <Select options={eventOptions} defaultValue={event || ''} onChange={(e) => { sagaFetchStats(e.target.value, startDate, endDate); }} /><Br/>
+        種目: <Select value={event || ''} options={eventOptions} onChange={(e) => { sagaFetchStats(e.target.value, startDate, endDate); }} /><Br/>
                 <Button value="リロード" onClick={(e) => { sagaFetchStats(event, startDate, endDate); }}/><Br/>
             </div>
 

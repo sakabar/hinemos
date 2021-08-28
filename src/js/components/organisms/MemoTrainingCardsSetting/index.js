@@ -1,9 +1,12 @@
-import React from 'react';
+import
+React,
+{ useEffect, } from 'react';
 import {
     Link,
 } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import DateTimePicker from 'react-datetime-picker';
+import Cookies from 'js-cookie';
 import Br from '../../atoms/Br';
 import Button from '../../atoms/Button';
 import Select from '../../molecules/Select';
@@ -84,6 +87,25 @@ const MemoTrainingCardsSetting = ({
     setStartDate,
     setEndDate,
 }) => {
+    useEffect(() => {
+        // pairSize
+        const localPairSize = parseInt(Cookies.get(memoTrainingUtils.cookieKey.state.pairSize['cards']));
+        if (1 <= localPairSize && localPairSize <= 4) {
+            setPairSize(localPairSize);
+        }
+
+        // isLefty
+        const localIsLefty = (typeof Cookies.get(memoTrainingUtils.cookieKey.state.isLefty) === 'undefined') ? true : (Cookies.get(memoTrainingUtils.cookieKey.state.isLefty) === 'true');
+        setIsLefty(localIsLefty);
+
+        // handSuits
+        const tmpHandSuits = Cookies.get(memoTrainingUtils.cookieKey.state.handSuits);
+        const localHandSuits = typeof tmpHandSuits === 'undefined' ? [] : JSON.parse(tmpHandSuits);
+        if (Array.isArray(localHandSuits) && localHandSuits.length === 4 && Object.values(memoTrainingUtils.Suit).every(suit => localHandSuits.includes(suit))) {
+            setHandSuits(localHandSuits.join(','));
+        }
+    }, []);
+
     return (
         <div>
             <div>
@@ -102,15 +124,15 @@ const MemoTrainingCardsSetting = ({
             </div>
 
             <div>
-            挑戦する束数: <Select options={deckNumOptions} defaultValue={deckNum || '1' } onChange={(e) => setDeckNum(parseInt(e.target.value))} />
+            挑戦する束数: <Select value={String(deckNum)} options={deckNumOptions} onChange={(e) => setDeckNum(parseInt(e.target.value))} />
                 <Br/>
             1束あたりの枚数: <Select options={deckSizeOptions} defaultValue={deckSize || '52'} onChange={(e) => setDeckSize(parseInt(e.target.value))}/>
                 <Br/>
-            同時に表示する枚数: <Select options={pairSizeList} defaultValue={pairSize || '1'} onChange={(e) => setPairSize(parseInt(e.target.value))} />
+            同時に表示する枚数: <Select value={String(pairSize)} options={pairSizeList} onChange={(e) => setPairSize(parseInt(e.target.value))} />
                 <Br/>
-            回答用カードの順番: <Select options={suitOptions} defaultValue={typeof handSuits === 'undefined' ? 'H,S,D,C' : handSuits.join(',') } onChange={(e) => setHandSuits(e.target.value)} />
+            回答用カードの順番: <Select value={handSuits.join(',')} options={suitOptions} onChange={(e) => setHandSuits(e.target.value)} />
                 <Br/>
-            方向: <Select options={isLeftyOptions} defaultValue={typeof isLefty === 'undefined' ? 'true' : String(isLefty)} onChange={(e) => setIsLefty(e.target.value === 'true')} />
+            方向: <Select value={String(isLefty)} options={isLeftyOptions} onChange={(e) => setIsLefty(e.target.value === 'true')} />
                 <Br/>
 
                 <DateTimePicker
@@ -133,8 +155,8 @@ const MemoTrainingCardsSetting = ({
                     }}
                 />
             までの
-                <Select options={poorKeyOptions} defaultValue={poorKey || 'memorization' } onChange={(e) => setPoorKey(e.target.value)} />
-                <Select options={poorDeckNumOptions} defaultValue={poorDeckNum || '0' } onChange={(e) => setPoorDeckNum(parseInt(e.target.value))} />
+                <Select value={poorKey} options={poorKeyOptions} onChange={(e) => setPoorKey(e.target.value)} />
+                <Select value={String(poorDeckNum)} options={poorDeckNumOptions} onChange={(e) => setPoorDeckNum(parseInt(e.target.value))} />
         枚ずつに絞って練習する
                 <Br/>
             </div>
@@ -159,11 +181,11 @@ const MemoTrainingCardsSetting = ({
 };
 
 MemoTrainingCardsSetting.propTypes = {
-    deckNum: PropTypes.number,
+    deckNum: PropTypes.number.isRequired,
     deckSize: PropTypes.number,
-    pairSize: PropTypes.number,
+    pairSize: PropTypes.number.isRequired,
 
-    isLefty: PropTypes.bool,
+    isLefty: PropTypes.bool.isRequired,
     handSuits: PropTypes.array,
 
     isOpenMemoShortcutModal: PropTypes.bool.isRequired,
