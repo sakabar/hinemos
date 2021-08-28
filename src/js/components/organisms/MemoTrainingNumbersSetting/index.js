@@ -88,7 +88,7 @@ const MemoTrainingNumbersSetting = ({
                 <Br/>
             同時に表示するイメージ数: <Select options={pairSizeList} defaultValue={pairSize || '1'} onChange={(e) => setPairSize(parseInt(e.target.value))} />
                 <Br/>
-            区切り文字: <Textbox value={numbersDelimiter} onChange={(e) => { inputNumbersDelimiter(e.target.value); }} style={{ width: '3em', }}/>{numbersDelimiter === '' ? '(無し)' : numbersDelimiter.replace(/ /g, '[SPACE]')}
+            区切り文字: <Textbox value={numbersDelimiter} onChange={(e) => { inputNumbersDelimiter(e.target.value); }} style={{ width: '3em', }}/>{numbersDelimiter === '' ? '(無し)' : numbersDelimiter.replace(/\s/g, '[SPACE]')}
                 <Br/>
                 <Checkbox text="束内で重複して出現させない" checked={isUniqInDeck} onChange={(e) => setIsUniqInDeck(e.target.checked)}/><Br/>
 
