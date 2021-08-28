@@ -11,6 +11,8 @@ import createSagaMiddleware from 'redux-saga';
 import MemoTrainingStatsTemplate from '../../templates/MemoTrainingStatsTemplate';
 import {
     sagaFetchStats,
+    setBo5TooltipIsOpen,
+    setAo5TooltipIsOpen,
 
     memoTrainingStatsReducer,
     rootSaga,
@@ -24,6 +26,8 @@ const mapStateToProps = ({
     stats,
     scores,
     elementIdToElement,
+    isOpenBo5Tooltip,
+    isOpenAo5Tooltip,
 }) => {
     return {
         event,
@@ -32,6 +36,8 @@ const mapStateToProps = ({
         stats,
         scores,
         elementIdToElement,
+        isOpenBo5Tooltip,
+        isOpenAo5Tooltip,
     };
 };
 
@@ -39,6 +45,12 @@ const mapDispatchToProps = (dispatch) => {
     return {
         sagaFetchStats: (event, startDate, endDate) => {
             dispatch(sagaFetchStats({ event, startDate, endDate, }));
+        },
+        setBo5TooltipIsOpen: (newIsOpenBo5Tooltip) => {
+            dispatch(setBo5TooltipIsOpen({ newIsOpenBo5Tooltip, }));
+        },
+        setAo5TooltipIsOpen: (newIsOpenAo5Tooltip) => {
+            dispatch(setAo5TooltipIsOpen({ newIsOpenAo5Tooltip, }));
         },
     };
 };
