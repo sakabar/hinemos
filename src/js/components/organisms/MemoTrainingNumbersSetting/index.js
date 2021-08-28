@@ -10,6 +10,7 @@ import Checkbox from '../../atoms/Checkbox';
 import Select from '../../molecules/Select';
 import ModeDecisionButtons from '../../molecules/ModeDecisionButtons';
 import MemoShortcutModal from '../../molecules/MemoShortcutModal';
+import Textbox from '../../atoms/Textbox';
 const config = require('../../../config');
 const moment = require('moment');
 const path = require('path');
@@ -34,6 +35,7 @@ const MemoTrainingNumbersSetting = ({
     deckNum,
     digitsPerImage,
     pairSize,
+    numbersDelimiter,
 
     isLefty,
     isUniqInDeck,
@@ -61,6 +63,8 @@ const MemoTrainingNumbersSetting = ({
     setPoorKey,
     setStartDate,
     setEndDate,
+
+    inputNumbersDelimiter,
 }) => {
     return (
         <div>
@@ -83,6 +87,8 @@ const MemoTrainingNumbersSetting = ({
             1イメージの桁数: <Select options={digitsPerImageOptions} defaultValue={digitsPerImage || '2'} onChange={(e) => setDigitsPerImage(parseInt(e.target.value))}/>
                 <Br/>
             同時に表示するイメージ数: <Select options={pairSizeList} defaultValue={pairSize || '1'} onChange={(e) => setPairSize(parseInt(e.target.value))} />
+                <Br/>
+            区切り文字: <Textbox value={numbersDelimiter} onChange={(e) => { inputNumbersDelimiter(e.target.value); }} style={{ width: '3em', }}/>{numbersDelimiter === '' ? '(無し)' : numbersDelimiter.replace(/ /g, '[SPACE]')}
                 <Br/>
                 <Checkbox text="束内で重複して出現させない" checked={isUniqInDeck} onChange={(e) => setIsUniqInDeck(e.target.checked)}/><Br/>
 
@@ -123,6 +129,7 @@ MemoTrainingNumbersSetting.propTypes = {
     deckSize: PropTypes.number,
     digitsPerImage: PropTypes.number,
     pairSize: PropTypes.number,
+    numbersDelimiter: PropTypes.string.isRequired,
 
     isLefty: PropTypes.bool,
     isUniqInDeck: PropTypes.bool,
@@ -148,6 +155,8 @@ MemoTrainingNumbersSetting.propTypes = {
     setPoorKey: PropTypes.func.isRequired,
     setStartDate: PropTypes.func.isRequired,
     setEndDate: PropTypes.func.isRequired,
+
+    inputNumbersDelimiter: PropTypes.func.isRequired,
 };
 
 export default MemoTrainingNumbersSetting;

@@ -76,6 +76,8 @@ const MemoTrainingNumbersTemplate = (
         setPoorKey,
         setStartDate,
         setEndDate,
+
+        inputNumbersDelimiter,
     }
 ) => (
     <div>
@@ -84,7 +86,7 @@ const MemoTrainingNumbersTemplate = (
             {
                 (() => {
                     if (phase === memoTrainingUtils.TrainingPhase.setting) {
-                        return (<MemoTrainingNumbersSetting deckNum={deckNum} deckSize={deckSize} digitsPerImage={digitsPerImage} pairSize={pairSize} isLefty={isLefty} isUniqInDeck={isUniqInDeck} isOpenMemoShortcutModal={isOpenMemoShortcutModal} poorDeckNum={poorDeckNum} poorKey={poorKey} startDate={startDate} endDate={endDate} setDeckNum={setDeckNum} setDeckSize={setDeckSize} setDigitsPerImage={setDigitsPerImage} setPairSize={setPairSize} setIsLefty={setIsLefty} setIsUniqInDeck={setIsUniqInDeck} sagaStartMemorizationPhase={sagaStartMemorizationPhase} toggleShortcutModal={toggleShortcutModal} setPoorDeckNum={setPoorDeckNum} setPoorKey={setPoorKey} setStartDate={setStartDate} setEndDate={setEndDate}/>);
+                        return (<MemoTrainingNumbersSetting deckNum={deckNum} deckSize={deckSize} digitsPerImage={digitsPerImage} pairSize={pairSize} numbersDelimiter={numbersDelimiter} isLefty={isLefty} isUniqInDeck={isUniqInDeck} isOpenMemoShortcutModal={isOpenMemoShortcutModal} poorDeckNum={poorDeckNum} poorKey={poorKey} startDate={startDate} endDate={endDate} setDeckNum={setDeckNum} setDeckSize={setDeckSize} setDigitsPerImage={setDigitsPerImage} setPairSize={setPairSize} setIsLefty={setIsLefty} setIsUniqInDeck={setIsUniqInDeck} sagaStartMemorizationPhase={sagaStartMemorizationPhase} toggleShortcutModal={toggleShortcutModal} setPoorDeckNum={setPoorDeckNum} setPoorKey={setPoorKey} setStartDate={setStartDate} setEndDate={setEndDate} inputNumbersDelimiter={inputNumbersDelimiter} />);
                     } else if (phase === memoTrainingUtils.TrainingPhase.memorization) {
                         return (<MemoTrainingNumbersMemorization startMemoMiliUnixtime={startMemoMiliUnixtime} startRecallMiliUnixtime={startRecallMiliUnixtime} timerMiliUnixtime={timerMiliUnixtime} timeVisible={timeVisible} isLefty={isLefty} decks={decks} deckInd={deckInd} pairInd={pairInd} numbersDelimiter={numbersDelimiter} sagaFinishMemorizationPhase={sagaFinishMemorizationPhase} sagaGoToNextPair={sagaGoToNextPair} sagaGoToPrevPair={sagaGoToPrevPair} sagaGoToDeckHead={sagaGoToDeckHead} sagaGoToNextDeck={sagaGoToNextDeck} sagaToggleTimer={sagaToggleTimer}/>);
                     } else if (phase === memoTrainingUtils.TrainingPhase.recall) {
@@ -171,6 +173,8 @@ MemoTrainingNumbersTemplate.propTypes = {
     setPoorKey: PropTypes.func.isRequired,
     setStartDate: PropTypes.func.isRequired,
     setEndDate: PropTypes.func.isRequired,
+
+    inputNumbersDelimiter: PropTypes.func.isRequired,
 };
 
 export default MemoTrainingNumbersTemplate;

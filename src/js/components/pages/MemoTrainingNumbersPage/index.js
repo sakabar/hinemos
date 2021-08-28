@@ -45,6 +45,8 @@ import {
     setStartDate,
     setEndDate,
 
+    inputNumbersDelimiter,
+
     memoTrainingReducer,
     rootSaga,
 } from '../../../modules/memoTraining';
@@ -209,6 +211,9 @@ const mapDispatchToProps = (dispatch) => {
         },
         sagaSelectHand: (element) => {
             dispatch(sagaSelectHand({ element, }));
+        },
+        inputNumbersDelimiter: (numbersDelimiter) => {
+            dispatch(inputNumbersDelimiter({ numbersDelimiter, }));
         },
     };
 };

@@ -139,6 +139,9 @@ export const sagaSelectHand = createAction(SAGA_SELECT_HAND);
 const SELECT_HAND = 'SELECT_HAND';
 const selectHand = createAction(SELECT_HAND);
 
+const INPUT_NUMBERS_DELIMITER = 'INPUT_NUMBERS_DELIMITER';
+export const inputNumbersDelimiter = createAction(INPUT_NUMBERS_DELIMITER);
+
 const initialState = {
     userName: localStorage.userName, // ユーザ名
     startMemoMiliUnixtime: 0, // 記憶を開始したミリUnixtime
@@ -160,7 +163,7 @@ const initialState = {
     deckSize: undefined, // 1束の枚数。UIで指定されなかった場合は記憶/分析の開始時に種目ごとのデフォルト値に設定する。数字記憶の場合は「桁数」であり、イメージ数ではない。
     digitsPerImage: undefined, // 1イメージを構成する桁数
     pairSize: 1, // 何イメージをペアにするか
-    numbersDelimiter: '',
+    numbersDelimiter: '', // 数字記憶のペア内の区切り文字。種目によって文字を変えるニーズが出ることを想定している
 
     memoEvent: undefined, // 'cards, numbers,'
     mode: undefined, // 'transformation, memorization'
@@ -1064,6 +1067,7 @@ export const memoTrainingReducer = handleActions(
                     pairSize: state.pairSize,
                     isLefty: state.isLefty,
                     isUniqInDeck: state.isUniqInDeck,
+                    numbersDelimiter: state.numbersDelimiter,
 
                     elementIdsDict: state.elementIdsDict,
 
@@ -1103,6 +1107,7 @@ export const memoTrainingReducer = handleActions(
                 deckSize: state.evacuatedDeckSize || state.deckSize,
                 pairSize: state.pairSize,
                 isLefty: state.isLefty,
+                numbersDelimiter: state.numbersDelimiter,
 
                 elementIdsDict: state.elementIdsDict,
 
@@ -1522,6 +1527,12 @@ export const memoTrainingReducer = handleActions(
                 ...state,
                 endDate,
                 statsArray: [],
+            };
+        },
+        [inputNumbersDelimiter]: (state, action) => {
+            return {
+                ...state,
+                numbersDelimiter: _.escape(action.payload.numbersDelimiter),
             };
         },
     },
