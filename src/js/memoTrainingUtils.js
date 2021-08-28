@@ -1,8 +1,18 @@
+import {
+    chunk as _chunk,
+    flatten as _flatten,
+    max as _max,
+    min as _min,
+    random as _random,
+    range as _range,
+    shuffle as _shuffle,
+    sortBy as _sortBy,
+    take as _take,
+} from 'lodash-es';
 const config = require('./config');
 const constant = require('./constant');
 const numbering3 = require('./numbering3');
 const utils = require('./utils');
-const _ = require('lodash');
 const moment = require('moment-timezone');
 const shuffle = require('shuffle-array');
 const rp = require('request-promise');
@@ -88,7 +98,7 @@ export function CardElement (suit, num) {
 
     const type = ElementType.card;
     const size = 1;
-    const zeroPaddedNum = _.padStart(num, 2, '0');
+    const zeroPaddedNum = String(num).padStart(2, '0');
     const tag = `${suit}-${zeroPaddedNum}`;
 
     return new Element(type, size, tag);
@@ -443,11 +453,11 @@ export const generateMbldDeck = (analysisDict, pairSize) => {
     // FIXME コーナー → エッジの順にやる人にも対応する
 
     // MBLDは2文字で1イメージなのは固定
-    const edgeWords = _.chunk(analysisDict.edge, 2).map(chars => chars.join(''));
-    const edgePairs = _.chunk(edgeWords, pairSize);
+    const edgeWords = _chunk(analysisDict.edge, 2).map(chars => chars.join(''));
+    const edgePairs = _chunk(edgeWords, pairSize);
 
-    const cornerWords = _.chunk(analysisDict.corner, 2).map(chars => chars.join(''));
-    const cornerPairs = _.chunk(cornerWords, pairSize);
+    const cornerWords = _chunk(analysisDict.corner, 2).map(chars => chars.join(''));
+    const cornerPairs = _chunk(cornerWords, pairSize);
 
     const tmpPairs = edgePairs.concat(cornerPairs);
     const pairs = tmpPairs.map(pair => {
@@ -471,9 +481,9 @@ export const generateMbldDecks = (numberingCorner, numberingEdge, deckNum, pairS
 
 export const generateNumbersDeck = (numsStr, digitsPerImage, pairSize) => {
     const digitsPerPair = pairSize * digitsPerImage;
-    return _.chunk(numsStr, digitsPerPair).map(pairChars => {
+    return _chunk(numsStr, digitsPerPair).map(pairChars => {
         const pairStr = pairChars.join('');
-        return _.chunk(pairStr, digitsPerImage).map(numChars => {
+        return _chunk(pairStr, digitsPerImage).map(numChars => {
             const numStr = numChars.join('');
             return new NumberElement(numStr);
         });
@@ -486,11 +496,11 @@ export const generateNumbersDecks = (deckNum, deckSize, digitsPerImage, pairSize
     for (let i = 0; i < deckNum; i++) {
         const numsStr = (() => {
             if (isUniqInDeck) {
-                const numStrs = _.range(0, 10 ** digitsPerImage)
+                const numStrs = _range(0, 10 ** digitsPerImage)
                     .map(num => {
                         return String(num).padStart(digitsPerImage, '0');
                     });
-                const shuffled = _.shuffle(numStrs);
+                const shuffled = _shuffle(numStrs);
                 const ans = shuffled.join('').slice(0, deckSize);
 
                 if (ans.length !== deckSize) {
@@ -500,7 +510,7 @@ export const generateNumbersDecks = (deckNum, deckSize, digitsPerImage, pairSize
                 return ans;
             } else {
                 // 完全ランダム
-                return _.range(0, deckSize).map(num => String(_.random(0, 9))).join('');
+                return _range(0, deckSize).map(num => String(_random(0, 9))).join('');
             }
         })();
 
@@ -521,7 +531,7 @@ const numToCardElement = (oneTo52) => {
     }
 
     const num = ((oneTo52 - 1) % 13) + 1;
-    const suitInd = _.floor((oneTo52 - 1) / 13);
+    const suitInd = Math.floor((oneTo52 - 1) / 13);
 
     const suit = (() => {
         if (suitInd === 0) {
@@ -544,16 +554,16 @@ const numToCardElement = (oneTo52) => {
 // この関数は外部からは使わせない
 const generateCardsDeck = (oneTo52nums, pairSize) => {
     const elements = oneTo52nums.map(num => numToCardElement(num));
-    return _.chunk(elements, pairSize);
+    return _chunk(elements, pairSize);
 };
 
 export const generateCardsDecks = (deckNum, deckSize, pairSize) => {
     const ans = [];
 
     for (let i = 0; i < deckNum; i++) {
-        const allNums = _.range(1, 52 + 1);
-        const shuffled = _.shuffle(allNums);
-        const nums = _.take(shuffled, deckSize);
+        const allNums = _range(1, 52 + 1);
+        const shuffled = _shuffle(allNums);
+        const nums = _take(shuffled, deckSize);
         const deck = generateCardsDeck(nums, pairSize);
         ans.push(deck);
     }
@@ -612,7 +622,7 @@ export const generateRareElementDecks = (pairSize, poorDeckNum, statsArray, elem
 
     // ランダムに並び替える
     for (let posInd = 0; posInd < pairSize; posInd++) {
-        posToNotAppearedElements[posInd] = _.shuffle(posToNotAppearedElements[posInd]);
+        posToNotAppearedElements[posInd] = _shuffle(posToNotAppearedElements[posInd]);
     }
 
     // 答えを詰めて返す
@@ -625,7 +635,7 @@ export const generateRareElementDecks = (pairSize, poorDeckNum, statsArray, elem
         const pairTagSet = new Set();
         for (let posInd = 0; posInd < pairSize; posInd++) {
             const element = i < posToNotAppearedElements[posInd].length ? posToNotAppearedElements[posInd][i]
-                : allElements[_.random(0, allElements.length - 1)];
+                : allElements[_random(0, allElements.length - 1)];
 
             pair.push(element);
             pairTagSet.add(element.tag);
@@ -655,9 +665,9 @@ export const generatePoorDecks = (pairSize, poorDeckNum, poorKey, statsArray, el
     // accの場合は昇順、それ以外は降順
     const sortedStatsArray = (() => {
         if (poorKey === PoorKey.acc) {
-            return _.sortBy(statsArray.filter(rec => rec[poorKey] !== null), (rec) => { return rec[poorKey]; });
+            return _sortBy(statsArray.filter(rec => rec[poorKey] !== null), (rec) => { return rec[poorKey]; });
         } else {
-            return _.sortBy(statsArray.filter(rec => rec[poorKey] !== null), (rec) => { return -rec[poorKey]; });
+            return _sortBy(statsArray.filter(rec => rec[poorKey] !== null), (rec) => { return -rec[poorKey]; });
         }
     })();
 
@@ -695,14 +705,14 @@ export const generatePoorDecks = (pairSize, poorDeckNum, poorKey, statsArray, el
     const minPoorDeckNum = (() => {
         let minPoorDeckNum = poorStatsDict[0].length;
         for (let tmpPosInd = 0; tmpPosInd < pairSize; tmpPosInd++) {
-            minPoorDeckNum = _.min([ minPoorDeckNum, poorStatsDict[tmpPosInd].length, ]);
+            minPoorDeckNum = _min([ minPoorDeckNum, poorStatsDict[tmpPosInd].length, ]);
         }
         return minPoorDeckNum;
     })();
 
     // サイズをminPoorDeckNumで揃えつつ、中身をシャッフルする
     for (let tmpPosInd = 0; tmpPosInd < pairSize; tmpPosInd++) {
-        poorStatsDict[tmpPosInd] = _.shuffle(poorStatsDict[tmpPosInd].slice(0, minPoorDeckNum));
+        poorStatsDict[tmpPosInd] = _shuffle(poorStatsDict[tmpPosInd].slice(0, minPoorDeckNum));
     }
 
     // 1つのペア内で重ならないようにしつつ選び取る
@@ -791,11 +801,11 @@ export const cardTagToMarkStr = (tag) => {
 };
 
 export const getAllCardElements = () => {
-    return _.range(1, 52 + 1).map(num => numToCardElement(num));
+    return _range(1, 52 + 1).map(num => numToCardElement(num));
 };
 
 export const getAllNumberElements = (digitsPerImage) => {
-    return _.range(0, 10 ** digitsPerImage)
+    return _range(0, 10 ** digitsPerImage)
         .map(num => {
             const numStr = String(num).padStart(digitsPerImage, '0');
             return new NumberElement(numStr);
@@ -819,12 +829,12 @@ export const cardsDefaultHand = (deckNum) => {
 };
 
 export const getSameSuitCards = (suit) => {
-    return _.range(1, 13 + 1).map(num => new CardElement(suit, num));
+    return _range(1, 13 + 1).map(num => new CardElement(suit, num));
 };
 
 export const getHandElements = (suits) => {
     const cards = suits.map(suit => getSameSuitCards(suit));
-    return _.flatten(cards);
+    return _flatten(cards);
 };
 
 // 今見ている deckInd, pairInd, posIndの次の座標を返す。
@@ -911,7 +921,7 @@ export const splitNumbersImageInDecks = (decks, digitsPerImage, pairSize) => {
 export const mergeNumbersImageInDecks = (decks, digitsPerImage, pairSize) => {
     return decks.map(deck => {
         return deck.map(pair => {
-            return _.chunk(pair, digitsPerImage).map(digitsInImage => {
+            return _chunk(pair, digitsPerImage).map(digitsInImage => {
                 if (digitsInImage.includes(null)) {
                     return null;
                 } else {
@@ -926,8 +936,8 @@ export const mergeNumbersImageInDecks = (decks, digitsPerImage, pairSize) => {
 export const mergeLastRecallMiliUnixtimePairsList = (lastRecallMiliUnixtimePairsList, digitsPerImage) => {
     return lastRecallMiliUnixtimePairsList.map(deck => {
         return deck.map(pair => {
-            return _.chunk(pair, digitsPerImage).map(digitsInImage => {
-                const tmpMax = _.max(digitsInImage);
+            return _chunk(pair, digitsPerImage).map(digitsInImage => {
+                const tmpMax = _max(digitsInImage);
 
                 // digitsInImageの要素が全てnullの場合は、値がundefinedになる
                 // この場合に、nullに直す。
@@ -962,7 +972,7 @@ export const transformStatsJSONtoArray = (statsJSON, event) => {
             const recallSum = posElementObj.recallSum;
             const recallData = posElementObj.recallData;
 
-            const sortedRecallData = _.sortBy(recallData, (rec) => { return -rec.count; });
+            const sortedRecallData = _sortBy(recallData, (rec) => { return -rec.count; });
 
             let acc = 0.0;
             let mistakeCnt = recallSum;
