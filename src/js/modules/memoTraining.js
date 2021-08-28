@@ -147,6 +147,7 @@ const cookieKey = {
     state: {
         pairSize: 'state_pairSize',
         isLefty: 'state_isLefty',
+        handSuits: 'state_handSuits',
     },
 };
 
@@ -185,12 +186,19 @@ const initialState = {
     handDict: {}, // Cardsで手元に残っているカードを表す辞書。deckInd => tag => bool
 
     // 手札のスート順
-    handSuits: [
-        memoTrainingUtils.Suit.heart,
-        memoTrainingUtils.Suit.spade,
-        memoTrainingUtils.Suit.diamond,
-        memoTrainingUtils.Suit.club,
-    ],
+    handSuits: (() => {
+        const tmpHandSuits = Cookies.get(cookieKey.state.handSuits);
+        const handSuits = typeof tmpHandSuits === 'undefined' ? [] : JSON.parse(tmpHandSuits);
+
+        const defaultValue = [
+            memoTrainingUtils.Suit.heart,
+            memoTrainingUtils.Suit.spade,
+            memoTrainingUtils.Suit.diamond,
+            memoTrainingUtils.Suit.club,
+        ];
+
+        return (Array.isArray(handSuits) && handSuits.length === 4 && defaultValue.every(suit => handSuits.includes(suit))) ? handSuits : defaultValue;
+    })(),
 
     // elementType => elementTag => elementId の辞書
     elementIdsDict: {},
@@ -978,6 +986,8 @@ export const memoTrainingReducer = handleActions(
 
             Cookies.set(cookieKey.state.isLefty, JSON.stringify(state.isLefty), { expires: 750, path: location.pathname, });
 
+            Cookies.set(cookieKey.state.handSuits, JSON.stringify(state.handSuits), { expires: 750, path: location.pathname, });
+
             const decks = action.payload.decks;
 
             // decksと構造が一致することを保証するために、lastMemoMiliUnixtimePairsListをnullで埋めて初期化
@@ -1085,6 +1095,7 @@ export const memoTrainingReducer = handleActions(
                     pairSize: state.pairSize,
                     isLefty: state.isLefty,
                     isUniqInDeck: state.isUniqInDeck,
+                    handSuits: state.handSuits,
                     numbersDelimiter: state.numbersDelimiter,
 
                     elementIdsDict: state.elementIdsDict,
@@ -1125,6 +1136,8 @@ export const memoTrainingReducer = handleActions(
                 deckSize: state.evacuatedDeckSize || state.deckSize,
                 pairSize: state.pairSize,
                 isLefty: state.isLefty,
+                isUniqInDeck: state.isUniqInDeck,
+                handSuits: state.handSuits,
                 numbersDelimiter: state.numbersDelimiter,
 
                 elementIdsDict: state.elementIdsDict,
