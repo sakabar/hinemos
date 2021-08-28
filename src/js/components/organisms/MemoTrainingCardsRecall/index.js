@@ -1,12 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import {
+    chunk as _chunk,
+    flattenDeep as _flattenDeep,
+    reverse as _reverse,
+} from 'lodash-es';
 import Br from '../../atoms/Br';
 import Txt from '../../atoms/Txt';
 import Button from '../../atoms/Button';
 import MemoTimer from '../../molecules/MemoTimer';
 const memoTrainingUtils = require('../../../memoTrainingUtils');
-
-const _ = require('lodash');
 
 const getColor = (tag) => {
     if (!tag) {
@@ -90,10 +93,10 @@ const MemoTrainingCardsRecall = ({
                     });
 
                     // _.reverse()は破壊的なメソッドだが、_.flattenDeep()によって新しい配列が生成されているので、その新しい配列が破壊されても問題ない
-                    const flatten = isLefty ? _.flattenDeep(components) : _.reverse(_.flattenDeep(components));
+                    const flatten = isLefty ? _flattenDeep(components) : _reverse(_flattenDeep(components));
 
                     const chunkSize = 12;
-                    return _.chunk(flatten, chunkSize).map((bulk, bulkInd) => {
+                    return _chunk(flatten, chunkSize).map((bulk, bulkInd) => {
                         return (
                             <div key={bulkInd}>
                                 {bulk}

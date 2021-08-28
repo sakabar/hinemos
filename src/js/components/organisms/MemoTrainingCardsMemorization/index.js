@@ -5,7 +5,10 @@ import Txt from '../../atoms/Txt';
 import Button from '../../atoms/Button';
 import PlayingCard from '../../molecules/PlayingCard';
 import MemoTimer from '../../molecules/MemoTimer';
-const _ = require('lodash');
+import {
+    cloneDeep as _cloneDeep,
+    reverse as _reverse,
+} from 'lodash-es';
 
 const MemoTrainingCardsMemorization = ({
     startMemoMiliUnixtime,
@@ -35,7 +38,7 @@ const MemoTrainingCardsMemorization = ({
 
             {
                 (() => {
-                    const cards = isLefty ? decks[deckInd][pairInd] : _.reverse(_.cloneDeep(decks[deckInd][pairInd]));
+                    const cards = isLefty ? decks[deckInd][pairInd] : _reverse(_cloneDeep(decks[deckInd][pairInd]));
                     return cards.map((element, i) => (<PlayingCard tag={element.tag} colInd={i} key={i}/>));
                 })()
             }

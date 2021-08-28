@@ -1,9 +1,13 @@
 const path = require('path');
 const ExtendedDefinePlugin = require('extended-define-webpack-plugin');
+const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
+const MomentLocalesPlugin = require('moment-locales-webpack-plugin');
 // var HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 // var StatsPlugin = require('stats-webpack-plugin');
 
 module.exports = {
+    mode: 'production',
+    // mode: 'development',
     cache: true,
     context: path.join(__dirname, '/src/js'),
     entry: {
@@ -44,6 +48,7 @@ module.exports = {
                 loader: 'babel-loader',
                 exclude: /node_modules/,
                 options: {
+                    plugins: [ 'lodash', ],
                     presets: [ '@babel/preset-react', ],
                 },
             },
@@ -69,6 +74,12 @@ module.exports = {
         new ExtendedDefinePlugin({
             DEPLOY_ENV: process.env.DEPLOY_ENV ? JSON.stringify(process.env.DEPLOY_ENV) : 'stg',
         }),
+        new LodashModuleReplacementPlugin(),
+
+        new MomentLocalesPlugin({
+            localesToKeep: [ 'ja', ],
+        }),
+
         // 不安定なのでコメントアウトして使わないようにした
         // new HardSourceWebpackPlugin(),
 
