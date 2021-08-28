@@ -148,6 +148,7 @@ const cookieKey = {
         pairSize: 'state_pairSize',
         isLefty: 'state_isLefty',
         handSuits: 'state_handSuits',
+        digitsPerImage: 'state_digitsPerImage',
     },
 };
 
@@ -170,7 +171,10 @@ const initialState = {
 
     deckNum: 1, // 束数
     deckSize: undefined, // 1束の枚数。UIで指定されなかった場合は記憶/分析の開始時に種目ごとのデフォルト値に設定する。数字記憶の場合は「桁数」であり、イメージ数ではない。
-    digitsPerImage: undefined, // 1イメージを構成する桁数
+    digitsPerImage: (() => {
+        const tmpDigitsPerImage = parseInt(Cookies.get(cookieKey.state.digitsPerImage));
+        return _.inRange(tmpDigitsPerImage, 1, 2 + 1) ? tmpDigitsPerImage : undefined;
+    })(), // 1イメージを構成する桁数
     pairSize: _.inRange(parseInt(Cookies.get(cookieKey.state.pairSize)), 1, 4 + 1) ? parseInt(Cookies.get(cookieKey.state.pairSize)) : 1, // 何イメージをペアにするか
     numbersDelimiter: '', // 数字記憶のペア内の区切り文字。種目によって文字を変えるニーズが出ることを想定している
 
@@ -249,18 +253,22 @@ function * handleStartMemorizationPhase () {
         // もしselectがデフォルトのままで渡されたdigitsPerImageがundefinedなら、種目ごとのデフォルト値を設定する
         const tmpDigitsPerImage = yield select(state => state.digitsPerImage);
         const digitsPerImage = ((tmpDigitsPerImage) => {
-            if (tmpDigitsPerImage) {
-                return tmpDigitsPerImage;
-            }
+            // FIXME MBLDとCardsでは今のところ2,1で固定
             if (memoEvent === memoTrainingUtils.MemoEvent.mbld) {
                 return 2;
             }
             if (memoEvent === memoTrainingUtils.MemoEvent.cards) {
                 return 1;
             }
+
+            if (tmpDigitsPerImage) {
+                return tmpDigitsPerImage;
+            }
+
             if (memoEvent === memoTrainingUtils.MemoEvent.numbers) {
                 return 2;
             }
+
             throw new Error('想定していない種目です');
         })(tmpDigitsPerImage);
 
@@ -988,6 +996,8 @@ export const memoTrainingReducer = handleActions(
 
             Cookies.set(cookieKey.state.handSuits, JSON.stringify(state.handSuits), { expires: 750, path: location.pathname, });
 
+            Cookies.set(cookieKey.state.digitsPerImage, String(action.payload.digitsPerImage), { expires: 750, path: location.pathname, });
+
             const decks = action.payload.decks;
 
             // decksと構造が一致することを保証するために、lastMemoMiliUnixtimePairsListをnullで埋めて初期化
@@ -1093,6 +1103,7 @@ export const memoTrainingReducer = handleActions(
                     deckNum: state.evacuatedDeckNum || state.deckNum,
                     deckSize: state.evacuatedDeckSize || state.deckSize,
                     pairSize: state.pairSize,
+                    digitsPerImage: state.digitsPerImage,
                     isLefty: state.isLefty,
                     isUniqInDeck: state.isUniqInDeck,
                     handSuits: state.handSuits,
@@ -1135,6 +1146,7 @@ export const memoTrainingReducer = handleActions(
                 deckNum: state.evacuatedDeckNum || state.deckNum,
                 deckSize: state.evacuatedDeckSize || state.deckSize,
                 pairSize: state.pairSize,
+                digitsPerImage: state.digitsPerImage,
                 isLefty: state.isLefty,
                 isUniqInDeck: state.isUniqInDeck,
                 handSuits: state.handSuits,
