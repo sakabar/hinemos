@@ -13,6 +13,7 @@ import {
 import {
     delay,
 } from 'redux-saga';
+import Cookies from 'js-cookie';
 const memoTrainingUtils = require('../memoTrainingUtils');
 const moment = require('moment');
 const _ = require('lodash');
@@ -142,13 +143,19 @@ const selectHand = createAction(SELECT_HAND);
 const INPUT_NUMBERS_DELIMITER = 'INPUT_NUMBERS_DELIMITER';
 export const inputNumbersDelimiter = createAction(INPUT_NUMBERS_DELIMITER);
 
+const cookieKey = {
+    state: {
+        isLefty: 'state_isLefty',
+    },
+};
+
 const initialState = {
     userName: localStorage.userName, // ユーザ名
     startMemoMiliUnixtime: 0, // 記憶を開始したミリUnixtime
     startRecallMiliUnixtime: 0, // 回答を開始したミリUnixtime
     timerMiliUnixtime: 0,
     timeVisible: false,
-    isLefty: true,
+    isLefty: (typeof Cookies.get(cookieKey.state.isLefty) === 'undefined') ? true : (Cookies.get(cookieKey.state.isLefty) === 'true'),
     isUniqInDeck: false, // デッキ内で同じイメージが重複して出現しないようにする
 
     isOpenMemoShortcutModal: false,
@@ -940,9 +947,13 @@ export const memoTrainingReducer = handleActions(
             };
         },
         [setIsLefty]: (state, action) => {
+            const isLefty = action.payload.isLefty;
+
+            Cookies.set(cookieKey.state.isLefty, JSON.stringify(isLefty));
+
             return {
                 ...state,
-                isLefty: action.payload.isLefty,
+                isLefty,
             };
         },
         [setHandSuits]: (state, action) => {
