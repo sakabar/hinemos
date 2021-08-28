@@ -944,10 +944,6 @@ export const memoTrainingReducer = handleActions(
         [setPairSize]: (state, action) => {
             const pairSize = action.payload.pairSize;
 
-            // 種目ごとにpairSizeが異なる可能性があるので、パスごとにクッキーを保存する。
-            // 例 /hinemos/memoTraining/cards/trial.html
-            Cookies.set(cookieKey.state.pairSize, String(pairSize), { path: location.pathname, });
-
             return {
                 ...state,
                 pairSize,
@@ -955,8 +951,6 @@ export const memoTrainingReducer = handleActions(
         },
         [setIsLefty]: (state, action) => {
             const isLefty = action.payload.isLefty;
-
-            Cookies.set(cookieKey.state.isLefty, JSON.stringify(isLefty));
 
             return {
                 ...state,
@@ -978,6 +972,12 @@ export const memoTrainingReducer = handleActions(
             };
         },
         [startMemorizationPhase]: (state, action) => {
+            // 種目ごとにpairSizeが異なる可能性があるので、パスごとにクッキーを保存する。
+            // 例 /hinemos/memoTraining/cards/trial.html
+            Cookies.set(cookieKey.state.pairSize, String(state.pairSize), { expires: 750, path: location.pathname, });
+
+            Cookies.set(cookieKey.state.isLefty, JSON.stringify(state.isLefty), { expires: 750, path: location.pathname, });
+
             const decks = action.payload.decks;
 
             // decksと構造が一致することを保証するために、lastMemoMiliUnixtimePairsListをnullで埋めて初期化
