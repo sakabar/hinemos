@@ -6,6 +6,7 @@ import {
 import {
     ScatterChart,
     Scatter,
+    ReferenceLine,
     XAxis,
     YAxis,
     ZAxis,
@@ -204,14 +205,20 @@ const MemoTrainingStatsTemplate = (
                     const bo5Acc = 1.0 - (1.0 - trialAcc) ** 5;
                     const ao5Acc = 5.0 * (1.0 - trialAcc) * (trialAcc ** 4) + (trialAcc ** 5);
 
+                    const successMemoSecAvg = _.meanBy(successfulTrials, 'totalMemoSec'); ;
+                    const successMemoSecSd = Math.sqrt(_.mean(successfulTrials.map(data => (data.totalMemoSec - successMemoSecAvg) * (data.totalMemoSec - successMemoSecAvg))));
+
                     return (
                         <div>
+                            {tableNode}
+                            <Br/>
+
                             <Txt>成功率: {successfulTrials.length}/{successfulTrials.length + badTrials.length} = {(trialAcc * 100).toFixed(2)}%</Txt>
+                            <Txt>成功タイムの平均: {successMemoSecAvg.toFixed(2)}</Txt>
+                            <Txt>成功タイムの標準偏差: {successMemoSecSd.toFixed(2)}</Txt>
                             <Txt>5回中1回以上成功する確率: 1 - (1 - {trialAcc.toFixed(2)})^5 = {(bo5Acc * 100).toFixed(2)}%</Txt>
                             <Txt>5回中4回以上成功する確率: 5 * (1 - {trialAcc.toFixed(2)}) * {trialAcc.toFixed(2)}^4 + {trialAcc.toFixed(2)}^5 = {(ao5Acc * 100).toFixed(2)}%</Txt>
                             <Br/>
-
-                            {tableNode}
 
                             <ScatterChart
                                 width={400}
@@ -234,6 +241,8 @@ const MemoTrainingStatsTemplate = (
                                 <Legend />
                                 <Scatter name="Successful" data={successfulTrials} fill="#82ca9d" shape="circle" />
                                 <Scatter name="Bad" data={badTrials} fill="#8884d8" shape="triangle" />
+
+                                <ReferenceLine x={successMemoSecAvg} stroke="red" strokeOpacity={0.3} label="平均" />
                             </ScatterChart>
                         </div>
                     );
