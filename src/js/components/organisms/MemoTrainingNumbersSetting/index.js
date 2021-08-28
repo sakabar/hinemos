@@ -71,7 +71,10 @@ const MemoTrainingNumbersSetting = ({
             <div>
                 <ul>
                     <li><Link to={`/${urlRoot}/memoTraining/index.html`}>種目選択に戻る</Link></li>
-                    <li><Link to={`/${urlRoot}/memoTraining/result.html`}>結果確認</Link></li>
+                    <li><Link to={{
+                        pathname: `/${urlRoot}/memoTraining/result.html`,
+                        search: '?event=numbers',
+                    } }>結果確認</Link></li>
                 </ul>
             </div>
 
