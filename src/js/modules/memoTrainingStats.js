@@ -19,6 +19,12 @@ const fetchStats = createAction(FETCH_STATS);
 const SAGA_FETCH_STATS = 'SAGA_FETCH_STATS';
 export const sagaFetchStats = createAction(SAGA_FETCH_STATS);
 
+const SET_BO5_TOOLTIP_IS_OPEN = 'SET_BO5_TOOLTIP_IS_OPEN';
+export const setBo5TooltipIsOpen = createAction(SET_BO5_TOOLTIP_IS_OPEN);
+
+const SET_AO5_TOOLTIP_IS_OPEN = 'SET_AO5_TOOLTIP_IS_OPEN';
+export const setAo5TooltipIsOpen = createAction(SET_AO5_TOOLTIP_IS_OPEN);
+
 const initialState = {
     userName: localStorage.userName,
 
@@ -29,6 +35,9 @@ const initialState = {
     stats: [],
     scores: [],
     elementIdToElement: {},
+
+    isOpenBo5Tooltip: false,
+    isOpenAo5Tooltip: false,
 };
 
 function * handleFetchStats () {
@@ -103,6 +112,18 @@ export const memoTrainingStatsReducer = handleActions(
                 stats: action.payload.stats,
                 scores: action.payload.scores,
                 elementIdToElement: action.payload.elementIdToElement,
+            };
+        },
+        [setBo5TooltipIsOpen]: (state, action) => {
+            return {
+                ...state,
+                isOpenBo5Tooltip: action.payload.newIsOpenBo5Tooltip,
+            };
+        },
+        [setAo5TooltipIsOpen]: (state, action) => {
+            return {
+                ...state,
+                isOpenAo5Tooltip: action.payload.newIsOpenAo5Tooltip,
             };
         },
     },

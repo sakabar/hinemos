@@ -23,6 +23,9 @@ import Select from '../../molecules/Select';
 // import DecideTrialButtonTdFactory from '../../molecules/DecideTrialButtonTd';
 import DateTimePicker from 'react-datetime-picker';
 import SortableTbl from 'react-sort-search-table';
+import {
+    Tooltip as ReactStrapTooltip,
+} from 'reactstrap';
 const config = require('../../../config');
 const path = require('path');
 const memoTrainingUtils = require('../../../memoTrainingUtils');
@@ -46,8 +49,12 @@ const MemoTrainingStatsTemplate = (
         stats,
         scores,
         elementIdToElement,
+        isOpenBo5Tooltip,
+        isOpenAo5Tooltip,
 
         sagaFetchStats,
+        setBo5TooltipIsOpen,
+        setAo5TooltipIsOpen,
     }
 ) => (
     <div>
@@ -212,10 +219,18 @@ const MemoTrainingStatsTemplate = (
                             <Br/>
 
                             <Txt>成功率: {successfulTrials.length}/{successfulTrials.length + badTrials.length} = {(trialAcc * 100).toFixed(2)}%</Txt>
-                            <Txt>成功タイムの平均: {successMemoSecAvg.toFixed(2)}</Txt>
-                            <Txt>成功タイムの標準偏差: {successMemoSecSd.toFixed(2)}</Txt>
-                            <Txt>5回中1回以上成功する確率: 1 - (1 - {trialAcc.toFixed(2)})^5 = {(bo5Acc * 100).toFixed(2)}%</Txt>
-                            <Txt>5回中4回以上成功する確率: 5 * (1 - {trialAcc.toFixed(2)}) * {trialAcc.toFixed(2)}^4 + {trialAcc.toFixed(2)}^5 = {(ao5Acc * 100).toFixed(2)}%</Txt>
+                            <Txt>成功タイムの平均: {successMemoSecAvg.toFixed(2)}秒</Txt>
+                            <Txt>成功タイムの標準偏差: {successMemoSecSd.toFixed(2)}秒</Txt>
+
+                            <p>5回中1回以上成功する確率: <span id ="bo5ProbabilityId" style={{ textDecoration: 'underline', color: 'blue', }} href="#">{(bo5Acc * 100).toFixed(2)}%</span></p>
+                            <ReactStrapTooltip placement="right" isOpen={isOpenBo5Tooltip} target="bo5ProbabilityId" toggle={() => setBo5TooltipIsOpen(!isOpenBo5Tooltip)}>
+                            1 - (1 - {trialAcc.toFixed(2)})^5
+                            </ReactStrapTooltip>
+
+                            <p>5回中4回以上成功する確率: <span id ="ao5ProbabilityId" style={{ textDecoration: 'underline', color: 'blue', }} href="#">{(ao5Acc * 100).toFixed(2)}%</span></p>
+                            <ReactStrapTooltip placement="right" isOpen={isOpenAo5Tooltip} target="ao5ProbabilityId" toggle={() => setAo5TooltipIsOpen(!isOpenAo5Tooltip)}>
+                            5 * (1 - {trialAcc.toFixed(2)}) * {trialAcc.toFixed(2)}^4 + {trialAcc.toFixed(2)}^5
+                            </ReactStrapTooltip>
                             <Br/>
 
                             <ScatterChart
@@ -357,8 +372,12 @@ MemoTrainingStatsTemplate.propTypes = {
     stats: PropTypes.array.isRequired,
     scores: PropTypes.array.isRequired,
     elementIdToElement: PropTypes.object.isRequired,
+    isOpenBo5Tooltip: PropTypes.bool.isRequired,
+    isOpenAo5Tooltip: PropTypes.bool.isRequired,
 
     sagaFetchStats: PropTypes.func.isRequired,
+    setBo5TooltipIsOpen: PropTypes.func.isRequired,
+    setAo5TooltipIsOpen: PropTypes.func.isRequired,
 };
 
 export default MemoTrainingStatsTemplate;
