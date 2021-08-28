@@ -7,6 +7,9 @@ import {
 import PropTypes from 'prop-types';
 import DateTimePicker from 'react-datetime-picker';
 import Cookies from 'js-cookie';
+import {
+    escape as _escape,
+} from 'lodash-es';
 import Br from '../../atoms/Br';
 import Button from '../../atoms/Button';
 import Checkbox from '../../atoms/Checkbox';
@@ -16,7 +19,7 @@ import MemoShortcutModal from '../../molecules/MemoShortcutModal';
 import Textbox from '../../atoms/Textbox';
 const config = require('../../../config');
 const memoTrainingUtils = require('../../../memoTrainingUtils');
-const _ = require('lodash');
+
 const moment = require('moment');
 const path = require('path');
 
@@ -85,7 +88,7 @@ const MemoTrainingNumbersSetting = ({
         }
 
         // numbersDelimiter
-        const localNumbersDelimiter = typeof Cookies.get(memoTrainingUtils.cookieKey.state.numbersDelimiter) === 'undefined' ? '' : _.escape(Cookies.get(memoTrainingUtils.cookieKey.state.numbersDelimiter));
+        const localNumbersDelimiter = typeof Cookies.get(memoTrainingUtils.cookieKey.state.numbersDelimiter) === 'undefined' ? '' : _escape(Cookies.get(memoTrainingUtils.cookieKey.state.numbersDelimiter));
         if (localNumbersDelimiter) {
             inputNumbersDelimiter(localNumbersDelimiter);
         }
