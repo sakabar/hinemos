@@ -145,6 +145,7 @@ export const inputNumbersDelimiter = createAction(INPUT_NUMBERS_DELIMITER);
 
 const cookieKey = {
     state: {
+        pairSize: 'state_pairSize',
         isLefty: 'state_isLefty',
     },
 };
@@ -169,7 +170,7 @@ const initialState = {
     deckNum: 1, // 束数
     deckSize: undefined, // 1束の枚数。UIで指定されなかった場合は記憶/分析の開始時に種目ごとのデフォルト値に設定する。数字記憶の場合は「桁数」であり、イメージ数ではない。
     digitsPerImage: undefined, // 1イメージを構成する桁数
-    pairSize: 1, // 何イメージをペアにするか
+    pairSize: _.inRange(parseInt(Cookies.get(cookieKey.state.pairSize)), 1, 4 + 1) ? parseInt(Cookies.get(cookieKey.state.pairSize)) : 1, // 何イメージをペアにするか
     numbersDelimiter: '', // 数字記憶のペア内の区切り文字。種目によって文字を変えるニーズが出ることを想定している
 
     memoEvent: undefined, // 'cards, numbers,'
@@ -941,9 +942,15 @@ export const memoTrainingReducer = handleActions(
             };
         },
         [setPairSize]: (state, action) => {
+            const pairSize = action.payload.pairSize;
+
+            // 種目ごとにpairSizeが異なる可能性があるので、パスごとにクッキーを保存する。
+            // 例 /hinemos/memoTraining/cards/trial.html
+            Cookies.set(cookieKey.state.pairSize, String(pairSize), { path: location.pathname, });
+
             return {
                 ...state,
-                pairSize: action.payload.pairSize,
+                pairSize,
             };
         },
         [setIsLefty]: (state, action) => {
