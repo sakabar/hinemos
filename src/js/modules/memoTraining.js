@@ -13,6 +13,7 @@ import {
 import {
     delay,
 } from 'redux-saga';
+import Cookies from 'js-cookie';
 const memoTrainingUtils = require('../memoTrainingUtils');
 const moment = require('moment');
 const _ = require('lodash');
@@ -142,13 +143,23 @@ const selectHand = createAction(SELECT_HAND);
 const INPUT_NUMBERS_DELIMITER = 'INPUT_NUMBERS_DELIMITER';
 export const inputNumbersDelimiter = createAction(INPUT_NUMBERS_DELIMITER);
 
+const cookieKey = {
+    state: {
+        pairSize: 'state_pairSize',
+        isLefty: 'state_isLefty',
+        handSuits: 'state_handSuits',
+        digitsPerImage: 'state_digitsPerImage',
+        numbersDelimiter: 'state_numbersDelimiter',
+    },
+};
+
 const initialState = {
     userName: localStorage.userName, // ユーザ名
     startMemoMiliUnixtime: 0, // 記憶を開始したミリUnixtime
     startRecallMiliUnixtime: 0, // 回答を開始したミリUnixtime
     timerMiliUnixtime: 0,
     timeVisible: false,
-    isLefty: true,
+    isLefty: (typeof Cookies.get(cookieKey.state.isLefty) === 'undefined') ? true : (Cookies.get(cookieKey.state.isLefty) === 'true'),
     isUniqInDeck: false, // デッキ内で同じイメージが重複して出現しないようにする
 
     isOpenMemoShortcutModal: false,
@@ -161,9 +172,12 @@ const initialState = {
 
     deckNum: 1, // 束数
     deckSize: undefined, // 1束の枚数。UIで指定されなかった場合は記憶/分析の開始時に種目ごとのデフォルト値に設定する。数字記憶の場合は「桁数」であり、イメージ数ではない。
-    digitsPerImage: undefined, // 1イメージを構成する桁数
-    pairSize: 1, // 何イメージをペアにするか
-    numbersDelimiter: '', // 数字記憶のペア内の区切り文字。種目によって文字を変えるニーズが出ることを想定している
+    digitsPerImage: (() => {
+        const tmpDigitsPerImage = parseInt(Cookies.get(cookieKey.state.digitsPerImage));
+        return _.inRange(tmpDigitsPerImage, 1, 2 + 1) ? tmpDigitsPerImage : undefined;
+    })(), // 1イメージを構成する桁数
+    pairSize: _.inRange(parseInt(Cookies.get(cookieKey.state.pairSize)), 1, 4 + 1) ? parseInt(Cookies.get(cookieKey.state.pairSize)) : 1, // 何イメージをペアにするか
+    numbersDelimiter: typeof Cookies.get(cookieKey.state.numbersDelimiter) === 'undefined' ? '' : _.escape(Cookies.get(cookieKey.state.numbersDelimiter)), // 数字記憶のペア内の区切り文字。種目によって文字を変えるニーズが出ることを想定している
 
     memoEvent: undefined, // 'cards, numbers,'
     mode: undefined, // 'transformation, memorization'
@@ -177,12 +191,19 @@ const initialState = {
     handDict: {}, // Cardsで手元に残っているカードを表す辞書。deckInd => tag => bool
 
     // 手札のスート順
-    handSuits: [
-        memoTrainingUtils.Suit.heart,
-        memoTrainingUtils.Suit.spade,
-        memoTrainingUtils.Suit.diamond,
-        memoTrainingUtils.Suit.club,
-    ],
+    handSuits: (() => {
+        const tmpHandSuits = Cookies.get(cookieKey.state.handSuits);
+        const handSuits = typeof tmpHandSuits === 'undefined' ? [] : JSON.parse(tmpHandSuits);
+
+        const defaultValue = [
+            memoTrainingUtils.Suit.heart,
+            memoTrainingUtils.Suit.spade,
+            memoTrainingUtils.Suit.diamond,
+            memoTrainingUtils.Suit.club,
+        ];
+
+        return (Array.isArray(handSuits) && handSuits.length === 4 && defaultValue.every(suit => handSuits.includes(suit))) ? handSuits : defaultValue;
+    })(),
 
     // elementType => elementTag => elementId の辞書
     elementIdsDict: {},
@@ -233,18 +254,22 @@ function * handleStartMemorizationPhase () {
         // もしselectがデフォルトのままで渡されたdigitsPerImageがundefinedなら、種目ごとのデフォルト値を設定する
         const tmpDigitsPerImage = yield select(state => state.digitsPerImage);
         const digitsPerImage = ((tmpDigitsPerImage) => {
-            if (tmpDigitsPerImage) {
-                return tmpDigitsPerImage;
-            }
+            // FIXME MBLDとCardsでは今のところ2,1で固定
             if (memoEvent === memoTrainingUtils.MemoEvent.mbld) {
                 return 2;
             }
             if (memoEvent === memoTrainingUtils.MemoEvent.cards) {
                 return 1;
             }
+
+            if (tmpDigitsPerImage) {
+                return tmpDigitsPerImage;
+            }
+
             if (memoEvent === memoTrainingUtils.MemoEvent.numbers) {
                 return 2;
             }
+
             throw new Error('想定していない種目です');
         })(tmpDigitsPerImage);
 
@@ -934,15 +959,19 @@ export const memoTrainingReducer = handleActions(
             };
         },
         [setPairSize]: (state, action) => {
+            const pairSize = action.payload.pairSize;
+
             return {
                 ...state,
-                pairSize: action.payload.pairSize,
+                pairSize,
             };
         },
         [setIsLefty]: (state, action) => {
+            const isLefty = action.payload.isLefty;
+
             return {
                 ...state,
-                isLefty: action.payload.isLefty,
+                isLefty,
             };
         },
         [setHandSuits]: (state, action) => {
@@ -960,6 +989,18 @@ export const memoTrainingReducer = handleActions(
             };
         },
         [startMemorizationPhase]: (state, action) => {
+            // 種目ごとにpairSizeが異なる可能性があるので、パスごとにクッキーを保存する。
+            // 例 /hinemos/memoTraining/cards/trial.html
+            Cookies.set(cookieKey.state.pairSize, String(state.pairSize), { expires: 750, path: location.pathname, });
+
+            Cookies.set(cookieKey.state.isLefty, JSON.stringify(state.isLefty), { expires: 750, path: location.pathname, });
+
+            Cookies.set(cookieKey.state.handSuits, JSON.stringify(state.handSuits), { expires: 750, path: location.pathname, });
+
+            Cookies.set(cookieKey.state.digitsPerImage, String(action.payload.digitsPerImage), { expires: 750, path: location.pathname, });
+
+            Cookies.set(cookieKey.state.numbersDelimiter, String(state.numbersDelimiter), { expires: 750, path: location.pathname, });
+
             const decks = action.payload.decks;
 
             // decksと構造が一致することを保証するために、lastMemoMiliUnixtimePairsListをnullで埋めて初期化
@@ -1065,8 +1106,10 @@ export const memoTrainingReducer = handleActions(
                     deckNum: state.evacuatedDeckNum || state.deckNum,
                     deckSize: state.evacuatedDeckSize || state.deckSize,
                     pairSize: state.pairSize,
+                    digitsPerImage: state.digitsPerImage,
                     isLefty: state.isLefty,
                     isUniqInDeck: state.isUniqInDeck,
+                    handSuits: state.handSuits,
                     numbersDelimiter: state.numbersDelimiter,
 
                     elementIdsDict: state.elementIdsDict,
@@ -1106,7 +1149,10 @@ export const memoTrainingReducer = handleActions(
                 deckNum: state.evacuatedDeckNum || state.deckNum,
                 deckSize: state.evacuatedDeckSize || state.deckSize,
                 pairSize: state.pairSize,
+                digitsPerImage: state.digitsPerImage,
                 isLefty: state.isLefty,
+                isUniqInDeck: state.isUniqInDeck,
+                handSuits: state.handSuits,
                 numbersDelimiter: state.numbersDelimiter,
 
                 elementIdsDict: state.elementIdsDict,
