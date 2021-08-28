@@ -69,6 +69,7 @@ const mapStateToProps = ({
     deckSize,
     digitsPerImage,
     pairSize,
+    numbersDelimiter,
 
     memoEvent,
     mode,
@@ -106,6 +107,8 @@ const mapStateToProps = ({
         deckSize,
         digitsPerImage,
         pairSize,
+        numbersDelimiter,
+
         memoEvent,
         mode,
         phase,

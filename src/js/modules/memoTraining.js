@@ -160,6 +160,7 @@ const initialState = {
     deckSize: undefined, // 1束の枚数。UIで指定されなかった場合は記憶/分析の開始時に種目ごとのデフォルト値に設定する。数字記憶の場合は「桁数」であり、イメージ数ではない。
     digitsPerImage: undefined, // 1イメージを構成する桁数
     pairSize: 1, // 何イメージをペアにするか
+    numbersDelimiter: '',
 
     memoEvent: undefined, // 'cards, numbers,'
     mode: undefined, // 'transformation, memorization'

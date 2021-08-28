@@ -11,6 +11,8 @@ const MemoTrainingNumbersMemorization = ({
     timerMiliUnixtime,
     timeVisible,
 
+    numbersDelimiter,
+
     decks,
     deckInd,
     pairInd,
@@ -30,7 +32,7 @@ const MemoTrainingNumbersMemorization = ({
 
             <Txt style={{ fontSize: '30px', }}>{`${deckInd + 1}-${pairInd + 1}`}</Txt>
             <div>
-                <Txt style={{ fontSize: '30px', }}>{`${decks[deckInd][pairInd].map(e => e.tag).join('')}`}</Txt>
+                <Txt style={{ fontSize: '30px', }}>{decks[deckInd][pairInd].map(e => e.tag).join(numbersDelimiter)}</Txt>
             </div>
 
             {/* touchAction: 'manipulation' → iPhoneのダブルタップでズームされるのを抑制 */}
@@ -51,6 +53,8 @@ MemoTrainingNumbersMemorization.propTypes = {
     startRecallMiliUnixtime: PropTypes.number.isRequired,
     timerMiliUnixtime: PropTypes.number.isRequired,
     timeVisible: PropTypes.bool.isRequired,
+
+    numbersDelimiter: PropTypes.string.isRequired,
 
     decks: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.any)).isRequired,
     deckInd: PropTypes.number.isRequired,
