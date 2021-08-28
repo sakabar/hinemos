@@ -14,6 +14,7 @@ import {
     delay,
 } from 'redux-saga';
 import Cookies from 'js-cookie';
+const config = require('../config');
 const memoTrainingUtils = require('../memoTrainingUtils');
 const moment = require('moment');
 const _ = require('lodash');
@@ -1034,8 +1035,6 @@ export const memoTrainingReducer = handleActions(
         },
         [finishMemorizationPhase]: (state, action) => {
             // 変換練習だったら、記憶時間の終了 = 練習の終了なので初期状態に戻す
-            // 記録ページができたらそっちに飛んだほうがいいかも? FIXME
-
             const currentMiliUnixtime = action.payload.currentMiliUnixtime;
             const origDecks = state.decks;
 
@@ -1122,7 +1121,9 @@ export const memoTrainingReducer = handleActions(
             }
         },
         [finishRecallPhase]: (state, action) => {
-            // 記録ページができたらそっちに飛んだほうがいいかも? FIXME
+            const url = `${config.urlRoot}/memoTraining/result.html?event=${state.memoEvent}&mode=${state.mode}`;
+            window.open(url, '_blank', 'noreferrer');
+
             return {
                 ...initialState,
                 // 一部の設定は引き継ぐ
