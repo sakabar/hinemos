@@ -44,6 +44,25 @@ export const PoorKey = {
     rare: 'rare',
 };
 
+export const cookieKey = {
+    state: {
+        pairSize: {
+            mbld: 'hinemos_memoTraing_state_pairSize_mbld',
+            cards: 'hinemos_memoTraing_state_pairSize_cards',
+            numbers: 'hinemos_memoTraing_state_pairSize_numbers',
+        },
+        isLefty: 'hinemos_memoTraing_state_isLefty',
+        handSuits: 'hinemos_memoTraing_state_handSuits',
+        digitsPerImage: {
+            // FIXME 今のところはnumbersの場合のみ設定/保存が可能なようにしておく。1カード1イメージ前提
+            // mbld: 'hinemos_memoTraing_state_digitsPerImage_mbld',
+            // cards: 'hinemos_memoTraing_state_digitsPerImage_cards',
+            numbers: 'hinemos_memoTraing_state_digitsPerImage_numbers',
+        },
+        numbersDelimiter: 'hinemos_memoTraing_state_delimiter_numbers',
+    },
+};
+
 function Element (type, size, tag) {
     this.type = type;
     this.size = size;
