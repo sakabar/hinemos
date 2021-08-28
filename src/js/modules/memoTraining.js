@@ -149,6 +149,7 @@ const cookieKey = {
         isLefty: 'state_isLefty',
         handSuits: 'state_handSuits',
         digitsPerImage: 'state_digitsPerImage',
+        numbersDelimiter: 'state_numbersDelimiter',
     },
 };
 
@@ -176,7 +177,7 @@ const initialState = {
         return _.inRange(tmpDigitsPerImage, 1, 2 + 1) ? tmpDigitsPerImage : undefined;
     })(), // 1イメージを構成する桁数
     pairSize: _.inRange(parseInt(Cookies.get(cookieKey.state.pairSize)), 1, 4 + 1) ? parseInt(Cookies.get(cookieKey.state.pairSize)) : 1, // 何イメージをペアにするか
-    numbersDelimiter: '', // 数字記憶のペア内の区切り文字。種目によって文字を変えるニーズが出ることを想定している
+    numbersDelimiter: typeof Cookies.get(cookieKey.state.numbersDelimiter) === 'undefined' ? '' : _.escape(Cookies.get(cookieKey.state.numbersDelimiter)), // 数字記憶のペア内の区切り文字。種目によって文字を変えるニーズが出ることを想定している
 
     memoEvent: undefined, // 'cards, numbers,'
     mode: undefined, // 'transformation, memorization'
@@ -997,6 +998,8 @@ export const memoTrainingReducer = handleActions(
             Cookies.set(cookieKey.state.handSuits, JSON.stringify(state.handSuits), { expires: 750, path: location.pathname, });
 
             Cookies.set(cookieKey.state.digitsPerImage, String(action.payload.digitsPerImage), { expires: 750, path: location.pathname, });
+
+            Cookies.set(cookieKey.state.numbersDelimiter, String(state.numbersDelimiter), { expires: 750, path: location.pathname, });
 
             const decks = action.payload.decks;
 
