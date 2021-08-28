@@ -162,15 +162,13 @@ const MemoTrainingStatsTemplate = (
                     };
 
                     const tableNode = (() => {
-                        if (event !== 'cards' && event !== 'numbers') {
-                            return (
-                                <div />
-                            );
-                        }
-
                         return (
                             <div>
-                                <Txt>Top 5 Scores Componentの合計: {scoresComponentsSum}</Txt>
+                                {
+                                    (event === 'cards' || event === 'numbers')
+                                        ? (<Txt>Top 5 Scores Componentの合計: {scoresComponentsSum}</Txt>)
+                                        : (<Txt>※ この種目はScores Component集計対象外</Txt>)
+                                }
 
                                 <table border="1">
                                     <thead>
