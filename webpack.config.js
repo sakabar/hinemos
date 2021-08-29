@@ -1,11 +1,11 @@
 const path = require('path');
 const ExtendedDefinePlugin = require('extended-define-webpack-plugin');
 const MomentLocalesPlugin = require('moment-locales-webpack-plugin');
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 // var HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 // var StatsPlugin = require('stats-webpack-plugin');
 
 module.exports = {
-    mode: 'development',
     cache: {
         type: 'filesystem',
         buildDependencies: {
@@ -85,18 +85,7 @@ module.exports = {
             'handsontable.css': path.join(__dirname, 'node_modules/handsontable/dist/handsontable.full.min.css'),
         },
         fallback: {
-            assert: require.resolve('assert/'),
-            buffer: require.resolve('buffer/'),
-            crypto: require.resolve('crypto-browserify'),
             fs: false,
-            http: require.resolve('stream-http'),
-            https: require.resolve('https-browserify'),
-            os: require.resolve('os-browserify/browser'),
-            path: require.resolve('path-browserify'),
-            stream: require.resolve('stream-browserify'),
-            url: require.resolve('url/'),
-            util: require.resolve('util/'),
-            zlib: require.resolve('browserify-zlib'),
         },
     },
     plugins: [
@@ -115,5 +104,7 @@ module.exports = {
         // new StatsPlugin('stats.json', {
         //     chunkModules: true,
         // }),
+
+        new NodePolyfillPlugin(),
     ],
 };

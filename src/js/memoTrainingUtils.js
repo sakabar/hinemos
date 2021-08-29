@@ -73,18 +73,18 @@ export const cookieKey = {
     },
 };
 
-function Element (type, size, tag) {
+function Element (type, length, tag) {
     this.type = type;
-    this.size = size;
+    this.length = length;
     this.tag = tag;
 };
 
 export function MbldElement (letters) {
     const type = ElementType.letter;
-    const size = letters.length;
+    const length = letters.length;
     const tag = letters;
 
-    return new Element(type, size, tag);
+    return new Element(type, length, tag);
 };
 
 export function CardElement (suit, num) {
@@ -97,20 +97,20 @@ export function CardElement (suit, num) {
     }
 
     const type = ElementType.card;
-    const size = 1;
+    const length = 1;
     const zeroPaddedNum = String(num).padStart(2, '0');
     const tag = `${suit}-${zeroPaddedNum}`;
 
-    return new Element(type, size, tag);
+    return new Element(type, length, tag);
 };
 
 // '00'を許容するため、文字列として格納
 export function NumberElement (numberStr) {
     const type = ElementType.number;
-    const size = numberStr.length;
+    const length = numberStr.length;
     const tag = numberStr;
 
-    return new Element(type, size, tag);
+    return new Element(type, length, tag);
 };
 
 export async function loadElementIdsDict () {

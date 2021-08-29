@@ -279,7 +279,25 @@ function * handleStartMemorizationPhase () {
             // state.memoEventはstateが更新される時にaction.payload.memoEventが保存される
             // とはいえ、NumbersPageのStateとCardsPageのStateは独立しているから気にしなくてよさそう。でも念のため…
             const stateEvent = yield select(state => state.memoEvent);
-            if (statsArray.length === 0 || memoEvent !== stateEvent || poorKey === memoTrainingUtils.PoorKey.rare) {
+            const digitsPerImageIsDifferent = (() => {
+                if (statsArray.length === 0) {
+                    return false;
+                }
+
+                const elementId = statsArray[0].elementId;
+                if (!elementId) {
+                    return false;
+                }
+
+                const digitsPerImageInStats = elementIdToElement[elementId].length;
+                if (!digitsPerImageInStats) {
+                    return false;
+                }
+
+                return digitsPerImageInStats !== digitsPerImage;
+            })();
+
+            if (statsArray.length === 0 || memoEvent !== stateEvent || poorKey === memoTrainingUtils.PoorKey.rare || digitsPerImageIsDifferent) {
                 const startDate = yield select(state => state.startDate);
                 const endDate = yield select(state => state.endDate);
 
@@ -289,7 +307,12 @@ function * handleStartMemorizationPhase () {
                 }
 
                 const statsJSON = resFetchStats.success.result;
-                statsArray = memoTrainingUtils.transformStatsJSONtoArray(statsJSON, memoEvent);
+                statsArray = memoTrainingUtils.transformStatsJSONtoArray(statsJSON, memoEvent)
+                    .filter(stats => {
+                        const elementId = stats.elementId;
+                        const elm = elementIdToElement[elementId];
+                        return elm && elm.length === digitsPerImage;
+                    });
             }
         }
 
