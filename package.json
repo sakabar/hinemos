@@ -39,7 +39,6 @@
     "hard-source-webpack-plugin": "^0.13.1",
     "jsdom": "^14.1.0",
     "jsdom-global": "^3.0.2",
-    "lodash-webpack-plugin": "^0.11.6",
     "mocha": "^8.4.0",
     "mochapack": "^2.1.2",
     "mock-local-storage": "^1.1.15",
