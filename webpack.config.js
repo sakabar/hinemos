@@ -5,7 +5,13 @@ const MomentLocalesPlugin = require('moment-locales-webpack-plugin');
 // var StatsPlugin = require('stats-webpack-plugin');
 
 module.exports = {
-    cache: true,
+    mode: 'development',
+    cache: {
+        type: 'filesystem',
+        buildDependencies: {
+            config: [ __filename, ],
+        },
+    },
     context: path.join(__dirname, '/src/js'),
     entry: {
         auth: './auth.js',
@@ -50,12 +56,25 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                loaders: ['style-loader',
-                    { loader: 'css-loader', options: { importLoaders: 1, }, }, ],
+                use: [
+                    {
+                        loader: 'style-loader',
+                    },
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            importLoaders: 1,
+                        },
+                    },
+                ],
             },
             {
                 test: /\.(jpg|png)$/,
-                loaders: 'url-loader',
+                use: [
+                    {
+                        loader: 'url-loader',
+                    },
+                ],
             },
         ],
         noParse: [ path.join(__dirname, 'node_modules/handsontable/dist/handsontable.full.min.js'), ],
@@ -64,6 +83,20 @@ module.exports = {
         alias: {
             'handsontable': path.join(__dirname, 'node_modules/handsontable/dist/handsontable.full.min.js'),
             'handsontable.css': path.join(__dirname, 'node_modules/handsontable/dist/handsontable.full.min.css'),
+        },
+        fallback: {
+            assert: require.resolve('assert/'),
+            buffer: require.resolve('buffer/'),
+            crypto: require.resolve('crypto-browserify'),
+            fs: false,
+            http: require.resolve('stream-http'),
+            https: require.resolve('https-browserify'),
+            os: require.resolve('os-browserify/browser'),
+            path: require.resolve('path-browserify'),
+            stream: require.resolve('stream-browserify'),
+            url: require.resolve('url/'),
+            util: require.resolve('util/'),
+            zlib: require.resolve('browserify-zlib'),
         },
     },
     plugins: [
@@ -83,7 +116,4 @@ module.exports = {
         //     chunkModules: true,
         // }),
     ],
-    node: {
-        fs: 'empty',
-    },
 };
