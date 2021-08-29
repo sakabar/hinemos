@@ -891,13 +891,29 @@ function * handleKeyDown () {
                 continue;
             }
         } else if (memoEvent === memoTrainingUtils.MemoEvent.numbers && mode === memoTrainingUtils.TrainingMode.memorization && phase === memoTrainingUtils.TrainingPhase.recall) {
-            if (ZERO_KEYCODE <= action.payload.keyCode && action.payload.keyCode <= ZERO_KEYCODE + 9) {
-                const num = action.payload.keyCode - ZERO_KEYCODE;
-                const element = new memoTrainingUtils.NumberElement(String(num));
-                yield put(sagaSelectHand({ element, }));
-                continue;
-            } else if (TENKEY_ZERO_KEYCODE <= action.payload.keyCode && action.payload.keyCode <= TENKEY_ZERO_KEYCODE + 9) {
-                const num = action.payload.keyCode - TENKEY_ZERO_KEYCODE;
+            // 数字記憶の場合は上書きするので、最初にselectHoleする
+            if ((ZERO_KEYCODE <= action.payload.keyCode && action.payload.keyCode <= ZERO_KEYCODE + 9) ||
+                (TENKEY_ZERO_KEYCODE <= action.payload.keyCode && action.payload.keyCode <= TENKEY_ZERO_KEYCODE + 9)) {
+                // まずselectHole()で今の数字を落とす
+                const deckInd = yield select(state => state.deckInd);
+                const pairInd = yield select(state => state.pairInd);
+                const posInd = yield select(state => state.posInd);
+
+                const selectHolePayload = {
+                    holeDeckInd: deckInd,
+                    holePairInd: pairInd,
+                    holePosInd: posInd,
+                };
+                yield put(selectHole(selectHolePayload));
+
+                // 次に、キー入力に応じてselectHand()する
+                let num = 0;
+                if (ZERO_KEYCODE <= action.payload.keyCode && action.payload.keyCode <= ZERO_KEYCODE + 9) {
+                    num = action.payload.keyCode - ZERO_KEYCODE;
+                } else if (TENKEY_ZERO_KEYCODE <= action.payload.keyCode && action.payload.keyCode <= TENKEY_ZERO_KEYCODE + 9) {
+                    num = action.payload.keyCode - TENKEY_ZERO_KEYCODE;
+                }
+
                 const element = new memoTrainingUtils.NumberElement(String(num));
                 yield put(sagaSelectHand({ element, }));
                 continue;
@@ -1562,7 +1578,11 @@ export const memoTrainingReducer = handleActions(
             }
 
             // カーソルを進める
-            const nextCoordinate = memoTrainingUtils.getHoleNextCoordinate(decks, deckInd, pairInd, posInd, newSolution);
+            // 数字記憶の時は上書きできるようにするのでDeckNextCoordinate、
+            // その他の種目は上書きできないのでHoleNextCoordinate
+            const nextCoordinate = (state.memoEvent === memoTrainingUtils.MemoEvent.numbers)
+                ? memoTrainingUtils.getDeckNextCoordinate(decks, deckInd, pairInd, posInd)
+                : memoTrainingUtils.getHoleNextCoordinate(decks, deckInd, pairInd, posInd, newSolution);
             const nextDeckInd = nextCoordinate.deckInd;
             const nextPairInd = nextCoordinate.pairInd;
             const nextPosInd = nextCoordinate.posInd;
