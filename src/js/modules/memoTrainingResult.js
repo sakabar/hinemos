@@ -5,6 +5,7 @@ import {
 import {
     call,
     fork,
+    join,
     put,
     take,
     select,
@@ -90,6 +91,9 @@ function * handleFetchScores () {
         const event = action.payload.event;
         const mode = action.payload.mode;
 
+        // URLのパラメータで指定されていない場合はundefined
+        const trialId = action.payload.trialId;
+
         // 入力の情報が足りていない時は状態の更新だけ行う
         if (userName === '' || event === '' || mode === '') {
             const payload = {
@@ -117,14 +121,23 @@ function * handleFetchScores () {
             throw new Error('load failed : elementIdToElement');
         }
 
-        // 最初はこのタイミングでログを取得していたが、
-        // 全件取得で遅くなるのでやめた
-        const memoLogs = [];
-        const recallLogs = [];
+        // trialIdが入力された場合はデータを取得する
+        let memoLogs = [];
+        let recallLogs = [];
+
+        if (trialId) {
+            // trialIdがある場合はmemoLog, recallLogを上書きしないようにundefinedにする
+            memoLogs = undefined;
+            recallLogs = undefined;
+
+            const decideTrialTask = yield fork(handleDecideTrialTask, { trialId, });
+            yield join(decideTrialTask);
+        }
 
         const payload = {
             event,
             mode,
+            trialId,
             scores,
             memoLogs,
             recallLogs,
@@ -138,29 +151,37 @@ function * handleFetchScores () {
 function * handleDecideTrial () {
     while (true) {
         const action = yield take(sagaDecideTrial);
-        const userName = yield select(state => state.userName);
-        const trialId = action.payload.trialId;
 
-        const resFetchMemoLog = yield call(fetchMemoLog, userName, trialId);
-        if (!resFetchMemoLog.success) {
-            throw new Error('Error fetchMemoLog()');
-        }
-        const memoLogs = resFetchMemoLog.success.result.logs;
-
-        const resFetchRecallLog = yield call(fetchRecallLog, userName, trialId);
-        if (!resFetchRecallLog.success) {
-            throw new Error('Error fetchRecallLog()');
-        }
-        const recallLogs = resFetchRecallLog.success.result.logs;
-
-        const payload = {
-            ...action.payload,
-            memoLogs,
-            recallLogs,
-        };
-
-        yield put(decideTrial(payload));
+        const actionPayload = { ...action.payload, };
+        yield fork(handleDecideTrialTask, actionPayload);
+        // taskの完了を待たない
+        // yield join(task);
     }
+}
+
+function * handleDecideTrialTask (actionPayload) {
+    const userName = yield select(state => state.userName);
+    const trialId = actionPayload.trialId;
+
+    const resFetchMemoLog = yield call(fetchMemoLog, userName, trialId);
+    if (!resFetchMemoLog.success) {
+        throw new Error('Error fetchMemoLog()');
+    }
+    const memoLogs = resFetchMemoLog.success.result.logs;
+
+    const resFetchRecallLog = yield call(fetchRecallLog, userName, trialId);
+    if (!resFetchRecallLog.success) {
+        throw new Error('Error fetchRecallLog()');
+    }
+    const recallLogs = resFetchRecallLog.success.result.logs;
+
+    const payload = {
+        ...actionPayload,
+        memoLogs,
+        recallLogs,
+    };
+
+    yield put(decideTrial(payload));
 };
 
 export const memoTrainingResultReducer = handleActions(
@@ -173,7 +194,7 @@ export const memoTrainingResultReducer = handleActions(
                 scores: action.payload.scores ? action.payload.scores : state.scores,
                 memoLogs: action.payload.memoLogs ? action.payload.memoLogs : state.memoLogs,
                 recallLogs: action.payload.recallLogs ? action.payload.recallLogs : state.recallLogs,
-                trialId: undefined,
+                trialId: action.payload.trialId,
                 elementIdToElement: action.payload.elementIdToElement,
             };
         },
