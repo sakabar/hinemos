@@ -289,7 +289,12 @@ function * handleStartMemorizationPhase () {
                 }
 
                 const statsJSON = resFetchStats.success.result;
-                statsArray = memoTrainingUtils.transformStatsJSONtoArray(statsJSON, memoEvent);
+                statsArray = memoTrainingUtils.transformStatsJSONtoArray(statsJSON, memoEvent)
+                    .filter(stats => {
+                        const elementId = stats.elementId;
+                        const elm = elementIdToElement[elementId];
+                        return elm && elm.length === digitsPerImage;
+                    });
             }
         }
 
