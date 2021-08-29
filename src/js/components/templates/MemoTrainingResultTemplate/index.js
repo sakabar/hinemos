@@ -80,7 +80,8 @@ const MemoTrainingResultTemplate = (
             return Object.values(memoTrainingUtils.TrainingMode).includes(tmpMode) ? tmpMode : '';
         })();
 
-        sagaFetchScores(localEvent, localMode);
+        const localTrialId = parseInt((new URL(location.href)).searchParams.get('trialId')) || undefined;
+        sagaFetchScores(localEvent, localMode, localTrialId);
     }, []);
 
     return (

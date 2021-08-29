@@ -6,8 +6,6 @@ const MomentLocalesPlugin = require('moment-locales-webpack-plugin');
 // var StatsPlugin = require('stats-webpack-plugin');
 
 module.exports = {
-    mode: 'production',
-    // mode: 'development',
     cache: true,
     context: path.join(__dirname, '/src/js'),
     entry: {

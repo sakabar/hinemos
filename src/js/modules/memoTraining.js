@@ -1121,7 +1121,7 @@ export const memoTrainingReducer = handleActions(
             }
         },
         [finishRecallPhase]: (state, action) => {
-            const url = `${config.urlRoot}/memoTraining/result.html?event=${state.memoEvent}&mode=${state.mode}`;
+            const url = `${config.urlRoot}/memoTraining/result.html?event=${state.memoEvent}&mode=${state.mode}&trialId=${state.trialId}`;
             window.open(url, '_blank', 'noreferrer');
 
             return {
