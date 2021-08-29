@@ -932,6 +932,38 @@ function * handleKeyDown () {
                 };
                 yield put(selectHole(payload));
                 continue;
+            } else if (action.payload.keyCode === LEFT_KEYCODE) {
+                const decks = yield select(state => state.decks);
+                const deckInd = yield select(state => state.deckInd);
+                const pairInd = yield select(state => state.pairInd);
+                const posInd = yield select(state => state.posInd);
+
+                const prevCoordinate = memoTrainingUtils.getDeckPrevCoordinate(decks, deckInd, pairInd, posInd);
+
+                const payload = {
+                    holeDeckInd: prevCoordinate.deckInd,
+                    holePairInd: prevCoordinate.pairInd,
+                    holePosInd: prevCoordinate.posInd,
+                    keepElement: true,
+                };
+                yield put(selectHole(payload));
+                continue;
+            } else if (action.payload.keyCode === RIGHT_KEYCODE) {
+                const decks = yield select(state => state.decks);
+                const deckInd = yield select(state => state.deckInd);
+                const pairInd = yield select(state => state.pairInd);
+                const posInd = yield select(state => state.posInd);
+
+                const nextCoordinate = memoTrainingUtils.getDeckNextCoordinate(decks, deckInd, pairInd, posInd);
+
+                const payload = {
+                    holeDeckInd: nextCoordinate.deckInd,
+                    holePairInd: nextCoordinate.pairInd,
+                    holePosInd: nextCoordinate.posInd,
+                    keepElement: true,
+                };
+                yield put(selectHole(payload));
+                continue;
             }
         }
     }
@@ -1494,10 +1526,13 @@ export const memoTrainingReducer = handleActions(
             const holePairInd = action.payload.holePairInd;
             const holePosInd = action.payload.holePosInd;
 
+            // 既に穴にelementが入っている場合にそれを残すかどうか
+            const keepElement = action.payload.keepElement;
+
             const newSolution = _cloneDeep(state.solution);
             const newHandDict = _cloneDeep(state.handDict);
-            // 既に穴にelementが入っている場合は外す
-            if (newSolution[holeDeckInd] && newSolution[holeDeckInd][holePairInd] && newSolution[holeDeckInd][holePairInd][holePosInd]) {
+            // keepElementがfalseかundefinedで、かつ既に穴にelementが入っている場合は外す
+            if (!keepElement && newSolution[holeDeckInd] && newSolution[holeDeckInd][holePairInd] && newSolution[holeDeckInd][holePairInd][holePosInd]) {
                 const element = newSolution[holeDeckInd][holePairInd][holePosInd];
                 const tag = element.tag;
                 newHandDict[holeDeckInd][tag] = true;
