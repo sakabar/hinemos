@@ -18,14 +18,12 @@ cp -f $STG_SETTING_JS src/js/
 npm run eslint && npm run test
 
 if [[ "${DEPLOY_ENV}" == 'prod' ]]; then
-    echo "production"
-    npm run webpack --mode=production
+    export NODE_ENV='production'
 else
-    echo "development"
-    npm run webpack --mode=development
+    export NODE_ENV='development'
 fi
 
-[[ $? -eq 0 ]] && {
+npm run webpack && {
     rm -rf ${PUBLISHED_DIR}
     mkdir -p ${PUBLISHED_DIR}
 

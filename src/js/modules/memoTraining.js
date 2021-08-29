@@ -856,6 +856,8 @@ function * handleUpdateTimer () {
     yield put(updateTimer(payload));
 };
 
+const BACKSPACE_KEYCODE = 8;
+// const DELETE_KEYCODE = 46;
 const ENTER_KEYCODE = 13;
 const LEFT_KEYCODE = 37;
 const UP_KEYCODE = 38;
@@ -898,6 +900,21 @@ function * handleKeyDown () {
                 const num = action.payload.keyCode - TENKEY_ZERO_KEYCODE;
                 const element = new memoTrainingUtils.NumberElement(String(num));
                 yield put(sagaSelectHand({ element, }));
+                continue;
+            } else if (action.payload.keyCode === BACKSPACE_KEYCODE) {
+                const decks = yield select(state => state.decks);
+                const deckInd = yield select(state => state.deckInd);
+                const pairInd = yield select(state => state.pairInd);
+                const posInd = yield select(state => state.posInd);
+
+                const prevCoordinate = memoTrainingUtils.getDeckPrevCoordinate(decks, deckInd, pairInd, posInd);
+
+                const payload = {
+                    holeDeckInd: prevCoordinate.deckInd,
+                    holePairInd: prevCoordinate.pairInd,
+                    holePosInd: prevCoordinate.posInd,
+                };
+                yield put(selectHole(payload));
                 continue;
             }
         }

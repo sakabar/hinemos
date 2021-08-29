@@ -877,6 +877,46 @@ export const getDeckNextCoordinate = (decks, deckInd, pairInd, posInd) => {
     };
 };
 
+// 今見ている deckInd, pairInd, posIndの前の座標を返す。
+// 最初のデッキの最初に達した場合は同じ座標を返す
+export const getDeckPrevCoordinate = (decks, deckInd, pairInd, posInd) => {
+    // 最初のデッキの最初に達した場合
+    if (deckInd === 0 && pairInd === 0 && posInd === 0) {
+        return {
+            deckInd: 0,
+            pairInd: 0,
+            posInd: 0,
+        };
+    }
+
+    // ここから下の処理では、必ず「前」が存在する
+
+    // posからpairへの繰り下がりが発生しない場合
+    if (posInd >= 1) {
+        return {
+            deckInd,
+            pairInd,
+            posInd: posInd - 1,
+        };
+    }
+
+    // 以下、pos===0の場合
+    if (pairInd >= 1) {
+        return {
+            deckInd,
+            pairInd: pairInd - 1,
+            posInd: decks[deckInd][pairInd - 1].length - 1,
+        };
+    } else {
+        const prevPairInd = decks[deckInd - 1].length - 1;
+        return {
+            deckInd: deckInd - 1,
+            pairInd: prevPairInd,
+            posInd: decks[deckInd - 1][prevPairInd].length - 1,
+        };
+    }
+};
+
 // 次に空いているHoleの座標を返す
 // デッキの終端に達した場合は同じ座標を返す
 // そこから後ろが終端まで全て埋まっていた場合は終端の座標を返す
