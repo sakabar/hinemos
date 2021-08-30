@@ -1,10 +1,17 @@
 const path = require('path');
 const ExtendedDefinePlugin = require('extended-define-webpack-plugin');
+const MomentLocalesPlugin = require('moment-locales-webpack-plugin');
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 // var HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 // var StatsPlugin = require('stats-webpack-plugin');
 
 module.exports = {
-    cache: true,
+    cache: {
+        type: 'filesystem',
+        buildDependencies: {
+            config: [ __filename, ],
+        },
+    },
     context: path.join(__dirname, '/src/js'),
     entry: {
         auth: './auth.js',
@@ -49,12 +56,25 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                loaders: ['style-loader',
-                    { loader: 'css-loader', options: { importLoaders: 1, }, }, ],
+                use: [
+                    {
+                        loader: 'style-loader',
+                    },
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            importLoaders: 1,
+                        },
+                    },
+                ],
             },
             {
                 test: /\.(jpg|png)$/,
-                loaders: 'url-loader',
+                use: [
+                    {
+                        loader: 'url-loader',
+                    },
+                ],
             },
         ],
         noParse: [ path.join(__dirname, 'node_modules/handsontable/dist/handsontable.full.min.js'), ],
@@ -64,11 +84,19 @@ module.exports = {
             'handsontable': path.join(__dirname, 'node_modules/handsontable/dist/handsontable.full.min.js'),
             'handsontable.css': path.join(__dirname, 'node_modules/handsontable/dist/handsontable.full.min.css'),
         },
+        fallback: {
+            fs: false,
+        },
     },
     plugins: [
         new ExtendedDefinePlugin({
             DEPLOY_ENV: process.env.DEPLOY_ENV ? JSON.stringify(process.env.DEPLOY_ENV) : 'stg',
         }),
+
+        new MomentLocalesPlugin({
+            localesToKeep: [ 'ja', ],
+        }),
+
         // 不安定なのでコメントアウトして使わないようにした
         // new HardSourceWebpackPlugin(),
 
@@ -76,8 +104,7 @@ module.exports = {
         // new StatsPlugin('stats.json', {
         //     chunkModules: true,
         // }),
+
+        new NodePolyfillPlugin(),
     ],
-    node: {
-        fs: 'empty',
-    },
 };

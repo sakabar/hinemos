@@ -6,6 +6,7 @@ import {
 import {
     ScatterChart,
     Scatter,
+    ReferenceLine,
     XAxis,
     YAxis,
     ZAxis,
@@ -22,6 +23,9 @@ import Select from '../../molecules/Select';
 // import DecideTrialButtonTdFactory from '../../molecules/DecideTrialButtonTd';
 import DateTimePicker from 'react-datetime-picker';
 import SortableTbl from 'react-sort-search-table';
+import {
+    Tooltip as ReactStrapTooltip,
+} from 'reactstrap';
 const config = require('../../../config');
 const path = require('path');
 const memoTrainingUtils = require('../../../memoTrainingUtils');
@@ -45,8 +49,12 @@ const MemoTrainingStatsTemplate = (
         stats,
         scores,
         elementIdToElement,
+        isOpenBo5Tooltip,
+        isOpenAo5Tooltip,
 
         sagaFetchStats,
+        setBo5TooltipIsOpen,
+        setAo5TooltipIsOpen,
     }
 ) => (
     <div>
@@ -77,7 +85,7 @@ const MemoTrainingStatsTemplate = (
                         sagaFetchStats(event, startDate, newEndDate);
                     }}
                 /><Br/>
-        種目: <Select options={eventOptions} defaultValue={event || ''} onChange={(e) => { sagaFetchStats(e.target.value, startDate, endDate); }} /><Br/>
+        種目: <Select value={event || ''} options={eventOptions} onChange={(e) => { sagaFetchStats(e.target.value, startDate, endDate); }} /><Br/>
                 <Button value="リロード" onClick={(e) => { sagaFetchStats(event, startDate, endDate); }}/><Br/>
             </div>
 
@@ -161,15 +169,13 @@ const MemoTrainingStatsTemplate = (
                     };
 
                     const tableNode = (() => {
-                        if (event !== 'cards' && event !== 'numbers') {
-                            return (
-                                <div />
-                            );
-                        }
-
                         return (
                             <div>
-                                <Txt>Top 5 Scores Componentの合計: {scoresComponentsSum}</Txt>
+                                {
+                                    (event === 'cards' || event === 'numbers')
+                                        ? (<Txt>Top 5 Scores Componentの合計: {scoresComponentsSum}</Txt>)
+                                        : (<Txt>※ この種目はScores Component集計対象外</Txt>)
+                                }
 
                                 <table border="1">
                                     <thead>
@@ -204,14 +210,28 @@ const MemoTrainingStatsTemplate = (
                     const bo5Acc = 1.0 - (1.0 - trialAcc) ** 5;
                     const ao5Acc = 5.0 * (1.0 - trialAcc) * (trialAcc ** 4) + (trialAcc ** 5);
 
+                    const successMemoSecAvg = _.meanBy(successfulTrials, 'totalMemoSec'); ;
+                    const successMemoSecSd = Math.sqrt(_.mean(successfulTrials.map(data => (data.totalMemoSec - successMemoSecAvg) * (data.totalMemoSec - successMemoSecAvg))));
+
                     return (
                         <div>
-                            <Txt>成功率: {successfulTrials.length}/{successfulTrials.length + badTrials.length} = {(trialAcc * 100).toFixed(2)}%</Txt>
-                            <Txt>5回中1回以上成功する確率: 1 - (1 - {trialAcc.toFixed(2)})^5 = {(bo5Acc * 100).toFixed(2)}%</Txt>
-                            <Txt>5回中4回以上成功する確率: 5 * (1 - {trialAcc.toFixed(2)}) * {trialAcc.toFixed(2)}^4 + {trialAcc.toFixed(2)}^5 = {(ao5Acc * 100).toFixed(2)}%</Txt>
+                            {tableNode}
                             <Br/>
 
-                            {tableNode}
+                            <Txt>成功率: {successfulTrials.length}/{successfulTrials.length + badTrials.length} = {(trialAcc * 100).toFixed(2)}%</Txt>
+                            <Txt>成功タイムの平均: {successMemoSecAvg.toFixed(2)}秒</Txt>
+                            <Txt>成功タイムの標準偏差: {successMemoSecSd.toFixed(2)}秒</Txt>
+
+                            <p>5回中1回以上成功する確率: <span id ="bo5ProbabilityId" style={{ textDecoration: 'underline', color: 'blue', }} href="#">{(bo5Acc * 100).toFixed(2)}%</span></p>
+                            <ReactStrapTooltip placement="right" isOpen={isOpenBo5Tooltip} target="bo5ProbabilityId" toggle={() => setBo5TooltipIsOpen(!isOpenBo5Tooltip)}>
+                            1 - (1 - {trialAcc.toFixed(2)})^5
+                            </ReactStrapTooltip>
+
+                            <p>5回中4回以上成功する確率: <span id ="ao5ProbabilityId" style={{ textDecoration: 'underline', color: 'blue', }} href="#">{(ao5Acc * 100).toFixed(2)}%</span></p>
+                            <ReactStrapTooltip placement="right" isOpen={isOpenAo5Tooltip} target="ao5ProbabilityId" toggle={() => setAo5TooltipIsOpen(!isOpenAo5Tooltip)}>
+                            5 * (1 - {trialAcc.toFixed(2)}) * {trialAcc.toFixed(2)}^4 + {trialAcc.toFixed(2)}^5
+                            </ReactStrapTooltip>
+                            <Br/>
 
                             <ScatterChart
                                 width={400}
@@ -234,6 +254,8 @@ const MemoTrainingStatsTemplate = (
                                 <Legend />
                                 <Scatter name="Successful" data={successfulTrials} fill="#82ca9d" shape="circle" />
                                 <Scatter name="Bad" data={badTrials} fill="#8884d8" shape="triangle" />
+
+                                <ReferenceLine x={successMemoSecAvg} stroke="red" strokeOpacity={0.3} label="平均" />
                             </ScatterChart>
                         </div>
                     );
@@ -350,8 +372,12 @@ MemoTrainingStatsTemplate.propTypes = {
     stats: PropTypes.array.isRequired,
     scores: PropTypes.array.isRequired,
     elementIdToElement: PropTypes.object.isRequired,
+    isOpenBo5Tooltip: PropTypes.bool.isRequired,
+    isOpenAo5Tooltip: PropTypes.bool.isRequired,
 
     sagaFetchStats: PropTypes.func.isRequired,
+    setBo5TooltipIsOpen: PropTypes.func.isRequired,
+    setAo5TooltipIsOpen: PropTypes.func.isRequired,
 };
 
 export default MemoTrainingStatsTemplate;

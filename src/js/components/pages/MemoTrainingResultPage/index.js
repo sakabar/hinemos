@@ -40,8 +40,8 @@ const mapStateToProps = ({
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        sagaFetchScores: (event, mode) => {
-            dispatch(sagaFetchScores({ event, mode, }));
+        sagaFetchScores: (event, mode, trialId) => {
+            dispatch(sagaFetchScores({ event, mode, trialId, }));
         },
         sagaDecideTrial: (trialId) => {
             dispatch(sagaDecideTrial({ trialId, }));

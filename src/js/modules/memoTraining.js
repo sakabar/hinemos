@@ -13,9 +13,20 @@ import {
 import {
     delay,
 } from 'redux-saga';
+import {
+    chunk as _chunk,
+    cloneDeep as _cloneDeep,
+    escape as _escape,
+    flattenDeep as _flattenDeep,
+    isEqual as _isEqual,
+    max as _max,
+    sum as _sum,
+    take as _take,
+} from 'lodash-es';
+import Cookies from 'js-cookie';
+const config = require('../config');
 const memoTrainingUtils = require('../memoTrainingUtils');
 const moment = require('moment');
-const _ = require('lodash');
 
 // Settingモード
 const SET_DECK_NUM = 'SET_DECK_NUM';
@@ -139,6 +150,9 @@ export const sagaSelectHand = createAction(SAGA_SELECT_HAND);
 const SELECT_HAND = 'SELECT_HAND';
 const selectHand = createAction(SELECT_HAND);
 
+const INPUT_NUMBERS_DELIMITER = 'INPUT_NUMBERS_DELIMITER';
+export const inputNumbersDelimiter = createAction(INPUT_NUMBERS_DELIMITER);
+
 const initialState = {
     userName: localStorage.userName, // ユーザ名
     startMemoMiliUnixtime: 0, // 記憶を開始したミリUnixtime
@@ -160,6 +174,7 @@ const initialState = {
     deckSize: undefined, // 1束の枚数。UIで指定されなかった場合は記憶/分析の開始時に種目ごとのデフォルト値に設定する。数字記憶の場合は「桁数」であり、イメージ数ではない。
     digitsPerImage: undefined, // 1イメージを構成する桁数
     pairSize: 1, // 何イメージをペアにするか
+    numbersDelimiter: '', // 数字記憶のペア内の区切り文字。種目によって文字を変えるニーズが出ることを想定している
 
     memoEvent: undefined, // 'cards, numbers,'
     mode: undefined, // 'transformation, memorization'
@@ -229,18 +244,22 @@ function * handleStartMemorizationPhase () {
         // もしselectがデフォルトのままで渡されたdigitsPerImageがundefinedなら、種目ごとのデフォルト値を設定する
         const tmpDigitsPerImage = yield select(state => state.digitsPerImage);
         const digitsPerImage = ((tmpDigitsPerImage) => {
-            if (tmpDigitsPerImage) {
-                return tmpDigitsPerImage;
-            }
+            // FIXME MBLDとCardsでは今のところ2,1で固定
             if (memoEvent === memoTrainingUtils.MemoEvent.mbld) {
                 return 2;
             }
             if (memoEvent === memoTrainingUtils.MemoEvent.cards) {
                 return 1;
             }
+
+            if (tmpDigitsPerImage) {
+                return tmpDigitsPerImage;
+            }
+
             if (memoEvent === memoTrainingUtils.MemoEvent.numbers) {
                 return 2;
             }
+
             throw new Error('想定していない種目です');
         })(tmpDigitsPerImage);
 
@@ -269,7 +288,25 @@ function * handleStartMemorizationPhase () {
             // state.memoEventはstateが更新される時にaction.payload.memoEventが保存される
             // とはいえ、NumbersPageのStateとCardsPageのStateは独立しているから気にしなくてよさそう。でも念のため…
             const stateEvent = yield select(state => state.memoEvent);
-            if (statsArray.length === 0 || memoEvent !== stateEvent || poorKey === memoTrainingUtils.PoorKey.rare) {
+            const digitsPerImageIsDifferent = (() => {
+                if (statsArray.length === 0) {
+                    return false;
+                }
+
+                const elementId = statsArray[0].elementId;
+                if (!elementId) {
+                    return false;
+                }
+
+                const digitsPerImageInStats = elementIdToElement[elementId].length;
+                if (!digitsPerImageInStats) {
+                    return false;
+                }
+
+                return digitsPerImageInStats !== digitsPerImage;
+            })();
+
+            if (statsArray.length === 0 || memoEvent !== stateEvent || poorKey === memoTrainingUtils.PoorKey.rare || digitsPerImageIsDifferent) {
                 const startDate = yield select(state => state.startDate);
                 const endDate = yield select(state => state.endDate);
 
@@ -279,7 +316,12 @@ function * handleStartMemorizationPhase () {
                 }
 
                 const statsJSON = resFetchStats.success.result;
-                statsArray = memoTrainingUtils.transformStatsJSONtoArray(statsJSON, memoEvent);
+                statsArray = memoTrainingUtils.transformStatsJSONtoArray(statsJSON, memoEvent)
+                    .filter(stats => {
+                        const elementId = stats.elementId;
+                        const elm = elementIdToElement[elementId];
+                        return elm && elm.length === digitsPerImage;
+                    });
             }
         }
 
@@ -363,7 +405,7 @@ function * handleStartMemorizationPhase () {
             return deckElementIdsDict[deckId];
         });
         const deckElementIdPairsList = deckElementIdsList
-            .map(deckElementIds => _.chunk(deckElementIds, pairSize));
+            .map(deckElementIds => _chunk(deckElementIds, pairSize));
 
         // trialをPOSTする
         const resPostTrial = yield call(memoTrainingUtils.postTrial, userName, memoEvent, mode, deckIds);
@@ -527,7 +569,7 @@ function * handleFinishMemorizationPhase () {
             if (memoEvent === memoTrainingUtils.MemoEvent.numbers && mode === memoTrainingUtils.TrainingMode.memorization) {
                 return memoTrainingUtils.splitNumbersImageInDecks(decks, digitsPerImage, pairSize);
             } else {
-                return _.cloneDeep(decks);
+                return _cloneDeep(decks);
             }
         })();
 
@@ -546,8 +588,8 @@ function * handlePostScore (currentMiliUnixtime, recallLogs) {
     const decks = yield select(state => state.decks);
     const elementIdsDict = yield select(state => state.elementIdsDict);
 
-    const allElementNum = _.sum(decks.map(deck => {
-        return _.sum(deck.map(pair => pair.length));
+    const allElementNum = _sum(decks.map(deck => {
+        return _sum(deck.map(pair => pair.length));
     }));
 
     const startMemoMiliUnixtime = yield select(state => state.startMemoMiliUnixtime);
@@ -671,7 +713,7 @@ function * handleFinishRecallPhase () {
 
         // nullじゃない値の中で最も大きい(新しい)値
         // 全てnullの場合はundefinedとなるので、nullに変える
-        const tmpMax = _.max(_.flattenDeep(lastRecallMiliUnixtimePairsList));
+        const tmpMax = _max(_flattenDeep(lastRecallMiliUnixtimePairsList));
         const newestRecallMiliUnixtime = tmpMax || null;
 
         const recallLogs = [];
@@ -814,6 +856,8 @@ function * handleUpdateTimer () {
     yield put(updateTimer(payload));
 };
 
+const BACKSPACE_KEYCODE = 8;
+// const DELETE_KEYCODE = 46;
 const ENTER_KEYCODE = 13;
 const LEFT_KEYCODE = 37;
 const UP_KEYCODE = 38;
@@ -847,15 +891,78 @@ function * handleKeyDown () {
                 continue;
             }
         } else if (memoEvent === memoTrainingUtils.MemoEvent.numbers && mode === memoTrainingUtils.TrainingMode.memorization && phase === memoTrainingUtils.TrainingPhase.recall) {
-            if (ZERO_KEYCODE <= action.payload.keyCode && action.payload.keyCode <= ZERO_KEYCODE + 9) {
-                const num = action.payload.keyCode - ZERO_KEYCODE;
+            // 数字記憶の場合は上書きするので、最初にselectHoleする
+            if ((ZERO_KEYCODE <= action.payload.keyCode && action.payload.keyCode <= ZERO_KEYCODE + 9) ||
+                (TENKEY_ZERO_KEYCODE <= action.payload.keyCode && action.payload.keyCode <= TENKEY_ZERO_KEYCODE + 9)) {
+                // まずselectHole()で今の数字を落とす
+                const deckInd = yield select(state => state.deckInd);
+                const pairInd = yield select(state => state.pairInd);
+                const posInd = yield select(state => state.posInd);
+
+                const selectHolePayload = {
+                    holeDeckInd: deckInd,
+                    holePairInd: pairInd,
+                    holePosInd: posInd,
+                };
+                yield put(selectHole(selectHolePayload));
+
+                // 次に、キー入力に応じてselectHand()する
+                let num = 0;
+                if (ZERO_KEYCODE <= action.payload.keyCode && action.payload.keyCode <= ZERO_KEYCODE + 9) {
+                    num = action.payload.keyCode - ZERO_KEYCODE;
+                } else if (TENKEY_ZERO_KEYCODE <= action.payload.keyCode && action.payload.keyCode <= TENKEY_ZERO_KEYCODE + 9) {
+                    num = action.payload.keyCode - TENKEY_ZERO_KEYCODE;
+                }
+
                 const element = new memoTrainingUtils.NumberElement(String(num));
                 yield put(sagaSelectHand({ element, }));
                 continue;
-            } else if (TENKEY_ZERO_KEYCODE <= action.payload.keyCode && action.payload.keyCode <= TENKEY_ZERO_KEYCODE + 9) {
-                const num = action.payload.keyCode - TENKEY_ZERO_KEYCODE;
-                const element = new memoTrainingUtils.NumberElement(String(num));
-                yield put(sagaSelectHand({ element, }));
+            } else if (action.payload.keyCode === BACKSPACE_KEYCODE) {
+                const decks = yield select(state => state.decks);
+                const deckInd = yield select(state => state.deckInd);
+                const pairInd = yield select(state => state.pairInd);
+                const posInd = yield select(state => state.posInd);
+
+                const prevCoordinate = memoTrainingUtils.getDeckPrevCoordinate(decks, deckInd, pairInd, posInd);
+
+                const payload = {
+                    holeDeckInd: prevCoordinate.deckInd,
+                    holePairInd: prevCoordinate.pairInd,
+                    holePosInd: prevCoordinate.posInd,
+                };
+                yield put(selectHole(payload));
+                continue;
+            } else if (action.payload.keyCode === LEFT_KEYCODE) {
+                const decks = yield select(state => state.decks);
+                const deckInd = yield select(state => state.deckInd);
+                const pairInd = yield select(state => state.pairInd);
+                const posInd = yield select(state => state.posInd);
+
+                const prevCoordinate = memoTrainingUtils.getDeckPrevCoordinate(decks, deckInd, pairInd, posInd);
+
+                const payload = {
+                    holeDeckInd: prevCoordinate.deckInd,
+                    holePairInd: prevCoordinate.pairInd,
+                    holePosInd: prevCoordinate.posInd,
+                    keepElement: true,
+                };
+                yield put(selectHole(payload));
+                continue;
+            } else if (action.payload.keyCode === RIGHT_KEYCODE) {
+                const decks = yield select(state => state.decks);
+                const deckInd = yield select(state => state.deckInd);
+                const pairInd = yield select(state => state.pairInd);
+                const posInd = yield select(state => state.posInd);
+
+                const nextCoordinate = memoTrainingUtils.getDeckNextCoordinate(decks, deckInd, pairInd, posInd);
+
+                const payload = {
+                    holeDeckInd: nextCoordinate.deckInd,
+                    holePairInd: nextCoordinate.pairInd,
+                    holePosInd: nextCoordinate.posInd,
+                    keepElement: true,
+                };
+                yield put(selectHole(payload));
                 continue;
             }
         }
@@ -930,15 +1037,19 @@ export const memoTrainingReducer = handleActions(
             };
         },
         [setPairSize]: (state, action) => {
+            const pairSize = action.payload.pairSize;
+
             return {
                 ...state,
-                pairSize: action.payload.pairSize,
+                pairSize,
             };
         },
         [setIsLefty]: (state, action) => {
+            const isLefty = action.payload.isLefty;
+
             return {
                 ...state,
-                isLefty: action.payload.isLefty,
+                isLefty,
             };
         },
         [setHandSuits]: (state, action) => {
@@ -956,6 +1067,20 @@ export const memoTrainingReducer = handleActions(
             };
         },
         [startMemorizationPhase]: (state, action) => {
+            if (memoTrainingUtils.cookieKey.state.pairSize[action.payload.memoEvent]) {
+                Cookies.set(memoTrainingUtils.cookieKey.state.pairSize[action.payload.memoEvent], String(state.pairSize), { expires: 750, });
+            }
+
+            Cookies.set(memoTrainingUtils.cookieKey.state.isLefty, JSON.stringify(state.isLefty), { expires: 750, });
+
+            Cookies.set(memoTrainingUtils.cookieKey.state.handSuits, JSON.stringify(state.handSuits), { expires: 750, });
+
+            if (memoTrainingUtils.cookieKey.state.digitsPerImage[action.payload.memoEvent]) {
+                Cookies.set(memoTrainingUtils.cookieKey.state.digitsPerImage[action.payload.memoEvent], String(action.payload.digitsPerImage), { expires: 750, });
+            }
+
+            Cookies.set(memoTrainingUtils.cookieKey.state.numbersDelimiter, String(state.numbersDelimiter), { expires: 750, });
+
             const decks = action.payload.decks;
 
             // decksと構造が一致することを保証するために、lastMemoMiliUnixtimePairsListをnullで埋めて初期化
@@ -1007,8 +1132,6 @@ export const memoTrainingReducer = handleActions(
         },
         [finishMemorizationPhase]: (state, action) => {
             // 変換練習だったら、記憶時間の終了 = 練習の終了なので初期状態に戻す
-            // 記録ページができたらそっちに飛んだほうがいいかも? FIXME
-
             const currentMiliUnixtime = action.payload.currentMiliUnixtime;
             const origDecks = state.decks;
 
@@ -1018,7 +1141,7 @@ export const memoTrainingReducer = handleActions(
             const deckInd = state.deckInd;
             const pairInd = state.pairInd;
 
-            const newLastMemoMiliUnixtimePairsList = _.cloneDeep(state.lastMemoMiliUnixtimePairsList);
+            const newLastMemoMiliUnixtimePairsList = _cloneDeep(state.lastMemoMiliUnixtimePairsList);
             if (!newLastMemoMiliUnixtimePairsList[deckInd]) {
                 newLastMemoMiliUnixtimePairsList[deckInd] = [];
             }
@@ -1061,8 +1184,11 @@ export const memoTrainingReducer = handleActions(
                     deckNum: state.evacuatedDeckNum || state.deckNum,
                     deckSize: state.evacuatedDeckSize || state.deckSize,
                     pairSize: state.pairSize,
+                    digitsPerImage: state.digitsPerImage,
                     isLefty: state.isLefty,
                     isUniqInDeck: state.isUniqInDeck,
+                    handSuits: state.handSuits,
+                    numbersDelimiter: state.numbersDelimiter,
 
                     elementIdsDict: state.elementIdsDict,
 
@@ -1092,7 +1218,9 @@ export const memoTrainingReducer = handleActions(
             }
         },
         [finishRecallPhase]: (state, action) => {
-            // 記録ページができたらそっちに飛んだほうがいいかも? FIXME
+            const url = `${config.urlRoot}/memoTraining/result.html?event=${state.memoEvent}&mode=${state.mode}&trialId=${state.trialId}`;
+            window.open(url, '_blank', 'noreferrer');
+
             return {
                 ...initialState,
                 // 一部の設定は引き継ぐ
@@ -1101,7 +1229,11 @@ export const memoTrainingReducer = handleActions(
                 deckNum: state.evacuatedDeckNum || state.deckNum,
                 deckSize: state.evacuatedDeckSize || state.deckSize,
                 pairSize: state.pairSize,
+                digitsPerImage: state.digitsPerImage,
                 isLefty: state.isLefty,
+                isUniqInDeck: state.isUniqInDeck,
+                handSuits: state.handSuits,
+                numbersDelimiter: state.numbersDelimiter,
 
                 elementIdsDict: state.elementIdsDict,
 
@@ -1123,7 +1255,7 @@ export const memoTrainingReducer = handleActions(
         },
         [goToNextPair]: (state, action) => {
             const switchedPairMiliUnixtime = action.payload.currentMiliUnixtime;
-            const newLastMemoMiliUnixtimePairsList = _.cloneDeep(state.lastMemoMiliUnixtimePairsList);
+            const newLastMemoMiliUnixtimePairsList = _cloneDeep(state.lastMemoMiliUnixtimePairsList);
             const decks = state.decks;
             const deckInd = state.deckInd;
             const pairInd = state.pairInd;
@@ -1173,7 +1305,7 @@ export const memoTrainingReducer = handleActions(
         },
         [goToPrevPair]: (state, action) => {
             const switchedPairMiliUnixtime = action.payload.currentMiliUnixtime;
-            const newLastMemoMiliUnixtimePairsList = _.cloneDeep(state.lastMemoMiliUnixtimePairsList);
+            const newLastMemoMiliUnixtimePairsList = _cloneDeep(state.lastMemoMiliUnixtimePairsList);
             const decks = state.decks;
             const deckInd = state.deckInd;
             const pairInd = state.pairInd;
@@ -1224,7 +1356,7 @@ export const memoTrainingReducer = handleActions(
         },
         [goToDeckHead]: (state, action) => {
             const switchedPairMiliUnixtime = action.payload.currentMiliUnixtime;
-            const newLastMemoMiliUnixtimePairsList = _.cloneDeep(state.lastMemoMiliUnixtimePairsList);
+            const newLastMemoMiliUnixtimePairsList = _cloneDeep(state.lastMemoMiliUnixtimePairsList);
             const decks = state.decks;
             const deckInd = state.deckInd;
             const pairInd = state.pairInd;
@@ -1254,7 +1386,7 @@ export const memoTrainingReducer = handleActions(
         },
         [goToNextDeck]: (state, action) => {
             const switchedPairMiliUnixtime = action.payload.currentMiliUnixtime;
-            const newLastMemoMiliUnixtimePairsList = _.cloneDeep(state.lastMemoMiliUnixtimePairsList);
+            const newLastMemoMiliUnixtimePairsList = _cloneDeep(state.lastMemoMiliUnixtimePairsList);
             const decks = state.decks;
             const deckInd = state.deckInd;
             const pairInd = state.pairInd;
@@ -1304,19 +1436,19 @@ export const memoTrainingReducer = handleActions(
             // tagPair = [ "あい", "う", ]
             // MBLDなのでchunkする幅は2文字ずつで固定としている
             // FIXME メモ: この仕組みをNumbersでも使ったほうがいいかもね
-            const tmpTagPair = _.chunk(action.payload.pairStr, 2).map(chars => chars.join(''));
+            const tmpTagPair = _chunk(action.payload.pairStr, 2).map(chars => chars.join(''));
 
             // 出題されたpairより多く入力された場合は切り捨てる
-            const tagPair = _.take(tmpTagPair, actualPairSize);
+            const tagPair = _take(tmpTagPair, actualPairSize);
             const elementPair = tagPair.map(letters => new memoTrainingUtils.MbldElement(letters));
 
-            const newSolution = _.cloneDeep(state.solution);
+            const newSolution = _cloneDeep(state.solution);
             if (typeof newSolution[deckInd] === 'undefined') {
                 newSolution[deckInd] = [];
             }
             newSolution[deckInd][pairInd] = elementPair;
 
-            const newLastRecallMiliUnixtimePairsList = _.cloneDeep(state.lastRecallMiliUnixtimePairsList);
+            const newLastRecallMiliUnixtimePairsList = _cloneDeep(state.lastRecallMiliUnixtimePairsList);
 
             // 初めて回答したならlastRecallMiliUnixtimeをを更新
             if (!newLastRecallMiliUnixtimePairsList[deckInd] ||
@@ -1394,10 +1526,13 @@ export const memoTrainingReducer = handleActions(
             const holePairInd = action.payload.holePairInd;
             const holePosInd = action.payload.holePosInd;
 
-            const newSolution = _.cloneDeep(state.solution);
-            const newHandDict = _.cloneDeep(state.handDict);
-            // 既に穴にelementが入っている場合は外す
-            if (newSolution[holeDeckInd] && newSolution[holeDeckInd][holePairInd] && newSolution[holeDeckInd][holePairInd][holePosInd]) {
+            // 既に穴にelementが入っている場合にそれを残すかどうか
+            const keepElement = action.payload.keepElement;
+
+            const newSolution = _cloneDeep(state.solution);
+            const newHandDict = _cloneDeep(state.handDict);
+            // keepElementがfalseかundefinedで、かつ既に穴にelementが入っている場合は外す
+            if (!keepElement && newSolution[holeDeckInd] && newSolution[holeDeckInd][holePairInd] && newSolution[holeDeckInd][holePairInd][holePosInd]) {
                 const element = newSolution[holeDeckInd][holePairInd][holePosInd];
                 const tag = element.tag;
                 newHandDict[holeDeckInd][tag] = true;
@@ -1439,8 +1574,8 @@ export const memoTrainingReducer = handleActions(
             const pairInd = state.pairInd;
             const posInd = state.posInd;
 
-            const newSolution = _.cloneDeep(state.solution);
-            const newHandDict = _.cloneDeep(state.handDict);
+            const newSolution = _cloneDeep(state.solution);
+            const newHandDict = _cloneDeep(state.handDict);
 
             // 選択している回答欄が空いていたらそこに埋める
 
@@ -1457,7 +1592,7 @@ export const memoTrainingReducer = handleActions(
             }
 
             // 初めて回答したならlastRecallMiliUnixtimeをを更新
-            const newLastRecallMiliUnixtimePairsList = _.cloneDeep(state.lastRecallMiliUnixtimePairsList);
+            const newLastRecallMiliUnixtimePairsList = _cloneDeep(state.lastRecallMiliUnixtimePairsList);
             if (!newLastRecallMiliUnixtimePairsList[deckInd] ||
                 !newLastRecallMiliUnixtimePairsList[deckInd][pairInd] ||
                 newLastRecallMiliUnixtimePairsList[deckInd][pairInd].length === 0) {
@@ -1472,13 +1607,17 @@ export const memoTrainingReducer = handleActions(
                 newLastRecallMiliUnixtimePairsList[deckInd][pairInd][posInd] = currentMiliUnixtime;
             } else {
                 // 入れた答えが合っている場合はlastRecallMiliUnixtimePairsListを更新
-                if (_.isEqual(decks[deckInd][pairInd][posInd], element)) {
+                if (_isEqual(decks[deckInd][pairInd][posInd], element)) {
                     newLastRecallMiliUnixtimePairsList[deckInd][pairInd][posInd] = currentMiliUnixtime;
                 }
             }
 
             // カーソルを進める
-            const nextCoordinate = memoTrainingUtils.getHoleNextCoordinate(decks, deckInd, pairInd, posInd, newSolution);
+            // 数字記憶の時は上書きできるようにするのでDeckNextCoordinate、
+            // その他の種目は上書きできないのでHoleNextCoordinate
+            const nextCoordinate = (state.memoEvent === memoTrainingUtils.MemoEvent.numbers)
+                ? memoTrainingUtils.getDeckNextCoordinate(decks, deckInd, pairInd, posInd)
+                : memoTrainingUtils.getHoleNextCoordinate(decks, deckInd, pairInd, posInd, newSolution);
             const nextDeckInd = nextCoordinate.deckInd;
             const nextPairInd = nextCoordinate.pairInd;
             const nextPosInd = nextCoordinate.posInd;
@@ -1521,6 +1660,12 @@ export const memoTrainingReducer = handleActions(
                 ...state,
                 endDate,
                 statsArray: [],
+            };
+        },
+        [inputNumbersDelimiter]: (state, action) => {
+            return {
+                ...state,
+                numbersDelimiter: _escape(action.payload.numbersDelimiter),
             };
         },
     },

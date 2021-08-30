@@ -1,16 +1,25 @@
-import React from 'react';
+import
+React,
+{ useEffect, } from 'react';
 import {
     Link,
 } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import DateTimePicker from 'react-datetime-picker';
+import Cookies from 'js-cookie';
+import {
+    escape as _escape,
+} from 'lodash-es';
 import Br from '../../atoms/Br';
 import Button from '../../atoms/Button';
 import Checkbox from '../../atoms/Checkbox';
 import Select from '../../molecules/Select';
 import ModeDecisionButtons from '../../molecules/ModeDecisionButtons';
 import MemoShortcutModal from '../../molecules/MemoShortcutModal';
+import Textbox from '../../atoms/Textbox';
 const config = require('../../../config');
+const memoTrainingUtils = require('../../../memoTrainingUtils');
+
 const moment = require('moment');
 const path = require('path');
 
@@ -34,6 +43,7 @@ const MemoTrainingNumbersSetting = ({
     deckNum,
     digitsPerImage,
     pairSize,
+    numbersDelimiter,
 
     isLefty,
     isUniqInDeck,
@@ -61,13 +71,38 @@ const MemoTrainingNumbersSetting = ({
     setPoorKey,
     setStartDate,
     setEndDate,
+
+    inputNumbersDelimiter,
 }) => {
+    useEffect(() => {
+        // pairSize
+        const localPairSize = parseInt(Cookies.get(memoTrainingUtils.cookieKey.state.pairSize['numbers']));
+        if (1 <= localPairSize && localPairSize <= 4) {
+            setPairSize(localPairSize);
+        }
+
+        // digitsPerImage
+        const localDigitsPerImage = parseInt(Cookies.get(memoTrainingUtils.cookieKey.state.digitsPerImage['numbers']));
+        if (1 <= localDigitsPerImage && localDigitsPerImage <= 2) {
+            setDigitsPerImage(localDigitsPerImage);
+        }
+
+        // numbersDelimiter
+        const localNumbersDelimiter = typeof Cookies.get(memoTrainingUtils.cookieKey.state.numbersDelimiter) === 'undefined' ? '' : _escape(Cookies.get(memoTrainingUtils.cookieKey.state.numbersDelimiter));
+        if (localNumbersDelimiter) {
+            inputNumbersDelimiter(localNumbersDelimiter);
+        }
+    }, []);
+
     return (
         <div>
             <div>
                 <ul>
                     <li><Link to={`/${urlRoot}/memoTraining/index.html`}>種目選択に戻る</Link></li>
-                    <li><Link to={`/${urlRoot}/memoTraining/result.html`}>結果確認</Link></li>
+                    <li><Link to={{
+                        pathname: `/${urlRoot}/memoTraining/result.html`,
+                        search: '?event=numbers&mode=transformation',
+                    } }>結果確認</Link></li>
                 </ul>
             </div>
 
@@ -76,13 +111,15 @@ const MemoTrainingNumbersSetting = ({
                 <Button value="操作説明" onClick={ () => { toggleShortcutModal(true); } }/>
             </div>
             <div>
-            挑戦する束数: <Select options={deckNumOptions} defaultValue={deckNum || '1' } onChange={(e) => setDeckNum(parseInt(e.target.value))} />
+            挑戦する束数: <Select value={String(deckNum)} options={deckNumOptions} onChange={(e) => setDeckNum(parseInt(e.target.value))} />
                 <Br/>
             1束あたりの桁数: <Select options={deckSizeOptions} defaultValue={deckSize || '80'} onChange={(e) => setDeckSize(parseInt(e.target.value))}/>
                 <Br/>
-            1イメージの桁数: <Select options={digitsPerImageOptions} defaultValue={digitsPerImage || '2'} onChange={(e) => setDigitsPerImage(parseInt(e.target.value))}/>
+            1イメージの桁数: <Select value={typeof digitsPerImage !== 'undefined' ? String(digitsPerImage) : '2'} options={digitsPerImageOptions} onChange={(e) => setDigitsPerImage(parseInt(e.target.value))}/>
                 <Br/>
-            同時に表示するイメージ数: <Select options={pairSizeList} defaultValue={pairSize || '1'} onChange={(e) => setPairSize(parseInt(e.target.value))} />
+            同時に表示するイメージ数: <Select value={String(pairSize)} options={pairSizeList} onChange={(e) => setPairSize(parseInt(e.target.value))} />
+                <Br/>
+            区切り文字: <Textbox value={numbersDelimiter} onChange={(e) => { inputNumbersDelimiter(e.target.value); }} style={{ width: '3em', }}/>{numbersDelimiter === '' ? '(無し)' : numbersDelimiter.replace(/\s/g, '[SPACE]')}
                 <Br/>
                 <Checkbox text="束内で重複して出現させない" checked={isUniqInDeck} onChange={(e) => setIsUniqInDeck(e.target.checked)}/><Br/>
 
@@ -106,8 +143,8 @@ const MemoTrainingNumbersSetting = ({
                     }}
                 />
             までの
-                <Select options={poorKeyOptions} defaultValue={poorKey || 'memorization' } onChange={(e) => setPoorKey(e.target.value)} />
-                <Select options={poorDeckNumOptions} defaultValue={poorDeckNum || '0' } onChange={(e) => setPoorDeckNum(parseInt(e.target.value))} />
+                <Select value={poorKey} options={poorKeyOptions} onChange={(e) => setPoorKey(e.target.value)} />
+                <Select value={String(poorDeckNum)} options={poorDeckNumOptions} onChange={(e) => setPoorDeckNum(parseInt(e.target.value))} />
      イメージずつに絞って練習する
                 <Br/>
             </div>
@@ -119,13 +156,14 @@ const MemoTrainingNumbersSetting = ({
 };
 
 MemoTrainingNumbersSetting.propTypes = {
-    deckNum: PropTypes.number,
+    deckNum: PropTypes.number.isRequired,
     deckSize: PropTypes.number,
     digitsPerImage: PropTypes.number,
-    pairSize: PropTypes.number,
+    pairSize: PropTypes.number.isRequired,
+    numbersDelimiter: PropTypes.string.isRequired,
 
     isLefty: PropTypes.bool,
-    isUniqInDeck: PropTypes.bool,
+    isUniqInDeck: PropTypes.bool.isRequired,
     isOpenMemoShortcutModal: PropTypes.bool.isRequired,
 
     poorDeckNum: PropTypes.number.isRequired,
@@ -148,6 +186,8 @@ MemoTrainingNumbersSetting.propTypes = {
     setPoorKey: PropTypes.func.isRequired,
     setStartDate: PropTypes.func.isRequired,
     setEndDate: PropTypes.func.isRequired,
+
+    inputNumbersDelimiter: PropTypes.func.isRequired,
 };
 
 export default MemoTrainingNumbersSetting;

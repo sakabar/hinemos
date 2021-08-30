@@ -1,15 +1,19 @@
-import React from 'react';
+import
+React,
+{ useEffect, } from 'react';
 import {
     Link,
 } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import DateTimePicker from 'react-datetime-picker';
+import Cookies from 'js-cookie';
 import Br from '../../atoms/Br';
 import Button from '../../atoms/Button';
 import Select from '../../molecules/Select';
 import ModeDecisionButtons from '../../molecules/ModeDecisionButtons';
 import MemoShortcutModal from '../../molecules/MemoShortcutModal';
 const config = require('../../../config');
+const memoTrainingUtils = require('../../../memoTrainingUtils');
 const moment = require('moment');
 const path = require('path');
 
@@ -49,12 +53,23 @@ const MemoTrainingMbldSetting = ({
     setStartDate,
     setEndDate,
 }) => {
+    useEffect(() => {
+        // pairSize
+        const localPairSize = parseInt(Cookies.get(memoTrainingUtils.cookieKey.state.pairSize['mbld']));
+        if (1 <= localPairSize && localPairSize <= 4) {
+            setPairSize(localPairSize);
+        }
+    }, []);
+
     return (
         <div>
             <div>
                 <ul>
                     <li><Link to={`/${urlRoot}/memoTraining/index.html`}>種目選択に戻る</Link></li>
-                    <li><Link to={`/${urlRoot}/memoTraining/result.html`}>結果確認</Link></li>
+                    <li><Link to={{
+                        pathname: `/${urlRoot}/memoTraining/result.html`,
+                        search: '?event=mbld&mode=transformation',
+                    } }>結果確認</Link></li>
                 </ul>
             </div>
 
@@ -64,9 +79,9 @@ const MemoTrainingMbldSetting = ({
             </div>
 
             <div>
-            キューブ個数: <Select options={deckNumOptions} defaultValue={deckNum || '1'} onChange={(e) => setDeckNum(parseInt(e.target.value))} />
+            キューブ個数: <Select value={String(deckNum)} options={deckNumOptions} onChange={(e) => setDeckNum(parseInt(e.target.value))} />
                 <Br/>
-            同時に表示する単語数: <Select options={pairSizeList} defaultValue={pairSize || '1'} onChange={(e) => setPairSize(parseInt(e.target.value))} />
+            同時に表示する単語数: <Select value={String(pairSize)} options={pairSizeList} onChange={(e) => setPairSize(parseInt(e.target.value))} />
                 <Br/>
 
                 <DateTimePicker
@@ -89,8 +104,8 @@ const MemoTrainingMbldSetting = ({
                     }}
                 />
             までの
-                <Select options={poorKeyOptions} defaultValue={poorKey || 'memorization' } onChange={(e) => setPoorKey(e.target.value)} />
-                <Select options={poorDeckNumOptions} defaultValue={poorDeckNum || '0' } onChange={(e) => setPoorDeckNum(parseInt(e.target.value))} />
+                <Select value={poorKey} options={poorKeyOptions} onChange={(e) => setPoorKey(e.target.value)} />
+                <Select value={String(poorDeckNum)} options={poorDeckNumOptions} onChange={(e) => setPoorDeckNum(parseInt(e.target.value))} />
            単語ずつに絞って練習する
                 <Br/>
             </div>
@@ -103,8 +118,8 @@ const MemoTrainingMbldSetting = ({
 };
 
 MemoTrainingMbldSetting.propTypes = {
-    deckNum: PropTypes.number,
-    pairSize: PropTypes.number,
+    deckNum: PropTypes.number.isRequired,
+    pairSize: PropTypes.number.isRequired,
     isOpenMemoShortcutModal: PropTypes.bool.isRequired,
 
     poorDeckNum: PropTypes.number.isRequired,

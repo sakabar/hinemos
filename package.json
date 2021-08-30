@@ -1,12 +1,12 @@
 {
   "name": "hinemos",
-  "version": "1.15.8",
+  "version": "1.15.9",
   "description": "Website for speedcube blindfolded players",
   "main": "index.js",
   "private": true,
   "scripts": {
     "eslint": "eslint --fix src/js/**/*.js test/**/*.js",
-    "test": "mocha-webpack --webpack-config webpack.config.js --require mock-local-storage --require jsdom-global/register test/**/*.js",
+    "test": "mochapack --require mock-local-storage --require jsdom-global/register test/**/*.js",
     "webpack": "webpack"
   },
   "repository": {
@@ -26,6 +26,7 @@
     "@babel/preset-react": "^7.12.10",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.2.2",
+    "babel-plugin-lodash": "^3.3.4",
     "css-loader": "^2.1.1",
     "eslint": "^5.16.0",
     "eslint-config-standard": "^12.0.0",
@@ -38,14 +39,16 @@
     "hard-source-webpack-plugin": "^0.13.1",
     "jsdom": "^14.1.0",
     "jsdom-global": "^3.0.2",
-    "mocha": "^5.2.0",
-    "mocha-webpack": "~1.1",
+    "mocha": "^8.4.0",
+    "mochapack": "^2.1.2",
     "mock-local-storage": "^1.1.15",
+    "moment-locales-webpack-plugin": "^1.2.0",
     "normalize.css": "8.0.1",
     "stats-webpack-plugin": "^0.7.0",
     "style-loader": "^0.23.1",
     "url-loader": "^3.0.0",
-    "webpack": "~3.9.0"
+    "webpack": "^5.51.1",
+    "webpack-cli": "^4.8.0"
   },
   "dependencies": {
     "@datastructures-js/priority-queue": "^4.1.2",
@@ -60,11 +63,13 @@
     "handsontable": "^7.4.2",
     "js-cookie": "^2.2.1",
     "lodash": "^4.17.21",
+    "lodash-es": "^4.17.21",
     "ml-hclust": "^3.0.0",
     "ml-matrix": "^6.5.3",
     "moment": "^2.29.1",
     "moment-timezone": "^0.5.33",
     "net": "1.0.2",
+    "node-polyfill-webpack-plugin": "^1.1.4",
     "prop-types": "^15.7.2",
     "qs": "^6.9.4",
     "react": "^16.14.0",

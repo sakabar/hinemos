@@ -15,8 +15,15 @@ readonly IMG_DIR=$HOME/work/hinemos_logos
 readonly PUBLISHED_DIR=public
 cp -f $STG_SETTING_JS src/js/
 
-npm run eslint && npm run test && npm run webpack && {
-# npm run eslint && npm run webpack && {
+npm run eslint && npm run test
+
+if [[ "${DEPLOY_ENV}" == 'prod' ]]; then
+    export NODE_ENV='production'
+else
+    export NODE_ENV='development'
+fi
+
+npm run webpack && {
     rm -rf ${PUBLISHED_DIR}
     mkdir -p ${PUBLISHED_DIR}
 

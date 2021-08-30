@@ -45,6 +45,8 @@ import {
     setStartDate,
     setEndDate,
 
+    inputNumbersDelimiter,
+
     memoTrainingReducer,
     rootSaga,
 } from '../../../modules/memoTraining';
@@ -69,6 +71,7 @@ const mapStateToProps = ({
     deckSize,
     digitsPerImage,
     pairSize,
+    numbersDelimiter,
 
     memoEvent,
     mode,
@@ -106,6 +109,8 @@ const mapStateToProps = ({
         deckSize,
         digitsPerImage,
         pairSize,
+        numbersDelimiter,
+
         memoEvent,
         mode,
         phase,
@@ -206,6 +211,9 @@ const mapDispatchToProps = (dispatch) => {
         },
         sagaSelectHand: (element) => {
             dispatch(sagaSelectHand({ element, }));
+        },
+        inputNumbersDelimiter: (numbersDelimiter) => {
+            dispatch(inputNumbersDelimiter({ numbersDelimiter, }));
         },
     };
 };
