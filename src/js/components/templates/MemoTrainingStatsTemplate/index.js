@@ -217,6 +217,28 @@ const MemoTrainingStatsTemplate = (
                     const successMemoSecAvg = _meanBy(successfulTrials, 'totalMemoSec'); ;
                     const successMemoSecSd = Math.sqrt(_mean(successfulTrials.map(data => (data.totalMemoSec - successMemoSecAvg) * (data.totalMemoSec - successMemoSecAvg))));
 
+                    const successMemoMedian = (() => {
+                        if (successfulTrials.length === 0) {
+                            return NaN;
+                        }
+
+                        if (successfulTrials.length % 2 === 1) {
+                            const mid = (successfulTrials.length - 1) / 2;
+
+                            const memoSecList = successfulTrials.map(rec => rec.totalMemoSec);
+                            memoSecList.sort((a, b) => a - b);
+
+                            return memoSecList[mid];
+                        } else {
+                            const mid1 = successfulTrials.length / 2;
+                            const mid2 = mid1 - 1;
+
+                            const memoSecList = successfulTrials.map(rec => rec.totalMemoSec);
+                            memoSecList.sort((a, b) => a - b);
+                            return (memoSecList[mid2] + memoSecList[mid1]) / 2.0;
+                        }
+                    })();
+
                     return (
                         <div>
                             {tableNode}
@@ -236,6 +258,7 @@ const MemoTrainingStatsTemplate = (
 
                             <Txt>成功タイムの平均: {successMemoSecAvg.toFixed(2)}秒</Txt>
                             <Txt>成功タイムの標準偏差: {successMemoSecSd.toFixed(2)}秒</Txt>
+                            <Txt>成功タイムの中央値: {successMemoMedian.toFixed(2)}秒</Txt>
                             <Br/>
 
                             <ScatterChart
@@ -261,6 +284,7 @@ const MemoTrainingStatsTemplate = (
                                 <Scatter name="Bad" data={badTrials} fill="#8884d8" shape="triangle" />
 
                                 <ReferenceLine x={successMemoSecAvg} stroke="red" strokeOpacity={0.3} label="平均" />
+                                <ReferenceLine x={successMemoMedian} stroke="blue" strokeOpacity={0.3} label="中央値" />
                             </ScatterChart>
                         </div>
                     );
