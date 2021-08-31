@@ -6,12 +6,12 @@ const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 // var StatsPlugin = require('stats-webpack-plugin');
 
 module.exports = {
-    cache: {
-        type: 'filesystem',
-        buildDependencies: {
-            config: [ __filename, ],
-        },
-    },
+    // cache: {
+    //     type: 'filesystem',
+    //     buildDependencies: {
+    //         config: [ __filename, ],
+    //     },
+    // },
     context: path.join(__dirname, '/src/js'),
     entry: {
         auth: './auth.js',

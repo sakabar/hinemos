@@ -26,10 +26,14 @@ import SortableTbl from 'react-sort-search-table';
 import {
     Tooltip as ReactStrapTooltip,
 } from 'reactstrap';
+import {
+    sum as _sum,
+    mean as _mean,
+    meanBy as _meanBy,
+} from 'lodash-es';
 const config = require('../../../config');
 const path = require('path');
 const memoTrainingUtils = require('../../../memoTrainingUtils');
-const _ = require('lodash');
 const moment = require('moment');
 
 const urlRoot = path.basename(config.urlRoot);
@@ -162,7 +166,7 @@ const MemoTrainingStatsTemplate = (
                         recentBestScoresComponents.push(rec);
                     }
 
-                    const scoresComponentsSum = _.sum(recentBestScoresComponents.map(rec => rec.scoresComponent));
+                    const scoresComponentsSum = _sum(recentBestScoresComponents.map(rec => rec.scoresComponent));
 
                     const paddingStyle = {
                         padding: '5px 10px',
@@ -210,8 +214,30 @@ const MemoTrainingStatsTemplate = (
                     const bo5Acc = 1.0 - (1.0 - trialAcc) ** 5;
                     const ao5Acc = 5.0 * (1.0 - trialAcc) * (trialAcc ** 4) + (trialAcc ** 5);
 
-                    const successMemoSecAvg = _.meanBy(successfulTrials, 'totalMemoSec'); ;
-                    const successMemoSecSd = Math.sqrt(_.mean(successfulTrials.map(data => (data.totalMemoSec - successMemoSecAvg) * (data.totalMemoSec - successMemoSecAvg))));
+                    const successMemoSecAvg = _meanBy(successfulTrials, 'totalMemoSec'); ;
+                    const successMemoSecSd = Math.sqrt(_mean(successfulTrials.map(data => (data.totalMemoSec - successMemoSecAvg) * (data.totalMemoSec - successMemoSecAvg))));
+
+                    const successMemoMedian = (() => {
+                        if (successfulTrials.length === 0) {
+                            return NaN;
+                        }
+
+                        if (successfulTrials.length % 2 === 1) {
+                            const mid = (successfulTrials.length - 1) / 2;
+
+                            const memoSecList = successfulTrials.map(rec => rec.totalMemoSec);
+                            memoSecList.sort((a, b) => a - b);
+
+                            return memoSecList[mid];
+                        } else {
+                            const mid1 = successfulTrials.length / 2;
+                            const mid2 = mid1 - 1;
+
+                            const memoSecList = successfulTrials.map(rec => rec.totalMemoSec);
+                            memoSecList.sort((a, b) => a - b);
+                            return (memoSecList[mid2] + memoSecList[mid1]) / 2.0;
+                        }
+                    })();
 
                     return (
                         <div>
@@ -219,8 +245,6 @@ const MemoTrainingStatsTemplate = (
                             <Br/>
 
                             <Txt>成功率: {successfulTrials.length}/{successfulTrials.length + badTrials.length} = {(trialAcc * 100).toFixed(2)}%</Txt>
-                            <Txt>成功タイムの平均: {successMemoSecAvg.toFixed(2)}秒</Txt>
-                            <Txt>成功タイムの標準偏差: {successMemoSecSd.toFixed(2)}秒</Txt>
 
                             <p>5回中1回以上成功する確率: <span id ="bo5ProbabilityId" style={{ textDecoration: 'underline', color: 'blue', }} href="#">{(bo5Acc * 100).toFixed(2)}%</span></p>
                             <ReactStrapTooltip placement="right" isOpen={isOpenBo5Tooltip} target="bo5ProbabilityId" toggle={() => setBo5TooltipIsOpen(!isOpenBo5Tooltip)}>
@@ -231,6 +255,10 @@ const MemoTrainingStatsTemplate = (
                             <ReactStrapTooltip placement="right" isOpen={isOpenAo5Tooltip} target="ao5ProbabilityId" toggle={() => setAo5TooltipIsOpen(!isOpenAo5Tooltip)}>
                             5 * (1 - {trialAcc.toFixed(2)}) * {trialAcc.toFixed(2)}^4 + {trialAcc.toFixed(2)}^5
                             </ReactStrapTooltip>
+
+                            <p>成功タイムの<span style={{ color: 'red', }}>平均</span>: {successMemoSecAvg.toFixed(2)}秒</p>
+                            <Txt>成功タイムの標準偏差: {successMemoSecSd.toFixed(2)}秒</Txt>
+                            <p>成功タイムの<span style={{ color: 'lime', }}>中央値</span>: {successMemoMedian.toFixed(2)}秒</p>
                             <Br/>
 
                             <ScatterChart
@@ -255,7 +283,8 @@ const MemoTrainingStatsTemplate = (
                                 <Scatter name="Successful" data={successfulTrials} fill="#82ca9d" shape="circle" />
                                 <Scatter name="Bad" data={badTrials} fill="#8884d8" shape="triangle" />
 
-                                <ReferenceLine x={successMemoSecAvg} stroke="red" strokeOpacity={0.3} label="平均" />
+                                <ReferenceLine x={successMemoSecAvg} stroke="red" />
+                                <ReferenceLine x={successMemoMedian} stroke="lime" />
                             </ScatterChart>
                         </div>
                     );
@@ -334,10 +363,10 @@ const MemoTrainingStatsTemplate = (
                         'mistakes',
                     ];
 
-                    const avgMemorizationSec = _.mean(MyData.filter(rec => rec.memorization !== '').map(rec => rec.memorization));
-                    const avgTransformationSec = _.mean(MyData.filter(rec => rec.transformation !== '').map(rec => rec.transformation));
-                    const recallCountSum = _.sum(MyData.map(rec => rec.recallSum));
-                    const transformationCountSum = _.sum(MyData.map(rec => rec.transformationSum));
+                    const avgMemorizationSec = _mean(MyData.filter(rec => rec.memorization !== '').map(rec => rec.memorization));
+                    const avgTransformationSec = _mean(MyData.filter(rec => rec.transformation !== '').map(rec => rec.transformation));
+                    const recallCountSum = _sum(MyData.map(rec => rec.recallSum));
+                    const transformationCountSum = _sum(MyData.map(rec => rec.transformationSum));
 
                     return (
                         <div>
