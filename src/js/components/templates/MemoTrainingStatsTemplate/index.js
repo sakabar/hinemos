@@ -256,9 +256,9 @@ const MemoTrainingStatsTemplate = (
                             5 * (1 - {trialAcc.toFixed(2)}) * {trialAcc.toFixed(2)}^4 + {trialAcc.toFixed(2)}^5
                             </ReactStrapTooltip>
 
-                            <Txt>成功タイムの平均: {successMemoSecAvg.toFixed(2)}秒</Txt>
+                            <p>成功タイムの<span style={{ color: 'red', }}>平均</span>: {successMemoSecAvg.toFixed(2)}秒</p>
                             <Txt>成功タイムの標準偏差: {successMemoSecSd.toFixed(2)}秒</Txt>
-                            <Txt>成功タイムの中央値: {successMemoMedian.toFixed(2)}秒</Txt>
+                            <p>成功タイムの<span style={{ color: 'lime', }}>中央値</span>: {successMemoMedian.toFixed(2)}秒</p>
                             <Br/>
 
                             <ScatterChart
@@ -283,8 +283,8 @@ const MemoTrainingStatsTemplate = (
                                 <Scatter name="Successful" data={successfulTrials} fill="#82ca9d" shape="circle" />
                                 <Scatter name="Bad" data={badTrials} fill="#8884d8" shape="triangle" />
 
-                                <ReferenceLine x={successMemoSecAvg} stroke="red" strokeOpacity={0.3} label="平均" />
-                                <ReferenceLine x={successMemoMedian} stroke="blue" strokeOpacity={0.3} label="中央値" />
+                                <ReferenceLine x={successMemoSecAvg} stroke="red" />
+                                <ReferenceLine x={successMemoMedian} stroke="lime" />
                             </ScatterChart>
                         </div>
                     );
