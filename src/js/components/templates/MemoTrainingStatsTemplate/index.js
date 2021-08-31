@@ -26,10 +26,14 @@ import SortableTbl from 'react-sort-search-table';
 import {
     Tooltip as ReactStrapTooltip,
 } from 'reactstrap';
+import {
+    sum as _sum,
+    mean as _mean,
+    meanBy as _meanBy,
+} from 'lodash-es';
 const config = require('../../../config');
 const path = require('path');
 const memoTrainingUtils = require('../../../memoTrainingUtils');
-const _ = require('lodash');
 const moment = require('moment');
 
 const urlRoot = path.basename(config.urlRoot);
@@ -162,7 +166,7 @@ const MemoTrainingStatsTemplate = (
                         recentBestScoresComponents.push(rec);
                     }
 
-                    const scoresComponentsSum = _.sum(recentBestScoresComponents.map(rec => rec.scoresComponent));
+                    const scoresComponentsSum = _sum(recentBestScoresComponents.map(rec => rec.scoresComponent));
 
                     const paddingStyle = {
                         padding: '5px 10px',
@@ -210,8 +214,8 @@ const MemoTrainingStatsTemplate = (
                     const bo5Acc = 1.0 - (1.0 - trialAcc) ** 5;
                     const ao5Acc = 5.0 * (1.0 - trialAcc) * (trialAcc ** 4) + (trialAcc ** 5);
 
-                    const successMemoSecAvg = _.meanBy(successfulTrials, 'totalMemoSec'); ;
-                    const successMemoSecSd = Math.sqrt(_.mean(successfulTrials.map(data => (data.totalMemoSec - successMemoSecAvg) * (data.totalMemoSec - successMemoSecAvg))));
+                    const successMemoSecAvg = _meanBy(successfulTrials, 'totalMemoSec'); ;
+                    const successMemoSecSd = Math.sqrt(_mean(successfulTrials.map(data => (data.totalMemoSec - successMemoSecAvg) * (data.totalMemoSec - successMemoSecAvg))));
 
                     return (
                         <div>
@@ -334,10 +338,10 @@ const MemoTrainingStatsTemplate = (
                         'mistakes',
                     ];
 
-                    const avgMemorizationSec = _.mean(MyData.filter(rec => rec.memorization !== '').map(rec => rec.memorization));
-                    const avgTransformationSec = _.mean(MyData.filter(rec => rec.transformation !== '').map(rec => rec.transformation));
-                    const recallCountSum = _.sum(MyData.map(rec => rec.recallSum));
-                    const transformationCountSum = _.sum(MyData.map(rec => rec.transformationSum));
+                    const avgMemorizationSec = _mean(MyData.filter(rec => rec.memorization !== '').map(rec => rec.memorization));
+                    const avgTransformationSec = _mean(MyData.filter(rec => rec.transformation !== '').map(rec => rec.transformation));
+                    const recallCountSum = _sum(MyData.map(rec => rec.recallSum));
+                    const transformationCountSum = _sum(MyData.map(rec => rec.transformationSum));
 
                     return (
                         <div>
