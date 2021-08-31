@@ -223,8 +223,6 @@ const MemoTrainingStatsTemplate = (
                             <Br/>
 
                             <Txt>成功率: {successfulTrials.length}/{successfulTrials.length + badTrials.length} = {(trialAcc * 100).toFixed(2)}%</Txt>
-                            <Txt>成功タイムの平均: {successMemoSecAvg.toFixed(2)}秒</Txt>
-                            <Txt>成功タイムの標準偏差: {successMemoSecSd.toFixed(2)}秒</Txt>
 
                             <p>5回中1回以上成功する確率: <span id ="bo5ProbabilityId" style={{ textDecoration: 'underline', color: 'blue', }} href="#">{(bo5Acc * 100).toFixed(2)}%</span></p>
                             <ReactStrapTooltip placement="right" isOpen={isOpenBo5Tooltip} target="bo5ProbabilityId" toggle={() => setBo5TooltipIsOpen(!isOpenBo5Tooltip)}>
@@ -235,6 +233,9 @@ const MemoTrainingStatsTemplate = (
                             <ReactStrapTooltip placement="right" isOpen={isOpenAo5Tooltip} target="ao5ProbabilityId" toggle={() => setAo5TooltipIsOpen(!isOpenAo5Tooltip)}>
                             5 * (1 - {trialAcc.toFixed(2)}) * {trialAcc.toFixed(2)}^4 + {trialAcc.toFixed(2)}^5
                             </ReactStrapTooltip>
+
+                            <Txt>成功タイムの平均: {successMemoSecAvg.toFixed(2)}秒</Txt>
+                            <Txt>成功タイムの標準偏差: {successMemoSecSd.toFixed(2)}秒</Txt>
                             <Br/>
 
                             <ScatterChart
