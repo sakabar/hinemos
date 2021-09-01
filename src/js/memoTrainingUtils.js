@@ -73,6 +73,70 @@ export const cookieKey = {
     },
 };
 
+export const singleSCCRank = (memoSec) => {
+    if (memoSec < 30.0) {
+        return 'S';
+    }
+
+    if (memoSec < 60.0) {
+        return 'A';
+    }
+
+    if (memoSec < 90.0) {
+        return 'B';
+    }
+
+    if (memoSec < 120.0) {
+        return 'C';
+    }
+
+    if (memoSec < 150.0) {
+        return 'D';
+    }
+
+    if (memoSec < 210.0) {
+        return 'E';
+    }
+
+    if (memoSec < 300.0) {
+        return 'F';
+    }
+
+    return 'G';
+};
+
+export const averageSCCRank = (memoSec) => {
+    if (memoSec < 50.0) {
+        return 'S';
+    }
+
+    if (memoSec < 100.0) {
+        return 'A';
+    }
+
+    if (memoSec < 120.0) {
+        return 'B';
+    }
+
+    if (memoSec < 150.0) {
+        return 'C';
+    }
+
+    if (memoSec < 180.0) {
+        return 'D';
+    }
+
+    if (memoSec < 240.0) {
+        return 'E';
+    }
+
+    if (memoSec < 270.0) {
+        return 'F';
+    }
+
+    return 'G';
+};
+
 function Element (type, length, tag) {
     this.type = type;
     this.length = length;
