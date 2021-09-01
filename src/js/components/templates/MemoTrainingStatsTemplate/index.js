@@ -78,8 +78,14 @@ const MemoTrainingStatsTemplate = (
                         const newStartDate = value ? moment(value).format('YYYY/MM/DD') : moment().subtract(7 * 13 - 1, 'days').format('YYYY/MM/DD');
                         sagaFetchStats(event, newStartDate, endDate);
                     }}
-                /><Button value="today" onClick={() => {
+                /><Button value="1d" onClick={() => {
                     const newStartDate = moment().format('YYYY/MM/DD');
+                    sagaFetchStats(event, newStartDate, endDate);
+                }}/><Button value="1w" onClick={() => {
+                    const newStartDate = moment().subtract(7 - 1, 'days').format('YYYY/MM/DD');
+                    sagaFetchStats(event, newStartDate, endDate);
+                }}/><Button value="4w" onClick={() => {
+                    const newStartDate = moment().subtract(28 - 1, 'days').format('YYYY/MM/DD');
                     sagaFetchStats(event, newStartDate, endDate);
                 }}/><Br/>
 
