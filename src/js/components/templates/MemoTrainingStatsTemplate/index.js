@@ -27,9 +27,10 @@ import {
     Tooltip as ReactStrapTooltip,
 } from 'reactstrap';
 import {
-    sum as _sum,
     mean as _mean,
     meanBy as _meanBy,
+    sample as _sample,
+    sum as _sum,
 } from 'lodash-es';
 const config = require('../../../config');
 const path = require('path');
@@ -214,6 +215,41 @@ const MemoTrainingStatsTemplate = (
                     const bo5Acc = 1.0 - (1.0 - trialAcc) ** 5;
                     const ao5Acc = 5.0 * (1.0 - trialAcc) * (trialAcc ** 4) + (trialAcc ** 5);
 
+                    const SIM_CNT = 100000;
+                    const TRIAL_CNT = 5;
+                    const DEFAULT_SEC = 300.0;
+
+                    const bo5SimTimes = [];
+                    const ao5SimTimes = [];
+
+                    for (let i = 0; i < SIM_CNT; i++) {
+                        const secs = [];
+
+                        // 5試技ぶんサンプル、非復元抽出
+                        for (let k = 0; k < TRIAL_CNT; k++) {
+                            if (standardScores.length === 0) {
+                                secs.push(DEFAULT_SEC);
+                                continue;
+                            }
+
+                            const rec = _sample(standardScores);
+                            const sec = (rec.allElementAcc === 1 && rec.totalMemoSec < DEFAULT_SEC) ? rec.totalMemoSec : DEFAULT_SEC;
+                            secs.push(sec);
+                        }
+
+                        secs.sort((a, b) => a - b);
+                        const bo5 = secs[0];
+                        const ao5 = 1.0 * (_sum(secs) - secs[0] - secs[TRIAL_CNT - 1]) / (TRIAL_CNT - 2);
+                        bo5SimTimes.push(bo5);
+                        ao5SimTimes.push(ao5);
+                    }
+
+                    const bo5Exp = _mean(bo5SimTimes);
+                    const ao5Exp = _mean(ao5SimTimes);
+
+                    const bo5rank = memoTrainingUtils.singleSCCRank(bo5Exp);
+                    const ao5rank = memoTrainingUtils.averageSCCRank(ao5Exp);
+
                     const successMemoSecAvg = _meanBy(successfulTrials, 'totalMemoSec'); ;
                     const successMemoSecSd = Math.sqrt(_mean(successfulTrials.map(data => (data.totalMemoSec - successMemoSecAvg) * (data.totalMemoSec - successMemoSecAvg))));
 
@@ -246,12 +282,12 @@ const MemoTrainingStatsTemplate = (
 
                             <Txt>成功率: {successfulTrials.length}/{successfulTrials.length + badTrials.length} = {(trialAcc * 100).toFixed(2)}%</Txt>
 
-                            <p>5回中1回以上成功する確率: <span id ="bo5ProbabilityId" style={{ textDecoration: 'underline', color: 'blue', }} href="#">{(bo5Acc * 100).toFixed(2)}%</span></p>
+                            <p>5回中1回以上成功する確率: <span id ="bo5ProbabilityId" style={{ textDecoration: 'underline', color: 'blue', }} href="#">{(bo5Acc * 100).toFixed(2)}%,</span> best of 5の期待値:{bo5Exp.toFixed(2)}秒 ({bo5rank}ランク)</p>
                             <ReactStrapTooltip placement="right" isOpen={isOpenBo5Tooltip} target="bo5ProbabilityId" toggle={() => setBo5TooltipIsOpen(!isOpenBo5Tooltip)}>
                             1 - (1 - {trialAcc.toFixed(2)})^5
                             </ReactStrapTooltip>
 
-                            <p>5回中4回以上成功する確率: <span id ="ao5ProbabilityId" style={{ textDecoration: 'underline', color: 'blue', }} href="#">{(ao5Acc * 100).toFixed(2)}%</span></p>
+                            <p>5回中4回以上成功する確率: <span id ="ao5ProbabilityId" style={{ textDecoration: 'underline', color: 'blue', }} href="#">{(ao5Acc * 100).toFixed(2)}%,</span> average of 5の期待値:{ao5Exp.toFixed(2)}秒 ({ao5rank}ランク)</p>
                             <ReactStrapTooltip placement="right" isOpen={isOpenAo5Tooltip} target="ao5ProbabilityId" toggle={() => setAo5TooltipIsOpen(!isOpenAo5Tooltip)}>
                             5 * (1 - {trialAcc.toFixed(2)}) * {trialAcc.toFixed(2)}^4 + {trialAcc.toFixed(2)}^5
                             </ReactStrapTooltip>
