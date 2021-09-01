@@ -79,13 +79,12 @@ const MemoTrainingStatsTemplate = (
                         sagaFetchStats(event, newStartDate, endDate);
                     }}
                 /><Button value="1d" onClick={() => {
-                    const newStartDate = moment().format('YYYY/MM/DD');
-                    sagaFetchStats(event, newStartDate, endDate);
+                    sagaFetchStats(event, endDate, endDate);
                 }}/><Button value="1w" onClick={() => {
-                    const newStartDate = moment().subtract(7 - 1, 'days').format('YYYY/MM/DD');
+                    const newStartDate = moment(endDate).subtract(7 - 1, 'days').format('YYYY/MM/DD');
                     sagaFetchStats(event, newStartDate, endDate);
                 }}/><Button value="4w" onClick={() => {
-                    const newStartDate = moment().subtract(28 - 1, 'days').format('YYYY/MM/DD');
+                    const newStartDate = moment(endDate).subtract(7 * 4 - 1, 'days').format('YYYY/MM/DD');
                     sagaFetchStats(event, newStartDate, endDate);
                 }}/><Br/>
 
