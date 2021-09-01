@@ -86,6 +86,9 @@ const MemoTrainingStatsTemplate = (
                 }}/><Button value="4w" onClick={() => {
                     const newStartDate = moment(endDate).subtract(7 * 4 - 1, 'days').format('YYYY/MM/DD');
                     sagaFetchStats(event, newStartDate, endDate);
+                }}/><Button value="3m" onClick={() => {
+                    const newStartDate = moment(endDate).subtract(7 * 13 - 1, 'days').format('YYYY/MM/DD');
+                    sagaFetchStats(event, newStartDate, endDate);
                 }}/><Br/>
 
     終了日: <DateTimePicker
