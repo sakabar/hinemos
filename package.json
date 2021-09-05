@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "@datastructures-js/priority-queue": "^4.1.2",
-    "axios": "^0.21.1",
+    "axios": "^0.21.3",
     "babel-polyfill": "^6.26.0",
     "chunk": "^0.0.3",
     "count-array-values": "^1.2.1",
