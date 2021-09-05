@@ -1,7 +1,7 @@
 const rp = require('request-promise');
 const config = require('./config');
 
-const getThreeStyles = (userName, part, buffer = undefined) => {
+export const getThreeStyles = (userName, part, buffer = undefined) => {
     let url = `${config.apiRoot}/threeStyle/${part.name}?userName=${userName}`;
     if (typeof buffer !== 'undefined') {
         url = `${config.apiRoot}/threeStyle/${part.name}?userName=${userName}&buffer=${buffer}`;
@@ -27,7 +27,7 @@ const getThreeStyles = (userName, part, buffer = undefined) => {
         });
 };
 
-const getThreeStyleQuizList = (userName, part, buffer = undefined) => {
+export const getThreeStyleQuizList = (userName, part, buffer = undefined) => {
     let url = `${config.apiRoot}/threeStyleQuizList/${part.name}/${userName}`;
     if (buffer) {
         url = `${config.apiRoot}/threeStyleQuizList/${part.name}/${userName}?buffer=${buffer}`;
@@ -53,7 +53,7 @@ const getThreeStyleQuizList = (userName, part, buffer = undefined) => {
         });
 };
 
-const getThreeStyleQuizLog = (userName, part, buffer = undefined) => {
+export const getThreeStyleQuizLog = (userName, part, buffer = undefined) => {
     const url = buffer ? `${config.apiRoot}/threeStyleQuizLog/${part.name}/${userName}?&buffer=${buffer}` : `${config.apiRoot}/threeStyleQuizLog/${part.name}/${userName}`;
 
     const options = {
@@ -75,7 +75,3 @@ const getThreeStyleQuizLog = (userName, part, buffer = undefined) => {
             return [];
         });
 };
-
-exports.getThreeStyles = getThreeStyles;
-exports.getThreeStyleQuizList = getThreeStyleQuizList;
-exports.getThreeStyleQuizLog = getThreeStyleQuizLog;

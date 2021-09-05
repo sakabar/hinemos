@@ -4,7 +4,7 @@ const normalize = require('cube-notation-normalizer');
 const shuffle = require('shuffle-array');
 const constant = require('./constant');
 
-const corners = [
+export const corners = [
     'BDL', 'BDR', 'BLU', 'BRU',
     'DBL', 'DBR', 'DFL', 'DFR',
     'FDL', 'FDR', 'FLU', 'FRU',
@@ -13,7 +13,7 @@ const corners = [
     'UBL', 'UBR', 'UFL', 'UFR',
 ];
 
-const edges = [
+export const edges = [
     'BD', 'BL', 'BR', 'BU',
     'DB', 'DF', 'DL', 'DR',
     'FD', 'FL', 'FR', 'FU',
@@ -22,12 +22,12 @@ const edges = [
     'UB', 'UF', 'UL', 'UR',
 ];
 
-const cornerParts = [
+export const cornerParts = [
     'DBL', 'DBR', 'DFL', 'DFR',
     'UBL', 'UBR', 'UFL', 'UFR',
 ];
 
-const edgeParts = [
+export const edgeParts = [
     'DB', 'DF', 'DL', 'DR',
     'UB', 'UF', 'UL', 'UR',
     'RB', 'RF', 'LB', 'LF',
@@ -61,7 +61,7 @@ const getAlphabets = () => {
     return alphabets.replace(/\s/g, '').split(/(.{1})/).filter(x => x);
 };
 
-const getCharacters = (characterType) => {
+export const getCharacters = (characterType) => {
     if (characterType === constant.characterType.hiragana) {
         return getHiraganas();
     } else if (characterType === constant.characterType.alphabet) {
@@ -71,7 +71,7 @@ const getCharacters = (characterType) => {
     throw new Error('Unexpected characterType');
 };
 
-const getCharacterType = (ch) => {
+export const getCharacterType = (ch) => {
     if (getHiraganas().includes(ch)) {
         return constant.characterType.hiragana;
     } else if (getAlphabets().includes(ch)) {
@@ -81,7 +81,7 @@ const getCharacterType = (ch) => {
     throw new Error('Unexpected character');
 };
 
-const showMove = (setup, move1, move2) => {
+export const showMove = (setup, move1, move2) => {
     if (setup === '') {
         return `[${move1}, ${move2}]`;
     } else if (move1 === '' && move2 === '') {
@@ -91,7 +91,7 @@ const showMove = (setup, move1, move2) => {
     }
 };
 
-const big2Small = (s) => {
+export const big2Small = (s) => {
     return s
         .replace(/Uw/g, 'u')
         .replace(/Dw/g, 'd')
@@ -101,7 +101,7 @@ const big2Small = (s) => {
         .replace(/Bw/g, 'b');
 };
 
-const small2Big = (s) => {
+export const small2Big = (s) => {
     return s
         .replace(/u/g, 'Uw')
         .replace(/d/g, 'Dw')
@@ -114,7 +114,7 @@ const small2Big = (s) => {
 // 逆手順を求めるラッパー
 // LwやRwをl, rに変換してからinverse()、その後に元に戻す
 // R'2のように、間に'が入っている場合は置換
-const inverse = (s) => {
+export const inverse = (s) => {
     const replaced = big2Small(s).replace(/'2/g, '2');
     return small2Big(Cube.inverse(replaced));
 };
@@ -122,7 +122,7 @@ const inverse = (s) => {
 // 3-styleの記法を展開し、moveの文字列にする
 // LwやRwやR'2などが含まれているとinverse()できないので変換
 // 最後には、lやrなくす
-const expandMove = (setup, move1, move2) => {
+export const expandMove = (setup, move1, move2) => {
     const t = getThreeStyleType(showMove(setup, move1, move2));
 
     if (t === ThreeStyleType.pure) {
@@ -136,14 +136,14 @@ const expandMove = (setup, move1, move2) => {
     return '';
 };
 
-const strMax = (s1, s2) => {
+export const strMax = (s1, s2) => {
     if (s1 >= s2) {
         return s1;
     }
     return s2;
 };
 
-const strMin = (s1, s2) => {
+export const strMin = (s1, s2) => {
     if (s1 <= s2) {
         return s1;
     }
@@ -151,13 +151,13 @@ const strMin = (s1, s2) => {
 };
 
 // 2つのステッカーが、同じパーツに属するかを判定
-const isInSameParts = (sticker1, sticker2) => {
+export const isInSameParts = (sticker1, sticker2) => {
     const s1 = Array.from(sticker1).sort().join('');
     const s2 = Array.from(sticker2).sort().join('');
     return s1 === s2;
 };
 
-const isValidMoves = (moveStr, partType) => {
+export const isValidMoves = (moveStr, partType) => {
     // 5BLD対応時にパートの引数を増やしたので、
     // 以前のコードを変更をしなくていいようにデフォルト引数にした
     if (!partType) {
@@ -189,7 +189,7 @@ const replaceMoves = (moveStr) => {
 
 // validationしつつ、3-styleのオブジェクトを生成
 // validationにエラーがあった場合は、値を返さずエラー
-const makeThreeStyle = (buffer, sticker1, sticker2, setup, move1, move2, partType) => {
+export const makeThreeStyle = (buffer, sticker1, sticker2, setup, move1, move2, partType) => {
     const replacedSetup = replaceMoves(setup);
     const replacedMove1 = replaceMoves(move1);
     const replacedMove2 = replaceMoves(move2);
@@ -247,7 +247,7 @@ const makeThreeStyle = (buffer, sticker1, sticker2, setup, move1, move2, partTyp
 };
 
 // ステッカーの0文字目を固定して、それ以降をソート
-const sortSticker = (sticker) => {
+export const sortSticker = (sticker) => {
     if (sticker.length !== 2 && sticker.length !== 3) {
         throw new Error('Error: sticker length must be 2 or 3');
     }
@@ -257,14 +257,14 @@ const sortSticker = (sticker) => {
 };
 
 // n個グループにして、そのグループ内で順番を入れ替える
-const chunkAndShuffle = (arr, n) => {
+export const chunkAndShuffle = (arr, n) => {
     const grouped = chunk(arr, n).map(arr => shuffle(arr, { copy: true, }));
     return Array.prototype.concat.apply([], grouped);
 };
 
 // 3-styleの分類
 // A9やColumnなどの細かい分類ではなく、hinemos内の便宜的なもの
-const ThreeStyleType = {
+export const ThreeStyleType = {
     pure: { value: 0, name: 'pure', }, //   [A, B]
     setup: { value: 1, name: 'setup', }, // [S, [A, B]]
     seq: { value: 2, name: 'seq', }, //     [A B C D]
@@ -273,7 +273,7 @@ const ThreeStyleType = {
 // 3-style記法を受け取り、3-style typeを判定して返す
 // 判定できないパターンの場合はエラーを返す
 // FIXME 正規表現の保守性が低すぎる
-const getThreeStyleType = (s) => {
+export const getThreeStyleType = (s) => {
     // A B C D => 'seq'
     const seqMatch = s.match(/^[^, \[\]]+( [^, \[\]]+)*$/);
     if (seqMatch) {
@@ -297,7 +297,7 @@ const getThreeStyleType = (s) => {
 
 // 3-style記法の文字列をパースして、オブジェクトを返す
 // 正規表現が複雑になるのを避けるため、まずgetThreeStyleTypeで判定してから更にふるいにかける
-const readThreeStyles = (s, partType) => {
+export const readThreeStyles = (s, partType) => {
     if (s.match(/^\s*$/)) {
         return [];
     }
@@ -433,43 +433,18 @@ const readThreeStyles = (s, partType) => {
     throw new Error('ThreeStyleCorner parse error');
 };
 
-const makeWingSticker = (face1, face2, face3) => {
+export const makeWingSticker = (face1, face2, face3) => {
     const edge = `${face1}${face2}`.toUpperCase();
     const sliceFace = face3.toLowerCase();
 
     return `${edge}${sliceFace}`;
 };
 
-const makeXcenterSticker = (face1, face2, face3) => {
+export const makeXcenterSticker = (face1, face2, face3) => {
     const s = sortSticker(`${face1}${face2}${face3}`).toLowerCase();
     return `${s[0].toUpperCase()}${s.slice(1)}`;
 };
 
-const makeTcenterSticker = (face1, face2) => {
+export const makeTcenterSticker = (face1, face2) => {
     return `${face1.toUpperCase()}${face2.toLowerCase()}`;
 };
-
-exports.corners = corners;
-exports.edges = edges;
-exports.cornerParts = cornerParts;
-exports.edgeParts = edgeParts;
-exports.getCharacters = getCharacters;
-exports.getCharacterType = getCharacterType;
-exports.showMove = showMove;
-exports.big2Small = big2Small;
-exports.small2Big = small2Big;
-exports.inverse = inverse;
-exports.expandMove = expandMove;
-exports.strMax = strMax;
-exports.strMin = strMin;
-exports.isInSameParts = isInSameParts;
-exports.isValidMoves = isValidMoves;
-exports.makeThreeStyle = makeThreeStyle;
-exports.sortSticker = sortSticker;
-exports.chunkAndShuffle = chunkAndShuffle;
-exports.ThreeStyleType = ThreeStyleType;
-exports.getThreeStyleType = getThreeStyleType;
-exports.readThreeStyles = readThreeStyles;
-exports.makeWingSticker = makeWingSticker;
-exports.makeXcenterSticker = makeXcenterSticker;
-exports.makeTcenterSticker = makeTcenterSticker;

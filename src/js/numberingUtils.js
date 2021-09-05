@@ -1,7 +1,7 @@
 const rp = require('request-promise');
 const config = require('./config');
 
-const getNumbering = (userName, part) => {
+export const getNumbering = (userName, part) => {
     const options = {
         url: `${config.apiRoot}/numbering/${part.name}/${userName}`,
         method: 'GET',
@@ -26,5 +26,3 @@ const getNumbering = (userName, part) => {
             return [];
         });
 };
-
-exports.getNumbering = getNumbering;

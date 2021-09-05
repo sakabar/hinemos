@@ -185,7 +185,7 @@ const filterLetterPairCount = (letterPairCount, rankMax = null) => {
 };
 
 // POSTするためのデータを作って返す
-const getAllLetterPairs = (letterPairCount, myLetterPairs, lettersSet, skipRegisteredLetters) => {
+export const getAllLetterPairs = (letterPairCount, myLetterPairs, lettersSet, skipRegisteredLetters) => {
     // 自分が登録したレターペアは必ず残すようにする
     // POST /letterPairTable を使うため、自分が登録したレターペアを入れておかないと、
     // 上書きされて消えてしまう
@@ -432,5 +432,3 @@ const init = () => {
 };
 
 init();
-
-exports.getAllLetterPairs = getAllLetterPairs;

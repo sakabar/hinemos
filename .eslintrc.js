@@ -37,7 +37,13 @@ module.exports = {
         ],
         "comma-dangle": [
             "error",
-            "always"
+            {
+                "arrays": "always",
+                "objects": "always",
+                "imports": "ignore",
+                "exports": "ignore",
+                "functions": "ignore",
+            },
         ],
         "yoda": [
             "error",

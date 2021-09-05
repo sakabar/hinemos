@@ -3,7 +3,7 @@ const config = require('./config');
 const constant = require('./constant');
 // const utils = require('./utils');
 
-const getFaceColors = (userName) => {
+export const getFaceColors = (userName) => {
     const options = {
         url: `${config.apiRoot}/faceColor/${userName}`,
         method: 'GET',
@@ -87,5 +87,3 @@ const init = () => {
 };
 
 init();
-
-exports.getFaceColors = getFaceColors;
