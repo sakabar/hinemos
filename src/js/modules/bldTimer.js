@@ -203,7 +203,7 @@ function * handleOnKeyUp () {
 }
 
 function * emitDelayTryToReady () {
-    yield call(delay, bldTimerUtils.WAIT_THRESHOLD_MILISEC);
+    yield delay(bldTimerUtils.WAIT_THRESHOLD_MILISEC);
     const miliUnixtime = parseInt(moment().format('x'));
     yield put(tryToReady(miliUnixtime));
 };
@@ -231,7 +231,7 @@ function * handleUpdateTimer () {
 
     if (timerState === bldTimerUtils.TimerState.updating) {
         const delayMiliSec = 100;
-        yield call(delay, delayMiliSec);
+        yield delay(delayMiliSec);
 
         const miliUnixtime = parseInt(moment().format('x'));
         yield put(updateTimer(miliUnixtime));
