@@ -1,7 +1,7 @@
 const config = require('./config');
 const rp = require('request-promise');
 
-const requestGetThreeStyleQuizProblemList = (part) => {
+export const requestGetThreeStyleQuizProblemList = (part) => {
     if (!part) {
         return Promise.reject(new Error('part error'));
     }
@@ -24,7 +24,7 @@ const requestGetThreeStyleQuizProblemList = (part) => {
 // https://github.com/Grace951/react-table/blob/01f1e03da75dd11c73c77f0082950fedc2135bd8/src/SortableTbl.js#L41-L49
 // react-tableでソート済みのデータだけを取得する方法がないので、フィルタ関数をそのままコピペして用意し、
 // Stateの中で同じフィルタを適用してから値を変更する
-const isSelectedRow = (searchWord, item) => {
+export const isSelectedRow = (searchWord, item) => {
     for (let key in item) {
         const v = item[key] && item[key].toString().toLowerCase();
         if (v && v.indexOf(searchWord.toLowerCase()) !== -1) {
@@ -34,7 +34,7 @@ const isSelectedRow = (searchWord, item) => {
     return false;
 };
 
-const requestPostProblemListName = (part, titles) => {
+export const requestPostProblemListName = (part, titles) => {
     const options = {
         url: `${config.apiRoot}/postThreeStyleQuizProblemListName/${part.name}`,
         method: 'POST',
@@ -51,7 +51,7 @@ const requestPostProblemListName = (part, titles) => {
     return rp(options);
 };
 
-const requestGetThreeStyleQuizProblemListDetail = (part, problemListId) => {
+export const requestGetThreeStyleQuizProblemListDetail = (part, problemListId) => {
     const url = `${config.apiRoot}/getThreeStyleQuizProblemListDetail/${part.name}`;
 
     // problemListIdがnullの時はそれをAPIに渡さないことで、全手順を出力
@@ -85,7 +85,7 @@ const requestGetThreeStyleQuizProblemListDetail = (part, problemListId) => {
         });
 };
 
-const requestPostThreeStyleQuizProblemListDetail = (part, problemListId, stickersStr) => {
+export const requestPostThreeStyleQuizProblemListDetail = (part, problemListId, stickersStr) => {
     const url = `${config.apiRoot}/postThreeStyleQuizProblemListDetail/${part.name}`;
 
     const options = {
@@ -104,11 +104,3 @@ const requestPostThreeStyleQuizProblemListDetail = (part, problemListId, sticker
 
     return rp(options);
 };
-
-exports.requestGetThreeStyleQuizProblemList = requestGetThreeStyleQuizProblemList;
-
-exports.isSelectedRow = isSelectedRow;
-
-exports.requestPostProblemListName = requestPostProblemListName;
-exports.requestGetThreeStyleQuizProblemListDetail = requestGetThreeStyleQuizProblemListDetail;
-exports.requestPostThreeStyleQuizProblemListDetail = requestPostThreeStyleQuizProblemListDetail;

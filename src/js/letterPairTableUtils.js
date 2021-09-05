@@ -1,7 +1,7 @@
 const rp = require('request-promise');
 const config = require('./config');
 
-const saveLetterPairTable = (letterPairTable) => {
+export const saveLetterPairTable = (letterPairTable) => {
     const token = localStorage.token;
 
     const options = {
@@ -23,5 +23,3 @@ const saveLetterPairTable = (letterPairTable) => {
 
     return rp(options);
 };
-
-exports.saveLetterPairTable = saveLetterPairTable;

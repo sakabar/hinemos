@@ -6,7 +6,7 @@ const utils = require('./utils');
 const numberingUtils = require('./numberingUtils');
 
 // あるパーツがバッファのあるパーツかどうかを判定する
-const isBufferPart = (bufferSticker, cornerPart) => {
+export const isBufferPart = (bufferSticker, cornerPart) => {
     if (bufferSticker.length !== cornerPart.length) {
         throw new Error(`length differs: ${bufferSticker} ${cornerPart}`);
     }
@@ -15,7 +15,7 @@ const isBufferPart = (bufferSticker, cornerPart) => {
 };
 
 // バッファ 'UBL' -> ['BLU','LBU']
-const getBlankStickers = (bufferSticker) => {
+export const getBlankStickers = (bufferSticker) => {
     if (!utils.corners.includes(bufferSticker) && !utils.edges.includes(bufferSticker)) {
         throw new Error('ERROR: arg length must be corner or edge sticker');
     }
@@ -47,7 +47,7 @@ const checkBlankStickersAreOK = (blankStickers, cornerNumberings) => {
     return true;
 };
 
-const getCornerNumbering = (userName) => {
+export const getCornerNumbering = (userName) => {
     const numberingCornerOptions = {
         url: `${config.apiRoot}/numbering/corner/${userName}`,
         method: 'GET',
@@ -94,7 +94,7 @@ const loadCornerNumbering = () => {
         });
 };
 
-const getEdgeNumbering = (userName) => {
+export const getEdgeNumbering = (userName) => {
     const numberingEdgeOptions = {
         url: `${config.apiRoot}/numbering/edgeMiddle/${userName}`,
         method: 'GET',
@@ -418,8 +418,3 @@ const init = () => {
 };
 
 init();
-
-module.exports.isBufferPart = isBufferPart;
-module.exports.getBlankStickers = getBlankStickers;
-module.exports.getEdgeNumbering = getEdgeNumbering;
-module.exports.getCornerNumbering = getCornerNumbering;

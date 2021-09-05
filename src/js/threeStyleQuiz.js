@@ -41,7 +41,7 @@ const reloadWithOptions = (part, problemListType, quizOrder, problemListId) => {
     location.href = `${config.urlRoot}/threeStyle/quiz.html?&part=${part.name}&problemListType=${problemListType.name}&solved=${solved}&days=${days}&sort=${quizOrder}&onlyOnce=${onlyOnce}&problemListId=${problemListId}`;
 };
 
-const getHint = (setup, move1, move2) => {
+export const getHint = (setup, move1, move2) => {
     if (setup === '') {
         return '(セットアップなし)';
     }
@@ -80,7 +80,7 @@ const selectThreeStyles = (threeStyles, quizLogRes) => {
 
 // problemListにthreeStyleの情報を付けて返す
 // 問題リストにthreeStyleが登録されていないものがあっても出題
-const selectFromManualList = (threeStyles, quizLogRes, problemList) => {
+export const selectFromManualList = (threeStyles, quizLogRes, problemList) => {
     if (problemList.length === 0) {
         return [];
     }
@@ -534,6 +534,3 @@ const init = () => {
 };
 
 init();
-
-exports.getHint = getHint;
-exports.selectFromManualList = selectFromManualList;
