@@ -20,7 +20,7 @@ const MemoTrainingMbldRecall = ({
             <Button color="primary" value="回答終了" onClick={(e) => sagaFinishRecallPhase()}/>
             <Br/>
 
-            <Txt>記憶時間:{Math.floor((startRecallMiliUnixtime - startMemoMiliUnixtime) / 1000.0)}秒</Txt>
+            <Txt>記憶時間:{((startRecallMiliUnixtime - startMemoMiliUnixtime) / 1000.0).toFixed(2)}秒</Txt>
             <Br/>
 
             {
