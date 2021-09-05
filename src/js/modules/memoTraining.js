@@ -4,15 +4,13 @@ import {
 } from 'redux-actions';
 import {
     call,
+    delay,
     fork,
     join,
     put,
     take,
     select,
 } from 'redux-saga/effects';
-import {
-    delay,
-} from 'redux-saga';
 import {
     chunk as _chunk,
     cloneDeep as _cloneDeep,

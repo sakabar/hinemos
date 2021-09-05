@@ -11,14 +11,14 @@ const utils = require('./utils');
 
 // sticker1とsticker2のパーツを、若い順に並べる
 // パーツを表す2(or 3)文字も、アルファベット順にソートする
-const getPartPair = (sticker1, sticker2) => {
+export const getPartPair = (sticker1, sticker2) => {
     const part1 = Array.from(sticker1).sort().join('');
     const part2 = Array.from(sticker2).sort().join('');
 
     return [ utils.strMin(part1, part2), utils.strMax(part1, part2), ];
 };
 
-const classifyWithPartPairs = (threeStyles) => {
+export const classifyWithPartPairs = (threeStyles) => {
     if (threeStyles.length === 0) {
         return {};
     }
@@ -52,7 +52,7 @@ const classifyWithPartPairs = (threeStyles) => {
 // 許容できる時間で停止する (曖昧...)
 // appearOnceがtrueのとき、threeStyleGroupを破壊的に変更して、以降呼び出した時に同じ3-styleが出題されないようにする
 // これはmutableなので、リファクタリング時などに注意すること
-const pickThreeStyles = (threeStyleGroups, appearOnce = false) => {
+export const pickThreeStyles = (threeStyleGroups, appearOnce = false) => {
     if (Object.keys(threeStyleGroups).length === 0) {
         return [];
     }
@@ -492,7 +492,3 @@ const init = () => {
 };
 
 init();
-
-exports.getPartPair = getPartPair;
-exports.classifyWithPartPairs = classifyWithPartPairs;
-exports.pickThreeStyles = pickThreeStyles;

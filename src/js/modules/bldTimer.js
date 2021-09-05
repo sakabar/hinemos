@@ -4,14 +4,12 @@ import {
 } from 'redux-actions';
 import {
     call,
+    delay,
     fork,
     put,
     take,
     select,
 } from 'redux-saga/effects';
-import {
-    delay,
-} from 'redux-saga';
 import GiiKER from 'giiker';
 const moment = require('moment');
 const bldTimerUtils = require('../bldTimerUtils');

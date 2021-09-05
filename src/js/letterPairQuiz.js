@@ -17,7 +17,7 @@ const letterPairsToWords = (letterPairs, letters) => {
 // まだやっていない問題がある → それをやる
 // やっていない問題がない → 正解数が少ないもの順
 // 引数: letterPairs = [{letters: "あい", word: "合いの手"}, {letters: "あい", word: "愛"}]
-const selectUnsolvedLetterPairs = (letterPairs, quizLogRes) => {
+export const selectUnsolvedLetterPairs = (letterPairs, quizLogRes) => {
     if (letterPairs.length === 0) {
         return [];
     }
@@ -31,7 +31,7 @@ const selectUnsolvedLetterPairs = (letterPairs, quizLogRes) => {
 
 // 登録済のレターペアと、「解いた」問題ログ(agg済)を受け取り、解いた問題から出題
 // quizLogResの順番を維持する (解くのにかかった平均時間の降順のはず)
-const selectSolvedLetterPairs = (letterPairs, quizLogRes) => {
+export const selectSolvedLetterPairs = (letterPairs, quizLogRes) => {
     if (!letterPairs || letterPairs.length === 0 || !quizLogRes || quizLogRes.length === 0) {
         return [];
     }
@@ -239,6 +239,3 @@ const init = () => {
 };
 
 init();
-
-exports.selectSolvedLetterPairs = selectSolvedLetterPairs;
-exports.selectUnsolvedLetterPairs = selectUnsolvedLetterPairs;
