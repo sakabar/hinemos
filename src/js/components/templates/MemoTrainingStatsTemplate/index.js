@@ -137,6 +137,7 @@ const MemoTrainingStatsTemplate = (
                         .map(score => {
                             return {
                                 totalMemoSec: score.totalMemoSec,
+                                totalRecallSec: score.totalRecallSec,
                                 allElementAcc: score.allElementAcc,
                                 scoresComponent: memoTrainingUtils.calcScoresComponent(event, score.totalMemoSec, score.totalRecallSec, score.allDeckNum, score.successDeckNum, score.allElementNum),
                                 createdAt: score.createdAt.format('YYYY/MM/DD HH:mm'),
@@ -158,6 +159,7 @@ const MemoTrainingStatsTemplate = (
                         .map(score => {
                             return {
                                 totalMemoSec: score.totalMemoSec,
+                                totalRecallSec: score.totalRecallSec,
                                 scoresComponent: score.scoresComponent,
                                 createdAt: score.createdAt,
                             };
@@ -171,6 +173,7 @@ const MemoTrainingStatsTemplate = (
                     while (recentBestScoresComponents.length < RECENT_TOP_CNT) {
                         const rec = {
                             totalMemoSec: 61.0 * 60,
+                            totalRecallSec: 60 * 4.0,
                             scoresComponent: Math.floor(5.0 * (60.0 - 61.0 * 60)),
                             createdAt: '9999/12/31 23:59',
                         };
@@ -197,6 +200,7 @@ const MemoTrainingStatsTemplate = (
                                     <thead>
                                         <tr>
                                             <th style={paddingStyle} align="right">Time</th>
+                                            <th style={paddingStyle} align="right">Recall</th>
                                             <th style={paddingStyle} align="right">Date</th>
                                             <th style={paddingStyle} align="right">ML Scores Component</th>
                                         </tr>
@@ -209,6 +213,7 @@ const MemoTrainingStatsTemplate = (
                                                 return (
                                                     <tr key={key}>
                                                         <td style={paddingStyle} align="right">{rec.totalMemoSec.toFixed(2)}s</td>
+                                                        <td style={paddingStyle} align="right">{rec.totalRecallSec.toFixed(2)}s</td>
                                                         <td style={paddingStyle} align="right">{rec.createdAt}</td>
                                                         <td style={paddingStyle} align="right">{rec.scoresComponent}</td>
                                                     </tr>
