@@ -56,10 +56,12 @@ const MemoTrainingStatsTemplate = (
         elementIdToElement,
         isOpenBo5Tooltip,
         isOpenAo5Tooltip,
+        isOpenScoresComponentTooltip,
 
         sagaFetchStats,
         setBo5TooltipIsOpen,
         setAo5TooltipIsOpen,
+        setScoresComponentTooltipIsOpen,
     }
 ) => (
     <div>
@@ -192,8 +194,23 @@ const MemoTrainingStatsTemplate = (
                             <div>
                                 {
                                     (event === 'cards' || event === 'numbers')
-                                        ? (<Txt>Top 5 Scores Componentの合計: {scoresComponentsSum}</Txt>)
-                                        : (<Txt>※ この種目はScores Component集計対象外</Txt>)
+                                        ? (
+                                            <div>
+                                                <p>Top 5 <span id ="scoresComponentId" style={{ textDecoration: 'underline', color: 'blue', }} href="#">Scores Component</span>の合計: {scoresComponentsSum}</p>
+                                                <ReactStrapTooltip placement="right" isOpen={isOpenScoresComponentTooltip} target="scoresComponentId" toggle={() => setScoresComponentTooltipIsOpen(!isOpenScoresComponentTooltip)}>
+                                                計算式は MemoryLeague の Ratings Explanation に記載されている式を利用しています。<br/>
+                                                    <br/>
+                                                ただし、上級者以外もScores Componentの値で上達を判断できるようにするため、記憶時間が60秒を超えた場合にも0点にはせずに負の値を算出します。<br/>
+                                                    <br/>
+                                                Scores Componentが算出されるためには、4分以内に回答する必要があります。
+                                                </ReactStrapTooltip>
+                                            </div>
+                                        )
+                                        : (
+                                            <div>
+                                                <p>※ この種目はScores Component集計対象外</p>
+                                            </div>
+                                        )
                                 }
 
                                 <table border="1">
@@ -455,10 +472,12 @@ MemoTrainingStatsTemplate.propTypes = {
     elementIdToElement: PropTypes.object.isRequired,
     isOpenBo5Tooltip: PropTypes.bool.isRequired,
     isOpenAo5Tooltip: PropTypes.bool.isRequired,
+    isOpenScoresComponentTooltip: PropTypes.bool.isRequired,
 
     sagaFetchStats: PropTypes.func.isRequired,
     setBo5TooltipIsOpen: PropTypes.func.isRequired,
     setAo5TooltipIsOpen: PropTypes.func.isRequired,
+    setScoresComponentTooltipIsOpen: PropTypes.func.isRequired,
 };
 
 export default MemoTrainingStatsTemplate;

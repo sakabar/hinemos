@@ -13,6 +13,7 @@ import {
     sagaFetchStats,
     setBo5TooltipIsOpen,
     setAo5TooltipIsOpen,
+    setScoresComponentTooltipIsOpen,
 
     memoTrainingStatsReducer,
     rootSaga,
@@ -28,6 +29,7 @@ const mapStateToProps = ({
     elementIdToElement,
     isOpenBo5Tooltip,
     isOpenAo5Tooltip,
+    isOpenScoresComponentTooltip,
 }) => {
     return {
         event,
@@ -38,6 +40,7 @@ const mapStateToProps = ({
         elementIdToElement,
         isOpenBo5Tooltip,
         isOpenAo5Tooltip,
+        isOpenScoresComponentTooltip,
     };
 };
 
@@ -51,6 +54,9 @@ const mapDispatchToProps = (dispatch) => {
         },
         setAo5TooltipIsOpen: (newIsOpenAo5Tooltip) => {
             dispatch(setAo5TooltipIsOpen({ newIsOpenAo5Tooltip, }));
+        },
+        setScoresComponentTooltipIsOpen: (newIsOpenScoresComponentTooltip) => {
+            dispatch(setScoresComponentTooltipIsOpen({ newIsOpenScoresComponentTooltip, }));
         },
     };
 };
