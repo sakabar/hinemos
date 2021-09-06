@@ -198,7 +198,7 @@ const MemoTrainingStatsTemplate = (
                                             <div>
                                                 <p>Top 5 <span id ="scoresComponentId" style={{ textDecoration: 'underline', color: 'blue', }} href="#">Scores Component</span>の合計: {scoresComponentsSum}</p>
                                                 <ReactStrapTooltip placement="right" isOpen={isOpenScoresComponentTooltip} target="scoresComponentId" toggle={() => setScoresComponentTooltipIsOpen(!isOpenScoresComponentTooltip)}>
-                                                MemoryLeague (外部サイト) の Ratings Explanation に記載されている計算式を利用しています。<br/>
+                                                Memory League (外部サイト) の Ratings Explanation に記載されている計算式を利用しています。<br/>
                                                     <br/>
                                                 上級者以外もスコアの向上を実感できるようにするため、記憶時間が60秒を超えた場合でも0点にはせずに負の値を算出します。<br/>
                                                     <br/>
