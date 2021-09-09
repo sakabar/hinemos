@@ -202,7 +202,7 @@ const MemoTrainingStatsTemplate = (
                                                     <br/>
                                                 上級者以外もスコアの向上を実感できるようにするため、記憶時間が60秒を超えた場合でも0点にはせずに負の値を算出します。<br/>
                                                     <br/>
-                                                4分以内に回答した場合のみ、値が算出されます。
+                                                Memory League の制限時間である4分以内に回答した場合のみ、値を算出します。
                                                 </ReactStrapTooltip>
                                             </div>
                                         )
