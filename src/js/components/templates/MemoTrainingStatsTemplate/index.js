@@ -56,10 +56,12 @@ const MemoTrainingStatsTemplate = (
         elementIdToElement,
         isOpenBo5Tooltip,
         isOpenAo5Tooltip,
+        isOpenScoresComponentTooltip,
 
         sagaFetchStats,
         setBo5TooltipIsOpen,
         setAo5TooltipIsOpen,
+        setScoresComponentTooltipIsOpen,
     }
 ) => (
     <div>
@@ -137,6 +139,7 @@ const MemoTrainingStatsTemplate = (
                         .map(score => {
                             return {
                                 totalMemoSec: score.totalMemoSec,
+                                totalRecallSec: score.totalRecallSec,
                                 allElementAcc: score.allElementAcc,
                                 scoresComponent: memoTrainingUtils.calcScoresComponent(event, score.totalMemoSec, score.totalRecallSec, score.allDeckNum, score.successDeckNum, score.allElementNum),
                                 createdAt: score.createdAt.format('YYYY/MM/DD HH:mm'),
@@ -158,6 +161,7 @@ const MemoTrainingStatsTemplate = (
                         .map(score => {
                             return {
                                 totalMemoSec: score.totalMemoSec,
+                                totalRecallSec: score.totalRecallSec,
                                 scoresComponent: score.scoresComponent,
                                 createdAt: score.createdAt,
                             };
@@ -171,6 +175,7 @@ const MemoTrainingStatsTemplate = (
                     while (recentBestScoresComponents.length < RECENT_TOP_CNT) {
                         const rec = {
                             totalMemoSec: 61.0 * 60,
+                            totalRecallSec: 60 * 4.0,
                             scoresComponent: Math.floor(5.0 * (60.0 - 61.0 * 60)),
                             createdAt: '9999/12/31 23:59',
                         };
@@ -188,15 +193,31 @@ const MemoTrainingStatsTemplate = (
                         return (
                             <div>
                                 {
-                                    (event === 'cards' || event === 'numbers')
-                                        ? (<Txt>Top 5 Scores Componentの合計: {scoresComponentsSum}</Txt>)
-                                        : (<Txt>※ この種目はScores Component集計対象外</Txt>)
+                                    (event === memoTrainingUtils.MemoEvent.cards || event === memoTrainingUtils.MemoEvent.numbers)
+                                        ? (
+                                            <div>
+                                                <p>Top 5 <span id ="scoresComponentId" style={{ textDecoration: 'underline', color: 'blue', }} href="#">Scores Component</span>の合計: {scoresComponentsSum}</p>
+                                                <ReactStrapTooltip placement="right" isOpen={isOpenScoresComponentTooltip} target="scoresComponentId" toggle={() => setScoresComponentTooltipIsOpen(!isOpenScoresComponentTooltip)}>
+                                                Memory League (外部サイト) の Ratings Explanation に記載されている計算式を利用しています。<br/>
+                                                    <br/>
+                                                上級者以外もスコアの向上を実感できるようにするため、記憶時間が60秒を超えた場合でも0点にはせずに負の値を算出します。<br/>
+                                                    <br/>
+                                                Memory League の制限時間である4分以内に回答した場合のみ、値を算出します。
+                                                </ReactStrapTooltip>
+                                            </div>
+                                        )
+                                        : (
+                                            <div>
+                                                <p>※ この種目はScores Component集計対象外</p>
+                                            </div>
+                                        )
                                 }
 
                                 <table border="1">
                                     <thead>
                                         <tr>
                                             <th style={paddingStyle} align="right">Time</th>
+                                            <th style={paddingStyle} align="right">Recall</th>
                                             <th style={paddingStyle} align="right">Date</th>
                                             <th style={paddingStyle} align="right">ML Scores Component</th>
                                         </tr>
@@ -209,6 +230,7 @@ const MemoTrainingStatsTemplate = (
                                                 return (
                                                     <tr key={key}>
                                                         <td style={paddingStyle} align="right">{rec.totalMemoSec.toFixed(2)}s</td>
+                                                        <td style={paddingStyle} align="right">{rec.totalRecallSec.toFixed(2)}s</td>
                                                         <td style={paddingStyle} align="right">{rec.createdAt}</td>
                                                         <td style={paddingStyle} align="right">{rec.scoresComponent}</td>
                                                     </tr>
@@ -261,6 +283,9 @@ const MemoTrainingStatsTemplate = (
                     const bo5rank = memoTrainingUtils.singleSCCRank(bo5Exp);
                     const ao5rank = memoTrainingUtils.averageSCCRank(ao5Exp);
 
+                    const bo5rankStr = event === memoTrainingUtils.MemoEvent.cards ? `(${bo5rank}ランク)` : '';
+                    const ao5rankStr = event === memoTrainingUtils.MemoEvent.cards ? `(${ao5rank}ランク)` : '';
+
                     const successMemoSecAvg = _meanBy(successfulTrials, 'totalMemoSec'); ;
                     const successMemoSecSd = Math.sqrt(_mean(successfulTrials.map(data => (data.totalMemoSec - successMemoSecAvg) * (data.totalMemoSec - successMemoSecAvg))));
 
@@ -293,12 +318,12 @@ const MemoTrainingStatsTemplate = (
 
                             <Txt>成功率: {successfulTrials.length}/{successfulTrials.length + badTrials.length} = {(trialAcc * 100).toFixed(2)}%</Txt>
 
-                            <p>5回中1回以上成功する確率: <span id ="bo5ProbabilityId" style={{ textDecoration: 'underline', color: 'blue', }} href="#">{(bo5Acc * 100).toFixed(2)}%,</span> best of 5の期待値:{bo5Exp.toFixed(2)}秒 ({bo5rank}ランク)</p>
+                            <p>5回中1回以上成功する確率: <span id ="bo5ProbabilityId" style={{ textDecoration: 'underline', color: 'blue', }} href="#">{(bo5Acc * 100).toFixed(2)}%,</span> best of 5の期待値:{bo5Exp.toFixed(2)}秒 {bo5rankStr}</p>
                             <ReactStrapTooltip placement="right" isOpen={isOpenBo5Tooltip} target="bo5ProbabilityId" toggle={() => setBo5TooltipIsOpen(!isOpenBo5Tooltip)}>
                             1 - (1 - {trialAcc.toFixed(2)})^5
                             </ReactStrapTooltip>
 
-                            <p>5回中4回以上成功する確率: <span id ="ao5ProbabilityId" style={{ textDecoration: 'underline', color: 'blue', }} href="#">{(ao5Acc * 100).toFixed(2)}%,</span> average of 5の期待値:{ao5Exp.toFixed(2)}秒 ({ao5rank}ランク)</p>
+                            <p>5回中4回以上成功する確率: <span id ="ao5ProbabilityId" style={{ textDecoration: 'underline', color: 'blue', }} href="#">{(ao5Acc * 100).toFixed(2)}%,</span> average of 5の期待値:{ao5Exp.toFixed(2)}秒 {ao5rankStr}</p>
                             <ReactStrapTooltip placement="right" isOpen={isOpenAo5Tooltip} target="ao5ProbabilityId" toggle={() => setAo5TooltipIsOpen(!isOpenAo5Tooltip)}>
                             5 * (1 - {trialAcc.toFixed(2)}) * {trialAcc.toFixed(2)}^4 + {trialAcc.toFixed(2)}^5
                             </ReactStrapTooltip>
@@ -450,10 +475,12 @@ MemoTrainingStatsTemplate.propTypes = {
     elementIdToElement: PropTypes.object.isRequired,
     isOpenBo5Tooltip: PropTypes.bool.isRequired,
     isOpenAo5Tooltip: PropTypes.bool.isRequired,
+    isOpenScoresComponentTooltip: PropTypes.bool.isRequired,
 
     sagaFetchStats: PropTypes.func.isRequired,
     setBo5TooltipIsOpen: PropTypes.func.isRequired,
     setAo5TooltipIsOpen: PropTypes.func.isRequired,
+    setScoresComponentTooltipIsOpen: PropTypes.func.isRequired,
 };
 
 export default MemoTrainingStatsTemplate;

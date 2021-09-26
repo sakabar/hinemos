@@ -823,7 +823,7 @@ function * handleToggleTimer () {
 
         const sec = 3;
         for (let i = 0; i < sec; i++) {
-            yield call(delay, 1000);
+            yield delay(1000);
             yield fork(handleUpdateTimer);
         }
 

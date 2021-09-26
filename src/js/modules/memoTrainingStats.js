@@ -25,6 +25,9 @@ export const setBo5TooltipIsOpen = createAction(SET_BO5_TOOLTIP_IS_OPEN);
 const SET_AO5_TOOLTIP_IS_OPEN = 'SET_AO5_TOOLTIP_IS_OPEN';
 export const setAo5TooltipIsOpen = createAction(SET_AO5_TOOLTIP_IS_OPEN);
 
+const SET_SCORES_COMPONENT_TOOLTIP_IS_OPEN = 'SET_SCORES_COMPONENT_TOOLTIP_IS_OPEN';
+export const setScoresComponentTooltipIsOpen = createAction(SET_SCORES_COMPONENT_TOOLTIP_IS_OPEN);
+
 const initialState = {
     userName: localStorage.userName,
 
@@ -38,6 +41,7 @@ const initialState = {
 
     isOpenBo5Tooltip: false,
     isOpenAo5Tooltip: false,
+    isOpenScoresComponentTooltip: false,
 };
 
 function * handleFetchStats () {
@@ -124,6 +128,12 @@ export const memoTrainingStatsReducer = handleActions(
             return {
                 ...state,
                 isOpenAo5Tooltip: action.payload.newIsOpenAo5Tooltip,
+            };
+        },
+        [setScoresComponentTooltipIsOpen]: (state, action) => {
+            return {
+                ...state,
+                isOpenScoresComponentTooltip: action.payload.newIsOpenScoresComponentTooltip,
             };
         },
     },
