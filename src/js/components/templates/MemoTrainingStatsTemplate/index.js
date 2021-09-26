@@ -193,7 +193,7 @@ const MemoTrainingStatsTemplate = (
                         return (
                             <div>
                                 {
-                                    (event === 'cards' || event === 'numbers')
+                                    (event === memoTrainingUtils.MemoEvent.cards || event === memoTrainingUtils.MemoEvent.numbers)
                                         ? (
                                             <div>
                                                 <p>Top 5 <span id ="scoresComponentId" style={{ textDecoration: 'underline', color: 'blue', }} href="#">Scores Component</span>の合計: {scoresComponentsSum}</p>
@@ -202,7 +202,7 @@ const MemoTrainingStatsTemplate = (
                                                     <br/>
                                                 上級者以外もスコアの向上を実感できるようにするため、記憶時間が60秒を超えた場合でも0点にはせずに負の値を算出します。<br/>
                                                     <br/>
-                                                4分以内に回答した場合のみ、値が算出されます。
+                                                Memory League の制限時間である4分以内に回答した場合のみ、値を算出します。
                                                 </ReactStrapTooltip>
                                             </div>
                                         )
@@ -283,6 +283,9 @@ const MemoTrainingStatsTemplate = (
                     const bo5rank = memoTrainingUtils.singleSCCRank(bo5Exp);
                     const ao5rank = memoTrainingUtils.averageSCCRank(ao5Exp);
 
+                    const bo5rankStr = event === memoTrainingUtils.MemoEvent.cards ? `(${bo5rank}ランク)` : '';
+                    const ao5rankStr = event === memoTrainingUtils.MemoEvent.cards ? `(${ao5rank}ランク)` : '';
+
                     const successMemoSecAvg = _meanBy(successfulTrials, 'totalMemoSec'); ;
                     const successMemoSecSd = Math.sqrt(_mean(successfulTrials.map(data => (data.totalMemoSec - successMemoSecAvg) * (data.totalMemoSec - successMemoSecAvg))));
 
@@ -315,12 +318,12 @@ const MemoTrainingStatsTemplate = (
 
                             <Txt>成功率: {successfulTrials.length}/{successfulTrials.length + badTrials.length} = {(trialAcc * 100).toFixed(2)}%</Txt>
 
-                            <p>5回中1回以上成功する確率: <span id ="bo5ProbabilityId" style={{ textDecoration: 'underline', color: 'blue', }} href="#">{(bo5Acc * 100).toFixed(2)}%,</span> best of 5の期待値:{bo5Exp.toFixed(2)}秒 ({bo5rank}ランク)</p>
+                            <p>5回中1回以上成功する確率: <span id ="bo5ProbabilityId" style={{ textDecoration: 'underline', color: 'blue', }} href="#">{(bo5Acc * 100).toFixed(2)}%,</span> best of 5の期待値:{bo5Exp.toFixed(2)}秒 {bo5rankStr}</p>
                             <ReactStrapTooltip placement="right" isOpen={isOpenBo5Tooltip} target="bo5ProbabilityId" toggle={() => setBo5TooltipIsOpen(!isOpenBo5Tooltip)}>
                             1 - (1 - {trialAcc.toFixed(2)})^5
                             </ReactStrapTooltip>
 
-                            <p>5回中4回以上成功する確率: <span id ="ao5ProbabilityId" style={{ textDecoration: 'underline', color: 'blue', }} href="#">{(ao5Acc * 100).toFixed(2)}%,</span> average of 5の期待値:{ao5Exp.toFixed(2)}秒 ({ao5rank}ランク)</p>
+                            <p>5回中4回以上成功する確率: <span id ="ao5ProbabilityId" style={{ textDecoration: 'underline', color: 'blue', }} href="#">{(ao5Acc * 100).toFixed(2)}%,</span> average of 5の期待値:{ao5Exp.toFixed(2)}秒 {ao5rankStr}</p>
                             <ReactStrapTooltip placement="right" isOpen={isOpenAo5Tooltip} target="ao5ProbabilityId" toggle={() => setAo5TooltipIsOpen(!isOpenAo5Tooltip)}>
                             5 * (1 - {trialAcc.toFixed(2)}) * {trialAcc.toFixed(2)}^4 + {trialAcc.toFixed(2)}^5
                             </ReactStrapTooltip>
