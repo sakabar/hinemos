@@ -96,50 +96,6 @@ const resetWordText = () => {
     wordText.value = '';
 };
 
-// ナンバリングから、ありうる2文字のセットを返す
-const getLettersSet = (cornerNumberings, edgeNumberings) => {
-    // ありうるひらがな2文字
-    const lettersSet = new Set();
-
-    // MBLDなどで、CO/EO処理せずに2文字として処理するかもしれないので、
-    // 同じパーツのステッカーを特別視せず、全て列挙する
-    for (let i = 0; i < cornerNumberings.length; i++) {
-        const numbering1 = cornerNumberings[i];
-
-        for (let k = 0; k < cornerNumberings.length; k++) {
-            const numbering2 = cornerNumberings[k];
-
-            // 同じステッカーの場合はスキップ
-            if (numbering1.letter === numbering2.letter) {
-                continue;
-            }
-
-            const letters = `${numbering1.letter}${numbering2.letter}`;
-            lettersSet.add(letters);
-        }
-    }
-
-    // MBLDなどで、CO/EO処理せずに2文字として処理するかもしれないので、
-    // 同じパーツのステッカーを特別視せず、全て列挙する
-    for (let i = 0; i < edgeNumberings.length; i++) {
-        const numbering1 = edgeNumberings[i];
-
-        for (let k = 0; k < edgeNumberings.length; k++) {
-            const numbering2 = edgeNumberings[k];
-
-            // 同じステッカーの場合はスキップ
-            if (numbering1.letter === numbering2.letter) {
-                continue;
-            }
-
-            const letters = `${numbering1.letter}${numbering2.letter}`;
-            lettersSet.add(letters);
-        }
-    }
-
-    return lettersSet;
-};
-
 const getWordToLettersListHash = (letterPairs) => {
     const wordToLettersListHash = {};
 
@@ -364,7 +320,7 @@ const registerAllLetterPairs = (userName) => {
                                 .then((result) => {
                                     const myLetterPairs = result.success.result;
 
-                                    const lettersSet = getLettersSet(cornerNumberings, edgeNumberings);
+                                    const lettersSet = letterPairTableUtils.getLettersSet(cornerNumberings, edgeNumberings);
 
                                     const suggested = getAllLetterPairs(letterPairCount, myLetterPairs, lettersSet, skipRegisteredLetters);
                                     const letterPairTable = suggested.letterPairs;
