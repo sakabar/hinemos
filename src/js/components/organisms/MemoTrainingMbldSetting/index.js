@@ -27,8 +27,7 @@ const poorKeyOptions = [
     [ 'memorization', '記憶が遅い', ],
     [ 'transformation', '変換が遅い', ],
     [ 'acc', '正解率が低い', ],
-    // FIXME 未実装
-    // [ 'rare', '出現していない', ],
+    [ 'rare', '出現していない', ],
 ];
 
 const MemoTrainingMbldSetting = ({

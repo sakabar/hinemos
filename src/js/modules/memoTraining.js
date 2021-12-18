@@ -24,6 +24,7 @@ import {
 import Cookies from 'js-cookie';
 const config = require('../config');
 const memoTrainingUtils = require('../memoTrainingUtils');
+const letterPairTableUtils = require('../letterPairTableUtils');
 const moment = require('moment');
 
 // Settingモード
@@ -332,22 +333,35 @@ function * handleStartMemorizationPhase () {
         const decks = (() => {
             if (poorDeckNum > 0) {
                 if (poorKey === memoTrainingUtils.PoorKey.rare) {
-                    if (memoEvent === memoTrainingUtils.MemoEvent.mbld) {
+                    let allElements = [];
+                    if (memoEvent === memoTrainingUtils.MemoEvent.cards) {
+                        allElements = memoTrainingUtils.getAllCardElements();
+                    } else if (memoEvent === memoTrainingUtils.MemoEvent.numbers) {
+                        allElements = memoTrainingUtils.getAllNumberElements(digitsPerImage);
+                    } else if (memoEvent === memoTrainingUtils.MemoEvent.mbld) {
+                        // 本来は1つのペアにエッジとコーナーのイメージが混ざって出てくるべきではないが、
+                        // 今の「変換/記憶が遅い」順でも混ざってしまっているので、
+                        // 「出現していない」イメージの練習でも混ざって出現することを許容する
+
+                        // ナンバリングを元に、ありうる組み合わせを列挙
+                        // 440 + 378 = 818、から重複除く
+                        // それで、既に出てきたものを除く
+                        // つまり、allElementsを作って、CardsやNumbersと同じ関数に渡せばOK
+
+                        // バッファ(@)は除いておく
+                        const numberingCornerWithoutBuffer = numberingCorner.filter(x => x.letter !== '@');
+                        const numberingEdgeWithoutBuffer = numberingEdge.filter(x => x.letter !== '@');
+
+                        // 仕様として、2文字レターペアのみが列挙され、1文字レターペアは入らない
+                        const lettersSet = letterPairTableUtils.getLettersSet(numberingCornerWithoutBuffer, numberingEdgeWithoutBuffer);
+                        allElements = [ ...lettersSet, ].map(letters => new memoTrainingUtils.MbldElement(letters));
+                    } else {
                         // FIXME 未実装
                         alert('機能が実装されていません');
                         return [];
-                    } else if (memoEvent === memoTrainingUtils.MemoEvent.cards || memoEvent === memoTrainingUtils.MemoEvent.numbers) {
-                        let allElements = [];
-                        if (memoEvent === memoTrainingUtils.MemoEvent.cards) {
-                            allElements = memoTrainingUtils.getAllCardElements();
-                        } else if (memoEvent === memoTrainingUtils.MemoEvent.numbers) {
-                            allElements = memoTrainingUtils.getAllNumberElements(digitsPerImage);
-                        }
-
-                        return memoTrainingUtils.generateRareElementDecks(pairSize, poorDeckNum, statsArray, elementIdToElement, allElements);
-                    } else {
-                        return [];
                     }
+
+                    return memoTrainingUtils.generateRareElementDecks(pairSize, poorDeckNum, statsArray, elementIdToElement, allElements);
                 }
 
                 return memoTrainingUtils.generatePoorDecks(pairSize, poorDeckNum, poorKey, statsArray, elementIdToElement);
