@@ -353,7 +353,12 @@ function * handleStartMemorizationPhase () {
                         const numberingEdgeWithoutBuffer = numberingEdge.filter(x => x.letter !== '@');
 
                         // 仕様として、2文字レターペアのみが列挙され、1文字レターペアは入らない
-                        const lettersSet = letterPairTableUtils.getLettersSet(numberingCornerWithoutBuffer, numberingEdgeWithoutBuffer);
+                        // 元々のMBLD記憶練習でEO/COは出現しないので、「出現していない」イメージでもEO/COが出現しないようにする
+                        const isRejectSameParts = true;
+                        const lettersSet = letterPairTableUtils.getLettersSet(numberingCornerWithoutBuffer, numberingEdgeWithoutBuffer, isRejectSameParts);
+                        // alert([...lettersSet]);
+                        // alert([...lettersSet].length);
+
                         allElements = [ ...lettersSet, ].map(letters => new memoTrainingUtils.MbldElement(letters));
                     } else {
                         // FIXME 未実装
