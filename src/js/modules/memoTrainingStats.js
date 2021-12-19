@@ -10,6 +10,7 @@ import {
     select,
 } from 'redux-saga/effects';
 const memoTrainingUtils = require('../memoTrainingUtils');
+const letterPairTableUtils = require('../letterPairTableUtils');
 
 const moment = require('moment-timezone');
 
@@ -38,6 +39,8 @@ const initialState = {
     stats: [],
     scores: [],
     elementIdToElement: {},
+    // 2文字→レターペアの配列
+    letterPairDict: {},
 
     isOpenBo5Tooltip: false,
     isOpenAo5Tooltip: false,
@@ -74,6 +77,7 @@ function * handleFetchStats () {
                 stats: [],
                 scores: [],
                 elementIdToElement,
+                letterPairDict: {},
             };
             yield put(fetchStats(payload));
             continue;
@@ -92,6 +96,14 @@ function * handleFetchStats () {
         const statsJSON = resFetchStats.success.result;
         const stats = memoTrainingUtils.transformStatsJSONtoArray(statsJSON, event);
 
+        // 2文字→レターペアの配列
+        // 種目選択するたびにロードするのは無駄だが、そんなに時間はかからないので問題ない見込み
+        // FIXME ここも、module/memoTrainingResultと重複
+        let letterPairDict = {};
+        if (event === memoTrainingUtils.MemoEvent.mbld) {
+            letterPairDict = yield call(letterPairTableUtils.fetchLetterPair, userName);
+        }
+
         const payload = {
             event,
             startDate,
@@ -99,6 +111,7 @@ function * handleFetchStats () {
             stats,
             scores,
             elementIdToElement,
+            letterPairDict,
         };
 
         yield put(fetchStats(payload));
@@ -116,6 +129,7 @@ export const memoTrainingStatsReducer = handleActions(
                 stats: action.payload.stats,
                 scores: action.payload.scores,
                 elementIdToElement: action.payload.elementIdToElement,
+                letterPairDict: action.payload.letterPairDict,
             };
         },
         [setBo5TooltipIsOpen]: (state, action) => {

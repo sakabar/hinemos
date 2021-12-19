@@ -54,6 +54,7 @@ const MemoTrainingStatsTemplate = (
         stats,
         scores,
         elementIdToElement,
+        letterPairDict,
         isOpenBo5Tooltip,
         isOpenAo5Tooltip,
         isOpenScoresComponentTooltip,
@@ -367,7 +368,17 @@ const MemoTrainingStatsTemplate = (
                 (() => {
                     const MyData = stats.map(rec => {
                         const tmpTag = elementIdToElement[rec.elementId] ? elementIdToElement[rec.elementId].tag : null;
-                        const tag = rec.event === memoTrainingUtils.MemoEvent.cards ? `${tmpTag} (${memoTrainingUtils.cardTagToMarkStr(tmpTag)})` : tmpTag;
+                        let tag = tmpTag;
+                        if (rec.event === memoTrainingUtils.MemoEvent.cards) {
+                            tag = `${tmpTag} (${memoTrainingUtils.cardTagToMarkStr(tmpTag)})`;
+                        } else if (rec.event === memoTrainingUtils.MemoEvent.mbld) {
+                            let wordStr = 'レターペア未登録';
+                            if (letterPairDict[tmpTag]) {
+                                wordStr = letterPairDict[tmpTag].join(', ');
+                            }
+
+                            tag = `${tmpTag} (${wordStr})`;
+                        }
 
                         const mistakeStrs = rec.mistakes.map(mistake => {
                             const solutionElementId = mistake.solutionElementId;
@@ -473,6 +484,7 @@ MemoTrainingStatsTemplate.propTypes = {
     stats: PropTypes.array.isRequired,
     scores: PropTypes.array.isRequired,
     elementIdToElement: PropTypes.object.isRequired,
+    letterPairDict: PropTypes.object.isRequired,
     isOpenBo5Tooltip: PropTypes.bool.isRequired,
     isOpenAo5Tooltip: PropTypes.bool.isRequired,
     isOpenScoresComponentTooltip: PropTypes.bool.isRequired,

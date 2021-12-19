@@ -75,3 +75,43 @@ export const getLettersSet = (cornerNumberings, edgeNumberings, isRejectSamePart
 
     return lettersSet;
 };
+
+// 2文字→「単語の配列」の辞書を作って返す
+export const fetchLetterPair = (userName) => {
+    if (userName === '') {
+        return Promise.resolve({});
+    }
+
+    const options = {
+        url: `${config.apiRoot}/letterPair?userName=${userName}`,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {},
+    };
+
+    return rp(options)
+        .then((fetchedLetterPair) => {
+            const letterPairDict = {};
+
+            const letterPairs = fetchedLetterPair.success.result;
+            for (let k = 0; k < letterPairs.length; k++) {
+                const letterPair = letterPairs[k];
+                const letters = letterPair.letters;
+                const word = letterPair.word;
+
+                if (letters in letterPairDict) {
+                    letterPairDict[letters].push(word);
+                } else {
+                    letterPairDict[letters] = [ word, ];
+                }
+            }
+
+            return letterPairDict;
+        })
+        .catch(() => {
+            return {};
+        });
+};
