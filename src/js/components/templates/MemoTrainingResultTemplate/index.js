@@ -63,6 +63,7 @@ const MemoTrainingResultTemplate = (
         recallLogs,
         trialId,
         elementIdToElement,
+        letterPairDict,
 
         sagaFetchScores,
         sagaDecideTrial,
@@ -306,9 +307,21 @@ const MemoTrainingResultTemplate = (
                             }
                         })();
 
+                        const ok = String.fromCharCode(parseInt('25EF', 16));
+                        const ng = String.fromCharCode(parseInt('274C', 16));
+
                         const showData = MyData.map(log => {
-                            const ok = String.fromCharCode(parseInt('25EF', 16));
-                            const ng = String.fromCharCode(parseInt('274C', 16));
+                            let tag = log.tag;
+                            if (event === memoTrainingUtils.MemoEvent.cards) {
+                                tag = `${log.tag} (${memoTrainingUtils.cardTagToMarkStr(log.tag)})`;
+                            } else if (event === memoTrainingUtils.MemoEvent.mbld) {
+                                let wordStr = 'レターペア未登録';
+                                if (letterPairDict[log.tag]) {
+                                    wordStr = letterPairDict[log.tag].join(', ');
+                                }
+
+                                tag = `${log.tag} (${wordStr})`;
+                            }
 
                             const solutionTag = elementIdToElement[log.solutionElementId] ? elementIdToElement[log.solutionElementId].tag : null;
 
@@ -320,7 +333,7 @@ const MemoTrainingResultTemplate = (
                                 deckInd: `deck=${log.deckInd + 1}`,
                                 pairInd: `pair=${log.pairInd + 1}`,
                                 posInd: `pos=${log.posInd + 1}`,
-                                tag: event === memoTrainingUtils.MemoEvent.cards ? `${log.tag} (${memoTrainingUtils.cardTagToMarkStr(log.tag)})` : log.tag,
+                                tag,
                                 solutionTag: solutionTag ? (event === memoTrainingUtils.MemoEvent.cards ? `${solutionTag} (${memoTrainingUtils.cardTagToMarkStr(solutionTag)})` : solutionTag) : '',
                                 memoSec: parseFloat(log.memoSec.toFixed(2)),
                                 losingMemorySec: log.losingMemorySec ? parseFloat(log.losingMemorySec.toFixed(1)) : '',
@@ -390,6 +403,7 @@ MemoTrainingResultTemplate.propTypes = {
     recallLogs: PropTypes.array.isRequired,
     trialId: PropTypes.number,
     elementIdToElement: PropTypes.object.isRequired,
+    letterPairDict: PropTypes.object.isRequired,
 
     sagaFetchScores: PropTypes.func.isRequired,
     sagaDecideTrial: PropTypes.func.isRequired,

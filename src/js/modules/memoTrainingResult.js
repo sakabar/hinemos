@@ -36,6 +36,8 @@ const initialState = {
     recallLogs: [],
     trialId: undefined,
     elementIdToElement: {},
+    // 2文字→レターペアの配列
+    letterPairDict: {},
 };
 
 const fetchMemoLog = (userName, trialId) => {
@@ -84,6 +86,32 @@ const fetchRecallLog = (userName, trialId) => {
     return rp(options);
 };
 
+const fetchLetterPair = (userName) => {
+    if (userName === '') {
+        const ans = {
+            success: {
+
+                code: 200,
+                result: [],
+            },
+        };
+
+        return Promise.resolve(ans);
+    }
+
+    const options = {
+        url: `${config.apiRoot}/letterPair?userName=${userName}`,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {},
+    };
+
+    return rp(options);
+};
+
 function * handleFetchScores () {
     while (true) {
         const action = yield take(sagaFetchScores);
@@ -121,6 +149,25 @@ function * handleFetchScores () {
             throw new Error('load failed : elementIdToElement');
         }
 
+        // 2文字→レターペアの配列
+        // 種目選択するたびにロードするのは無駄だが、そんなに時間はかからないので問題ない見込み
+        const letterPairDict = {};
+        if (event === memoTrainingUtils.MemoEvent.mbld) {
+            const fetchedLetterPair = yield call(fetchLetterPair, userName);
+            const letterPairs = fetchedLetterPair.success.result;
+            for (let k = 0; k < letterPairs.length; k++) {
+                const letterPair = letterPairs[k];
+                const letters = letterPair.letters;
+                const word = letterPair.word;
+
+                if (letters in letterPairDict) {
+                    letterPairDict[letters].push(word);
+                } else {
+                    letterPairDict[letters] = [ word, ];
+                }
+            }
+        }
+
         // trialIdが入力された場合はデータを取得する
         let memoLogs = [];
         let recallLogs = [];
@@ -142,6 +189,7 @@ function * handleFetchScores () {
             memoLogs,
             recallLogs,
             elementIdToElement,
+            letterPairDict,
         };
 
         yield put(fetchScores(payload));
@@ -196,6 +244,7 @@ export const memoTrainingResultReducer = handleActions(
                 recallLogs: action.payload.recallLogs ? action.payload.recallLogs : state.recallLogs,
                 trialId: action.payload.trialId,
                 elementIdToElement: action.payload.elementIdToElement,
+                letterPairDict: action.payload.letterPairDict,
             };
         },
         [decideTrial]: (state, action) => {
