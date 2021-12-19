@@ -131,6 +131,7 @@ function * handleFetchScores () {
                 memoLogs: undefined,
                 recallLogs: undefined,
                 elementIdToElement: {},
+                letterPairDict: {},
             };
             yield put(fetchScores(payload));
             continue;

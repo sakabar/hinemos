@@ -9,8 +9,10 @@ import {
     take,
     select,
 } from 'redux-saga/effects';
+const config = require('../config');
 const memoTrainingUtils = require('../memoTrainingUtils');
 
+const rp = require('request-promise');
 const moment = require('moment-timezone');
 
 const FETCH_STATS = 'FETCH_STATS';
@@ -38,10 +40,39 @@ const initialState = {
     stats: [],
     scores: [],
     elementIdToElement: {},
+    // 2文字→レターペアの配列
+    letterPairDict: {},
 
     isOpenBo5Tooltip: false,
     isOpenAo5Tooltip: false,
     isOpenScoresComponentTooltip: false,
+};
+
+// FIXME module/memoTrainingResult.jsと重複している
+const fetchLetterPair = (userName) => {
+    if (userName === '') {
+        const ans = {
+            success: {
+
+                code: 200,
+                result: [],
+            },
+        };
+
+        return Promise.resolve(ans);
+    }
+
+    const options = {
+        url: `${config.apiRoot}/letterPair?userName=${userName}`,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {},
+    };
+
+    return rp(options);
 };
 
 function * handleFetchStats () {
@@ -74,6 +105,7 @@ function * handleFetchStats () {
                 stats: [],
                 scores: [],
                 elementIdToElement,
+                letterPairDict: {},
             };
             yield put(fetchStats(payload));
             continue;
@@ -92,6 +124,26 @@ function * handleFetchStats () {
         const statsJSON = resFetchStats.success.result;
         const stats = memoTrainingUtils.transformStatsJSONtoArray(statsJSON, event);
 
+        // 2文字→レターペアの配列
+        // 種目選択するたびにロードするのは無駄だが、そんなに時間はかからないので問題ない見込み
+        // FIXME ここも、module/memoTrainingResultと重複
+        const letterPairDict = {};
+        if (event === memoTrainingUtils.MemoEvent.mbld) {
+            const fetchedLetterPair = yield call(fetchLetterPair, userName);
+            const letterPairs = fetchedLetterPair.success.result;
+            for (let k = 0; k < letterPairs.length; k++) {
+                const letterPair = letterPairs[k];
+                const letters = letterPair.letters;
+                const word = letterPair.word;
+
+                if (letters in letterPairDict) {
+                    letterPairDict[letters].push(word);
+                } else {
+                    letterPairDict[letters] = [ word, ];
+                }
+            }
+        }
+
         const payload = {
             event,
             startDate,
@@ -99,6 +151,7 @@ function * handleFetchStats () {
             stats,
             scores,
             elementIdToElement,
+            letterPairDict,
         };
 
         yield put(fetchStats(payload));
@@ -116,6 +169,7 @@ export const memoTrainingStatsReducer = handleActions(
                 stats: action.payload.stats,
                 scores: action.payload.scores,
                 elementIdToElement: action.payload.elementIdToElement,
+                letterPairDict: action.payload.letterPairDict,
             };
         },
         [setBo5TooltipIsOpen]: (state, action) => {
