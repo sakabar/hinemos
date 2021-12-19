@@ -11,6 +11,7 @@ import {
     select,
 } from 'redux-saga/effects';
 const memoTrainingUtils = require('../memoTrainingUtils');
+const letterPairTableUtils = require('../letterPairTableUtils');
 const config = require('../config');
 const rp = require('request-promise');
 
@@ -36,6 +37,8 @@ const initialState = {
     recallLogs: [],
     trialId: undefined,
     elementIdToElement: {},
+    // 2文字→レターペアの配列
+    letterPairDict: {},
 };
 
 const fetchMemoLog = (userName, trialId) => {
@@ -103,6 +106,7 @@ function * handleFetchScores () {
                 memoLogs: undefined,
                 recallLogs: undefined,
                 elementIdToElement: {},
+                letterPairDict: {},
             };
             yield put(fetchScores(payload));
             continue;
@@ -119,6 +123,13 @@ function * handleFetchScores () {
         const elementIdToElement = yield call(memoTrainingUtils.loadElementIdToElement);
         if (Object.keys(elementIdToElement).length === 0) {
             throw new Error('load failed : elementIdToElement');
+        }
+
+        // 2文字→レターペアの配列
+        // 種目選択するたびにロードするのは無駄だが、そんなに時間はかからないので問題ない見込み
+        let letterPairDict = {};
+        if (event === memoTrainingUtils.MemoEvent.mbld) {
+            letterPairDict = yield call(letterPairTableUtils.fetchLetterPair, userName);
         }
 
         // trialIdが入力された場合はデータを取得する
@@ -142,6 +153,7 @@ function * handleFetchScores () {
             memoLogs,
             recallLogs,
             elementIdToElement,
+            letterPairDict,
         };
 
         yield put(fetchScores(payload));
@@ -196,6 +208,7 @@ export const memoTrainingResultReducer = handleActions(
                 recallLogs: action.payload.recallLogs ? action.payload.recallLogs : state.recallLogs,
                 trialId: action.payload.trialId,
                 elementIdToElement: action.payload.elementIdToElement,
+                letterPairDict: action.payload.letterPairDict,
             };
         },
         [decideTrial]: (state, action) => {

@@ -26,6 +26,7 @@ const mapStateToProps = ({
     recallLogs,
     trialId,
     elementIdToElement,
+    letterPairDict,
 }) => {
     return {
         event,
@@ -35,6 +36,7 @@ const mapStateToProps = ({
         recallLogs,
         trialId,
         elementIdToElement,
+        letterPairDict,
     };
 };
 
