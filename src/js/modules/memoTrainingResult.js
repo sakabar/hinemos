@@ -11,6 +11,7 @@ import {
     select,
 } from 'redux-saga/effects';
 const memoTrainingUtils = require('../memoTrainingUtils');
+const letterPairTableUtils = require('../letterPairTableUtils');
 const config = require('../config');
 const rp = require('request-promise');
 
@@ -86,32 +87,6 @@ const fetchRecallLog = (userName, trialId) => {
     return rp(options);
 };
 
-const fetchLetterPair = (userName) => {
-    if (userName === '') {
-        const ans = {
-            success: {
-
-                code: 200,
-                result: [],
-            },
-        };
-
-        return Promise.resolve(ans);
-    }
-
-    const options = {
-        url: `${config.apiRoot}/letterPair?userName=${userName}`,
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        json: true,
-        form: {},
-    };
-
-    return rp(options);
-};
-
 function * handleFetchScores () {
     while (true) {
         const action = yield take(sagaFetchScores);
@@ -152,21 +127,9 @@ function * handleFetchScores () {
 
         // 2文字→レターペアの配列
         // 種目選択するたびにロードするのは無駄だが、そんなに時間はかからないので問題ない見込み
-        const letterPairDict = {};
+        let letterPairDict = {};
         if (event === memoTrainingUtils.MemoEvent.mbld) {
-            const fetchedLetterPair = yield call(fetchLetterPair, userName);
-            const letterPairs = fetchedLetterPair.success.result;
-            for (let k = 0; k < letterPairs.length; k++) {
-                const letterPair = letterPairs[k];
-                const letters = letterPair.letters;
-                const word = letterPair.word;
-
-                if (letters in letterPairDict) {
-                    letterPairDict[letters].push(word);
-                } else {
-                    letterPairDict[letters] = [ word, ];
-                }
-            }
+            letterPairDict = yield call(letterPairTableUtils.fetchLetterPair, userName);
         }
 
         // trialIdが入力された場合はデータを取得する
