@@ -206,7 +206,7 @@ const ThreeStyleProblemListDetailTemplate = (
                                 avgSec: record.dispAvgSec,
                                 tps: record.dispTps,
                                 createdAt: record.createdAt ? record.createdAt.format('YYYY/MM/DD HH:mm') : null,
-                                operation: '[削除]',
+                                // operation: '[削除]',
                             };
                         });
 
@@ -220,7 +220,7 @@ const ThreeStyleProblemListDetailTemplate = (
                             '平均タイム',
                             'tps',
                             '手順作成日時',
-                            '操作',
+                            // '操作',
                         ];
 
                         const col = [
@@ -233,7 +233,7 @@ const ThreeStyleProblemListDetailTemplate = (
                             'avgSec',
                             'tps',
                             'createdAt',
-                            'operation',
+                            // 'operation',
                         ];
 
                         return (<SortableTbl tblData={myData}
