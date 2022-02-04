@@ -184,8 +184,6 @@ const ThreeStyleProblemListDetailTemplate = (
                 } }/>
             に<Button value='追加' onClick={(e) => { sagaAddToProblemList(); }}/>
                 <br/>
-             選択した手順をリストから[削除]
-                <br/>
                 <Checkbox text="セットアップ先の手順も併せて追加 (要:問題リスト自動作成)" checked={isCheckedAddAncestors} onChange={(e) => { toggleAddAncestors(); }}/>
                 <br/>
                 <Checkbox text="全て選択" checked={isCheckedSelectAll} onChange={(e) => { toggleSelectAll(); }}/>
