@@ -73,7 +73,7 @@ const saveLetterPairTableFromHot = (hot) => {
             // cellStrはnullになる
             const cellStr = hot.getDataAtCell(r, c) || '';
 
-            const words = cellStr === '' ? [] : cellStr.replace(/\s/g, '').split(/[,，、/／]/).filter(x => x.length > 0);
+            const words = cellStr === '' ? [] : cellStr.replace(/\s+/g, ' ').split(/[,，、/／]/).map(x => x.trim()).filter(x => x.length > 0);
 
             if (words.length > 0) {
                 const letterPair = {
