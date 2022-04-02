@@ -332,34 +332,53 @@ function * handleStartMemorizationPhase () {
 
         const decks = (() => {
             if (poorDeckNum > 0) {
+                if (memoEvent === memoTrainingUtils.MemoEvent.mbld) {
+                    // 本来は1つのペアにエッジとコーナーのイメージが混ざって出てくるべきではないが、
+                    // 今の「変換/記憶が遅い」順でも混ざってしまっているので、
+                    // 「出現していない」イメージの練習でも混ざって出現することを許容する
+
+                    // ナンバリングを元に、ありうる組み合わせを列挙
+                    // 440 + 378 = 818、から重複除く
+                    // それで、既に出てきたものを除く
+                    // つまり、allElementsを作って、CardsやNumbersと同じ関数に渡せばOK
+
+                    // バッファ(@)は除いておく
+                    const numberingCornerWithoutBuffer = numberingCorner.filter(x => x.letter !== '@');
+                    const numberingEdgeWithoutBuffer = numberingEdge.filter(x => x.letter !== '@');
+
+                    // 仕様として、2文字レターペアのみが列挙され、1文字レターペアは入らない
+                    // 元々のMBLD記憶練習でEO/COは出現しないので、「出現していない」イメージでもEO/COが出現しないようにする
+                    const isRejectSameParts = true;
+                    const lettersSet = letterPairTableUtils.getLettersSet(numberingCornerWithoutBuffer, numberingEdgeWithoutBuffer, isRejectSameParts);
+                    // alert([...lettersSet]);
+                    // alert([...lettersSet].length);
+
+                    const allElements = [ ...lettersSet, ].map(letters => new memoTrainingUtils.MbldElement(letters));
+
+                    if (poorKey === memoTrainingUtils.PoorKey.rare) {
+                        return memoTrainingUtils.generateRareElementDecks(pairSize, poorDeckNum, statsArray, elementIdToElement, allElements);
+                    } else {
+                        const statsArrayWithoutEOCO = statsArray.filter(stats => {
+                            const letters = elementIdToElement[stats.elementId].tag;
+
+                            if (lettersSet.has(letters)) {
+                                return true;
+                            } else {
+                                alert(letters);
+                                return false;
+                            }
+                        });
+
+                        return memoTrainingUtils.generatePoorDecks(pairSize, poorDeckNum, poorKey, statsArrayWithoutEOCO, elementIdToElement);
+                    }
+                }
+
                 if (poorKey === memoTrainingUtils.PoorKey.rare) {
                     let allElements = [];
                     if (memoEvent === memoTrainingUtils.MemoEvent.cards) {
                         allElements = memoTrainingUtils.getAllCardElements();
                     } else if (memoEvent === memoTrainingUtils.MemoEvent.numbers) {
                         allElements = memoTrainingUtils.getAllNumberElements(digitsPerImage);
-                    } else if (memoEvent === memoTrainingUtils.MemoEvent.mbld) {
-                        // 本来は1つのペアにエッジとコーナーのイメージが混ざって出てくるべきではないが、
-                        // 今の「変換/記憶が遅い」順でも混ざってしまっているので、
-                        // 「出現していない」イメージの練習でも混ざって出現することを許容する
-
-                        // ナンバリングを元に、ありうる組み合わせを列挙
-                        // 440 + 378 = 818、から重複除く
-                        // それで、既に出てきたものを除く
-                        // つまり、allElementsを作って、CardsやNumbersと同じ関数に渡せばOK
-
-                        // バッファ(@)は除いておく
-                        const numberingCornerWithoutBuffer = numberingCorner.filter(x => x.letter !== '@');
-                        const numberingEdgeWithoutBuffer = numberingEdge.filter(x => x.letter !== '@');
-
-                        // 仕様として、2文字レターペアのみが列挙され、1文字レターペアは入らない
-                        // 元々のMBLD記憶練習でEO/COは出現しないので、「出現していない」イメージでもEO/COが出現しないようにする
-                        const isRejectSameParts = true;
-                        const lettersSet = letterPairTableUtils.getLettersSet(numberingCornerWithoutBuffer, numberingEdgeWithoutBuffer, isRejectSameParts);
-                        // alert([...lettersSet]);
-                        // alert([...lettersSet].length);
-
-                        allElements = [ ...lettersSet, ].map(letters => new memoTrainingUtils.MbldElement(letters));
                     } else {
                         // FIXME 未実装
                         alert('機能が実装されていません');
