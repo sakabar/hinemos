@@ -358,18 +358,12 @@ function * handleStartMemorizationPhase () {
                     if (poorKey === memoTrainingUtils.PoorKey.rare) {
                         return memoTrainingUtils.generateRareElementDecks(pairSize, poorDeckNum, statsArray, elementIdToElement, allElements);
                     } else {
-                        const statsArrayWithoutEOCO = statsArray.filter(stats => {
+                        const statsArrayInNumberingWithoutEOCO = statsArray.filter(stats => {
                             const letters = elementIdToElement[stats.elementId].tag;
-
-                            if (lettersSet.has(letters)) {
-                                return true;
-                            } else {
-                                alert(letters);
-                                return false;
-                            }
+                            return lettersSet.has(letters);
                         });
 
-                        return memoTrainingUtils.generatePoorDecks(pairSize, poorDeckNum, poorKey, statsArrayWithoutEOCO, elementIdToElement);
+                        return memoTrainingUtils.generatePoorDecks(pairSize, poorDeckNum, poorKey, statsArrayInNumberingWithoutEOCO, elementIdToElement);
                     }
                 }
 
