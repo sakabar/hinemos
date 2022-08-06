@@ -93,7 +93,7 @@ const saveLetterPairTableFromHot = (hot, letterPairs) => {
 
                 letterPairTable.push(p);
             }
-        } catch () {
+        } catch {
             //
         }
     }
