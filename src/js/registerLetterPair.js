@@ -203,8 +203,17 @@ export const getAllLetterPairs = (letterPairCount, myLetterPairs, lettersSet, sk
         };
     }
 
-    const characterType = utils.getCharacterType(lettersList[0][0]);
-    const characters = utils.getCharacters(characterType);
+    const charactersList = [];
+    lettersList.map(letters => {
+        [...letters, ].map(c => {
+            const characterType = utils.getCharacterType(c);
+            const chs = utils.getCharacters(characterType);
+
+            Array.prototype.push.apply(charactersList, chs);
+        });
+    });
+
+    const characters = [...new Set(charactersList), ];
 
     for (let i = 0; i < characters.length; i++) {
         for (let j = 0; j < characters.length; j++) {

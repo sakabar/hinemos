@@ -7,53 +7,37 @@ const numberingUtils = require('./numberingUtils');
 const letterPairTableUtils = require('./letterPairTableUtils');
 const utils = require('./utils');
 
-const generateTableData = (characterType) => {
+const generateTableData = (characterType, letterPairs) => {
     const userName = localStorage.userName;
-
-    const options = {
-        url: `${config.apiRoot}/letterPair?userName=${userName}`,
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        json: true,
-        form: {},
-    };
-
     const characters = utils.getCharacters(characterType);
 
-    return rp(options)
-        .then((ans) => {
-            const fstRow = [
-                ' 2rd \\ 3rd ',
-                ...characters,
-            ];
-            const tableData = [
-                fstRow,
-            ];
+    const fstRow = [
+        ' 2rd \\ 3rd ',
+        ...characters,
+    ];
 
-            for (let i = 0; i < characters.length; i++) {
-                const rowHiragana = characters[i];
-                const row = [
-                    rowHiragana,
-                ];
-                for (let k = 0; k < characters.length; k++) {
-                    const colHiragana = characters[k];
-                    const letters = rowHiragana + colHiragana;
-                    const wordStr = ans.success.result.filter(x => x.letters === letters).map(x => x.word).join(', ');
-                    row.push(wordStr);
-                }
-                tableData.push(row);
-            }
-            return tableData;
-        })
-        .catch(() => {
-            return [];
-        });
+    const tableData = [
+        fstRow,
+    ];
+
+    for (let i = 0; i < characters.length; i++) {
+        const rowHiragana = characters[i];
+        const row = [
+            rowHiragana,
+        ];
+        for (let k = 0; k < characters.length; k++) {
+            const colHiragana = characters[k];
+            const letters = rowHiragana + colHiragana;
+            const wordStr = letterPairs.filter(x => x.letters === letters).map(x => x.word).join(', ');
+            row.push(wordStr);
+        }
+        tableData.push(row);
+    }
+    return tableData;
 };
 
 // hotからletterPairTableを得て、POST
-const saveLetterPairTableFromHot = (hot) => {
+const saveLetterPairTableFromHot = (hot, letterPairs) => {
     // ダブルクリックによる誤作動を防ぐ
     const saveBtn = document.querySelector('.viewLetterPairForm__saveBtn');
     saveBtn.disabled = true;
@@ -64,7 +48,22 @@ const saveLetterPairTableFromHot = (hot) => {
     const rowLn = row0.length;
     const colLn = col0.length;
 
-    const letterPairTable = [];
+    // アルファベットのレターペア表を保存する時にひらがなのレターペアを消すことがないように、
+    // 登録済みのレターペアをデフォルトで登録しておいて、それを表の情報で上書きする
+    const lettersToWordsHash = {};
+    letterPairs.map(obj => {
+        const {
+            letters,
+            word,
+        } = obj;
+
+        if (letters in lettersToWordsHash) {
+            lettersToWordsHash[letters].push(word);
+        } else {
+            lettersToWordsHash[letters] = [ word, ];
+        }
+    });
+
     for (let r = 1; r < rowLn; r++) {
         for (let c = 1; c < colLn; c++) {
             const letters = col0[r] + row0[c];
@@ -75,13 +74,27 @@ const saveLetterPairTableFromHot = (hot) => {
 
             const words = cellStr === '' ? [] : cellStr.replace(/\s+/g, ' ').split(/[,，、/／]/).map(x => x.trim()).filter(x => x.length > 0);
 
+            // 上書きする
+            lettersToWordsHash[letters] = words;
+        }
+    }
+
+    const letterPairTable = [];
+    const keys = Object.keys(lettersToWordsHash);
+    for (let i = 0; i < keys.length; i++) {
+        const letters = keys[i];
+        const words = lettersToWordsHash[letters];
+        try {
             if (words.length > 0) {
-                const letterPair = {
+                const p = {
                     letters,
                     words,
                 };
-                letterPairTable.push(letterPair);
+
+                letterPairTable.push(p);
             }
+        } catch {
+            //
         }
     }
 
@@ -111,34 +124,48 @@ const init = () => {
 
     const container = document.querySelector('.viewLetterPairForm__table');
 
-    return numberingUtils.getNumbering(userName, constant.partType.corner)
-        .then(cornerNumberings => {
-            const cornerNumberingsWithoutBuffer = cornerNumberings.filter(rec => rec.letter !== '@');
-            const characterType = utils.getCharacterType(cornerNumberingsWithoutBuffer[0].letter);
+    const characterTypeParam = (new URL(location.href)).searchParams.get('characterType');
+    const tmpCharacter = characterTypeParam === 'alphabet' ? 'A' : 'あ';
+    const characterType = utils.getCharacterType(tmpCharacter);
 
-            return generateTableData(characterType)
-                .then((tableData) => {
-                    const hot = new Handsontable(container, {
-                        data: tableData,
-                        licenseKey: 'non-commercial-and-evaluation',
-                        rowHeaders: true,
-                        colHeaders: true,
-                        cells: (row, col, prop) => {
-                            let cellProperties = {};
-                            if (row === 0 || col === 0) {
-                                // ひらがな行とひらがな列は変更不可
-                                cellProperties.readOnly = true;
-                            }
+    const options = {
+        url: `${config.apiRoot}/letterPair?userName=${userName}`,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        json: true,
+        form: {},
+    };
 
-                            return cellProperties;
-                        },
-                        fixedColumnsLeft: 1,
-                        fixedRowsTop: 1,
-                    });
+    rp(options)
+        .then(ans => {
+            const letterPairs = ans.success.result;
 
-                    saveBtn.addEventListener('click', () => saveLetterPairTableFromHot(hot));
-                    saveBtn.disabled = false;
-                });
+            const tableData = generateTableData(characterType, letterPairs);
+
+            const hot = new Handsontable(container, {
+                data: tableData,
+                licenseKey: 'non-commercial-and-evaluation',
+                rowHeaders: true,
+                colHeaders: true,
+                cells: (row, col, prop) => {
+                    let cellProperties = {};
+                    if (row === 0 || col === 0) {
+                        // ひらがな行とひらがな列は変更不可
+                        cellProperties.readOnly = true;
+                    }
+
+                    return cellProperties;
+                },
+                fixedColumnsLeft: 1,
+                fixedRowsTop: 1,
+            });
+            saveBtn.addEventListener('click', () => saveLetterPairTableFromHot(hot, letterPairs));
+            saveBtn.disabled = false;
+        })
+        .catch(() => {
+            //
         });
 };
 

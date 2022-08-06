@@ -352,24 +352,6 @@ const save = (userName) => {
         .then(() => {
             saveEdgeNumbering()
                 .then(() => {
-                    // 文字種が混在していないかどうかを確認
-                    numberingUtils.getNumbering(userName, constant.partType.corner)
-                        .then((cornerNumberings) => {
-                            numberingUtils.getNumbering(userName, constant.partType.edgeMiddle)
-                                .then((edgeNumberings) => {
-                                    const characterTypes = [ ...cornerNumberings, ...edgeNumberings, ]
-                                        .map(rec => rec.letter)
-                                        .filter(s => s !== '@')
-                                        .map(s => utils.getCharacterType(s));
-
-                                    if (new Set(characterTypes).size !== 1) {
-                                        const msg = 'エッジとコーナの文字種が異なります。修正してください。(Letter scheme is differ between corner and edge. Fix it)';
-                                        alert(msg);
-                                        throw new Error(msg);
-                                    }
-                                });
-                        });
-
                     alert('ナンバリングを登録しました');
                 })
                 .catch(() => {
