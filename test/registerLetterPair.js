@@ -15,16 +15,22 @@ describe('registerLetterPair.js', () => {
                 { userName: 'user2', letters: 'むつ', word: '陸奥', },
                 { userName: 'me', letters: 'ぬつ', word: '陸奥', },
                 { userName: 'me', letters: 'のな', word: 'ナンバリングに無いけど登録してある', },
+                { userName: 'me', letters: 'AB', word: 'アルファベットナンバリングも使ってる', },
+                { userName: 'me', letters: 'CT', word: 'ナンバリングに無いけど登録してある', },
             ];
             const myLetterPairs = [
                 { letters: 'ぬつ', word: '陸奥', },
                 { letters: 'のな', word: 'ナンバリングに無いけど登録してある', },
+                { letters: 'AB', word: 'アルファベットナンバリングも使ってる', },
+                { letters: 'CT', word: 'ナンバリングに無いけど登録してある', },
             ];
-            const lettersSet = new Set([ 'ぬつ', ]);
+            const lettersSet = new Set([ 'ぬつ', 'AB', ]);
 
             const expected = [
                 { letters: 'ぬつ', words: [ '陸奥', ], },
                 { letters: 'のな', words: [ 'ナンバリングに無いけど登録してある', ], },
+                { letters: 'AB', words: [ 'アルファベットナンバリングも使ってる', ], },
+                { letters: 'CT', words: [ 'ナンバリングに無いけど登録してある', ], },
             ];
             const actual = registerLetterPairJS.getAllLetterPairs(allLetterPairs, myLetterPairs, lettersSet, false);
             assert.deepStrictEqual(actual.letterPairs, expected);
