@@ -938,6 +938,9 @@ describe('memoTrainingUtils.js', () => {
             }
 
             // 1つのDeckの中に被りが無いこと
+            if (!isUniqInDeck) {
+                console.log('! isUniqInDeck');
+            }
             assert.deepStrictEqual(isUniqInDeck, true);
 
             // Set大きさが0より大きく9以下であり、期待していない要素が入っていないこと
