@@ -727,12 +727,42 @@ export const generatePoorDecks = (pairSize, poorDeckNum, poorKey, statsArray, el
     }
 
     // accの場合は昇順、それ以外は降順
+    // ただし、rec[poorKey]が等しいものが複数あった場合にはランダムに並ぶようにする
     const sortedStatsArray = (() => {
+        let arr = [];
+
         if (poorKey === PoorKey.acc) {
-            return _sortBy(statsArray.filter(rec => rec[poorKey] !== null), (rec) => { return rec[poorKey]; });
+            arr = statsArray
+                .filter(rec => rec[poorKey] !== null)
+                .map(rec => {
+                    return {
+                        ...rec,
+                        sortKeyInFunc: rec[poorKey],
+                        randInFunc: Math.random(),
+                    };
+                });
         } else {
-            return _sortBy(statsArray.filter(rec => rec[poorKey] !== null), (rec) => { return -rec[poorKey]; });
+            arr = statsArray
+                .filter(rec => rec[poorKey] !== null)
+                .map(rec => {
+                    return {
+                        ...rec,
+                        sortKeyInFunc: -rec[poorKey],
+                        randInFunc: Math.random(),
+                    };
+                });
         }
+
+        return _sortBy(arr, [ 'sortKeyInFunc', 'randInFunc', ])
+            .map(rec => {
+                const ans = {
+                    ...rec,
+                };
+
+                delete ans.sortKeyInFunc;
+                delete ans.randInFunc;
+                return ans;
+            });
     })();
 
     // posInd => poorStats
