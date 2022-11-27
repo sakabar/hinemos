@@ -463,7 +463,7 @@ function * handleStartMemorizationPhase () {
         };
 
         // <main>にフォーカスすることで、ショートカットキーをすぐに使えるようにする
-        document.querySelector('.memoTraining__main').focus();
+        document.querySelector('.memoTraining__main').focus({ preventScroll: true, });
 
         // 記憶練習の邪魔にならないように、カーソルを消す
         const bodyElements = document.getElementsByTagName('body');
@@ -508,7 +508,7 @@ function * handleSwitchPair (currentMiliUnixtime) {
     // <main>にフォーカスすることで、ショートカットキーをすぐに使えるようにする
     // デッキの端にたどり着いた時にボタンがdisableした場合、フォーカスを失ってしまうので、
     // このタイミングで明示的にフォーカスをmainに当てる
-    document.querySelector('.memoTraining__main').focus();
+    document.querySelector('.memoTraining__main').focus({ preventScroll: true, });
 
     yield put(pushMemoLogs({ memoLogs, }));
 };
@@ -845,7 +845,7 @@ function * handleToggleTimer () {
         // <main>にフォーカスすることで、ショートカットキーをすぐに使えるようにする
         // デッキの端にたどり着いた時にボタンがdisableした場合、フォーカスを失ってしまうので、
         // このタイミングで明示的にフォーカスをmainに当てる
-        document.querySelector('.memoTraining__main').focus();
+        document.querySelector('.memoTraining__main').focus({ preventScroll: true, });
 
         const timeVisible = yield select(state => state.timeVisible);
         const newTimeVisible = !timeVisible;
