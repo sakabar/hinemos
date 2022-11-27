@@ -40,7 +40,7 @@
     "hard-source-webpack-plugin": "^0.13.1",
     "jsdom": "^14.1.0",
     "jsdom-global": "^3.0.2",
-    "mocha": "^8.4.0",
+    "mocha": "^10.1.0",
     "mochapack": "^2.1.2",
     "mock-local-storage": "^1.1.15",
     "moment-locales-webpack-plugin": "^1.2.0",
