@@ -73,7 +73,7 @@
     "net": "1.0.2",
     "node-polyfill-webpack-plugin": "^1.1.4",
     "prop-types": "^15.7.2",
-    "qs": "^6.9.4",
+    "qs": "^6.9.7",
     "react": "^16.14.0",
     "react-datetime-picker": "^3.4.0",
     "react-dom": "^16.14.0",
