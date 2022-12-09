@@ -339,6 +339,9 @@ const init = () => {
     // 同じ3-style手順を3回回して復元するのではなく、1回ずつだけ回すモード
     const onlyOnce = urlObj.query['onlyOnce'] === 'true';
 
+    // 一巡した時に終わらずに最初に戻る
+    const isEndless = urlObj.query['endless'] === 'true';
+
     // ロード時に埋める
     renderSettings(days, solved, onlyOnce);
 
@@ -467,7 +470,13 @@ const init = () => {
                                         .then((ans) => {
                                             const problemList = ans.success.result;
 
-                                            const selectedThreeStyles = utils.chunkAndShuffle(selectFromManualList(threeStyles, quizLogRes, problemList), 10);
+                                            const repeatCnt = isEndless ? 100 : 1;
+                                            const unShuffledList = selectFromManualList(threeStyles, quizLogRes, problemList);
+
+                                            let selectedThreeStyles = [];
+                                            for (let i = 0; i < repeatCnt; i++) {
+                                                selectedThreeStyles = selectedThreeStyles.concat(utils.chunkAndShuffle(unShuffledList, 10));
+                                            }
 
                                             if (selectedThreeStyles.length === 0) {
                                                 alert('出題できる3-styleがありません。先に登録してください。');
