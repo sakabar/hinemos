@@ -342,6 +342,11 @@ const init = () => {
     // 一巡した時に終わらずに最初に戻る
     const isEndless = urlObj.query['endless'] === 'true';
 
+    // 苦手な10手順だけに絞り込む
+    // 10という数値を可変にするかは考え中。
+    const isOnlyPoorAlgs = urlObj.query['onlyPoor'] === 'true';
+    const poorAlgsCnt = 10;
+
     // ロード時に埋める
     renderSettings(days, solved, onlyOnce);
 
@@ -471,7 +476,11 @@ const init = () => {
                                             const problemList = ans.success.result;
 
                                             const repeatCnt = isEndless ? 100 : 1;
-                                            const unShuffledList = selectFromManualList(threeStyles, quizLogRes, problemList);
+                                            let unShuffledList = selectFromManualList(threeStyles, quizLogRes, problemList);
+
+                                            if (isOnlyPoorAlgs) {
+                                                unShuffledList = unShuffledList.slice(0, poorAlgsCnt);
+                                            }
 
                                             let selectedThreeStyles = [];
                                             for (let i = 0; i < repeatCnt; i++) {
