@@ -347,6 +347,9 @@ const init = () => {
     const isOnlyPoorAlgs = urlObj.query['onlyPoor'] === 'true';
     const poorAlgsCnt = 10;
 
+    // onlyOnceの時にアラートを出さないようにする
+    const preventOnlyOnceAlert = urlObj.query['preventOnlyOnceAlert'] === 'true';
+
     // ロード時に埋める
     renderSettings(days, solved, onlyOnce);
 
@@ -518,7 +521,7 @@ const init = () => {
 
                                             // これを前に持ってくるとウィンドウを表示している間にロードが進まないので、
                                             // ロードが終わった後に表示するようにした
-                                            if (onlyOnce) {
+                                            if (onlyOnce && !preventOnlyOnceAlert) {
                                                 alert('onlyOnceモードです。手順を3回ではなく1回回したら「わかった」を押してください\nより実際のソルブに近い形での練習ができ、しかも通常の1/3の時間で練習できますが、キューブが崩れたまま次の手順に進むので、手順が間違っているかどうか分からない点にご注意ください。');
                                             }
 
