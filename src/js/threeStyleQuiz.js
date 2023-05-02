@@ -339,6 +339,17 @@ const init = () => {
     // 同じ3-style手順を3回回して復元するのではなく、1回ずつだけ回すモード
     const onlyOnce = urlObj.query['onlyOnce'] === 'true';
 
+    // 一巡した時に終わらずに最初に戻る
+    const isEndless = urlObj.query['endless'] === 'true';
+
+    // 苦手な10手順だけに絞り込む
+    // 10という数値を可変にするかは考え中。
+    const isOnlyPoorAlgs = urlObj.query['onlyPoor'] === 'true';
+    const poorAlgsCnt = 10;
+
+    // onlyOnceの時にアラートを出さないようにする
+    const preventOnlyOnceAlert = urlObj.query['preventOnlyOnceAlert'] === 'true';
+
     // ロード時に埋める
     renderSettings(days, solved, onlyOnce);
 
@@ -467,7 +478,17 @@ const init = () => {
                                         .then((ans) => {
                                             const problemList = ans.success.result;
 
-                                            const selectedThreeStyles = utils.chunkAndShuffle(selectFromManualList(threeStyles, quizLogRes, problemList), 10);
+                                            const repeatCnt = isEndless ? 100 : 1;
+                                            let unShuffledList = selectFromManualList(threeStyles, quizLogRes, problemList);
+
+                                            if (isOnlyPoorAlgs) {
+                                                unShuffledList = unShuffledList.slice(0, poorAlgsCnt);
+                                            }
+
+                                            let selectedThreeStyles = [];
+                                            for (let i = 0; i < repeatCnt; i++) {
+                                                selectedThreeStyles = selectedThreeStyles.concat(utils.chunkAndShuffle(unShuffledList, 10));
+                                            }
 
                                             if (selectedThreeStyles.length === 0) {
                                                 alert('出題できる3-styleがありません。先に登録してください。');
@@ -500,7 +521,7 @@ const init = () => {
 
                                             // これを前に持ってくるとウィンドウを表示している間にロードが進まないので、
                                             // ロードが終わった後に表示するようにした
-                                            if (onlyOnce) {
+                                            if (onlyOnce && !preventOnlyOnceAlert) {
                                                 alert('onlyOnceモードです。手順を3回ではなく1回回したら「わかった」を押してください\nより実際のソルブに近い形での練習ができ、しかも通常の1/3の時間で練習できますが、キューブが崩れたまま次の手順に進むので、手順が間違っているかどうか分からない点にご注意ください。');
                                             }
 
