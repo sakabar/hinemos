@@ -157,7 +157,7 @@ const saveThreeStyleTable = (hot, part, numbering) => {
 
         for (let i = 0; i < invs.length; i++) {
             const {
-                setup,
+                setup: setupOfInvCycle,
                 move1: move1OfInvCycle,
                 move2: move2OfInvCycle,
             } = invs[i];
@@ -165,6 +165,7 @@ const saveThreeStyleTable = (hot, part, numbering) => {
             // 逆サイクルの動きを利用するので入れ換える
             const move1 = move2OfInvCycle;
             const move2 = move1OfInvCycle;
+            const setup = move1 === '' && move2 === '' ? utils.inverse(setupOfInvCycle) : setupOfInvCycle;
 
             const instance = {
                 buffer: bufferSticker,
