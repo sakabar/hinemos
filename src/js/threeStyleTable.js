@@ -147,19 +147,24 @@ const saveThreeStyleTable = (hot, part, numbering) => {
         }
     }
 
-    for (let i = 0; i < emptyCellsStickerPairs.length; i++) {
+    for (let k = 0; k < emptyCellsStickerPairs.length; k++) {
         const [
             sticker1,
             sticker2,
-        ] = emptyCellsStickerPairs[i];
+        ] = emptyCellsStickerPairs[k];
 
         const invs = threeStylesDict[`${bufferSticker}-${sticker2}-${sticker1}`] || [];
+
         for (let i = 0; i < invs.length; i++) {
             const {
                 setup,
-                move1,
-                move2,
+                move1: move1OfInvCycle,
+                move2: move2OfInvCycle,
             } = invs[i];
+
+            // 逆サイクルの動きを利用するので入れ換える
+            const move1 = move2OfInvCycle;
+            const move2 = move1OfInvCycle;
 
             const instance = {
                 buffer: bufferSticker,
