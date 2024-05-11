@@ -1,7 +1,6 @@
 import Handsontable from 'handsontable';
 import 'handsontable.css';
 const rp = require('request-promise');
-const url = require('url');
 const config = require('./config');
 const constant = require('./constant');
 const threeStyleUtils = require('./threeStyleUtils');
@@ -175,13 +174,13 @@ const init = () => {
     const saveBtn = document.querySelector('.threeStyleTableForm__saveBtn');
     saveBtn.disabled = true; // ロードが完了する前は押せないようにする
 
-    const urlObj = url.parse(location.href, true);
+    const urlObj = new URL(location.href);
 
-    const visualType = urlObj.query.visualType;
+    const visualType = urlObj.searchParams.get('visualType');
 
     // URLのオプションでpart=(corner|edgeMiddle|edgeWing|centerX|centerT)という形式で、パートが渡される
     // それ以外の場合はエラー
-    const partQuery = urlObj.query.part;
+    const partQuery = urlObj.searchParams.get('part');
     let part;
     if (constant.partType[partQuery]) {
         const partType = constant.partType[partQuery];
