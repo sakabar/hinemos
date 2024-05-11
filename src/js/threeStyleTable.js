@@ -1,7 +1,6 @@
 import Handsontable from 'handsontable';
 import 'handsontable.css';
 const rp = require('request-promise');
-const url = require('url');
 const config = require('./config');
 const constant = require('./constant');
 const threeStyleUtils = require('./threeStyleUtils');
@@ -85,6 +84,12 @@ const saveThreeStyleTable = (hot, part, numbering) => {
     // ヘッダ行のフォーマットは"あ (UFR)"のような文字列になっている前提
     const headerRegExp = new RegExp(/^(.) \(([A-Za-z]+)\)$/);
 
+    // [ [ 'UBR', 'LDF', ], ]
+    const emptyCellsStickerPairs = [];
+
+    // 'UFR-UBR-LDF' => [ { setup: '', move1: "R' D R", move2: 'U', }, ]
+    const threeStylesDict = {};
+
     const threeStyleTable = [];
     for (let c = 1; c < colLn; c++) {
         const sticker1Match = row0[c].match(headerRegExp);
@@ -118,7 +123,13 @@ const saveThreeStyleTable = (hot, part, numbering) => {
                 return;
             }
 
-            // 空のセルに関してはpushしない
+            // 空のセルに関しては、後で逆サイクルを使って自動登録を試みる
+            if (threeStyles.length === 0) {
+                const stickerPair = [ sticker1, sticker2, ];
+                emptyCellsStickerPairs.push(stickerPair);
+            }
+            threeStylesDict[`${bufferSticker}-${sticker1}-${sticker2}`] = threeStyles;
+
             for (let i = 0; i < threeStyles.length; i++) {
                 const ts = threeStyles[i];
                 const instance = {
@@ -133,6 +144,40 @@ const saveThreeStyleTable = (hot, part, numbering) => {
                 };
                 threeStyleTable.push(instance);
             }
+        }
+    }
+
+    for (let k = 0; k < emptyCellsStickerPairs.length; k++) {
+        const [
+            sticker1,
+            sticker2,
+        ] = emptyCellsStickerPairs[k];
+
+        const invs = threeStylesDict[`${bufferSticker}-${sticker2}-${sticker1}`] || [];
+
+        for (let i = 0; i < invs.length; i++) {
+            const {
+                setup: setupOfInvCycle,
+                move1: move1OfInvCycle,
+                move2: move2OfInvCycle,
+            } = invs[i];
+
+            // 逆サイクルの動きを利用するので入れ換える
+            const move1 = move2OfInvCycle;
+            const move2 = move1OfInvCycle;
+            const setup = move1 === '' && move2 === '' ? utils.inverse(setupOfInvCycle) : setupOfInvCycle;
+
+            const instance = {
+                buffer: bufferSticker,
+                sticker1,
+                sticker2,
+                setup,
+                move1,
+                move2,
+                // FIXME これは上の引数から構築できるので、わざわざ構築して渡しているのがちょっと引っかかる
+                shownMove: utils.showMove(setup, move1, move2),
+            };
+            threeStyleTable.push(instance);
         }
     }
 
@@ -175,13 +220,13 @@ const init = () => {
     const saveBtn = document.querySelector('.threeStyleTableForm__saveBtn');
     saveBtn.disabled = true; // ロードが完了する前は押せないようにする
 
-    const urlObj = url.parse(location.href, true);
+    const urlObj = new URL(location.href);
 
-    const visualType = urlObj.query.visualType;
+    const visualType = urlObj.searchParams.get('visualType');
 
     // URLのオプションでpart=(corner|edgeMiddle|edgeWing|centerX|centerT)という形式で、パートが渡される
     // それ以外の場合はエラー
-    const partQuery = urlObj.query.part;
+    const partQuery = urlObj.searchParams.get('part');
     let part;
     if (constant.partType[partQuery]) {
         const partType = constant.partType[partQuery];
