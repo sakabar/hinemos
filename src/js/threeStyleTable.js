@@ -84,6 +84,12 @@ const saveThreeStyleTable = (hot, part, numbering) => {
     // ヘッダ行のフォーマットは"あ (UFR)"のような文字列になっている前提
     const headerRegExp = new RegExp(/^(.) \(([A-Za-z]+)\)$/);
 
+    // [ [ 'UBR', 'LDF', ], ]
+    const emptyCellsStickerPairs = [];
+
+    // 'UFR-UBR-LDF' => [ { setup: '', move1: "R' D R", move2: 'U', }, ]
+    const threeStylesDict = {};
+
     const threeStyleTable = [];
     for (let c = 1; c < colLn; c++) {
         const sticker1Match = row0[c].match(headerRegExp);
@@ -117,7 +123,13 @@ const saveThreeStyleTable = (hot, part, numbering) => {
                 return;
             }
 
-            // 空のセルに関してはpushしない
+            // 空のセルに関しては、後で逆サイクルを使って自動登録を試みる
+            if (threeStyles.length === 0) {
+                const stickerPair = [ sticker1, sticker2, ];
+                emptyCellsStickerPairs.push(stickerPair);
+            }
+            threeStylesDict[`${bufferSticker}-${sticker1}-${sticker2}`] = threeStyles;
+
             for (let i = 0; i < threeStyles.length; i++) {
                 const ts = threeStyles[i];
                 const instance = {
@@ -132,6 +144,34 @@ const saveThreeStyleTable = (hot, part, numbering) => {
                 };
                 threeStyleTable.push(instance);
             }
+        }
+    }
+
+    for (let i = 0; i < emptyCellsStickerPairs.length; i++) {
+        const [
+            sticker1,
+            sticker2,
+        ] = emptyCellsStickerPairs[i];
+
+        const invs = threeStylesDict[`${bufferSticker}-${sticker2}-${sticker1}`] || [];
+        for (let i = 0; i < invs.length; i++) {
+            const {
+                setup,
+                move1,
+                move2,
+            } = invs[i];
+
+            const instance = {
+                buffer: bufferSticker,
+                sticker1,
+                sticker2,
+                setup,
+                move1,
+                move2,
+                // FIXME これは上の引数から構築できるので、わざわざ構築して渡しているのがちょっと引っかかる
+                shownMove: utils.showMove(setup, move1, move2),
+            };
+            threeStyleTable.push(instance);
         }
     }
 
