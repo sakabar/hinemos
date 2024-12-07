@@ -52,6 +52,7 @@ export const PoorKey = {
     transformation: 'transformation',
     acc: 'acc',
     rare: 'rare',
+    maxLosingMemorySec: 'maxLosingMemorySec',
 };
 
 export const cookieKey = {
@@ -726,12 +727,12 @@ export const generatePoorDecks = (pairSize, poorDeckNum, poorKey, statsArray, el
         return [];
     }
 
-    // accの場合は昇順、それ以外は降順
+    // accやmaxLosingMemorySecの場合は昇順、それ以外は降順
     // ただし、rec[poorKey]が等しいものが複数あった場合にはランダムに並ぶようにする
     const sortedStatsArray = (() => {
         let arr = [];
 
-        if (poorKey === PoorKey.acc) {
+        if (poorKey === PoorKey.acc || poorKey === PoorKey.maxLosingMemorySec) {
             arr = statsArray
                 .filter(rec => rec[poorKey] !== null)
                 .map(rec => {

@@ -702,6 +702,7 @@ describe('memoTrainingUtils.js', () => {
                                 rate: 2.0 / 3,
                             },
                         ],
+                        maxLosingMemorySec: 0.0,
                     },
                 },
                 '1': {
@@ -718,6 +719,7 @@ describe('memoTrainingUtils.js', () => {
                                 rate: 1.0,
                             },
                         ],
+                        maxLosingMemorySec: 0.0,
                     },
                 },
             };
@@ -741,6 +743,7 @@ describe('memoTrainingUtils.js', () => {
                             rate: 2.0 / 3,
                         },
                     ],
+                    maxLosingMemorySec: 0.0,
                 },
             ];
 
@@ -762,6 +765,7 @@ describe('memoTrainingUtils.js', () => {
                     acc: 1.0,
                     mistakeCnt: 0,
                     mistakes: [],
+                    maxLosingMemorySec: 0.0,
                 },
                 {
                     event: 'cards',
@@ -772,6 +776,7 @@ describe('memoTrainingUtils.js', () => {
                     acc: 0.3,
                     mistakeCnt: 2,
                     mistakes: [],
+                    maxLosingMemorySec: 0.0,
                 },
                 {
                     event: 'cards',
@@ -782,6 +787,7 @@ describe('memoTrainingUtils.js', () => {
                     acc: 0.1,
                     mistakeCnt: 2,
                     mistakes: [],
+                    maxLosingMemorySec: 0.0,
                 },
                 {
                     event: 'cards',
@@ -792,6 +798,7 @@ describe('memoTrainingUtils.js', () => {
                     acc: 0.2,
                     mistakeCnt: 2,
                     mistakes: [],
+                    maxLosingMemorySec: 0.0,
                 },
                 // ここからposInd === 1
                 {
@@ -803,6 +810,7 @@ describe('memoTrainingUtils.js', () => {
                     acc: 1.0,
                     mistakeCnt: 0,
                     mistakes: [],
+                    maxLosingMemorySec: 0.0,
                 },
                 {
                     event: 'cards',
@@ -813,6 +821,7 @@ describe('memoTrainingUtils.js', () => {
                     acc: 0.3,
                     mistakeCnt: 2,
                     mistakes: [],
+                    maxLosingMemorySec: 0.0,
                 },
                 {
                     event: 'cards',
@@ -823,6 +832,7 @@ describe('memoTrainingUtils.js', () => {
                     acc: 0.1,
                     mistakeCnt: 2,
                     mistakes: [],
+                    maxLosingMemorySec: 0.0,
                 },
                 {
                     event: 'cards',
@@ -833,6 +843,7 @@ describe('memoTrainingUtils.js', () => {
                     acc: 0.2,
                     mistakeCnt: 2,
                     mistakes: [],
+                    maxLosingMemorySec: 0.0,
                 },
                 // ここからposInd === 2
                 {
@@ -844,6 +855,7 @@ describe('memoTrainingUtils.js', () => {
                     acc: 1.0,
                     mistakeCnt: 0,
                     mistakes: [],
+                    maxLosingMemorySec: 0.0,
                 },
                 {
                     event: 'cards',
@@ -854,6 +866,7 @@ describe('memoTrainingUtils.js', () => {
                     acc: 0.3,
                     mistakeCnt: 2,
                     mistakes: [],
+                    maxLosingMemorySec: 0.0,
                 },
                 {
                     event: 'cards',
@@ -864,6 +877,7 @@ describe('memoTrainingUtils.js', () => {
                     acc: 0.1,
                     mistakeCnt: 2,
                     mistakes: [],
+                    maxLosingMemorySec: 0.0,
                 },
                 {
                     event: 'cards',
@@ -874,6 +888,7 @@ describe('memoTrainingUtils.js', () => {
                     acc: 0.2,
                     mistakeCnt: 2,
                     mistakes: [],
+                    maxLosingMemorySec: 0.0,
                 },
             ];
 
