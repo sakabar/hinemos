@@ -407,7 +407,7 @@ const MemoTrainingStatsTemplate = (
                             memorization: rec.memorization ? parseFloat(rec.memorization.toFixed(2)) : '',
                             diff: rec.memorization && rec.transformation ? parseFloat((rec.memorization - rec.transformation).toFixed(2)) : '',
                             acc: rec.acc ? parseFloat(rec.acc.toFixed(2)) : 0.0,
-                            maxLosingMemorySec: rec.maxLosingMemorySec.toFixed(1),
+                            maxLosingMemorySec: parseFloat(rec.maxLosingMemorySec.toFixed(1)),
                             recallSum: rec.recallSum,
                             transformationSum: rec.transformationSum,
                             mistakeCnt: rec.mistakeCnt,
