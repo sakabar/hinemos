@@ -1105,6 +1105,7 @@ export const transformStatsJSONtoArray = (statsJSON, event) => {
             const transformationSum = posElementObj.transformationSum;
             const recallSum = posElementObj.recallSum;
             const recallData = posElementObj.recallData;
+            const maxLosingMemorySec = posElementObj.maxLosingMemorySec;
 
             const sortedRecallData = _sortBy(recallData, (rec) => { return -rec.count; });
 
@@ -1143,6 +1144,7 @@ export const transformStatsJSONtoArray = (statsJSON, event) => {
                 transformationSum,
                 mistakeCnt,
                 mistakes,
+                maxLosingMemorySec,
             };
 
             stats.push(rec);

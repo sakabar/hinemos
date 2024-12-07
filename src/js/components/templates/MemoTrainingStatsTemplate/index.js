@@ -407,6 +407,7 @@ const MemoTrainingStatsTemplate = (
                             memorization: rec.memorization ? parseFloat(rec.memorization.toFixed(2)) : '',
                             diff: rec.memorization && rec.transformation ? parseFloat((rec.memorization - rec.transformation).toFixed(2)) : '',
                             acc: rec.acc ? parseFloat(rec.acc.toFixed(2)) : 0.0,
+                            maxLosingMemorySec: rec.maxLosingMemorySec,
                             recallSum: rec.recallSum,
                             transformationSum: rec.transformationSum,
                             mistakeCnt: rec.mistakeCnt,
@@ -424,6 +425,7 @@ const MemoTrainingStatsTemplate = (
                         '(記憶-変換)',
 
                         '正解率',
+                        '最大保持',
                         '誤答回数',
                         '記憶回数',
                         '変換回数',
@@ -440,6 +442,8 @@ const MemoTrainingStatsTemplate = (
                         'diff',
 
                         'acc',
+                        'maxLosingMemorySec',
+
                         'mistakeCnt',
                         'recallSum',
                         'transformationSum',
