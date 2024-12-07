@@ -26,7 +26,7 @@ const isLeftyOptions = [
     [ 'true', '→', ],
     [ 'false', '←', ],
 ];
-const poorDeckNumOptions = [ ...Array(16).keys(), ].map(ind => [ String(ind), String(ind), ]);
+const poorDeckNumOptions = [ ...Array(26+1).keys(), ].map(ind => [ String(ind), String(ind), ]);
 const poorKeyOptions = [
     [ 'memorization', '記憶が遅い', ],
     [ 'transformation', '変換が遅い', ],
