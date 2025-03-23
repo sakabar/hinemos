@@ -9,10 +9,15 @@ const utils = require('./utils');
 
 // ページのロード時に、daysとsolvedの設定に応じてinput属性の値を変える
 // FIXME レターペアと実装が重複
-const renderSettings = (days, solved, onlyOnce) => {
+const renderSettings = (days, solved, onlyOnce, isEndless, isOnlyPoorAlgs, preventOnlyOnceAlert) => {
     const daysText = document.querySelector('.settingForm__daysText');
     const solvedRadio = document.querySelector('#settingForm__radio--solved');
+
     const onlyOnceCheckBox = document.querySelector('.settingForm__checkBox');
+    const endlessCheckBox = document.querySelector('.settingForm__checkBox__endless');
+    const onlyPoorCheckBox = document.querySelector('.settingForm__checkBox__onlyPoor');
+    const preventOnlyOnceAlertCheckBox = document.querySelector('.settingForm__checkBox__preventOnlyOnceAlert');
+
 
     if (days && daysText) {
         daysText.value = days;
@@ -24,6 +29,18 @@ const renderSettings = (days, solved, onlyOnce) => {
 
     if (onlyOnce) {
         onlyOnceCheckBox.checked = true;
+    }
+
+    if (isEndless) {
+        endlessCheckBox.checked = true;
+    }
+
+    if (isOnlyPoorAlgs) {
+        onlyPoorCheckBox.checked = true;
+    }
+
+    if (preventOnlyOnceAlert) {
+        preventOnlyOnceAlertCheckBox.checked = true;
     }
 };
 
@@ -37,8 +54,11 @@ const reloadWithOptions = (part, problemListType, quizOrder, problemListId) => {
     const solved = document.querySelector('#settingForm__radio--solved').checked;
 
     const onlyOnce = document.querySelector('.settingForm__checkBox').checked;
+    const onlyPoor = document.querySelector('.settingForm__checkBox__onlyPoor').checked;
+    const isEndless = document.querySelector('.settingForm__checkBox__endless').checked;
+    const preventOnlyOnceAlert = document.querySelector('.settingForm__checkBox__preventOnlyOnceAlert').checked;
 
-    location.href = `${config.urlRoot}/threeStyle/quiz.html?&part=${part.name}&problemListType=${problemListType.name}&solved=${solved}&days=${days}&sort=${quizOrder}&onlyOnce=${onlyOnce}&problemListId=${problemListId}`;
+    location.href = `${config.urlRoot}/threeStyle/quiz.html?&part=${part.name}&problemListType=${problemListType.name}&solved=${solved}&days=${days}&sort=${quizOrder}&onlyOnce=${onlyOnce}&onlyPoor=${onlyPoor}&endless=${isEndless}&preventOnlyOnceAlert=${preventOnlyOnceAlert}&problemListId=${problemListId}`;
 };
 
 export const getHint = (setup, move1, move2) => {
@@ -307,7 +327,11 @@ const init = () => {
     const hintText = document.querySelector('.quizForm__hintText');
     const quizFormStartUnixTimeHidden = document.querySelector('.quizForm__startUnixTimeHidden');
     const h2Part = document.querySelector('.h2__part');
+
     const onlyOnceCheckBox = document.querySelector('.settingForm__checkBox');
+    const onlyPoorCheckBox = document.querySelector('.settingForm__checkBox__onlyPoor');
+    const endlessCheckBox = document.querySelector('.settingForm__checkBox__endless');
+    const preventOnlyOnceAlertCheckBox = document.querySelector('.settingForm__checkBox__preventOnlyOnceAlert');
 
     // テスト時などは以降の処理をスキップ
     if (!quizFormLettersText) {
@@ -351,7 +375,7 @@ const init = () => {
     const preventOnlyOnceAlert = urlObj.query['preventOnlyOnceAlert'] === 'true';
 
     // ロード時に埋める
-    renderSettings(days, solved, onlyOnce);
+    renderSettings(days, solved, onlyOnce, isEndless, isOnlyPoorAlgs, preventOnlyOnceAlert);
 
     // URLでproblemListType=manualが指定された場合、自分が設定した問題でやる
     const problemListType = urlObj.query.problemListType === ProblemListType.manual.name ? ProblemListType.manual : ProblemListType.problemList;
@@ -364,7 +388,11 @@ const init = () => {
     const reloadBtn = document.querySelector('.settingForm__reloadBtn');
     if (reloadBtn) {
         reloadBtn.addEventListener('click', () => reloadWithOptions(part, problemListType, quizOrder, problemListId));
+
         onlyOnceCheckBox.addEventListener('change', () => reloadWithOptions(part, problemListType, quizOrder, problemListId));
+        onlyPoorCheckBox.addEventListener('change', () => reloadWithOptions(part, problemListType, quizOrder, problemListId));
+        endlessCheckBox.addEventListener('change', () => reloadWithOptions(part, problemListType, quizOrder, problemListId));
+        preventOnlyOnceAlertCheckBox.addEventListener('change', () => reloadWithOptions(part, problemListType, quizOrder, problemListId));
     }
 
     const quizUrlStr = days ? `${config.apiRoot}/threeStyleQuizLog/${part.name}/${userName}?days=${days}` : `${config.apiRoot}/threeStyleQuizLog/${part.name}/${userName}`;
