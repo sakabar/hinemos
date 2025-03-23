@@ -68,8 +68,12 @@ const MemoTrainingMbldSetting = ({
                     <li><Link to={`/${urlRoot}/memoTraining/index.html`}>種目選択に戻る</Link></li>
                     <li><Link to={{
                         pathname: `/${urlRoot}/memoTraining/result.html`,
+                        search: '?event=mbld&mode=memorization',
+                    } }>記憶練習の結果</Link></li>
+                    <li><Link to={{
+                        pathname: `/${urlRoot}/memoTraining/result.html`,
                         search: '?event=mbld&mode=transformation',
-                    } }>結果確認</Link></li>
+                    } }>変換練習の結果</Link></li>
                 </ul>
             </div>
 
