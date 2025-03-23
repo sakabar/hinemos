@@ -27,6 +27,7 @@ const poorKeyOptions = [
     [ 'memorization', '記憶が遅い', ],
     [ 'transformation', '変換が遅い', ],
     [ 'acc', '正解率が低い', ],
+    [ 'maxLosingMemorySec', '忘れやすい', ],
     [ 'rare', '出現していない', ],
 ];
 

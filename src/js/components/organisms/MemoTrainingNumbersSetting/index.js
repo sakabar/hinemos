@@ -30,11 +30,12 @@ const deckSizeOptions = [ ...Array(200).keys(), ].map(ind => [ String(ind + 1), 
 const digitsPerImageOptions = [ ...Array(2).keys(), ].map(ind => [ String(ind + 1), String(ind + 1), ]);
 const pairSizeList = [ ...Array(4).keys(), ].map(ind => [ String(ind + 1), String(ind + 1) + 'イメージ', ]);
 
-const poorDeckNumOptions = [ ...Array(16).keys(), ].map(ind => [ String(ind), String(ind), ]);
+const poorDeckNumOptions = [ ...Array(40+1).keys(), ].map(ind => [ String(ind), String(ind), ]);
 const poorKeyOptions = [
     [ 'memorization', '記憶が遅い', ],
     [ 'transformation', '変換が遅い', ],
     [ 'acc', '正解率が低い', ],
+    [ 'maxLosingMemorySec', '忘れやすい', ],
     [ 'rare', '出現していない', ],
 ];
 
