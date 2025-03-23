@@ -216,8 +216,6 @@ function * handleStartMemorizationPhase () {
     while (true) {
         const action = yield take(sagaStartMemorizationPhase);
 
-        const currentMiliUnixtime = parseInt(moment().format('x'));
-
         const memoEvent = action.payload.memoEvent;
         const mode = action.payload.mode;
 
@@ -441,6 +439,9 @@ function * handleStartMemorizationPhase () {
         const resPostTrial = yield call(memoTrainingUtils.postTrial, userName, memoEvent, mode, deckIds);
         const trialId = resPostTrial.success.result.trialId;
         const trialDeckIds = resPostTrial.success.result.trialDeckIds;
+
+        // デッキ生成に時間がかかる場合もあるので、記憶を始める直前に時刻を取るようにする
+        const currentMiliUnixtime = parseInt(moment().format('x'));
 
         const payload = {
             ...action.payload,

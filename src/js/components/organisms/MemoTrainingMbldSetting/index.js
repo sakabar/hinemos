@@ -22,11 +22,12 @@ const urlRoot = path.basename(config.urlRoot);
 const deckNumOptions = [ ...Array(50).keys(), ].map(ind => [ String(ind + 1), String(ind + 1), ]);
 const pairSizeList = [ ...Array(4).keys(), ].map(ind => [ String(ind + 1), `${ind + 1}単語`, ]);
 
-const poorDeckNumOptions = [ ...Array(16).keys(), ].map(ind => [ String(ind), String(ind), ]);
+const poorDeckNumOptions = [ ...Array(50 + 1).keys(), ].map(ind => [ String(ind), String(ind), ]);
 const poorKeyOptions = [
     [ 'memorization', '記憶が遅い', ],
     [ 'transformation', '変換が遅い', ],
     [ 'acc', '正解率が低い', ],
+    [ 'maxLosingMemorySec', '忘れやすい', ],
     [ 'rare', '出現していない', ],
 ];
 
@@ -67,8 +68,12 @@ const MemoTrainingMbldSetting = ({
                     <li><Link to={`/${urlRoot}/memoTraining/index.html`}>種目選択に戻る</Link></li>
                     <li><Link to={{
                         pathname: `/${urlRoot}/memoTraining/result.html`,
+                        search: '?event=mbld&mode=memorization',
+                    } }>記憶練習の結果</Link></li>
+                    <li><Link to={{
+                        pathname: `/${urlRoot}/memoTraining/result.html`,
                         search: '?event=mbld&mode=transformation',
-                    } }>結果確認</Link></li>
+                    } }>変換練習の結果</Link></li>
                 </ul>
             </div>
 

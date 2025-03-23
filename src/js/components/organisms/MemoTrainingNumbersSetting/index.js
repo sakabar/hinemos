@@ -30,11 +30,12 @@ const deckSizeOptions = [ ...Array(200).keys(), ].map(ind => [ String(ind + 1), 
 const digitsPerImageOptions = [ ...Array(2).keys(), ].map(ind => [ String(ind + 1), String(ind + 1), ]);
 const pairSizeList = [ ...Array(4).keys(), ].map(ind => [ String(ind + 1), String(ind + 1) + 'イメージ', ]);
 
-const poorDeckNumOptions = [ ...Array(16).keys(), ].map(ind => [ String(ind), String(ind), ]);
+const poorDeckNumOptions = [ ...Array(40+1).keys(), ].map(ind => [ String(ind), String(ind), ]);
 const poorKeyOptions = [
     [ 'memorization', '記憶が遅い', ],
     [ 'transformation', '変換が遅い', ],
     [ 'acc', '正解率が低い', ],
+    [ 'maxLosingMemorySec', '忘れやすい', ],
     [ 'rare', '出現していない', ],
 ];
 
@@ -101,8 +102,12 @@ const MemoTrainingNumbersSetting = ({
                     <li><Link to={`/${urlRoot}/memoTraining/index.html`}>種目選択に戻る</Link></li>
                     <li><Link to={{
                         pathname: `/${urlRoot}/memoTraining/result.html`,
+                        search: '?event=numbers&mode=memorization',
+                    } }>記憶練習の結果</Link></li>
+                    <li><Link to={{
+                        pathname: `/${urlRoot}/memoTraining/result.html`,
                         search: '?event=numbers&mode=transformation',
-                    } }>結果確認</Link></li>
+                    } }>変換練習の結果</Link></li>
                 </ul>
             </div>
 

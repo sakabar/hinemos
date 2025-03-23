@@ -26,11 +26,12 @@ const isLeftyOptions = [
     [ 'true', '→', ],
     [ 'false', '←', ],
 ];
-const poorDeckNumOptions = [ ...Array(16).keys(), ].map(ind => [ String(ind), String(ind), ]);
+const poorDeckNumOptions = [ ...Array(26+1).keys(), ].map(ind => [ String(ind), String(ind), ]);
 const poorKeyOptions = [
     [ 'memorization', '記憶が遅い', ],
     [ 'transformation', '変換が遅い', ],
     [ 'acc', '正解率が低い', ],
+    [ 'maxLosingMemorySec', '忘れやすい', ],
     [ 'rare', '出現していない', ],
 ];
 
@@ -113,8 +114,12 @@ const MemoTrainingCardsSetting = ({
                     <li><Link to={`/${urlRoot}/memoTraining/index.html`}>種目選択に戻る</Link></li>
                     <li><Link to={{
                         pathname: `/${urlRoot}/memoTraining/result.html`,
+                        search: '?event=cards&mode=memorization',
+                    } }>記憶練習の結果</Link></li>
+                    <li><Link to={{
+                        pathname: `/${urlRoot}/memoTraining/result.html`,
                         search: '?event=cards&mode=transformation',
-                    } }>結果確認</Link></li>
+                    } }>変換練習の結果</Link></li>
                 </ul>
             </div>
 
