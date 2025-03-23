@@ -70,6 +70,8 @@ const saveThreeStyleTable = (hot, part, numbering) => {
     const saveBtn = document.querySelector('.threeStyleTableForm__saveBtn');
     saveBtn.disabled = true;
 
+    const useInverseAlgCheckbox = document.querySelector('.Checkbox__useInverseAlg');
+
     const token = localStorage.token;
 
     const row0 = hot.getDataAtRow(0);
@@ -147,6 +149,7 @@ const saveThreeStyleTable = (hot, part, numbering) => {
         }
     }
 
+    if (useInverseAlgCheckbox.checked) {
     for (let k = 0; k < emptyCellsStickerPairs.length; k++) {
         const [
             sticker1,
@@ -179,6 +182,7 @@ const saveThreeStyleTable = (hot, part, numbering) => {
             };
             threeStyleTable.push(instance);
         }
+    }
     }
 
     const options = {
