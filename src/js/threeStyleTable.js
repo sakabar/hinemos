@@ -70,6 +70,8 @@ const saveThreeStyleTable = (hot, part, numbering) => {
     const saveBtn = document.querySelector('.threeStyleTableForm__saveBtn');
     saveBtn.disabled = true;
 
+    const useInverseAlgCheckbox = document.querySelector('.Checkbox__useInverseAlg');
+
     const token = localStorage.token;
 
     const row0 = hot.getDataAtRow(0);
@@ -147,37 +149,39 @@ const saveThreeStyleTable = (hot, part, numbering) => {
         }
     }
 
-    for (let k = 0; k < emptyCellsStickerPairs.length; k++) {
-        const [
-            sticker1,
-            sticker2,
-        ] = emptyCellsStickerPairs[k];
-
-        const invs = threeStylesDict[`${bufferSticker}-${sticker2}-${sticker1}`] || [];
-
-        for (let i = 0; i < invs.length; i++) {
-            const {
-                setup: setupOfInvCycle,
-                move1: move1OfInvCycle,
-                move2: move2OfInvCycle,
-            } = invs[i];
-
-            // 逆サイクルの動きを利用するので入れ換える
-            const move1 = move2OfInvCycle;
-            const move2 = move1OfInvCycle;
-            const setup = move1 === '' && move2 === '' ? utils.inverse(setupOfInvCycle) : setupOfInvCycle;
-
-            const instance = {
-                buffer: bufferSticker,
+    if (useInverseAlgCheckbox.checked) {
+        for (let k = 0; k < emptyCellsStickerPairs.length; k++) {
+            const [
                 sticker1,
                 sticker2,
-                setup,
-                move1,
-                move2,
-                // FIXME これは上の引数から構築できるので、わざわざ構築して渡しているのがちょっと引っかかる
-                shownMove: utils.showMove(setup, move1, move2),
-            };
-            threeStyleTable.push(instance);
+            ] = emptyCellsStickerPairs[k];
+
+            const invs = threeStylesDict[`${bufferSticker}-${sticker2}-${sticker1}`] || [];
+
+            for (let i = 0; i < invs.length; i++) {
+                const {
+                    setup: setupOfInvCycle,
+                    move1: move1OfInvCycle,
+                    move2: move2OfInvCycle,
+                } = invs[i];
+
+                // 逆サイクルの動きを利用するので入れ換える
+                const move1 = move2OfInvCycle;
+                const move2 = move1OfInvCycle;
+                const setup = move1 === '' && move2 === '' ? utils.inverse(setupOfInvCycle) : setupOfInvCycle;
+
+                const instance = {
+                    buffer: bufferSticker,
+                    sticker1,
+                    sticker2,
+                    setup,
+                    move1,
+                    move2,
+                    // FIXME これは上の引数から構築できるので、わざわざ構築して渡しているのがちょっと引っかかる
+                    shownMove: utils.showMove(setup, move1, move2),
+                };
+                threeStyleTable.push(instance);
+            }
         }
     }
 
