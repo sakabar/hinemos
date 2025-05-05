@@ -69,7 +69,7 @@
     "ml-hclust": "^3.0.0",
     "ml-matrix": "^6.5.3",
     "moment": "^2.29.1",
-    "moment-timezone": "^0.5.33",
+    "moment-timezone": "^0.5.35",
     "net": "1.0.2",
     "node-polyfill-webpack-plugin": "^1.1.4",
     "prop-types": "^15.7.2",
