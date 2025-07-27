@@ -50,23 +50,7 @@ const clearTextArea = () => {
 
 const transformFromAnalysis = () => {
     const lettersText = document.querySelector('.transformFromAnalysisForm__lettersText');
-
-    // 回避措置
-    // 「かさ」「あし」のように、「」付きの文字列が与えられた場合には、その内容を抽出する。
-    // 本来的には3-style問題リストの詳細画面でレターペアを表示したいが、それが短時間で実装できないための回避措置。
-    const letters = (() => {
-        const matches = lettersText.value.match(/「(.*?)」/g);
-
-        if (matches) {
-            const result = matches
-                .map(m => m.replace(/「|」/g, '')) // 「」を削除
-                .join(''); // 連結
-
-            return result;
-        } else {
-            return lettersText.value;
-        }
-    })();
+    const letters = lettersText.value;
 
     const wordsText = document.querySelector('.transformFromAnalysisForm__wordsText');
 
